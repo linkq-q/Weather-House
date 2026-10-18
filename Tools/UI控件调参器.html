@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>天气屋 · UI 控件调参器</title>
+<style>
+:root{color-scheme:light;--page:#f2f4f0;--paper:#fff;--ink:#344438;--muted:#687366;--line:#dce2d8;--green:#416447;--soft:#e6eddf;--danger:#a13c2c;font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif;font-size:14px}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink)}button,input,select{font:inherit}button,select,input[type=color],input[type=range]{cursor:pointer}button{border:1px solid #cbd5c7;border-radius:6px;padding:9px 14px;background:white;color:var(--ink);white-space:nowrap}button:hover{background:#eef3ea}button:active{transform:translateY(1px)}button.primary{background:var(--green);border-color:var(--green);color:white}button.primary:hover{background:#36573b}button:disabled{opacity:.55;cursor:wait}:focus-visible{outline:3px solid #88a86f;outline-offset:3px}input,select{color:var(--ink);background:white;border:1px solid #cbd5c7;border-radius:5px}input[type=range]{accent-color:var(--green);width:100%;margin:0;height:23px}input[type=number]{width:76px;padding:5px 7px;font-variant-numeric:tabular-nums}input[type=color]{width:39px;height:30px;padding:2px}input[aria-invalid=true]{border-color:var(--danger);outline-color:var(--danger)}select{padding:7px 9px}.app-header{padding:21px 26px 17px;border-bottom:1px solid var(--line);background:#fff;display:flex;justify-content:space-between;align-items:center;gap:20px}.app-title{display:flex;align-items:baseline;gap:16px}.app-title h1{font-size:22px;font-weight:600;margin:0;letter-spacing:1px}.app-title p{font-size:13px;color:var(--muted);margin:0}.actions{display:flex;flex-wrap:wrap;gap:8px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:24px;max-width:1900px;margin:0 auto;padding:22px 26px}.stage-column{min-width:0}.stage-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 12px}.stage-bar h2,.zoom-head h2{font-size:15px;font-weight:600;margin:0}.background-picker{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px}.stage{width:100%;border:1px solid #cbd4c6;border-radius:8px;overflow:hidden;background:#e6ebe0}.stage svg{display:block;width:100%;height:auto;aspect-ratio:8/5}.stage-note{display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px;margin:10px 1px 0;line-height:1.65}.stage-note p{margin:0}.status{min-height:24px;margin:15px 0 13px;font-size:13px;color:#4c6646}.status.error{color:var(--danger)}.zoom-section{border-top:1px solid var(--line);padding-top:18px;margin-top:4px}.zoom-head{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:12px}.zoom-options{display:flex;align-items:center;gap:13px}.zoom-options label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.zoom-options input{width:95px}.zoom-stage{border:1px solid #cbd4c6;border-radius:8px;background:#e6ebe0;overflow:hidden;height:250px}.zoom-stage svg{display:block;width:100%;height:100%}.sample-copy{display:flex;align-items:center;gap:12px;margin:12px 0 0;color:var(--muted);font-size:12px}.sample-copy input{padding:8px 11px;flex:1;min-width:0}.settings{background:white;border:1px solid var(--line);border-radius:8px;align-self:start;overflow:hidden;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto;scrollbar-width:thin}.settings-title{padding:16px 18px 11px;display:flex;align-items:center;justify-content:space-between}.settings-title h2{font-size:16px;font-weight:600;margin:0}.text-button{border:0;padding:4px 0;background:transparent!important;color:#58724f;font-size:12px}fieldset{margin:0;padding:14px 18px 17px;border:0;border-top:1px solid #e6eae2}legend{display:contents}.group-title{display:flex;align-items:center;justify-content:space-between;margin:0 0 13px;font-size:13px;font-weight:600}.parameter{margin-top:13px}.parameter:first-of-type{margin-top:0}.parameter-line{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:5px}.parameter-line label{font-size:13px}.parameter-line output{font-size:12px;color:var(--muted)}.color-row{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0;gap:12px}.color-row label{font-size:13px}.color-control{display:flex;align-items:center;gap:9px}.color-control input[type=text]{width:85px;padding:5px 7px;font-variant-numeric:tabular-nums;font-size:12px}.select-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:12px}.select-row label{font-size:13px}.save-help{font-size:12px;color:var(--muted);padding:15px 18px 18px;border-top:1px solid var(--line);line-height:1.8}.save-help p{margin:0 0 7px}.save-help code{display:block;overflow-wrap:anywhere;font-family:inherit;color:#405f3b;background:#eef3ea;padding:7px 9px;border-radius:4px}.footer{max-width:1900px;margin:0 auto;padding:0 26px 24px;color:var(--muted);font-size:12px;line-height:1.7}.file-input{display:none}#save{max-width:230px;overflow:hidden;text-overflow:ellipsis}.draft-state{color:#7a8374}
+.sr-only{display:block;position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:1050px){.app-header{align-items:flex-start}.app-title{display:block}.app-title p{margin-top:6px}.workspace{grid-template-columns:minmax(0,1fr) 288px;gap:17px;padding:18px}.app-header{padding:18px}.zoom-head{align-items:flex-start;flex-wrap:wrap}.stage-note{display:block}.stage-note p+p{margin-top:4px}.settings-title,fieldset{padding-left:15px;padding-right:15px}.footer{padding-left:18px;padding-right:18px}}
+@media(max-width:760px){.app-header{flex-direction:column;gap:14px}.app-title{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline}.app-title p{margin:0}.actions{width:100%}.actions button{flex:1;padding:9px 10px}.workspace{grid-template-columns:1fr;gap:20px;padding:16px 12px}.settings{position:static;max-height:none}.stage-bar{align-items:flex-start}.background-picker{font-size:11px;gap:5px}.zoom-stage{height:205px}.zoom-options{width:100%;justify-content:space-between;gap:6px}.zoom-options select{max-width:180px}.zoom-options input{width:72px}.zoom-head{gap:9px}.sample-copy{flex-wrap:wrap;gap:6px}.sample-copy label{width:100%}.sample-copy input{width:100%;flex-basis:100%}.stage-note{font-size:11px}.footer{padding:0 14px 22px}.app-title h1{font-size:21px}.settings-title{padding:16px}.parameter{margin-top:16px}fieldset{padding:16px}.parameter-line label{font-size:14px}.status{font-size:12px;line-height:1.7}.stage{border-radius:5px}}
+@media(prefers-reduced-motion:reduce){button:active{transform:none}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-title"><h1>天气屋</h1><p>UI 控件调参器</p></div>
+  <div class="actions"><button id="import" type="button">导入 JSON</button><button id="export" type="button">导出 JSON</button><button id="save" class="primary" type="button">保存到文件</button></div>
+</header>
+<main class="workspace">
+  <section class="stage-column" aria-label="控件预览">
+    <div class="stage-bar"><h2>实时预览</h2><label class="background-picker">预览底色 <input id="preview-bg" type="color" value="#e6ebe0" aria-label="预览底色，不写入配置"></label></div>
+    <div class="stage"><svg id="preview" viewBox="0 0 1600 1000" role="img" aria-label="动物和玩家气泡、关闭按钮、相机取景框与快门的实时预览"></svg></div>
+    <div class="stage-note"><p>布局画布 1600 × 1000。拖动参数，立即看变化。</p><p class="draft-state" id="draft-state">草稿保存在当前浏览器</p></div>
+    <div id="status" class="status" role="status" aria-live="polite">参数会自动记住。调整好后，保存一份 JSON。</div>
+    <section class="zoom-section" aria-label="单个控件放大预览">
+      <div class="zoom-head"><h2>放大看细节</h2><div class="zoom-options"><select id="focus-mark" aria-label="选择放大控件"><option value="animal">动物气泡</option><option value="player">玩家气泡</option><option value="ellipsis">三个点</option><option value="close">关闭按钮</option><option value="viewfinder">取景框</option><option value="shutter">快门</option><option value="text">ESC 与文字</option></select><label>放大 <input id="zoom" type="range" min="1" max="3" step="0.1" value="1"><output id="zoom-value">1.0×</output></label></div></div>
+      <div class="zoom-stage"><svg id="focus" viewBox="0 0 720 240" role="img" aria-label="选中控件的放大预览"></svg></div>
+      <div class="sample-copy"><label for="sample-text">玩家气泡示例文字</label><input id="sample-text" maxlength="36" value="这片草摸起来湿湿的。" autocomplete="off"></div>
+    </section>
+  </section>
+  <aside class="settings" aria-label="UI 样式参数">
+    <div class="settings-title"><h2>样式参数</h2><button id="reset-all" class="text-button" type="button">全部恢复默认</button></div>
+    <div id="parameter-groups"></div>
+    <div class="save-help"><p>保存到 Unity 项目的这个文件，游戏就可以读取同一份配置。</p><code>Assets/WeatherHousePrototype/Resources/WeatherHouseUiStyle.json</code><p id="file-note" style="margin-top:9px">首次保存时选择位置；之后可覆盖同一个文件。不支持文件选择的浏览器会下载 JSON。</p></div>
+  </aside>
+</main>
+<footer class="footer">所有图形由可缩放矢量生成。普通／粗体与参数会同步到游戏；浏览器与 Unity 的字体栅格效果可能略有差异。预览底色和示例文字只用于查看，不会写入游戏配置。</footer>
+<input id="import-file" class="file-input" type="file" accept=".json,application/json" aria-label="导入 UI 样式 JSON">
+<script id="geometry-engine">
+"use strict";
+globalThis.WeatherHouseUi = (() => {
+  const defaults = Object.freeze({version:1,lineScale:1,fontScale:1,fontWeight:400,waviness:.025,bubbleRadius:.47,tailSize:.13,cornerRadius:18,shutterInnerRatio:.318,shutterOuterLineScale:1,shutterInnerLineScale:.44,closeGap:35,ink:"#3b4a3d",cream:"#f7f5db",player:"#c7d4a6"});
+  const ranges = Object.freeze({lineScale:[.4,2.5],fontScale:[.7,1.6],waviness:[0,.05],bubbleRadius:[.15,.5],tailSize:[0,.24],cornerRadius:[0,40],shutterInnerRatio:[.22,.38],shutterOuterLineScale:[.5,2],shutterInnerLineScale:[.2,1],closeGap:[10,80]});
+  function validateStyle(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("配置必须是一个 JSON 对象。");
+    const expected = Object.keys(defaults), actual = Object.keys(value);
+    const extra = actual.find(key => !expected.includes(key));
+    if (extra) throw new Error("配置中有未支持的字段：" + extra);
+    const missing = expected.find(key => !Object.prototype.hasOwnProperty.call(value,key));
+    if (missing) throw new Error("配置缺少字段：" + missing);
+    if (value.version !== 1) throw new Error("只支持 version 为 1 的配置。");
+    for (const [key, bounds] of Object.entries(ranges)) {
+      if (typeof value[key] !== "number" || !Number.isFinite(value[key]) || value[key] < bounds[0] || value[key] > bounds[1]) throw new Error(key + " 必须是 " + bounds[0] + " 到 " + bounds[1] + " 之间的数字。");
+    }
+    if (value.fontWeight !== 400 && value.fontWeight !== 700) throw new Error("fontWeight 只能是 400（普通）或 700（粗体）。");
+    for (const key of ["ink","cream","player"]) if (typeof value[key] !== "string" || !/^#[0-9a-f]{6}$/i.test(value[key])) throw new Error(key + " 必须是 #RRGGBB 形式的颜色。");
+    return Object.fromEntries(expected.map(key => [key,value[key]]));
+  }
+  const clamp = (value,min,max) => Math.max(min,Math.min(max,value));
+  const lerp = (a,b,t) => a+(b-a)*t;
+  const number = value => Number(value.toFixed(3));
+  const xml = value => String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+  function arc(cx,cy,radius,from,to,segments) {
+    const result=[];
+    for(let i=0;i<=segments;i++){const angle=lerp(from,to,i/segments)*Math.PI/180;result.push([cx+Math.cos(angle)*radius,cy+Math.sin(angle)*radius]);}
+    return result;
+  }
+  function line(points,from,to,segments){for(let i=1;i<=segments;i++)points.push([lerp(from[0],to[0],i/segments),lerp(from[1],to[1],i/segments)]);}
+  function pathData(points,cx,cy,closed=false){return points.map((p,i)=>(i?"L":"M")+number(cx+p[0])+" "+number(cy-p[1])).join(" ")+(closed?" Z":"");}
+  function bubblePoints(width,height,tail,s) {
+    const inset=2+Math.min(width,height)*s.waviness;
+    let xMin=-width/2+inset,xMax=width/2-inset,yMin=-height/2+inset,yMax=height/2-inset;
+    const tailHeight=tail?(yMax-yMin)*s.tailSize:0;yMin+=tailHeight;
+    const bodyW=xMax-xMin,bodyH=yMax-yMin,r=Math.min(bodyH*s.bubbleRadius,bodyW*.2),cx=(xMin+xMax)/2,cy=(yMin+yMax)/2;
+    const points=[],steps=clamp(Math.ceil(bodyW/9),24,70);
+    for(let i=0;i<=steps;i++){const t=i/steps,tailT=clamp(1-Math.abs((t-.70)/.075),0,1);points.push([lerp(xMin+r,xMax-r,t),yMin-tailHeight*tailT*tailT]);}
+    points.push(...arc(xMax-r,yMin+r,r,-90,0,16));line(points,[xMax,yMin+r],[xMax,yMax-r],8);
+    points.push(...arc(xMax-r,yMax-r,r,0,90,16));line(points,[xMax-r,yMax],[xMin+r,yMax],steps);
+    points.push(...arc(xMin+r,yMax-r,r,90,180,16));line(points,[xMin,yMax-r],[xMin,yMin+r],8);
+    points.push(...arc(xMin+r,yMin+r,r,180,270,16));
+    for(let i=points.length-1;i>0;i--)if((points[i][0]-points[i-1][0])**2+(points[i][1]-points[i-1][1])**2<.001)points.splice(i,1);
+    if((points[0][0]-points.at(-1)[0])**2+(points[0][1]-points.at(-1)[1])**2<.001)points.pop();
+    return points.map(p=>{const dx=p[0]-cx,dy=p[1]-cy,angle=Math.atan2(dy/bodyH,dx/bodyW),wave=Math.sin(angle*5+7*.73)+.3*Math.sin(angle*9-7*.41),length=Math.hypot(dx,dy)||1;return[p[0]+dx/length*bodyH*s.waviness*wave,p[1]+dy/length*bodyH*s.waviness*wave];});
+  }
+  function mark(name,cx,cy,width,height,s,lineWidth=3){
+    const size=Math.min(width,height),weight=lineWidth*s.lineScale;
+    const stroke=(points,w=weight)=>'<path d="'+pathData(points,cx,cy)+'" fill="none" stroke="'+s.ink+'" stroke-width="'+number(w)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+    const circle=(x,y,r,fill)=>'<circle cx="'+number(x)+'" cy="'+number(y)+'" r="'+number(r)+'" fill="'+fill+'"/>';
+    if(name==="animal"||name==="player")return '<path d="'+pathData(bubblePoints(width,height,name==="animal",s),cx,cy,true)+'" fill="'+(name==="animal"?s.cream:s.player)+'"/>';
+    if(name==="ellipsis")return[-1,0,1].map(i=>circle(cx+i*width*.145,cy,Math.min(height*.13,width*.035),s.ink)).join("");
+    if(name==="dot")return circle(cx,cy,size*.35,s.ink);
+    if(name==="close") {const g=s.closeGap/2,cross=size*.125;return stroke(arc(0,0,size*.4,g,180-g,40))+stroke(arc(0,0,size*.4,180+g,360-g,44))+stroke([[-cross,-cross],[cross,cross]],weight*.85)+stroke([[-cross,cross],[cross,-cross]],weight*.85);}
+    if(name==="shutter")return stroke(arc(0,0,size*.405,0,360,96),weight*s.shutterOuterLineScale)+stroke(arc(0,0,size*s.shutterInnerRatio,0,360,96),weight*s.shutterInnerLineScale);
+    if(name==="viewfinder") {
+      const pad=weight+2,halfW=width/2-pad,halfH=height/2-pad,leg=Math.min(width,height)*.16,r=Math.min(s.cornerRadius,leg);let result="";
+      for(const sx of [-1,1])for(const sy of [-1,1]){const points=[[halfW-leg,halfH],...arc(halfW-r,halfH-r,r,90,0,14),[halfW,halfH-leg]];result+=stroke(points.map(p=>[p[0]*sx,p[1]*sy]));}return result;
+    }
+    throw new Error("未知控件："+name);
+  }
+  function text(value,x,y,size,s,anchor="middle"){return '<text x="'+x+'" y="'+y+'" font-size="'+number(size*s.fontScale)+'" font-weight="'+s.fontWeight+'" fill="'+s.ink+'" text-anchor="'+anchor+'" dominant-baseline="middle">'+xml(value)+'</text>';}
+  return {defaults,ranges,validateStyle,arc,bubblePoints,mark,text,xml};
+})();
+</script>
+<script id="app">
+"use strict";
+(() => {
+  const engine=globalThis.WeatherHouseUi,defaults=engine.defaults,storageKey="weather-house-ui-style-v1";
+  const $=id=>document.getElementById(id);
+  let style={...defaults},fileHandle=null,draftTimer=null,restored=false;
+  const groups=[
+    {title:"线条与文字",keys:["lineScale","fontScale","fontWeight"]},
+    {title:"气泡轮廓",keys:["waviness","bubbleRadius","tailSize"]},
+    {title:"相机与关闭按钮",keys:["cornerRadius","closeGap","shutterInnerRatio","shutterOuterLineScale","shutterInnerLineScale"]},
+    {title:"控件颜色",keys:["ink","cream","player"]}
+  ];
+  const labels={lineScale:"整体线条粗细",fontScale:"字体大小",fontWeight:"字体粗细",waviness:"边缘起伏",bubbleRadius:"气泡圆润程度",tailSize:"动物气泡尖尾",cornerRadius:"取景框圆角",shutterInnerRatio:"快门内圈大小",shutterOuterLineScale:"快门外圈粗细",shutterInnerLineScale:"快门内圈粗细",closeGap:"关闭圆环断口",ink:"线条与文字",cream:"动物气泡",player:"玩家气泡"};
+  const steps={lineScale:.05,fontScale:.05,waviness:.001,bubbleRadius:.01,tailSize:.01,cornerRadius:1,shutterInnerRatio:.001,shutterOuterLineScale:.05,shutterInnerLineScale:.01,closeGap:1};
+  const inputNodes=new Map();
+  function displayValue(key,value){if(!Object.prototype.hasOwnProperty.call(steps,key))return value;const decimals=Math.min(3,(String(steps[key]).split(".")[1]||"").length);return String(Number(Number(value).toFixed(decimals)));}
+  function setStatus(message,error=false){$("status").textContent=message;$("status").classList.toggle("error",error);}
+  function serialize(){return JSON.stringify(engine.validateStyle(style),null,2)+"\n";}
+  function draft(){clearTimeout(draftTimer);draftTimer=setTimeout(()=>{try{localStorage.setItem(storageKey,serialize());$("draft-state").textContent="已记住当前草稿";}catch{$("draft-state").textContent="浏览器无法保存草稿，请导出 JSON";}},150);}
+  function update(key,value){style={...style,[key]:value};render();draft();sync(key);}
+  function sync(key){const controls=inputNodes.get(key);if(!controls)return;for(const control of controls){control.value=displayValue(key,style[key]);control.removeAttribute("aria-invalid");}}
+  function syncAll(){for(const key of inputNodes.keys())sync(key);}
+  function reset(keys){for(const key of keys)style[key]=defaults[key];syncAll();render();draft();setStatus("已恢复默认参数，尚未写入 JSON 文件。");}
+  function buildParameters(){
+    const host=$("parameter-groups");
+    for(const group of groups){
+      const field=document.createElement("fieldset");const legend=document.createElement("legend");legend.textContent=group.title;legend.className="sr-only";field.append(legend);
+      const title=document.createElement("div");title.className="group-title";const heading=document.createElement("span");heading.textContent=group.title;const resetButton=document.createElement("button");resetButton.type="button";resetButton.className="text-button";resetButton.textContent="重置";resetButton.setAttribute("aria-label","重置"+group.title);resetButton.addEventListener("click",()=>reset(group.keys));title.append(heading,resetButton);field.append(title);
+      for(const key of group.keys){
+        if(key==="fontWeight"){
+          const row=document.createElement("div");row.className="select-row";const label=document.createElement("label");label.htmlFor=key;label.textContent=labels[key];const select=document.createElement("select");select.id=key;for(const [value,name]of [[400,"普通"],[700,"粗体"]]){const option=document.createElement("option");option.value=value;option.textContent=name;select.append(option);}select.value=style[key];select.addEventListener("change",()=>update(key,Number(select.value)));inputNodes.set(key,[select]);row.append(label,select);field.append(row);continue;
+        }
+        if(["ink","cream","player"].includes(key)){
+          const row=document.createElement("div");row.className="color-row";const label=document.createElement("label");label.htmlFor=key;label.textContent=labels[key];const controls=document.createElement("div");controls.className="color-control";const color=document.createElement("input");color.type="color";color.id=key;color.value=style[key];const hex=document.createElement("input");hex.type="text";hex.value=style[key];hex.maxLength=7;hex.setAttribute("aria-label",labels[key]+"十六进制颜色");color.addEventListener("input",()=>update(key,color.value));hex.addEventListener("input",()=>{if(/^#[0-9a-f]{6}$/i.test(hex.value))update(key,hex.value.toLowerCase());else hex.setAttribute("aria-invalid","true");});hex.addEventListener("blur",()=>{if(hex.getAttribute("aria-invalid")==="true"){sync(key);setStatus("颜色需要使用 #RRGGBB 格式，已保留之前的颜色。",true);}});inputNodes.set(key,[color,hex]);controls.append(color,hex);row.append(label,controls);field.append(row);continue;
+        }
+        const [min,max]=engine.ranges[key],row=document.createElement("div");row.className="parameter";const line=document.createElement("div");line.className="parameter-line";const label=document.createElement("label");label.htmlFor=key;label.textContent=labels[key];const numeric=document.createElement("input");numeric.type="number";numeric.min=min;numeric.max=max;numeric.step=steps[key];numeric.value=style[key];numeric.setAttribute("aria-label",labels[key]+"数值");const range=document.createElement("input");range.type="range";range.id=key;range.min=min;range.max=max;range.step=steps[key];range.value=style[key];range.addEventListener("input",()=>update(key,Number(range.value)));numeric.addEventListener("input",()=>{const value=numeric.valueAsNumber;if(Number.isFinite(value)&&value>=min&&value<=max)update(key,value);else numeric.setAttribute("aria-invalid","true");});numeric.addEventListener("blur",()=>{if(numeric.getAttribute("aria-invalid")==="true"){sync(key);setStatus(labels[key]+"的范围是 "+min+" 到 "+max+"，已保留之前的数值。",true);}});inputNodes.set(key,[range,numeric]);line.append(label,numeric);row.append(line,range);field.append(row);
+      }
+      host.append(field);
+    }
+  }
+  function render(){
+    const s=style,mark=engine.mark,text=engine.text,bg=$("preview-bg").value,copy=$("sample-text").value;
+    $("preview").innerHTML='<rect width="1600" height="1000" fill="'+bg+'"/>'+text("天气屋 · 控件预览",60,80,23,s,"start")+text("拖动右侧参数，即时调整",1510,80,15,s,"end")+text("对话",60,175,20,s,"start")+mark("animal",330,294,520,150,s)+mark("ellipsis",330,287,100,30,s)+text("动物气泡 · 带小尖尾",330,405,15,s)+mark("player",330,536,520,142,s)+text(copy,330,536,22,s)+text("玩家气泡 · 同款轮廓",330,645,15,s)+mark("close",132,767,66,66,s)+text("关闭 · 断开的圆环",320,767,17,s)+text("相机",985,175,20,s,"start")+mark("viewfinder",1255,397,550,338,s)+mark("dot",1255,606,9,9,s)+mark("shutter",1255,726,96,96,s,4)+text("ESC  返回",1530,800,18,s,"end")+text("圆润的边缘、克制的起伏，在森林里轻轻出现。",75,920,17,s,"start");
+    const selected=$("focus-mark").value,zoom=Number($("zoom").value),cx=360,cy=120;let content="";
+    if(selected==="animal")content=mark("animal",cx,cy,520,150,s)+mark("ellipsis",cx,cy-7,100,30,s);
+    else if(selected==="player")content=mark("player",cx,cy,520,142,s)+text(copy,cx,cy,22,s);
+    else if(selected==="ellipsis")content=mark("ellipsis",cx,cy,100,30,s);
+    else if(selected==="close")content=mark("close",cx,cy,106,106,s,4.8);
+    else if(selected==="shutter")content=mark("shutter",cx,cy,150,150,s,6.25);
+    else if(selected==="viewfinder")content=mark("viewfinder",cx,cy,500,180,s);
+    else content=text("ESC  返回",cx,cy-28,25,s)+text("记录这片森林里的小小发现",cx,cy+25,22,s);
+    $("focus").setAttribute("viewBox",[cx-360/zoom,cy-120/zoom,720/zoom,240/zoom].join(" "));$("focus").innerHTML='<rect x="-1000" y="-1000" width="3000" height="3000" fill="'+bg+'"/>'+content;$("zoom-value").textContent=zoom.toFixed(1)+"×";
+  }
+  function download(){const blob=new Blob([serialize()],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="WeatherHouseUiStyle.json";document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);setStatus("已下载 WeatherHouseUiStyle.json。把它放到页面右侧标注的 Unity 路径。");}
+  async function save(){
+    if(typeof window.showSaveFilePicker!=="function"){download();return;}
+    $("save").disabled=true;
+    try{
+      if(!fileHandle)fileHandle=await window.showSaveFilePicker({suggestedName:"WeatherHouseUiStyle.json",types:[{description:"UI 样式 JSON",accept:{"application/json":[".json"]}}]});
+      const writer=await fileHandle.createWritable();try{await writer.write(serialize());await writer.close();}catch(error){try{await writer.abort();}catch{}throw error;}
+      $("save").textContent="保存到已选文件";$("file-note").textContent="当前文件："+fileHandle.name+"。再次点击保存，会覆盖这份文件。";setStatus("已保存 "+fileHandle.name+"。放在指定的 Resources 目录后，Unity 才会读取。");
+    }catch(error){if(error.name==="AbortError")setStatus("已取消文件保存，当前草稿仍然保留。");else{fileHandle=null;setStatus("保存未完成："+error.message+"。也可以点击“导出 JSON”下载。",true);}}
+    finally{$("save").disabled=false;}
+  }
+  async function importFile(file){
+    if(!file)return;
+    try{if(file.size>65536)throw new Error("配置文件超过 64 KB，请选择 UI 样式 JSON。");const candidate=engine.validateStyle(JSON.parse(await file.text()));style=candidate;syncAll();render();draft();setStatus("已导入 "+file.name+"，参数已更新。尚未覆盖任何文件。");}
+    catch(error){setStatus("导入未完成："+error.message+" 当前参数已保留。",true);}
+    finally{$("import-file").value="";}
+  }
+  try{const saved=localStorage.getItem(storageKey);if(saved){style=engine.validateStyle(JSON.parse(saved));restored=true;}}catch{setStatus("浏览器中的旧草稿无法读取，已使用默认参数。",true);}
+  buildParameters();syncAll();render();if(restored)setStatus("已恢复上次的草稿，可以接着调整。");
+  $("reset-all").addEventListener("click",()=>reset(Object.keys(defaults).filter(key=>key!=="version")));
+  $("preview-bg").addEventListener("input",render);$("sample-text").addEventListener("input",render);$("focus-mark").addEventListener("change",render);$("zoom").addEventListener("input",render);
+  $("export").addEventListener("click",download);$("save").addEventListener("click",save);$("import").addEventListener("click",()=>$("import-file").click());$("import-file").addEventListener("change",()=>importFile($("import-file").files[0]));
+  window.addEventListener("beforeunload",()=>{try{localStorage.setItem(storageKey,serialize());}catch{}});
+})();
+</script>
+</body>
+</html>

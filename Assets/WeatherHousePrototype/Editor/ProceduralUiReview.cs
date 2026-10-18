@@ -19,6 +19,7 @@ namespace WeatherHousePrototype.Editor
         {
             if (EditorApplication.isPlaying)
                 throw new InvalidOperationException("Stop Play mode before rendering the UI controls review.");
+            ProceduralUiStyle.Reload();
             Scene activeScene = SceneManager.GetActiveScene();
             Scene preview = EditorSceneManager.NewPreviewScene();
             RenderTexture target = null;
@@ -123,7 +124,7 @@ namespace WeatherHousePrototype.Editor
             var label = go.GetComponent<Text>();
             label.text = value;
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            label.fontSize = fontSize;
+            ProceduralUiStyle.Current.ApplyText(label, fontSize);
             label.color = ProceduralUiLibrary.Ink;
             label.alignment = alignment;
             label.raycastTarget = false;

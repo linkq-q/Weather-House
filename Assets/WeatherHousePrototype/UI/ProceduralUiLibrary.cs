@@ -5,9 +5,9 @@ namespace WeatherHousePrototype
 {
     public static class ProceduralUiLibrary
     {
-        public static readonly Color Cream = new Color(.97f, .96f, .86f);
-        public static readonly Color Grass = new Color(.78f, .83f, .65f);
-        public static readonly Color Ink = new Color(.23f, .29f, .24f);
+        public static Color Cream => ProceduralUiStyle.ParseColor(ProceduralUiStyle.Current.cream);
+        public static Color Grass => ProceduralUiStyle.ParseColor(ProceduralUiStyle.Current.player);
+        public static Color Ink => ProceduralUiStyle.ParseColor(ProceduralUiStyle.Current.ink);
 
         public static ProceduralUiGraphic Create(Transform parent, string name, UiMark mark,
             Vector2 position, Vector2 size, Color color, float lineWidth = 3f, bool raycastTarget = false)
@@ -22,7 +22,7 @@ namespace WeatherHousePrototype
             var graphic = go.GetComponent<ProceduralUiGraphic>();
             graphic.mark = mark;
             graphic.color = color;
-            graphic.lineWidth = lineWidth;
+            ProceduralUiStyle.Current.Apply(graphic, lineWidth);
             graphic.raycastTarget = raycastTarget;
             return graphic;
         }

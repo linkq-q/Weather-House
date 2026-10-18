@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -66,9 +66,16 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 2
-  lineWidth: 3
-  waviness: 0.025
+  lineWidth: 4.14
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50
 --- !u!1 &1277872662893543369
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,7 +226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -227,9 +234,16 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 6
-  lineWidth: 3
-  waviness: 0.025
+  lineWidth: 4.14
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50
 --- !u!1 &1764213468288651652
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,7 +302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -367,7 +381,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -446,7 +460,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -525,7 +539,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -605,7 +619,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -685,7 +699,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 0.83, b: 0.65, a: 1}
+  m_Color: {r: 0.78039217, g: 0.83137256, b: 0.6509804, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -693,9 +707,16 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 0
-  lineWidth: 3
-  waviness: 0.025
+  lineWidth: 4.14
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50
 --- !u!1 &3120163178643217583
 GameObject:
   m_ObjectHideFlags: 0
@@ -754,7 +775,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -833,7 +854,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -912,7 +933,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -991,7 +1012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1071,7 +1092,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1079,9 +1100,16 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 3
-  lineWidth: 3
-  waviness: 0.025
+  lineWidth: 4.14
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50
 --- !u!114 &4466091646791708447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1185,7 +1213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1193,9 +1221,16 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 5
-  lineWidth: 4
-  waviness: 0.025
+  lineWidth: 5.52
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50
 --- !u!114 &2197875045882630391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1298,7 +1333,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1306,9 +1341,16 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 4
-  lineWidth: 3
-  waviness: 0.025
+  lineWidth: 4.14
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50
 --- !u!1 &7846267773557997434
 GameObject:
   m_ObjectHideFlags: 0
@@ -1367,7 +1409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.29, b: 0.24, a: 1}
+  m_Color: {r: 0.23137255, g: 0.2901961, b: 0.23921569, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1447,7 +1489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.97, g: 0.96, b: 0.86, a: 1}
+  m_Color: {r: 0.96862745, g: 0.9607843, b: 0.85882354, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1455,6 +1497,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   mark: 1
-  lineWidth: 3
-  waviness: 0.025
+  lineWidth: 4.14
+  waviness: 0.05
   seed: 7
+  bubbleRadius: 0.5
+  tailSize: 0.24
+  cornerRadius: 40
+  shutterInnerRatio: 0.245
+  shutterOuterLineScale: 0.5
+  shutterInnerLineScale: 0.2
+  closeGap: 50

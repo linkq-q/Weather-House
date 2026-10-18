@@ -13,6 +13,13 @@ namespace WeatherHousePrototype
         [Min(.5f)] public float lineWidth = 3f;
         [Range(0f, .05f)] public float waviness = .025f;
         public int seed = 7;
+        [Range(.15f, .5f)] public float bubbleRadius = .47f;
+        [Range(0f, .24f)] public float tailSize = .13f;
+        [Range(0f, 40f)] public float cornerRadius = 18f;
+        [Range(.22f, .38f)] public float shutterInnerRatio = .318f;
+        [Range(.5f, 2f)] public float shutterOuterLineScale = 1f;
+        [Range(.2f, 1f)] public float shutterInnerLineScale = .44f;
+        [Range(10f, 80f)] public float closeGap = 35f;
 
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
@@ -36,15 +43,15 @@ namespace WeatherHousePrototype
                     Disc(mesh, center, size * .35f);
                     break;
                 case UiMark.Close:
-                    Stroke(mesh, Arc(center, size * .40f, 21f, 154f, 40), lineWidth);
-                    Stroke(mesh, Arc(center, size * .40f, 183f, 334f, 44), lineWidth);
+                    Stroke(mesh, Arc(center, size * .40f, closeGap * .5f, 180f - closeGap * .5f, 40), lineWidth);
+                    Stroke(mesh, Arc(center, size * .40f, 180f + closeGap * .5f, 360f - closeGap * .5f, 44), lineWidth);
                     float cross = size * .125f;
                     Stroke(mesh, new List<Vector2> { center + new Vector2(-cross, -cross), center + new Vector2(cross, cross) }, lineWidth * .85f);
                     Stroke(mesh, new List<Vector2> { center + new Vector2(-cross, cross), center + new Vector2(cross, -cross) }, lineWidth * .85f);
                     break;
                 case UiMark.Shutter:
-                    Stroke(mesh, Arc(center, size * .405f, 0f, 360f, 96), lineWidth, true);
-                    Stroke(mesh, Arc(center + new Vector2(size * .022f, size * .015f), size * .318f, 0f, 360f, 96), lineWidth * .44f, true);
+                    Stroke(mesh, Arc(center, size * .405f, 0f, 360f, 96), lineWidth * shutterOuterLineScale, true);
+                    Stroke(mesh, Arc(center, shutterInnerRatio * size, 0f, 360f, 96), lineWidth * shutterInnerLineScale, true);
                     break;
                 case UiMark.Viewfinder:
                     Viewfinder(mesh, rect);
@@ -57,9 +64,9 @@ namespace WeatherHousePrototype
             float inset = 2f + Mathf.Min(rect.width, rect.height) * waviness;
             rect = Rect.MinMaxRect(rect.xMin + inset, rect.yMin + inset,
                 rect.xMax - inset, rect.yMax - inset);
-            float tailHeight = tail ? rect.height * .13f : 0f;
+            float tailHeight = tail ? rect.height * tailSize : 0f;
             rect.yMin += tailHeight;
-            float radius = Mathf.Min(rect.height * .47f, rect.width * .2f);
+            float radius = Mathf.Min(rect.height * bubbleRadius, rect.width * .2f);
             var path = new List<Vector2>(160);
             int straightSteps = Mathf.Clamp(Mathf.CeilToInt(rect.width / 9f), 24, 70);
             for (int i = 0; i <= straightSteps; i++)
@@ -94,7 +101,7 @@ namespace WeatherHousePrototype
             float halfW = rect.width * .5f - pad;
             float halfH = rect.height * .5f - pad;
             float leg = Mathf.Min(rect.width, rect.height) * .16f;
-            float radius = Mathf.Min(18f, leg * .25f);
+            float radius = Mathf.Min(cornerRadius, leg);
             foreach (float xSign in new[] { -1f, 1f })
             foreach (float ySign in new[] { -1f, 1f })
             {
