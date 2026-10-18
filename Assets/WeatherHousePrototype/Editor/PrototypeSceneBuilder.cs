@@ -51,6 +51,8 @@ namespace WeatherHousePrototype.Editor
                 else if (command == "stop") EditorApplication.isPlaying = false;
                 else if (command == "runtime") RuntimeCheck();
                 else if (command == "movement") PrototypeMovementReview.Run();
+                else if (command == "gameplay-check") GameplayStateChecks.Run();
+                else if (command == "ui-review") ProceduralUiReview.Run();
                 else if (command == "refresh") AssetDatabase.Refresh();
                 else if (command == "inspect") Inspect();
                 else if (command == "finish") Finish();
