@@ -428341,6 +428341,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1719e6ba465ccdf469b693f545ac4fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiStyle:
+    version: 1
+    lineScale: 1.38
+    fontScale: 1
+    fontWeight: 400
+    waviness: 0.05
+    bubbleRadius: 0.5
+    tailSize: 0.24
+    cornerRadius: 40
+    shutterInnerRatio: 0.245
+    shutterOuterLineScale: 0.5
+    shutterInnerLineScale: 0.2
+    closeGap: 50
+    ink: '#3b4a3d'
+    cream: '#f7f5db'
+    player: '#c7d4a6'
+  animalBubbleSize: {x: 300, y: 100}
+  animalGlyphHeight: 43
+  animalGlyphStrokeWidth: 9
+  playerBubbleSize: {x: 500, y: 100}
 --- !u!114 &1848661185
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -21,14 +21,14 @@ namespace WeatherHousePrototype.Editor
         private static IEnumerator Review(GameplaySession session)
         {
             bool background = Application.runInBackground;
+            var hud = session.GetComponent<GameplayHud>();
+            var walker = session.walker;
+            Vector3 prior = walker.transform.position;
+            float priorYaw = walker.yaw, priorPitch = walker.pitch;
             Application.runInBackground = true;
             try
             {
-            var hud = session.GetComponent<GameplayHud>();
-            var walker = session.walker;
             var animal = Array.Find(session.animals, a => a.animalId == "courtyard-squirrel");
-            Vector3 prior = walker.transform.position;
-            float priorYaw = walker.yaw, priorPitch = walker.pitch;
             Vector3 point = animal.transform.position + new Vector3(0f, 0f, -4f);
             point.y = Terrain.activeTerrain.SampleHeight(point) + Terrain.activeTerrain.transform.position.y + .1f;
             walker.Teleport(point);
@@ -42,25 +42,54 @@ namespace WeatherHousePrototype.Editor
             File.WriteAllText("PrototypeReview/gameplay-graphics.txt", dump);
             yield return Capture("Gameplay_Observation");
             hud.SetCameraMode(true);
+            session.PhotoRig.Zoom((35f - session.PhotoRig.FocalLength) / 5f);
+            Vector3 target = animal.transform.position + Vector3.up * .65f;
+            Vector3 direction = target - (walker.transform.position + Vector3.up * 1.55f);
+            walker.yaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            walker.pitch = -Mathf.Atan2(direction.y, new Vector2(direction.x, direction.z).magnitude) * Mathf.Rad2Deg;
+            yield return new WaitForSecondsRealtime(.4f);
+            session.PhotoRig.FocusAt(session.PhotoRig.CaptureCamera.WorldToScreenPoint(target));
+            yield return null;
+            if (walker.visualRoot.GetComponentsInChildren<Renderer>().Any(r => r.enabled))
+                throw new InvalidOperationException("Avatar is still rendered in photo mode.");
+            if (session.CurrentView != session.PhotoRig.CaptureCamera)
+                throw new InvalidOperationException("Observation is not using the first-person camera.");
             yield return Capture("Gameplay_Camera");
-            if (session.Observed != null)
-            {
-                session.TakePhoto();
-                while (session.Recorder.IsRecording) yield return null;
-            }
+            session.PhotoRig.Zoom(7f);
+            yield return new WaitForSecondsRealtime(.3f);
+            if (session.Observed != animal) throw new InvalidOperationException("Zoom lost the animal while its body remained in frame.");
+            yield return Capture("Gameplay_Camera_Zoom70mm");
+            session.PhotoRig.Zoom(-7f);
+            yield return new WaitForSecondsRealtime(.3f);
+            if (session.Observed != animal) throw new InvalidOperationException("The first-person camera did not observe the squirrel.");
+            int previousPhotos = session.Notebook.observations.Count;
+            session.TakePhoto();
+            while (session.Recorder.IsRecording) yield return null;
+            if (session.Notebook.observations.Count != previousPhotos + 1)
+                throw new InvalidOperationException("The first-person photograph did not reach the notebook.");
+            var latest = session.Notebook.observations.Last();
+            if (latest.frameCount != 18) throw new InvalidOperationException("The first-person photograph did not contain 18 frames.");
             hud.ToggleJournal();
+            for (int i = 0; i < previousPhotos / 4; i++)
+                Object.FindObjectsOfType<Button>().First(b => b.name == "Next photos").onClick.Invoke();
+            yield return null;
             yield return Capture("Gameplay_Journal");
-            var photoButton = Object.FindObjectsOfType<Button>().FirstOrDefault(b => b.name.StartsWith("Photo "));
+            var photoButton = Object.FindObjectsOfType<Button>().FirstOrDefault(b => b.name == "Photo " + latest.id);
             if (photoButton != null)
             {
                 photoButton.onClick.Invoke();
                 yield return Capture("Gameplay_Photo");
             }
             hud.ToggleJournal();
-            walker.Teleport(prior); walker.yaw = priorYaw; walker.pitch = priorPitch;
-            File.WriteAllText("PrototypeReview/gameplay-visual.txt", "Review captures complete. One real observation clip was added for prototype acceptance. Inspect PNGs visually.\n");
+            File.WriteAllText("PrototypeReview/gameplay-visual.txt", "PASS: first-person capture uses photo camera; avatar hidden; 35/70 mm review images; 18-frame real clip added and opened in notebook. Inspect PNGs visually.\n");
             }
-            finally { Application.runInBackground = background; }
+            finally
+            {
+                if (hud.JournalOpen) hud.ToggleJournal();
+                hud.SetCameraMode(false);
+                walker.Teleport(prior); walker.yaw = priorYaw; walker.pitch = priorPitch;
+                Application.runInBackground = background;
+            }
         }
 
         private static IEnumerator Capture(string name)

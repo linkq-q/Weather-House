@@ -13,6 +13,7 @@ namespace WeatherHousePrototype
         public float pitch = 25f;
         public bool InputBlocked { get; set; }
         public bool JumpBlocked { get; set; }
+        public bool CameraInputBlocked { get; set; }
         public bool ShowLegacyHint { get; set; } = true;
 
         private CharacterController controller;
@@ -31,7 +32,7 @@ namespace WeatherHousePrototype
 
         private void Update()
         {
-            if (!InputBlocked && Input.GetKeyDown(KeyCode.Tab))
+            if (!InputBlocked && !CameraInputBlocked && Input.GetKeyDown(KeyCode.Tab))
                 SetOverview(!overview);
 
             if (controller == null || !controller.enabled || viewCamera == null)
@@ -40,13 +41,14 @@ namespace WeatherHousePrototype
             Vector3 movement = Vector3.zero;
             if (!overview && !InputBlocked)
             {
-                if (Input.GetMouseButton(1))
+                if (!CameraInputBlocked && Input.GetMouseButton(1))
                 {
                     yaw += Input.GetAxis("Mouse X") * 3f;
                     pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * 3f, 8f, 75f);
                 }
 
-                cameraDistance = Mathf.Clamp(cameraDistance - Input.mouseScrollDelta.y, 3f, 13f);
+                if (!CameraInputBlocked)
+                    cameraDistance = Mathf.Clamp(cameraDistance - Input.mouseScrollDelta.y, 3f, 13f);
                 Vector3 input = Vector3.ClampMagnitude(new Vector3(
                     Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")), 1f);
                 movement = Quaternion.Euler(0f, yaw, 0f) * input;

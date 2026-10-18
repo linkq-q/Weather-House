@@ -17,6 +17,8 @@ namespace WeatherHousePrototype
         public GlyphCatalog Catalog { get; private set; }
         public AnimalActor Observed { get; private set; }
         public MotionPhotoRecorder Recorder { get; private set; }
+        public PhotoCameraRig PhotoRig { get; private set; }
+        public Camera CurrentView => PhotoRig != null && PhotoRig.Active ? PhotoRig.CaptureCamera : walker.viewCamera;
         public bool Judging { get; private set; }
         public string Status { get; private set; } = "走近动物，观察它的动作与字语。C 拍照留证，J 打开手账。";
         public event Action Changed;
@@ -44,6 +46,9 @@ namespace WeatherHousePrototype
                 saveBlocked = true;
             }
             if (walker == null) walker = FindObjectOfType<PrototypeWalker>();
+            PhotoRig = GetComponent<PhotoCameraRig>();
+            if (PhotoRig == null) PhotoRig = gameObject.AddComponent<PhotoCameraRig>();
+            PhotoRig.Initialize(walker);
             walker.ShowLegacyHint = false;
         }
 
@@ -56,19 +61,23 @@ namespace WeatherHousePrototype
         {
             walker.InputBlocked = hud.BlocksMovement;
             walker.JumpBlocked = hud.CameraMode;
+            walker.CameraInputBlocked = hud.CameraMode;
             if (Time.unscaledTime < nextObservation) return;
             nextObservation = Time.unscaledTime + .2f;
             AnimalActor next = null;
             float best = 10f;
-            if (walker.viewCamera.enabled)
+            Camera view = CurrentView;
+            if (view.enabled)
                 foreach (var animal in animals)
                 {
                     if (animal == null) continue;
                     float distance = Vector3.Distance(walker.transform.position, animal.transform.position);
-                    Vector3 screen = walker.viewCamera.WorldToViewportPoint(animal.BubbleAnchor);
+                    Vector3 sightPoint = PhotoRig.Active && PhotoCameraRig.TryGetAnimalBounds(animal, out Bounds bounds)
+                        ? bounds.center : animal.BubbleAnchor;
+                    Vector3 screen = view.WorldToViewportPoint(sightPoint);
                     if (distance >= best || screen.z <= 0f || screen.x < .03f || screen.x > .97f || screen.y < .04f || screen.y > .95f) continue;
-                    Vector3 origin = walker.viewCamera.transform.position;
-                    if (Physics.Linecast(origin, animal.BubbleAnchor, out RaycastHit hit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore) &&
+                    Vector3 origin = view.transform.position;
+                    if (Physics.Linecast(origin, sightPoint, out RaycastHit hit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore) &&
                         !hit.transform.IsChildOf(animal.transform) && !hit.transform.IsChildOf(walker.transform)) continue;
                     next = animal;
                     best = distance;
@@ -100,9 +109,10 @@ namespace WeatherHousePrototype
         public void TakePhoto()
         {
             if (Recorder.IsRecording) return;
+            if (!PhotoRig.Active) { Notify("按 C 举起相机，再取景拍照。"); return; }
             if (Observed == null) { Notify("先把附近的一只动物和它的字语放进取景框。"); return; }
             var animal = Observed;
-            Recorder.Capture(walker.viewCamera, new ObservationRecord
+            Recorder.Capture(PhotoRig.CaptureCamera, new ObservationRecord
             {
                 animalId = animal.animalId, utteranceId = animal.UtteranceId,
                 glyphIds = (string[])animal.CurrentGlyphIds.Clone(),
@@ -193,7 +203,8 @@ namespace WeatherHousePrototype
         private void OnDisable()
         {
             if (Judging) StopAllCoroutines();
-            if (walker != null) { walker.InputBlocked = false; walker.JumpBlocked = false; walker.ShowLegacyHint = true; }
+            if (PhotoRig != null) PhotoRig.SetActive(false);
+            if (walker != null) { walker.InputBlocked = false; walker.JumpBlocked = false; walker.CameraInputBlocked = false; walker.ShowLegacyHint = true; }
             Judging = false;
         }
     }

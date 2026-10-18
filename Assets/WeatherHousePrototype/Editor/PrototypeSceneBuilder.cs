@@ -58,6 +58,24 @@ namespace WeatherHousePrototype.Editor
                 else if (command == "gameplay-runtime") GameplayRuntimeChecks.Run();
                 else if (command == "judge-check") LanguageJudgementChecks.Run();
                 else if (command == "gameplay-review") GameplayVisualReview.Run();
+                else if (command == "style-check")
+                {
+                    ProceduralUiStyleChecks.Run();
+                    if (File.Exists("PrototypeReview/UI配置测试.json")) ProceduralUiStyleChecks.CheckExportedFile("PrototypeReview/UI配置测试.json");
+                }
+                else if (command == "photo-check") PhotoCameraChecks.Run();
+                else if (command == "ui-inspector-check") GameplayUiInspectorChecks.Run();
+                else if (command == "save-ui-settings" || command == "import-ui-settings")
+                {
+                    if (EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play before saving UI settings.");
+                    var hud = Object.FindObjectOfType<GameplayHud>();
+                    if (hud == null) throw new InvalidOperationException("GameplayHud is missing.");
+                    if (command == "import-ui-settings") hud.SendMessage("ImportHtmlStyle", SendMessageOptions.RequireReceiver);
+                    EditorUtility.SetDirty(hud);
+                    EditorSceneManager.MarkSceneDirty(hud.gameObject.scene);
+                    EditorSceneManager.SaveScene(hud.gameObject.scene);
+                    Selection.activeGameObject = hud.gameObject;
+                }
                 else if (command == "refresh") AssetDatabase.Refresh();
                 else if (command == "inspect") Inspect();
                 else if (command == "finish") Finish();
