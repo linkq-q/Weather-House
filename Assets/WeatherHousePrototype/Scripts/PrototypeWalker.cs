@@ -11,6 +11,9 @@ namespace WeatherHousePrototype
         public float moveSpeed = 4f;
         public float yaw = 45f;
         public float pitch = 25f;
+        public bool InputBlocked { get; set; }
+        public bool JumpBlocked { get; set; }
+        public bool ShowLegacyHint { get; set; } = true;
 
         private CharacterController controller;
         private float verticalSpeed;
@@ -28,14 +31,14 @@ namespace WeatherHousePrototype
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (!InputBlocked && Input.GetKeyDown(KeyCode.Tab))
                 SetOverview(!overview);
 
             if (controller == null || !controller.enabled || viewCamera == null)
                 return;
 
             Vector3 movement = Vector3.zero;
-            if (!overview)
+            if (!overview && !InputBlocked)
             {
                 if (Input.GetMouseButton(1))
                 {
@@ -55,7 +58,7 @@ namespace WeatherHousePrototype
 
             if (controller.isGrounded && verticalSpeed < 0f)
                 verticalSpeed = -2f;
-            if (!overview && controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
+            if (!overview && !InputBlocked && !JumpBlocked && controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
                 verticalSpeed = 6f;
 
             verticalSpeed += -20f * Time.deltaTime;
@@ -119,6 +122,7 @@ namespace WeatherHousePrototype
 
         private void OnGUI()
         {
+            if (!ShowLegacyHint) return;
             if (hintStyle == null)
                 hintStyle = new GUIStyle(GUI.skin.label) { fontSize = 15 };
 

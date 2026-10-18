@@ -53,6 +53,11 @@ namespace WeatherHousePrototype.Editor
                 else if (command == "movement") PrototypeMovementReview.Run();
                 else if (command == "gameplay-check") GameplayStateChecks.Run();
                 else if (command == "ui-review") ProceduralUiReview.Run();
+                else if (command == "glyph-check") AnimalGlyphChecks.Run();
+                else if (command == "install-gameplay") GameplaySceneInstaller.Install(true);
+                else if (command == "gameplay-runtime") GameplayRuntimeChecks.Run();
+                else if (command == "judge-check") LanguageJudgementChecks.Run();
+                else if (command == "gameplay-review") GameplayVisualReview.Run();
                 else if (command == "refresh") AssetDatabase.Refresh();
                 else if (command == "inspect") Inspect();
                 else if (command == "finish") Finish();
@@ -123,6 +128,7 @@ namespace WeatherHousePrototype.Editor
             cloth=Mat("Warm linen",new Color(.88f,.72f,.4f));
             moss=Mat("Moss bed",new Color(.28f,.42f,.17f));
             BuildTerrain(); BuildWater(); BuildAreas(); Plant(); GrassDetails(); Lighting(); Cameras();
+            GameplaySceneInstaller.Install(false);
             AssetDatabase.SaveAssets();
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), ScenePath);
             var sv = SceneView.lastActiveSceneView;
