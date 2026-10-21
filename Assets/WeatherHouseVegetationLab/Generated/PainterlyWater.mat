@@ -12,7 +12,8 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _VIEWALIGNEDSTROKES_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -29,19 +30,34 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _CausticDepth: 1.1
+    - _CausticScale: 1.25
+    - _CausticSpeed: 0.28
+    - _CausticStrength: 0.22
     - _DebugDepth: 0
     - _DepthDistance: 1.2
     - _HasPlanarReflection: 0
+    - _HasSceneColor: 0
+    - _Opacity: 0.7
+    - _ReflectionBrushSize: 0.75
+    - _ReflectionBrushStrength: 0.5
+    - _ReflectionColorSteps: 9
     - _ReflectionDistortion: 0.009
-    - _ReflectionStrength: 0.86
+    - _ReflectionPosterize: 0.35
+    - _ReflectionStrength: 0.82
+    - _RefractionStrength: 0.012
     - _RippleSpeed: 0.16
-    - _RippleStrength: 0.65
+    - _RippleStrength: 0.55
+    - _ShoreStrength: 0.72
     - _ShoreWidth: 0.16
     - _StrokeScale: 0.8
+    - _SurfaceStrokeDensity: 0.24
+    - _SurfaceStrokeStrength: 0.58
+    - _ViewAlignedStrokes: 1
     m_Colors:
     - _BrushDirection: {r: 0.829, g: -0.559, b: 0, a: 0}
     - _DeepColor: {r: 0.6039216, g: 0.78039217, b: 0.7529412, a: 1}
     - _ReflectionTint: {r: 0.72156864, g: 0.84705883, b: 0.79607844, a: 1}
-    - _RippleColor: {r: 0.83137256, g: 0.8745098, b: 0.827451, a: 1}
+    - _RippleColor: {r: 0.933, g: 0.941, b: 0.824, a: 1}
     - _ShallowColor: {r: 0.70980394, g: 0.8117647, b: 0.7529412, a: 1}
   m_BuildTextureStacks: []

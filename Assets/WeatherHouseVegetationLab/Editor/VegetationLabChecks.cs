@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -16,6 +17,7 @@ namespace WeatherHouse.Vegetation.Editor
         static double startTime;
         static int phase;
         static string errors = "";
+        static IEnumerator liveChecks;
         const string RunningKey = "WeatherHouse.VegetationLab.Checking";
         const string PhaseKey = "WeatherHouse.VegetationLab.CheckPhase";
 
@@ -53,7 +55,7 @@ namespace WeatherHouse.Vegetation.Editor
             Assert(GrassMeadow.Allocate(100, new float[] { 0, 1, 0 }).SequenceEqual(new[] { 0, 100, 0 }), "Single species only");
             Assert(GrassMeadow.Allocate(100, new float[] { 0, 0, 0 }).Sum() == 0, "Zero weights empty");
             Assert(GrassMeadow.Allocate(0, new float[] { 70, 24, 6 }).Sum() == 0, "Zero density empty");
-            foreach (string name in new[] { "Weather House/Painterly Grass", "Weather House/Painterly Water", "Weather House/Painterly Ground" })
+            foreach (string name in new[] { "Weather House/Painterly Grass", "Weather House/Painterly Water", "Weather House/Painterly Ground", "Weather House/Painterly Tree" })
             {
                 Shader shader = Shader.Find(name);
                 Assert(shader != null, "Shader exists " + name);
@@ -63,6 +65,7 @@ namespace WeatherHouse.Vegetation.Editor
             var meadow = Object.FindObjectOfType<GrassMeadow>();
             Assert(meadow != null && meadow.species.Length == 3, "Three editable species exist");
             GrassShapeChecks.Run();
+            PainterlyTreeChecks.Run();
             GrassCameraChecks.Verify(Object.FindObjectOfType<GrassLabView>().Navigation);
             foreach (var species in meadow.species)
             {
@@ -84,7 +87,7 @@ namespace WeatherHouse.Vegetation.Editor
             Assert(meadow.GetComponentsInChildren<MeshFilter>().All(f => f.sharedMesh != null), "Mesh references persist");
             Assert(meadow.GetGroundHeight(meadow.pondCenter.x, meadow.pondCenter.y) < meadow.waterLevel, "Pond basin under water");
             Assert(!meadow.IsPlantable(meadow.pondCenter), "No grass under water");
-            File.WriteAllText(Output + "/editor-checks.txt", "PASS: exact ratios; rounding; single species; all-zero; zero density; 3 shaders; deterministic geometry; upward normals; wind channels; white petals; editable heights; saved meshes; shoreline exclusion.\n");
+            File.WriteAllText(Output + "/editor-checks.txt", "PASS: exact ratios; rounding; single species; all-zero; zero density; 4 shaders; deterministic grass and tree geometry; tree parameter checks; upward normals; wind channels; white petals; editable heights; saved meshes; shoreline exclusion.\n");
             Debug.Log("Vegetation lab editor checks PASS");
         }
 
@@ -127,7 +130,7 @@ namespace WeatherHouse.Vegetation.Editor
         }
         static void Tick()
         {
-            if (EditorApplication.timeSinceStartup - startTime < 3) return;
+            if (phase != 12 && EditorApplication.timeSinceStartup - startTime < 3) return;
             startTime = EditorApplication.timeSinceStartup;
             try
             {
@@ -191,8 +194,34 @@ namespace WeatherHouse.Vegetation.Editor
                 else if (phase == 11)
                 {
                     Capture("12_Water_Fixed", view.GetComponent<Camera>());
+                    WaterStyleChecks.Verify(view.GetComponent<Camera>());
+                }
+                else if (phase == 12)
+                {
+                    if (liveChecks == null) liveChecks = GrassLiveChecks.Verify(meadow);
+                    if (liveChecks.MoveNext()) return;
+                    (liveChecks as IDisposable)?.Dispose(); liveChecks = null;
+                    view.Overview(); view.showPanel = true;
+                }
+                else if (phase == 13)
+                {
+                    ScreenCapture.CaptureScreenshot(Output + "/18_Live_Controls.png");
+                }
+                else if (phase == 14)
+                {
+                    var tree = Object.FindObjectsOfType<PainterlyTree>().OrderByDescending(t => t.height).FirstOrDefault();
+                    if (tree)
+                    {
+                        view.showPanel = false;
+                        var nav = view.Navigation;
+                        nav.mode = GrassCameraMode.Orbit;
+                        nav.target = tree.transform.position + Vector3.up * tree.height * .48f;
+                        nav.yaw = 22; nav.pitch = 10; nav.distance = tree.height * 1.7f;
+                        nav.PlaceCamera();
+                        Capture("19_Tree_Sample", view.GetComponent<Camera>());
+                    }
                     Assert(errors.Length == 0, "Runtime errors: " + errors);
-                    File.WriteAllText(Output + "/runtime-checks.txt", "PASS: actual Play mode; 0/100/0; all-zero clearing; restore saved ratios; no accumulating generated roots; editable grass geometry; walking/flying/shore exclusion/mode transitions; no logged runtime errors. Captured overview, close grass, shoreline, wind, normals A/B, first-person, flight and depth-pass A/B.\nGPU: " + SystemInfo.graphicsDeviceName + "\n");
+                    File.WriteAllText(Output + "/runtime-checks.txt", "PASS: actual Play mode; allocation/clearing; restore saved ratios; no accumulating generated roots; editable grass geometry; walking/flying/shore exclusion/mode transitions; automatic live grass updates; GPU A/B for opacity, shore, surface strokes, caustics and reflection brush; no logged runtime errors. See live-grass-checks.txt and water-style-checks.txt for details.\nGPU: " + SystemInfo.graphicsDeviceName + "\n");
                     EditorApplication.update -= Tick;
                     SessionState.SetBool(RunningKey, false);
                     Application.logMessageReceived -= Log;
@@ -241,6 +270,7 @@ namespace WeatherHouse.Vegetation.Editor
         static void Assert(bool condition, string message) { if (!condition) throw new Exception(message); }
         static void Fail(Exception error)
         {
+            (liveChecks as IDisposable)?.Dispose(); liveChecks = null;
             EditorApplication.update -= Tick;
             SessionState.SetBool(RunningKey, false);
             Application.logMessageReceived -= Log;

@@ -30,12 +30,20 @@ namespace WeatherHouse.Vegetation.Editor
                     File.WriteAllText(Folder + "/editor-state.txt", "project=" + Application.dataPath + "\nplaying=" + EditorApplication.isPlaying + "\nscene=" + scene.path + "\ndirty=" + scene.isDirty);
                     return;
                 }
-                if (command != "verify") throw new InvalidOperationException("Unsupported vegetation request: " + command);
+                if (command != "verify" && command != "upgrade-verify" && command != "style-verify") throw new InvalidOperationException("Unsupported vegetation request: " + command);
                 if (EditorApplication.isPlaying || scene.isDirty || SceneManager.sceneCount != 1)
                     throw new InvalidOperationException("Checks need one saved scene outside Play; user edits were preserved.");
                 File.WriteAllText(Folder + "/request-error.txt", "");
                 SessionState.SetString("WeatherHouse.VegetationLab.ReturnScene", scene.path == VegetationLabBuilder.ScenePath ? "" : scene.path);
-                VegetationLabChecks.BuildAndVerify();
+                if (command == "style-verify")
+                {
+                    VegetationLabUpgrade.Apply();
+                    PainterlyTreeEditor.RefreshLabSamples();
+                    UnityEditor.SceneManagement.EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+                    VegetationLabChecks.BuildAndVerify();
+                }
+                else if (command == "upgrade-verify") VegetationLabUpgrade.ApplyAndVerify();
+                else VegetationLabChecks.BuildAndVerify();
             }
             catch (Exception error) { File.WriteAllText(Folder + "/request-error.txt", error.ToString()); Debug.LogException(error); }
         }

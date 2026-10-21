@@ -16,9 +16,11 @@ namespace WeatherHouse.Vegetation
         RenderTexture reflectionTexture;
         Renderer waterRenderer;
         MaterialPropertyBlock properties;
+        readonly Plane[] cameraFrustum = new Plane[6];
         static readonly int ReflectionTextureId = Shader.PropertyToID("_PlanarReflectionTex");
         static readonly int HasReflectionId = Shader.PropertyToID("_HasPlanarReflection");
         static readonly int ReflectionMatrixId = Shader.PropertyToID("_PlanarReflectionVP");
+        static readonly int HasSceneColorId = Shader.PropertyToID("_HasSceneColor");
 
         void OnEnable()
         {
@@ -34,6 +36,7 @@ namespace WeatherHouse.Vegetation
             {
                 waterRenderer.GetPropertyBlock(properties);
                 properties.SetFloat(HasReflectionId, 0);
+                properties.SetFloat(HasSceneColorId, 0);
                 properties.SetTexture(ReflectionTextureId, Texture2D.blackTexture);
                 waterRenderer.SetPropertyBlock(properties);
             }
@@ -48,6 +51,27 @@ namespace WeatherHouse.Vegetation
             if (renderingReflection || source == reflectionCamera || !isActiveAndEnabled || !waterRenderer || !waterRenderer.enabled) return;
             if (source.cameraType != CameraType.Game && source.cameraType != CameraType.SceneView) return;
             if ((source.cullingMask & (1 << gameObject.layer)) == 0) return;
+            GeometryUtility.CalculateFrustumPlanes(source, cameraFrustum);
+            if (!GeometryUtility.TestPlanesAABB(cameraFrustum, waterRenderer.bounds)) return;
+
+            // URP 14 initializes CameraData after this callback. Request the textures only on
+            // game cameras rendering this pond; the pipeline asset and reflection camera stay unchanged.
+            bool hasSceneColor;
+            if (source.cameraType == CameraType.Game)
+            {
+                bool hadCameraData = source.TryGetComponent<UniversalAdditionalCameraData>(out _);
+                var sourceData = source.GetUniversalAdditionalCameraData();
+                sourceData.requiresDepthOption = CameraOverrideOption.On;
+                sourceData.requiresColorOption = CameraOverrideOption.On;
+                // URP caches this component before BeginCameraRendering; newly added data takes one frame.
+                hasSceneColor = hadCameraData && sourceData.renderType == CameraRenderType.Base;
+            }
+            else
+            {
+                // SceneView ignores additional camera data and follows the pipeline's opaque option.
+                var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+                hasSceneColor = pipeline && pipeline.supportsCameraOpaqueTexture;
+            }
 
             if (!reflectionCamera)
             {
@@ -69,8 +93,8 @@ namespace WeatherHouse.Vegetation
                     hideFlags = HideFlags.HideAndDontSave,
                     filterMode = FilterMode.Bilinear,
                     wrapMode = TextureWrapMode.Clamp,
-                    useMipMap = true,
-                    autoGenerateMips = true
+                    useMipMap = false,
+                    autoGenerateMips = false
                 };
                 reflectionTexture.Create();
             }
@@ -125,6 +149,7 @@ namespace WeatherHouse.Vegetation
             waterRenderer.GetPropertyBlock(properties);
             properties.SetTexture(ReflectionTextureId, reflectionTexture);
             properties.SetFloat(HasReflectionId, 1);
+            properties.SetFloat(HasSceneColorId, hasSceneColor ? 1 : 0);
             Matrix4x4 textureBias = Matrix4x4.identity;
             textureBias.m00 = 0.5f;
             textureBias.m03 = 0.5f;

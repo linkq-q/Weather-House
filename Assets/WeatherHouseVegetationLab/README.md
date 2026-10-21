@@ -4,7 +4,7 @@
 
 ## 修改草地
 
-选中 Hierarchy 中的 **01 草地控制器**。
+在非 Play 的编辑模式下，选中 Hierarchy 中的 **01 草地控制器**。运行时的自动调参见下方“运行中试调”。
 
 - `Weights` 三项依次为短草、高草、白色雏菊。按草丛数量归一化，当前场景为 78 / 20 / 2；某项为 0 不生成该种，全部为 0 清空。
 - `Total Clumps` 控制总数量，当前场景为 28000，范围 0–40000。比例不是屏幕覆盖面积；高草与雏菊每丛的体积不同。
@@ -37,7 +37,7 @@ Play 面板分为四页，参数较多时可滚动：
 | 颜色/风 | 所选草种的根尖 RGB、全场风力与风速，以及朝上法线 0–1 |
 | 相机 | 环绕、行走、飞行，移动速度、加速倍率、鼠标灵敏度、视点高度与 FOV |
 
-比例、数量、形状或位置修改后，点击 **应用修改 · 重新生成草地**。预设会直接生成；颜色、风与法线实时生效。法线滑杆 0 使用真实几何法线，1 统一朝世界上方着色，中间值混合两者。
+Play 中拖动比例、数量、形状或位置参数会自动更新，不需要应用按钮。草地按块分帧替换，面板显示进度，松手后自动完成剩余更新；颜色、风与法线直接生效。运行中的 Inspector 调参也会自动更新。法线滑杆 0 使用真实几何法线，1 统一朝世界上方着色，中间值混合两者。
 
 `1` 全景、`2` 草近景、`3` 水岸会回到环绕模式；`4` 行走，`5` 飞行，`Tab` 隐藏面板。按住右键看向，WASD 移动，Shift 加速；松开右键或按 Esc 释放鼠标。环绕模式用滚轮调远近；飞行时 E / Space 上升，Q / Ctrl 下降。操作相机时将鼠标移出参数面板。
 
@@ -47,21 +47,36 @@ Play 中使用独立的草种和材质副本，退出后试调恢复。要永久
 
 ## 水体与配色
 
-当前配色依据 `概念图/色彩参考/白天.png`：草地受光偏金黄与黄绿，树荫偏冷绿。`Generated/PainterlyWater.mat` 控制浅岸色、深水色、波纹色、倒影强度、深度过渡和波纹速度。水体对象上的 `PainterlyWaterReflection` 使用最长边 1024 像素的实时平面倒影，排除 Water 层；材质打散镜面倒影，形成柔和横向波纹，相机开启深度纹理。
+当前配色依据 `概念图/色彩参考/白天.png`，水纹另对照多视角中的池塘、溪流与远景。`Generated/PainterlyWater.mat` 控制浅岸色、深水色、波纹色、倒影强度、深度过渡和波纹速度。水体对象上的 `PainterlyWaterReflection` 使用最长边 1024 像素的实时平面倒影，排除 Water 层。
 
-本轮已补齐草与地面材质缺失的 `DepthNormals` Pass。GPU 深度 A/B 显示，修复前整池纯白，修复后由岸边黑灰连续过渡到池中白，水面深度过渡恢复；证据为 `VegetationLabReview/10_Depth_Before.png`、`11_Depth_After.png`、`12_Water_Fixed.png`。当前折射和高光仍与原包不同，尚未全面复刻原包水体。
+草与地面的 `DepthNormals` Pass 继续保留，水深由深度纹理重建的水底世界坐标计算。岸线跟随岸边和相交石头，分成断续近岸线与向外的细线。水面另有稀疏、带收尖的横向短笔触；倒影按横向小块取样并简化亮度层次。
 
-本轮水体学习参考：[Roystan 的深度渐变与岸边水纹](https://roystan.net/articles/toon-water/)、[Cyanilux 的 URP 水体拆解](https://www.cyanilux.com/tutorials/water-shader-breakdown/)、[Unity 官方 BoatAttack 水面示例](https://github.com/Unity-Technologies/BoatAttack)。参考用于理解方法，实际项目采用本目录的材质和反射组件。
+- `_Opacity = 0.70`：水层与可见水底合成约 70% / 30%，岸线另做边缘渐隐。
+- `_ShoreStrength / _ShoreWidth`：岸线明显程度与深度范围。
+- `_SurfaceStrokeStrength / _SurfaceStrokeDensity`：水面短横纹亮度与数量。
+- `_ReflectionBrushStrength / _ReflectionBrushSize / _ReflectionPosterize`：倒影分笔程度、笔触尺度、色阶强度。
+- `_CausticStrength / _CausticScale / _CausticSpeed / _CausticDepth`：水底焦散的强弱、大小、速度与深度衰减。焦散跟随重建的水底，并受主光阴影影响。
+- `_RefractionStrength`：轻微折射；深度检查会拒绝采到水面前方草叶和岸石的偏移样本。
+
+完整透底、折射与焦散在 Game 相机中验收，该相机单独开启 Depth/Opaque Texture。当前全局 Opaque Texture 关闭时，Scene 视图使用普通透明回退；不会读取其他相机留下的颜色纹理。
+
+本轮参考了 [Ameye 的 URP 14 风格水体](https://ameye.dev/notes/stylized-water-shader/)、[Cyanilux 的水体拆解](https://www.cyanilux.com/tutorials/water-shader-breakdown/)、[Unity 官方 BoatAttack](https://github.com/Unity-Technologies/BoatAttack)。油画方向参考 [Kyprianidis 的定向绘画抽象研究](https://www.kyprianidis.com/p/pg2009/) 中保留边界、简化局部细节的思想。本项目采用轻量反射分笔，没有复现完整 Kuwahara 后处理，也没有整包导入这些工程。
 
 菜单 **Apply Day Concept Style** 会把这个测试场景的配色与草形参数恢复到白天概念图方案；它会覆盖测试场景中的手工调整。
 
-背景树、灌木和石头沿用已有 HIGHLANDS 资源作为对照。当前场景用于验收草与水，背景不是概念图完整地编复刻。
+## 阔叶树样本
+
+独立场景新增 `07 阔叶主样`、`08 阔叶副样`，使用弯曲枝干与实体叶簇，可调整树高、干径、弯曲、冠幅、疏密、分枝数和种子。选中后修改 `PainterlyTree`，点击 **更新当前树 · 保存网格**。叶簇和树干各用一份材质，包含冷绿阴影、暖黄绿受光以及轻微风动。
+
+样本用来确认树形与材质方向。正式主树建议在 SpeedTree 手调主干走势和主枝，再用同一配色验收。已有 HIGHLANDS 松树、灌木和石头仍用于背景对照；这不是完整概念图地编。
+
+菜单 **Apply Painted Water and Tree Samples** 应用本轮水体默认值，并补建缺少的两棵树；保留已有草形和树形手动调整。
 
 ## 验证
 
 菜单 **Run Checks** 执行编辑器检查。`VegetationLabReview/` 保存实际 GPU 渲染和 Play 验证记录。
 
-检查覆盖比例端点、归一化取整、全零清空、连续重建、确定性网格、白色花瓣、可编辑形状、岸线排除和三种 Shader。本轮 `runtime-checks.txt` 已记录实际 Play 中草形、行走/飞行、岸边阻挡及模式切换检查通过，无记录到的运行时错误。相机检查是在实际 Play 中调用真实移动入口完成，未逐键人工验证键盘和鼠标输入。
+检查覆盖比例端点、归一化取整、全零清空、连续重建、确定性草与树网格、白色花瓣、可编辑形状、岸线排除和四种 Shader。新增 `live-grass-checks.txt` 记录实际 Update 驱动的连续变更，`water-style-checks.txt` 记录相同镜头下逐项开关水体功能的 GPU 像素差异。功能生效检查不代表美术效果已经获得认可。相机检查调用真实移动入口，未逐键人工验证键盘和鼠标输入。
 
 实际结果以 `VegetationLabReview/` 中本轮 `editor-checks.txt`、`runtime-checks.txt` 与截图为准；旧轮截图不代表当前效果。运行环境为 Windows / Unity 2022.3 / URP 14 / RTX 5060 Laptop，未测移动端性能。
 
