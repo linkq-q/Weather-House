@@ -127,11 +127,19 @@ namespace WeatherHouse.Vegetation.Editor
 
         static IEnumerator Converge(GrassMeadow meadow, string label)
         {
+            PlantLibraryChecks.ActiveStage = label;
             int frame = Time.frameCount;
             float started = Time.realtimeSinceStartup;
+            float nextNote = started + 5;
+            Note("START " + label + ": " + State(meadow, frame));
             do
             {
-                Assert(Time.realtimeSinceStartup - started < 45, label + " timed out");
+                if (Time.realtimeSinceStartup - started >= 45) Assert(false, label + " timed out; " + State(meadow, frame));
+                if (Time.realtimeSinceStartup >= nextNote)
+                {
+                    Note("WAIT " + label + ": " + State(meadow, frame));
+                    nextNote = Time.realtimeSinceStartup + 5;
+                }
                 yield return null;
             } while (Time.frameCount - frame < 2 || meadow.IsLiveUpdating);
             Assert(string.IsNullOrEmpty(meadow.LiveError), meadow.LiveError);
@@ -147,7 +155,7 @@ namespace WeatherHouse.Vegetation.Editor
             float deadline = Time.realtimeSinceStartup + 20;
             while (Time.frameCount - frame < amount)
             {
-                Assert(Time.realtimeSinceStartup < deadline, "Play frames advance");
+                Assert(Time.realtimeSinceStartup < deadline, "Play frames advance; requested=" + amount + "; advanced=" + (Time.frameCount - frame) + "; " + PlantLibraryChecks.DescribePlayState());
                 yield return null;
             }
         }
@@ -156,6 +164,13 @@ namespace WeatherHouse.Vegetation.Editor
             Transform root = meadow.transform.Find("Generated Grass");
             if (!root) return new Mesh[0];
             return root.GetComponentsInChildren<MeshFilter>().Where(f => f.GetComponent<MeshRenderer>().sharedMaterial == meadow.materials[kind]).Select(f => f.sharedMesh).ToArray();
+        }
+        static string State(GrassMeadow meadow, int firstFrame)
+        {
+            return PlantLibraryChecks.DescribePlayState() + "; waitFrames=" + (Time.frameCount - firstFrame)
+                + "; enabled=" + meadow.isActiveAndEnabled + "; revisions=" + meadow.CompletedRevision + "/" + meadow.RequestedRevision
+                + "; updating=" + meadow.IsLiveUpdating + "; progress=" + meadow.LiveProgress.ToString("F3")
+                + "; counts=" + string.Join(",", meadow.Counts) + "; liveError=" + meadow.LiveError;
         }
         static Mesh[] AllMeshes(GrassMeadow meadow) { return Enumerable.Range(0, meadow.SpeciesCount).SelectMany(k => SpeciesMeshes(meadow, k)).ToArray(); }
         static Mesh[] OwnedMeshes(int id)

@@ -33,6 +33,7 @@ namespace WeatherHouse.Vegetation.Editor
                 if (command == "library-verify" || command == "library-refresh-verify") { File.WriteAllText(Folder + "/request-error.txt", ""); PlantLibraryChecks.BuildAndVerify(command == "library-refresh-verify"); return; }
                 if (command == "biomes-verify") { File.WriteAllText(Folder + "/request-error.txt", ""); PlantLibraryChecks.BuildBiomesAndVerify(); return; }
                 if (command == "biomes-recheck") { File.WriteAllText(Folder + "/request-error.txt", ""); PlantLibraryChecks.VerifyExistingBiomes(); return; }
+                if (command == "character-verify") { File.WriteAllText(Folder + "/request-error.txt", ""); PlantLibraryChecks.BuildCharacterAndVerify(); return; }
                 if (command != "verify" && command != "upgrade-verify" && command != "style-verify") throw new InvalidOperationException("Unsupported vegetation request: " + command);
                 if (EditorApplication.isPlaying || scene.isDirty || SceneManager.sceneCount != 1)
                     throw new InvalidOperationException("Checks need one saved scene outside Play; user edits were preserved.");

@@ -16,10 +16,18 @@ namespace WeatherHouse.Vegetation.Editor
         const string Running = "WeatherHouse.PlantLibrary.Checking";
         const string ReturnScene = "WeatherHouse.PlantLibrary.ReturnScene";
         const string Biomes = "WeatherHouse.PlantLibrary.BiomeChecks";
-        static string ResultPath { get { return Output + (SessionState.GetBool(Biomes, false) ? "/plant-biomes-result.txt" : "/plant-library-result.txt"); } }
+        const string Character = "WeatherHouse.PlantLibrary.CharacterChecks";
+        const string SettingsSaved = "WeatherHouse.PlantLibrary.PlaySettingsSaved";
+        const string BackgroundSetting = "WeatherHouse.PlantLibrary.BackgroundSetting";
+        const string PauseSetting = "WeatherHouse.PlantLibrary.PauseSetting";
+        static string ReportPrefix { get { return SessionState.GetBool(Character, false) ? "character-in-vegetation" : SessionState.GetBool(Biomes, false) ? "plant-biomes" : "plant-library"; } }
+        static string ResultPath { get { return Output + "/" + ReportPrefix + "-result.txt"; } }
+        static string DriverReport { get { return Output + "/" + ReportPrefix + "-driver-checks.txt"; } }
         static IEnumerator steps;
-        static double started;
+        static double started, lastFrameAt;
+        static int lastFrame, firstFrame, editorTicks;
         static string errors;
+        internal static string ActiveStage { get; set; }
 
         [MenuItem("Weather House/Vegetation Lab/植物资源库 · 验证并截图")]
         public static void BuildAndVerify()
@@ -32,20 +40,23 @@ namespace WeatherHouse.Vegetation.Editor
         }
         public static void BuildBiomesAndVerify() { Begin(false, true); }
         public static void VerifyExistingBiomes() { Begin(false, true, false); }
-        static void Begin(bool refreshPresentation, bool biomeSamples, bool installBiomes = true)
+        public static void BuildCharacterAndVerify() { Begin(false, true, false, true); }
+        static void Begin(bool refreshPresentation, bool biomeSamples, bool installBiomes = true, bool character = false)
         {
             var scene = SceneManager.GetActiveScene();
-            if (EditorApplication.isPlaying || scene.isDirty || SceneManager.sceneCount != 1)
+            if (EditorApplication.isPlayingOrWillChangePlaymode || SessionState.GetBool(Running, false) || scene.isDirty || SceneManager.sceneCount != 1)
                 throw new InvalidOperationException("请先保存当前单一场景并退出 Play，检查后会恢复它。");
             Directory.CreateDirectory(Output);
             SessionState.SetBool(Biomes, biomeSamples);
+            SessionState.SetBool(Character, character);
             File.WriteAllText(ResultPath, "RUNNING\n");
             SessionState.SetString(ReturnScene, scene.path);
             try
             {
                 if (biomeSamples)
                 {
-                    if (installBiomes) PlantBiomeSamples.Install();
+                    if (character) VegetationCharacterIntegration.Install();
+                    else if (installBiomes) PlantBiomeSamples.Install();
                     else EditorSceneManager.OpenScene(VegetationLabBuilder.ScenePath);
                     PlantBiomeSamples.Verify();
                 }
@@ -55,6 +66,9 @@ namespace WeatherHouse.Vegetation.Editor
                     else PlantLibraryBuilder.OpenOrCreate();
                     VerifyEditor();
                 }
+                SessionState.SetBool(BackgroundSetting, Application.runInBackground);
+                SessionState.SetBool(PauseSetting, EditorApplication.isPaused);
+                SessionState.SetBool(SettingsSaved, true);
                 SessionState.SetBool(Running, true);
                 Register();
                 EditorApplication.isPlaying = true;
@@ -118,17 +132,39 @@ namespace WeatherHouse.Vegetation.Editor
         {
             if (state == PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(Running, false))
             {
-                errors = ""; started = EditorApplication.timeSinceStartup; steps = SessionState.GetBool(Biomes, false) ? RunBiomes() : Run();
+                errors = ""; started = EditorApplication.timeSinceStartup;
+                steps = SessionState.GetBool(Character, false) ? VegetationCharacterIntegration.VerifyPlay() : SessionState.GetBool(Biomes, false) ? RunBiomes() : Run();
+                firstFrame = lastFrame = Time.frameCount; lastFrameAt = started; editorTicks = 0;
+                ActiveStage = "starting Play frames";
+                File.WriteAllText(DriverReport, "START " + DescribePlayState() + "\n");
+                Application.runInBackground = true;
+                EditorApplication.isPaused = false;
                 EditorApplication.update -= Tick; EditorApplication.update += Tick;
+                EditorApplication.QueuePlayerLoopUpdate();
             }
+            if (state == PlayModeStateChange.ExitingPlayMode && SessionState.GetBool(Running, false))
+                Finish(new InvalidOperationException("Play stopped before checks completed. " + DescribePlayState()));
             if (state == PlayModeStateChange.EnteredEditMode) Restore();
         }
         static void Tick()
         {
-            if (EditorApplication.timeSinceStartup - started < 3) return;
+            if (steps == null) return;
             try
             {
-                if (EditorApplication.timeSinceStartup - started > 240) throw new Exception("Plant library Play verification timed out.");
+                double now = EditorApplication.timeSinceStartup;
+                editorTicks++;
+                if (now - started > 240) throw new Exception("Plant library Play verification timed out. " + DescribePlayState());
+                Assert(EditorApplication.isPlaying && !EditorApplication.isPaused, "Play must remain running. " + DescribePlayState());
+                EditorApplication.QueuePlayerLoopUpdate();
+                // Editor callbacks can run without a PlayerLoop frame, especially in background.
+                // Each yielded test step must let real MonoBehaviour.Update/Destroy/rendering run.
+                if (Time.frameCount == lastFrame)
+                {
+                    Assert(now - lastFrameAt < 20, "No Play frame for 20 seconds. " + DescribePlayState());
+                    return;
+                }
+                lastFrame = Time.frameCount; lastFrameAt = now;
+                if (now - started < 3) return;
                 if (!steps.MoveNext()) Finish(string.IsNullOrEmpty(errors) ? null : new Exception(errors));
             }
             catch (Exception error) { Finish(error); }
@@ -136,11 +172,17 @@ namespace WeatherHouse.Vegetation.Editor
         static IEnumerator Run()
         {
             var view = Object.FindObjectOfType<GrassLabView>(); var camera = view.GetComponent<Camera>(); var nav = view.Navigation;
-            nav.Overview(); Capture("Plants_Overview", camera, 1600, 1000);
-            ScreenCapture.CaptureScreenshot(Output + "/Plants_Controls.png");
+            ActiveStage = "library gallery captures";
+            nav.Overview();
             yield return null;
+            Capture("Plants_Overview", camera, 1600, 1000);
+            IEnumerator controls = CaptureControls("Plants_Controls");
+            while (controls.MoveNext()) yield return null;
             nav.CloseGrass(); Capture("Plants_FourGrass", camera, 1600, 900);
+            yield return null;
             nav.Shore(); Capture("Plants_Accents", camera, 1600, 1000);
+            yield return null;
+            ActiveStage = "individual plant captures";
             var catalog = AssetDatabase.LoadAssetAtPath<PlantLibraryCatalog>(PlantLibraryBuilder.CatalogPath);
             nav.enabled = false;
             for (int i = 0; i < 19; i++)
@@ -165,6 +207,7 @@ namespace WeatherHouse.Vegetation.Editor
             legacyMeadow.materials = new[] { "ShortGrass", "TallGrass", "WhiteDaisy" }.Select(name => AssetDatabase.LoadAssetAtPath<Material>(root + name + ".mat")).ToArray();
             try
             {
+                ActiveStage = "legacy three-species live checks";
                 check = GrassLiveChecks.Verify(legacyMeadow);
                 while (check.MoveNext()) yield return null;
             }
@@ -176,6 +219,9 @@ namespace WeatherHouse.Vegetation.Editor
         }
         static IEnumerator RunBiomes()
         {
+            var character = Object.FindObjectOfType<VegetationCharacterPreview>();
+            if (character) character.SetCharacterMode(false);
+            ActiveStage = "biome region checks";
             var view = Object.FindObjectOfType<GrassLabView>(); var camera = view.GetComponent<Camera>(); var nav = view.Navigation;
             Assert(view.regions != null && view.regions.Length == 5, "original meadow plus four selectable regions");
             PlantRegionChecks.Verify(view);
@@ -204,14 +250,36 @@ namespace WeatherHouse.Vegetation.Editor
                 do { Assert(Time.realtimeSinceStartup < deadline, "region restore timed out"); yield return null; }
                 while (Time.frameCount - frame < 3 || view.meadow.IsLiveUpdating);
             }
-            ScreenCapture.CaptureScreenshot(Output + "/Biome_Controls.png");
-            yield return null;
+            IEnumerator controls = CaptureControls("Biome_Controls");
+            while (controls.MoveNext()) yield return null;
             nav.enabled = false;
             camera.farClipPlane = 350;
             camera.transform.position = new Vector3(0, 116, -144); camera.transform.LookAt(new Vector3(0, 3, 0));
             Capture("Biomes_Overview", camera, 1600, 1000);
             nav.enabled = true; view.SelectRegion(0); nav.Overview();
             File.WriteAllText(Output + "/plant-biomes-live-checks.txt", "PASS: four saved regions; region selection; real Play shape updates; independent parameter clones; restores; all region GPU captures.\n");
+        }
+        static IEnumerator CaptureControls(string name)
+        {
+            ActiveStage = name + " rendered UI capture";
+            string path = Output + "/" + name + ".png";
+            DateTime previous = File.Exists(path) ? File.GetLastWriteTimeUtc(path) : DateTime.MinValue;
+            int frame = Time.frameCount;
+            double deadline = EditorApplication.timeSinceStartup + 20;
+            ScreenCapture.CaptureScreenshot(path);
+            do
+            {
+                Assert(EditorApplication.timeSinceStartup < deadline, "Fresh UI screenshot was not written: " + path + ". " + DescribePlayState());
+                yield return null;
+            }
+            while (Time.frameCount - frame < 2 || !File.Exists(path) || File.GetLastWriteTimeUtc(path) <= previous || new FileInfo(path).Length == 0);
+            File.AppendAllText(DriverReport, "PASS fresh UI screenshot " + path + "; " + DescribePlayState() + "\n");
+        }
+        internal static string DescribePlayState()
+        {
+            return "stage=" + ActiveStage + "; frame=" + Time.frameCount + "; framesAdvanced=" + (Time.frameCount - firstFrame)
+                + "; editorTicks=" + editorTicks + "; playing=" + EditorApplication.isPlaying + "; paused=" + EditorApplication.isPaused
+                + "; focused=" + Application.isFocused + "; runInBackground=" + Application.runInBackground + "; timeScale=" + Time.timeScale;
         }
         public static void Capture(string name, Camera camera, int width, int height)
         {
@@ -222,14 +290,24 @@ namespace WeatherHouse.Vegetation.Editor
         }
         static void Finish(Exception error)
         {
-            (steps as IDisposable)?.Dispose(); steps = null;
+            var pending = steps; steps = null;
             EditorApplication.update -= Tick; SessionState.SetBool(Running, false);
+            try { (pending as IDisposable)?.Dispose(); }
+            catch (Exception cleanup) { error = error == null ? cleanup : new AggregateException(error, cleanup); }
             Application.logMessageReceived -= Log;
-            File.WriteAllText(ResultPath, error == null ? (SessionState.GetBool(Biomes, false) ? "PASS: four biome regions in original lab, independent sources, world ground alignment, Play region switching and live shape edits, GPU captures.\n" : "PASS: editor assets, 76 prefab variants, GPU captures, 19-slot live controls, legacy three-slot live controls, fly camera.\n") : "FAIL: " + error + "\n");
+            File.AppendAllText(DriverReport, (error == null ? "PASS " : "FAIL ") + DescribePlayState() + "\n");
+            File.WriteAllText(ResultPath, error == null ? (SessionState.GetBool(Character, false) ? "PASS: integrated animated character, real movement and bone poses, walk/run/jump/landing, five-region ground contact, exclusive camera and input modes, GPU captures.\n" : SessionState.GetBool(Biomes, false) ? "PASS: four biome regions in original lab, independent sources, world ground alignment, Play region switching and live shape edits, GPU captures.\n" : "PASS: editor assets, 76 prefab variants, GPU captures, 19-slot live controls, legacy three-slot live controls, fly camera.\n") : "FAIL: " + error + "\n");
             if (EditorApplication.isPlaying) EditorApplication.isPlaying = false; else Restore();
         }
         static void Restore()
         {
+            if (SessionState.GetBool(SettingsSaved, false))
+            {
+                Application.runInBackground = SessionState.GetBool(BackgroundSetting, false);
+                EditorApplication.isPaused = SessionState.GetBool(PauseSetting, false);
+                SessionState.EraseBool(SettingsSaved);
+                SessionState.EraseBool(BackgroundSetting); SessionState.EraseBool(PauseSetting);
+            }
             string path = SessionState.GetString(ReturnScene, ""); SessionState.EraseString(ReturnScene);
             if (!string.IsNullOrEmpty(path) && File.Exists(path) && SceneManager.GetActiveScene().path != path) EditorSceneManager.OpenScene(path);
         }
