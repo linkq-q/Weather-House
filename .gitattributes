@@ -27,3 +27,4 @@
 *.ogg filter=lfs diff=lfs merge=lfs -text
 *.unitypackage filter=lfs diff=lfs merge=lfs -text
 "Assets/WeatherHousePrototype/Generated/Map Terrain.asset" filter=lfs diff=lfs merge=lfs -text
+Assets/WeatherHouseVegetationLab/Generated/MeadowMeshes/**/*.asset filter=lfs diff=lfs merge=lfs -text
