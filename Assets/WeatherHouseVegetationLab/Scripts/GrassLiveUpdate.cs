@@ -30,7 +30,8 @@ namespace WeatherHouse.Vegetation
         int buildingRevision;
         bool liveMadeProgress;
         int livePendingKinds, liveKindCursor;
-        readonly int[] liveChunkCursor=new int[3];
+        int[] liveChunkCursor;
+        bool liveConfigurationBlocked;
 
         sealed class LiveChunk
         {
@@ -42,19 +43,24 @@ namespace WeatherHouse.Vegetation
         {
             GrassKind kind;
             float height, width, tip, spread, root, bend, variation, flowerRadius;
-            int blades, seed, flowers;
+            float headLength, leafAspect, curl, outerBladeFraction, clumpLayering;
+            int blades, seed, flowers, petals;
             Color flower, center;
             public ShapeState(GrassSpecies s)
             {
                 kind=s.kind; height=s.height; width=s.width; tip=s.tipWidthRatio; spread=s.spread;
                 root=s.rootSpread; bend=s.bend; variation=s.heightVariation; flowerRadius=s.flowerRadius;
                 blades=s.bladeCount; seed=s.seed; flowers=s.flowerCount; flower=s.flowerColor; center=s.centerColor;
+                petals=s.petalCount; headLength=s.headLength; leafAspect=s.leafAspect; curl=s.curl;
+                outerBladeFraction=s.outerBladeFraction; clumpLayering=s.clumpLayering;
             }
             public bool Equals(ShapeState s)
             {
                 return kind==s.kind && height==s.height && width==s.width && tip==s.tip && spread==s.spread &&
                     root==s.root && bend==s.bend && variation==s.variation && flowerRadius==s.flowerRadius &&
-                    blades==s.blades && seed==s.seed && flowers==s.flowers && flower==s.flower && center==s.center;
+                    blades==s.blades && seed==s.seed && flowers==s.flowers && flower==s.flower && center==s.center &&
+                    petals==s.petals && headLength==s.headLength && leafAspect==s.leafAspect && curl==s.curl &&
+                    outerBladeFraction==s.outerBladeFraction && clumpLayering==s.clumpLayering;
             }
         }
 
@@ -71,29 +77,34 @@ namespace WeatherHouse.Vegetation
             }
             public bool Equals(LayoutState s)
             {
-                return counts!=null && s.counts!=null && counts[0]==s.counts[0] && counts[1]==s.counts[1] && counts[2]==s.counts[2] &&
-                    seed==s.seed && size==s.size && pond==s.pond && radius==s.radius && water==s.water;
+                if (counts==null || s.counts==null || counts.Length!=s.counts.Length || seed!=s.seed || size!=s.size || pond!=s.pond || radius!=s.radius || water!=s.water) return false;
+                for (int i=0;i<counts.Length;i++) if (counts[i]!=s.counts[i]) return false;
+                return true;
             }
         }
 
         void ResetLiveTracking()
         {
             liveChunks=null; liveRoot=null;
-            if (species.Length!=3 || Array.Exists(species, s=>!s)) return;
-            observedShapes=new ShapeState[3]; appliedShapes=new ShapeState[3];
-            observedRoots=new Color[3]; observedTips=new Color[3];
-            for (int i=0;i<3;i++)
+            if (ConfigurationError!=null) return;
+            int length=SpeciesCount;
+            if (counts==null || counts.Length!=length) Array.Resize(ref counts,length);
+            observedShapes=new ShapeState[length]; appliedShapes=new ShapeState[length];
+            observedRoots=new Color[length]; observedTips=new Color[length];
+            liveChunkCursor=new int[length]; liveKindCursor=0;
+            for (int i=0;i<length;i++)
             {
                 observedShapes[i]=appliedShapes[i]=new ShapeState(species[i]);
                 observedRoots[i]=species[i].baseColor; observedTips[i]=species[i].tipColor;
             }
             observedAppearance=new Vector3(windStrength,windSpeed,upNormals);
             var applied=new LayoutState(this,counts);
-            appliedLayouts=new[] {applied,applied,applied};
-            liveDirty=new bool[3];
+            appliedLayouts=new LayoutState[length];
+            for (int i=0;i<length;i++) appliedLayouts[i]=applied;
+            liveDirty=new bool[length];
             observedLayout=new LayoutState(this,Allocate(Mathf.Clamp(totalClumps,0,40000),weights));
             CompletedRevision=RequestedRevision;
-            LiveProgress=1; LiveError=null;
+            LiveProgress=1; LiveError=null; liveConfigurationBlocked=false;
             if (Application.isPlaying && !observedLayout.Equals(applied)) RequestLiveUpdate();
         }
 
@@ -107,6 +118,14 @@ namespace WeatherHouse.Vegetation
         void Update()
         {
             if (!Application.isPlaying || observedShapes==null) return;
+            string configurationError=ConfigurationError;
+            if (configurationError!=null)
+            {
+                CancelLiveBuild(); LiveError=configurationError;
+                CompletedRevision=RequestedRevision; liveConfigurationBlocked=true;
+                return;
+            }
+            if (liveConfigurationBlocked) { liveConfigurationBlocked=false; RequestLiveUpdate(); }
             ObserveLiveChanges();
             if (!IsLiveUpdating) return;
             float now=Time.realtimeSinceStartup;
@@ -148,13 +167,12 @@ namespace WeatherHouse.Vegetation
 
         void ObserveLiveChanges()
         {
-            if (species.Length!=3 || materials.Length!=3 || weights.Length!=3 || Array.Exists(species,s=>!s)) return;
             var layout=new LayoutState(this,Allocate(Mathf.Clamp(totalClumps,0,40000),weights));
             bool geometry=!layout.Equals(observedLayout);
             observedLayout=layout;
             bool appearance=observedAppearance!=new Vector3(windStrength,windSpeed,upNormals);
             observedAppearance=new Vector3(windStrength,windSpeed,upNormals);
-            for (int i=0;i<3;i++)
+            for (int i=0;i<SpeciesCount;i++)
             {
                 var shape=new ShapeState(species[i]);
                 geometry|=!shape.Equals(observedShapes[i]); observedShapes[i]=shape;
@@ -167,8 +185,8 @@ namespace WeatherHouse.Vegetation
 
         void ValidateLiveSettings()
         {
-            if (species.Length!=3 || materials.Length!=3 || weights.Length!=3 || Array.Exists(species,s=>!s) || Array.Exists(materials,m=>!m))
-                throw new InvalidOperationException("草种与材质需要完整配置三个槽位。");
+            string error=ConfigurationError;
+            if (error!=null) throw new InvalidOperationException(error);
             if (Array.TrueForAll(observedLayout.counts,n=>n==0)) return;
             bool land=false;
             for (int x=0;x<=20 && !land;x++)
@@ -180,24 +198,25 @@ namespace WeatherHouse.Vegetation
         void EnsureLiveChunks()
         {
             if (liveChunks!=null && liveRoot) return;
-            liveChunks=new[] {new List<LiveChunk>(),new List<LiveChunk>(),new List<LiveChunk>()};
+            liveChunks=new List<LiveChunk>[SpeciesCount];
+            for (int i=0;i<SpeciesCount;i++) liveChunks[i]=new List<LiveChunk>();
             liveRoot=transform.Find("Generated Grass");
             if (!liveRoot)
             {
                 liveRoot=new GameObject("Generated Grass").transform;
                 liveRoot.SetParent(transform,false);
-                counts=new int[3];
+                counts=new int[SpeciesCount];
                 var empty=new LayoutState(this,counts);
-                appliedLayouts=new[] {empty,empty,empty};
+                for (int i=0;i<SpeciesCount;i++) appliedLayouts[i]=empty;
                 return;
             }
-            int[] found=new int[3];
+            int[] found=new int[SpeciesCount];
             foreach (Transform child in liveRoot)
             {
                 var filter=child.GetComponent<MeshFilter>();
                 var renderer=child.GetComponent<MeshRenderer>();
                 if (!filter || !renderer) continue;
-                for (int i=0;i<3;i++) if (renderer.sharedMaterial==materials[i])
+                for (int i=0;i<SpeciesCount;i++) if (renderer.sharedMaterial==materials[i])
                 {
                     int amount=Mathf.Min(LiveChunkSize,Mathf.Max(0,counts[i]-found[i]));
                     liveChunks[i].Add(new LiveChunk {filter=filter,count=amount}); found[i]+=amount;
@@ -210,13 +229,13 @@ namespace WeatherHouse.Vegetation
         {
             LayoutState wanted=observedLayout;
             var shapes=(ShapeState[])observedShapes.Clone();
-            var snapshots=new GrassSpecies[3];
-            var jobs=new IEnumerator[3];
+            var snapshots=new GrassSpecies[SpeciesCount];
+            var jobs=new IEnumerator[SpeciesCount];
             int active=0,units=0,finished=0;
             livePendingKinds=0;
             try
             {
-                for (int i=0;i<3;i++)
+                for (int i=0;i<SpeciesCount;i++)
                 {
                     if (!liveDirty[i] && wanted.Equals(appliedLayouts[i]) && shapes[i].Equals(appliedShapes[i])) continue;
                     // A partial replacement remains dirty even when a slider returns to its original value.
@@ -230,7 +249,7 @@ namespace WeatherHouse.Vegetation
                 while (active>0)
                 {
                     int kind=liveKindCursor;
-                    liveKindCursor=(liveKindCursor+1)%3;
+                    liveKindCursor=(liveKindCursor+1)%SpeciesCount;
                     if (jobs[kind]==null) continue;
                     if (jobs[kind].MoveNext())
                     {

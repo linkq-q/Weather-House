@@ -20,6 +20,8 @@ namespace WeatherHouse.Vegetation
         public float lookSensitivity = 2;
         public float eyeHeight = 1.65f;
         public GrassCameraMode mode;
+        [Tooltip("植物资源库专用视角；原草地水体场景保持关闭。")]
+        public bool libraryLayout;
 
         // The lab ground is 80 x 70 m. This is a browsing camera, without tree/rock collision.
         const float HalfWidth = 39.5f, HalfLength = 34.5f;
@@ -125,9 +127,9 @@ namespace WeatherHouse.Vegetation
             }
         }
 
-        public void Overview() { Preset(new Vector3(3, 1, 3), 34, 23, 28); }
-        public void CloseGrass() { Preset(new Vector3(-6, 3.15f, -9), 35, 23, 4.5f); }
-        public void Shore() { Preset(new Vector3(6, .1f, 4), 34, 22, 18.5f); }
+        public void Overview() { if (libraryLayout) Preset(new Vector3(-8, 3.3f, 0), 24, 48, 31); else Preset(new Vector3(3, 1, 3), 34, 23, 28); }
+        public void CloseGrass() { if (libraryLayout) Preset(new Vector3(-10.5f, 3.5f, -9.8f), 0, 20, 7); else Preset(new Vector3(-6, 3.15f, -9), 35, 23, 4.5f); }
+        public void Shore() { if (libraryLayout) Preset(new Vector3(-13.5f, 3.5f, 1), 0, 40, 12); else Preset(new Vector3(6, .1f, 4), 34, 22, 18.5f); }
 
         void Preset(Vector3 point, float horizontal, float vertical, float range)
         {
@@ -162,10 +164,10 @@ namespace WeatherHouse.Vegetation
 
         float Ground(Vector3 position) { return meadow ? meadow.GetGroundHeight(position.x, position.z) : 0; }
         bool Walkable(Vector3 position) { return !meadow || Ground(position) > meadow.waterLevel + .20f; }
-        static Vector3 ClampHorizontal(Vector3 position)
+        Vector3 ClampHorizontal(Vector3 position)
         {
-            position.x = Mathf.Clamp(position.x, -HalfWidth, HalfWidth);
-            position.z = Mathf.Clamp(position.z, -HalfLength, HalfLength);
+            position.x = Mathf.Clamp(position.x, libraryLayout ? -22.5f : -HalfWidth, libraryLayout ? 7.5f : HalfWidth);
+            position.z = Mathf.Clamp(position.z, libraryLayout ? -12.5f : -HalfLength, libraryLayout ? 11.5f : HalfLength);
             return position;
         }
         Vector3 NearestLand(Vector3 origin)

@@ -10,9 +10,10 @@ namespace WeatherHouse.Vegetation
 {
     public partial class GrassMeadow : MonoBehaviour
     {
+        public const int MaxSpecies = 32;
         public GrassSpecies[] species = new GrassSpecies[3];
         public Material[] materials = new Material[3];
-        [Tooltip("按草丛数量归一化；70/24/6 表示 70%、24%、6%，不是覆盖面积。")]
+        [Tooltip("与 Species 槽位一一对应，按草丛数量归一化，不是覆盖面积。全部为零时清空。")]
         public float[] weights = { 70, 24, 6 };
         [Range(0, 40000)] public int totalClumps = 28000;
         public int seed = 431;
@@ -30,11 +31,70 @@ namespace WeatherHouse.Vegetation
         readonly List<Material> runtimeMaterials = new List<Material>();
         GrassSpecies[] runtimeSpecies;
 
+        public int SpeciesCount { get { return species == null ? 0 : species.Length; } }
+        public string ConfigurationError
+        {
+            get
+            {
+                int count = SpeciesCount;
+                if (count < 1 || count > MaxSpecies || materials == null || weights == null || materials.Length != count || weights.Length != count)
+                    return "Species、Materials、Weights 需要相同的 1–32 个槽位；请退出 Play 后配置种类数量。";
+                if (Array.Exists(species, s => !s) || Array.Exists(materials, m => !m))
+                    return "每个植物槽位都需要草种资产和材质。";
+                if (Application.isPlaying && runtimeSpecies != null)
+                {
+                    if (runtimeSpecies.Length != count) return "运行中不能更改种类数量；请退出 Play 后配置。";
+                    for (int i = 0; i < count; i++)
+                        if (species[i] != runtimeSpecies[i] || materials[i] != runtimeMaterials[i])
+                            return "运行中请调整已有植物参数；更换草种或材质槽位请先退出 Play。";
+                }
+                return null;
+            }
+        }
+
+        public static string SpeciesLabel(GrassSpecies item)
+        {
+            if (!item) return "未配置";
+            if (!string.IsNullOrWhiteSpace(item.displayName)) return item.displayName;
+            string name = item.name.Replace("(Clone)", "");
+            if (name == "ShortGrass") return "短草";
+            if (name == "TallGrass") return "高草";
+            if (name == "WhiteDaisy") return "白色雏菊";
+            return name;
+        }
+
+        public string[] SpeciesLabels()
+        {
+            var labels = new string[SpeciesCount];
+            for (int i = 0; i < labels.Length; i++) labels[i] = SpeciesLabel(species[i]);
+            return labels;
+        }
+
+        public static bool IsGrass(GrassKind kind) { return kind == GrassKind.ShortGrass || kind == GrassKind.TallGrass; }
+
+        public void SetMixPreset(int preset)
+        {
+            if (ConfigurationError != null) return;
+            preset = Mathf.Clamp(preset, 0, 2);
+            if (SpeciesCount == 3 && species[0].kind == GrassKind.ShortGrass && species[1].kind == GrassKind.TallGrass && species[2].kind == GrassKind.Daisy)
+            {
+                weights = preset == 0 ? new[] { 78f, 20f, 2f } : preset == 1 ? new[] { 94f, 4f, 2f } : new[] { 52f, 30f, 18f };
+                return;
+            }
+            int grasses = 0;
+            foreach (var item in species) if (IsGrass(item.kind)) grasses++;
+            int accents = SpeciesCount - grasses;
+            float grassShare = preset == 0 ? 85f : preset == 1 ? 95f : 65f;
+            for (int i = 0; i < SpeciesCount; i++)
+                weights[i] = IsGrass(species[i].kind) ? (accents == 0 ? 100f : grassShare) / grasses
+                    : (grasses == 0 ? 100f : 100f - grassShare) / accents;
+        }
+
         void Awake()
         {
             if (!Application.isPlaying) return;
-            if (species.Length != 3 || materials.Length != 3 || Array.Exists(species, s => !s) || Array.Exists(materials, m => !m))
-            { Debug.LogError("草种与材质需要完整配置三个槽位。", this); enabled = false; return; }
+            string error = ConfigurationError;
+            if (error != null) { Debug.LogError(error, this); enabled = false; return; }
             runtimeSpecies = new GrassSpecies[species.Length];
             for (int i = 0; i < species.Length; i++)
             {
@@ -114,10 +174,8 @@ namespace WeatherHouse.Vegetation
         public void Rebuild(bool saveMeshes)
         {
             CancelLiveBuild();
-            if (species.Length != 3 || materials.Length != 3 || weights.Length != 3)
-                throw new InvalidOperationException("草地需要短草、高草和雏菊三个槽位。");
-            for (int i = 0; i < 3; i++)
-                if (!species[i] || !materials[i]) throw new InvalidOperationException("草种与材质尚未配置。");
+            string error = ConfigurationError;
+            if (error != null) throw new InvalidOperationException(error);
             totalClumps = Mathf.Clamp(totalClumps, 0, 40000);
             var requested = Allocate(totalClumps, weights);
             if (Array.Exists(requested, n => n > 0))
@@ -145,7 +203,7 @@ namespace WeatherHouse.Vegetation
             root.SetParent(transform, false);
             counts = requested;
             ApplyMaterials();
-            for (int kind = 0; kind < 3; kind++)
+            for (int kind = 0; kind < SpeciesCount; kind++)
             {
                 var meshes = new Mesh[4];
                 for (int v = 0; v < 4; v++) meshes[v] = GrassMeshFactory.Build(species[kind], v);

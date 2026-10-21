@@ -10,6 +10,7 @@ namespace WeatherHouse.Vegetation
         public static Mesh Build(GrassSpecies species, int variation = 0)
         {
             if (species == null) throw new ArgumentNullException(nameof(species));
+            if (species.kind >= GrassKind.Plume) return PlantMeshFactory.Build(species, variation);
             var builder = new Builder(species, unchecked(species.seed + variation * 7919), variation);
             return builder.Build();
         }
@@ -58,9 +59,17 @@ namespace WeatherHouse.Vegetation
                     float angle = rotation + i * 2.399963f + Range(-0.15f, 0.15f);
                     Vector3 outward = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
                     Vector3 root = outward * species.spread * tuftScale * Range(0.025f, Mathf.Clamp(species.rootSpread, 0.025f, 0.4f));
-                    bool outer = i % 4 == 0;
+                    float outerFraction = Mathf.Clamp01(species.outerBladeFraction);
+                    // At the legacy default 0.25 this still selects 0, 4, 8... without consuming random values.
+                    bool outer = Mathf.FloorToInt(i * outerFraction) != Mathf.FloorToInt((i - 1) * outerFraction);
                     float fan = species.spread * tuftScale * (outer ? Range(.55f,.9f) : Range(.08f,.38f));
                     if (outer) height *= Range(.76f,.93f);
+                    float layering = Mathf.Clamp01(species.clumpLayering);
+                    if (layering > 0f)
+                    {
+                        height *= Mathf.Lerp(1f, outer ? .72f : (i % 3 == 1 ? .88f : 1f), layering);
+                        fan *= Mathf.Lerp(1f, outer ? 1.22f : .72f, layering);
+                    }
                     AddBlade(root, height, species.width * tuftScale * Range(0.65f, 1f),
                         angle, species.bend, fan);
                 }

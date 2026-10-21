@@ -30,6 +30,7 @@ namespace WeatherHouse.Vegetation.Editor
                     File.WriteAllText(Folder + "/editor-state.txt", "project=" + Application.dataPath + "\nplaying=" + EditorApplication.isPlaying + "\nscene=" + scene.path + "\ndirty=" + scene.isDirty);
                     return;
                 }
+                if (command == "library-verify") { PlantLibraryChecks.BuildAndVerify(); return; }
                 if (command != "verify" && command != "upgrade-verify" && command != "style-verify") throw new InvalidOperationException("Unsupported vegetation request: " + command);
                 if (EditorApplication.isPlaying || scene.isDirty || SceneManager.sceneCount != 1)
                     throw new InvalidOperationException("Checks need one saved scene outside Play; user edits were preserved.");
