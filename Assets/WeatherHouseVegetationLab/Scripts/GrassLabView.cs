@@ -7,6 +7,8 @@ namespace WeatherHouse.Vegetation
     public class GrassLabView : MonoBehaviour
     {
         public GrassMeadow meadow;
+        [Tooltip("可选的地形区块列表。留空时保持原场景单一区域操作。")]
+        public GrassMeadow[] regions;
         // Keep saved orbit settings when adding navigation to an existing scene.
         [HideInInspector] public Vector3 target = new Vector3(0, 1, 1);
         [HideInInspector] public float distance = 31, yaw = -30, pitch = 27;
@@ -48,6 +50,14 @@ namespace WeatherHouse.Vegetation
         public void Overview() { Navigation.Overview(); }
         public void CloseGrass() { Navigation.CloseGrass(); }
         public void Shore() { Navigation.Shore(); }
+        public void SelectRegion(int index)
+        {
+            if (regions == null || index < 0 || index >= regions.Length || !regions[index]) return;
+            meadow = regions[index];
+            selectedSpecies = Mathf.Clamp(selectedSpecies, 0, Mathf.Max(0, meadow.SpeciesCount - 1));
+            scroll = Vector2.zero;
+            Navigation.FocusMeadow(meadow);
+        }
 
         void OnGUI()
         {
@@ -62,6 +72,18 @@ namespace WeatherHouse.Vegetation
             GUI.Box(rect, GUIContent.none);
             GUILayout.BeginArea(new Rect(rect.x + 14, rect.y + 12, rect.width - 28, rect.height - 24));
             GUILayout.Label(Navigation.libraryLayout ? "植物资源库 · 试验场" : "草地与水体 · 试验场", title);
+            if (regions != null && regions.Length > 0)
+            {
+                var labels = new string[regions.Length];
+                int selected = -1;
+                for (int i = 0; i < regions.Length; i++)
+                {
+                    labels[i] = i == 0 ? "原始草地" : regions[i] ? regions[i].name : "未配置区域";
+                    if (regions[i] == meadow) selected = i;
+                }
+                int chosen = GUILayout.SelectionGrid(selected, labels, 2, button, GUILayout.Height(Mathf.CeilToInt(labels.Length / 2f) * 34));
+                if (chosen != selected) SelectRegion(chosen);
+            }
             page = GUILayout.Toolbar(page, new[] { "比例", "形状", "颜色/风", "相机" }, button, GUILayout.Height(30));
             scroll = GUILayout.BeginScrollView(scroll);
             GUILayout.Space(8);
@@ -84,7 +106,7 @@ namespace WeatherHouse.Vegetation
             meadow.totalClumps = IntSlider("总草丛数", meadow.totalClumps, 0, 40000, 100);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("自然混合", button)) meadow.SetMixPreset(0);
-            if (GUILayout.Button("低矮草坪", button)) meadow.SetMixPreset(1);
+            if (GUILayout.Button(meadow.SpeciesCount > 3 ? "草叶为主" : "低矮草坪", button)) meadow.SetMixPreset(1);
             if (GUILayout.Button("花草地", button)) meadow.SetMixPreset(2);
             GUILayout.EndHorizontal();
             GUILayout.Label("分布种子 " + meadow.seed, label);
@@ -95,7 +117,7 @@ namespace WeatherHouse.Vegetation
             string[] names = meadow.SpeciesLabels();
             int[] counts = meadow.Counts;
             for (int i = 0; i < meadow.SpeciesCount; i++)
-                meadow.weights[i] = Slider(names[i] + " " + (meadow.weights[i] / sum * 100).ToString("F1") + "% · 当前 " + counts[i] + " 丛", meadow.weights[i], 0, 100, "F0");
+                meadow.weights[i] = Slider(names[i] + " " + (meadow.weights[i] / sum * 100).ToString("F1") + "% · 当前 " + counts[i] + " 丛", meadow.weights[i], 0, 100, "F1");
         }
         GrassSpecies ChooseSpecies()
         {
@@ -111,44 +133,60 @@ namespace WeatherHouse.Vegetation
             bool grass = GrassMeadow.IsGrass(s.kind);
             s.height = Slider("高度（米）", s.height, .08f, 2.5f, "F2");
             s.width = Slider(grass ? "叶片宽度（米）" : "茎/侧叶尺度（米）", s.width, .005f, .12f, "F3");
-            if (grass || s.kind == GrassKind.Daisy) s.tipWidthRatio = Slider("叶尖宽度占比", s.tipWidthRatio, 0, .4f, "F2");
+            if (PlantControlRules.Label(s.kind, "tipWidthRatio") != null) s.tipWidthRatio = Slider("叶尖宽度占比", s.tipWidthRatio, 0, .4f, "F2");
             s.spread = Slider(grass ? "叶尖展开半径（米）" : "植株展开半径（米）", s.spread, .03f, .8f, "F2");
             s.bend = Slider("上部弯曲", s.bend, 0, 1.5f, "F2");
+            if (PlantControlRules.Label(s.kind, "bladeCount") != null)
+            {
+                PlantControlRules.DensityRange(s.kind, out int min, out int max);
+                int density = PlantControlRules.DensityValue(s.kind, s.bladeCount);
+                int next = IntSlider(PlantControlRules.Label(s.kind, "bladeCount"), density, min, max);
+                if (next != density) s.bladeCount = PlantControlRules.DensityRaw(s.kind, next);
+            }
+            if (PlantControlRules.Label(s.kind, "rootSpread") != null) s.rootSpread = Slider("根部展开比例", s.rootSpread, .025f, .4f, "F3");
+            if (PlantControlRules.Label(s.kind, "heightVariation") != null) s.heightVariation = Slider("高度随机变化", s.heightVariation, 0, .7f, "F2");
             if (grass)
             {
-                s.bladeCount = IntSlider("每丛叶片数", s.bladeCount, 1, 40);
-                s.rootSpread = Slider("根束展开比例", s.rootSpread, .025f, .4f, "F3");
-                s.heightVariation = Slider("高度随机变化", s.heightVariation, 0, .7f, "F2");
                 s.outerBladeFraction = Slider("外围展开叶片占比", s.outerBladeFraction, 0, 1, "F2");
                 s.clumpLayering = Slider("草簇高低分层", s.clumpLayering, 0, 1, "F2");
                 GUILayout.Label("叶宽让整片更厚；叶尖占比只调末端。根束与叶尖展开越小，草簇越聚拢。", label);
             }
-            else
+            if (PlantControlRules.Label(s.kind, "flowerCount") != null)
             {
-                s.flowerCount = IntSlider("花朵/穗/主叶数量", s.flowerCount, 1, 7);
-                s.flowerRadius = Slider("花朵/穗头半径（米）", s.flowerRadius, .025f, .22f, "F3");
-                if (s.kind != GrassKind.Daisy)
-                {
-                    s.bladeCount = IntSlider("叶片/分枝密度", s.bladeCount, 1, 40);
-                    s.rootSpread = Slider("根部展开比例", s.rootSpread, .025f, .4f, "F3");
-                    s.heightVariation = Slider("高度随机变化", s.heightVariation, 0, .7f, "F2");
-                    s.petalCount = IntSlider("花瓣/分枝数量", s.petalCount, 3, 12);
-                    s.headLength = Slider("花序/叶段长度（米）", s.headLength, .05f, .8f, "F2");
-                    s.leafAspect = Slider("叶片长宽比例", s.leafAspect, .1f, 2, "F2");
-                    s.curl = Slider("叶片卷曲", s.curl, 0, 1, "F2");
-                }
+                int max = s.kind == GrassKind.Plume || s.kind == GrassKind.LeafyHerb ? 5 : 7;
+                int count = Mathf.Clamp(s.flowerCount, 1, max);
+                int next = IntSlider(PlantControlRules.Label(s.kind, "flowerCount"), count, 1, max);
+                if (next != count) s.flowerCount = next;
             }
+            if (PlantControlRules.Label(s.kind, "flowerRadius") != null)
+                s.flowerRadius = Slider(PlantControlRules.Label(s.kind, "flowerRadius"), s.flowerRadius, .025f, .22f, "F3");
+            if (PlantControlRules.Label(s.kind, "petalCount") != null)
+            {
+                int max = s.kind == GrassKind.FlowerSpike || s.kind == GrassKind.FlowerSpray ? 5 : 12;
+                int count = Mathf.Clamp(s.petalCount, 3, max);
+                int next = IntSlider("单花花瓣数", count, 3, max);
+                if (next != count) s.petalCount = next;
+            }
+            if (s.kind == GrassKind.Fern)
+            {
+                int pairs = PlantControlRules.FernPairs(s.headLength);
+                int next = IntSlider("每支羽叶的小叶对数", pairs, 12, 18);
+                if (next != pairs) s.headLength = Mathf.Max(.05f, (next - 12) * .1f);
+            }
+            else if (PlantControlRules.Label(s.kind, "headLength") != null)
+                s.headLength = Slider(PlantControlRules.Label(s.kind, "headLength"), s.headLength, .05f, .8f, "F2");
+            if (PlantControlRules.Label(s.kind, "leafAspect") != null) s.leafAspect = Slider("叶片长宽比例", s.leafAspect, .1f, 2, "F2");
+            if (PlantControlRules.Label(s.kind, "curl") != null) s.curl = Slider(PlantControlRules.Label(s.kind, "curl"), s.curl, 0, 1, "F2");
+            GUILayout.Label("形态种子 " + s.seed, label);
+            if (GUILayout.Button("换一组植株形态", button)) s.seed = unchecked(s.seed + 1);
         }
         void DrawAppearance()
         {
             GrassSpecies s = ChooseSpecies();
             Color root = ColorSliders("根部颜色", s.baseColor), tip = ColorSliders("尖部颜色", s.tipColor);
             if (root != s.baseColor || tip != s.tipColor) { s.baseColor = root; s.tipColor = tip; meadow.ApplyMaterials(); }
-            if (!GrassMeadow.IsGrass(s.kind))
-            {
-                s.flowerColor = ColorSliders("花瓣/花序颜色", s.flowerColor);
-                s.centerColor = ColorSliders("花心颜色", s.centerColor);
-            }
+            if (PlantControlRules.Label(s.kind, "flowerColor") != null) s.flowerColor = ColorSliders(PlantControlRules.Label(s.kind, "flowerColor"), s.flowerColor);
+            if (PlantControlRules.Label(s.kind, "centerColor") != null) s.centerColor = ColorSliders("花心颜色", s.centerColor);
             float wind = Slider("风力", meadow.windStrength, 0, .6f, "F2");
             float speed = Slider("风速", meadow.windSpeed, 0, 3, "F2");
             float up = Slider("朝上法线 · 0 真实 / 1 柔和", meadow.upNormals, 0, 1, "F2");
@@ -196,5 +234,104 @@ namespace WeatherHouse.Vegetation
             return changed;
         }
         void OnDestroy() { if (font) Destroy(font); }
+    }
+
+    // The runtime panel and Inspector share the fields that each mesh actually uses.
+    public static class PlantControlRules
+    {
+        public static string Label(GrassKind kind, string field)
+        {
+            bool grass = GrassMeadow.IsGrass(kind), daisy = kind == GrassKind.Daisy;
+            bool greenOnly = kind == GrassKind.Fern || kind == GrassKind.LeafyHerb || kind == GrassKind.RoundGroundcover;
+            switch (field)
+            {
+                case "displayName": return "显示名称";
+                case "height": return "高度（米）";
+                case "width": return grass ? "叶片宽度（米）" : "茎/侧叶尺度（米）";
+                case "spread": return "植株展开半径（米）";
+                case "bend": return "上部弯曲";
+                case "seed": return "形态种子";
+                case "baseColor": return "根部颜色";
+                case "tipColor": return "尖部颜色";
+                case "tipWidthRatio": return grass || daisy ? "叶尖宽度占比" : null;
+                case "rootSpread": return daisy || kind == GrassKind.RoundGroundcover ? null : "根部展开比例";
+                case "heightVariation": return daisy ? null : "高度随机变化";
+                case "outerBladeFraction": return grass ? "外围展开叶片占比" : null;
+                case "clumpLayering": return grass ? "草簇高低分层" : null;
+                case "bladeCount":
+                    if (daisy) return null;
+                    if (grass) return "每丛叶片数";
+                    if (kind == GrassKind.Fern) return "主羽叶数";
+                    if (kind == GrassKind.LeafyHerb) return "每茎侧叶层数";
+                    if (kind == GrassKind.RoundGroundcover) return "三圆叶组数";
+                    if (kind == GrassKind.Plume) return "羽穗侧枝层数";
+                    if (kind == GrassKind.FlowerSpike) return "花序层数";
+                    if (kind == GrassKind.FlowerSpray) return "每枝小花数";
+                    if (kind == GrassKind.Foxtail) return "穗表面细叶数";
+                    return "每茎侧叶数";
+                case "flowerCount":
+                    if (grass || kind == GrassKind.Fern || kind == GrassKind.RoundGroundcover) return null;
+                    return kind == GrassKind.LeafyHerb ? "每丛茎数" : "每丛花茎/穗数";
+                case "flowerRadius":
+                    if (grass || kind == GrassKind.Fern || kind == GrassKind.LeafyHerb) return null;
+                    return kind == GrassKind.RoundGroundcover ? "圆叶尺寸（米）" : "花朵/穗头尺寸（米）";
+                case "flowerColor": return grass || greenOnly ? null : "花瓣/穗头颜色";
+                case "centerColor": return daisy || kind == GrassKind.FlowerSpike || kind == GrassKind.FlowerSpray || kind == GrassKind.Wildflower || kind == GrassKind.Bellflower ? "花心颜色" : null;
+                case "petalCount": return kind == GrassKind.FlowerSpike || kind == GrassKind.FlowerSpray || kind == GrassKind.Wildflower || kind == GrassKind.Bellflower ? "单花花瓣数" : null;
+                case "headLength":
+                    if (kind == GrassKind.Fern) return "每支羽叶的小叶对数";
+                    if (kind == GrassKind.Bellflower) return "花冠深度（米）";
+                    return kind == GrassKind.Plume || kind == GrassKind.SeedHead || kind == GrassKind.Foxtail || kind == GrassKind.FlowerSpike ? "花序长度（米）" : null;
+                case "leafAspect": return grass || daisy ? null : "叶片长宽比例";
+                case "curl": return grass || daisy ? null : kind == GrassKind.Bellflower ? "花冠朝下程度" : "叶片/花序弯卷";
+                default: return null;
+            }
+        }
+
+        public static int FernPairs(float length) { return Mathf.Clamp(12 + Mathf.RoundToInt(length * 10), 12, 18); }
+        public static void DensityRange(GrassKind kind, out int min, out int max)
+        {
+            min = 1; max = 40;
+            switch (kind)
+            {
+                case GrassKind.Plume: min = 6; max = 14; break;
+                case GrassKind.SeedHead: min = 1; max = 4; break;
+                case GrassKind.FlowerSpike: min = 3; max = 7; break;
+                case GrassKind.FlowerSpray: min = 2; max = 4; break;
+                case GrassKind.Fern: min = 4; max = 12; break;
+                case GrassKind.Foxtail: min = 10; max = 28; break;
+                case GrassKind.Wildflower: case GrassKind.Bellflower: min = 2; max = 5; break;
+                case GrassKind.LeafyHerb: min = 3; max = 9; break;
+                case GrassKind.RoundGroundcover: min = 1; max = 10; break;
+            }
+        }
+        public static int DensityValue(GrassKind kind, int raw)
+        {
+            int value = raw;
+            switch (kind)
+            {
+                case GrassKind.SeedHead: value = raw / 6; break;
+                case GrassKind.FlowerSpike: case GrassKind.LeafyHerb: value = raw / 2; break;
+                case GrassKind.FlowerSpray: case GrassKind.Wildflower: case GrassKind.Bellflower: value = raw / 5; break;
+                case GrassKind.Fern: value = Mathf.RoundToInt(Mathf.Sqrt(raw) * 2.05f); break;
+                case GrassKind.Foxtail: value = raw + 6; break;
+                case GrassKind.RoundGroundcover: value = (raw + 2) / 3; break;
+            }
+            DensityRange(kind, out int min, out int max);
+            return Mathf.Clamp(value, min, max);
+        }
+        public static int DensityRaw(GrassKind kind, int value)
+        {
+            switch (kind)
+            {
+                case GrassKind.SeedHead: return value * 6;
+                case GrassKind.FlowerSpike: case GrassKind.LeafyHerb: return value * 2;
+                case GrassKind.FlowerSpray: case GrassKind.Wildflower: case GrassKind.Bellflower: return value * 5;
+                case GrassKind.Fern: return Mathf.RoundToInt(Mathf.Pow(value / 2.05f, 2));
+                case GrassKind.Foxtail: return value - 6;
+                case GrassKind.RoundGroundcover: return value * 3;
+                default: return value;
+            }
+        }
     }
 }

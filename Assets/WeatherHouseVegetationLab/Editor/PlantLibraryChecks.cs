@@ -15,6 +15,8 @@ namespace WeatherHouse.Vegetation.Editor
         const string Output = "VegetationLabReview";
         const string Running = "WeatherHouse.PlantLibrary.Checking";
         const string ReturnScene = "WeatherHouse.PlantLibrary.ReturnScene";
+        const string Biomes = "WeatherHouse.PlantLibrary.BiomeChecks";
+        static string ResultPath { get { return Output + (SessionState.GetBool(Biomes, false) ? "/plant-biomes-result.txt" : "/plant-library-result.txt"); } }
         static IEnumerator steps;
         static double started;
         static string errors;
@@ -22,16 +24,37 @@ namespace WeatherHouse.Vegetation.Editor
         [MenuItem("Weather House/Vegetation Lab/植物资源库 · 验证并截图")]
         public static void BuildAndVerify()
         {
+            BuildAndVerify(false);
+        }
+        public static void BuildAndVerify(bool refreshPresentation)
+        {
+            Begin(refreshPresentation, false);
+        }
+        public static void BuildBiomesAndVerify() { Begin(false, true); }
+        public static void VerifyExistingBiomes() { Begin(false, true, false); }
+        static void Begin(bool refreshPresentation, bool biomeSamples, bool installBiomes = true)
+        {
             var scene = SceneManager.GetActiveScene();
             if (EditorApplication.isPlaying || scene.isDirty || SceneManager.sceneCount != 1)
                 throw new InvalidOperationException("请先保存当前单一场景并退出 Play，检查后会恢复它。");
             Directory.CreateDirectory(Output);
-            File.WriteAllText(Output + "/plant-library-result.txt", "RUNNING\n");
+            SessionState.SetBool(Biomes, biomeSamples);
+            File.WriteAllText(ResultPath, "RUNNING\n");
             SessionState.SetString(ReturnScene, scene.path);
             try
             {
-                PlantLibraryBuilder.OpenOrCreate();
-                VerifyEditor();
+                if (biomeSamples)
+                {
+                    if (installBiomes) PlantBiomeSamples.Install();
+                    else EditorSceneManager.OpenScene(VegetationLabBuilder.ScenePath);
+                    PlantBiomeSamples.Verify();
+                }
+                else
+                {
+                    if (refreshPresentation) PlantLibraryBuilder.RefreshScenePresentation();
+                    else PlantLibraryBuilder.OpenOrCreate();
+                    VerifyEditor();
+                }
                 SessionState.SetBool(Running, true);
                 Register();
                 EditorApplication.isPlaying = true;
@@ -50,6 +73,10 @@ namespace WeatherHouse.Vegetation.Editor
             foreach (var entry in catalog.entries)
             {
                 Assert(entry.variants.Length == 4, entry.id + " has four variants");
+                var edited = Object.Instantiate(entry.species); edited.height *= 1.25f;
+                var editedMesh = GrassMeshFactory.Build(edited, 0);
+                Assert(!editedMesh.vertices.SequenceEqual(entry.variants[0].GetComponent<MeshFilter>().sharedMesh.vertices), entry.id + " independent editable appearance");
+                Object.DestroyImmediate(editedMesh); Object.DestroyImmediate(edited);
                 for (int v = 0; v < 4; v++)
                 {
                     var prefab = entry.variants[v]; Assert(prefab, entry.id + " saved prefab");
@@ -67,7 +94,7 @@ namespace WeatherHouse.Vegetation.Editor
                     try { Assert(points.SequenceEqual(repeat.vertices) && triangles.SequenceEqual(repeat.triangles), entry.id + " deterministic saved mesh"); }
                     finally { Object.DestroyImmediate(repeat); }
                     Assert(prefab.GetComponent<MeshRenderer>().sharedMaterial.shader.name == "Weather House/Painterly Grass", entry.id + " painterly grass shader");
-                    report.AppendLine(entry.id + " v" + (v + 1) + " triangles=" + triangles.Length / 3 + " height=" + mesh.bounds.size.y.ToString("F3") + "m");
+                    report.AppendLine(entry.id + " v" + (v + 1) + " triangles=" + triangles.Length / 3 + " height=" + (points.Max(p => p.y) - points.Min(p => p.y)).ToString("F3") + "m");
                 }
             }
             var meadow = Object.FindObjectOfType<GrassMeadow>();
@@ -91,7 +118,7 @@ namespace WeatherHouse.Vegetation.Editor
         {
             if (state == PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(Running, false))
             {
-                errors = ""; started = EditorApplication.timeSinceStartup; steps = Run();
+                errors = ""; started = EditorApplication.timeSinceStartup; steps = SessionState.GetBool(Biomes, false) ? RunBiomes() : Run();
                 EditorApplication.update -= Tick; EditorApplication.update += Tick;
             }
             if (state == PlayModeStateChange.EnteredEditMode) Restore();
@@ -147,9 +174,48 @@ namespace WeatherHouse.Vegetation.Editor
             Assert(nav.transform.position.y > before.y, "library fly ascends");
             nav.CloseGrass();
         }
-        static void Capture(string name, Camera camera, int width, int height)
+        static IEnumerator RunBiomes()
         {
-            var target = RenderTexture.GetTemporary(width, height, 24); var previous = camera.targetTexture; var active = RenderTexture.active;
+            var view = Object.FindObjectOfType<GrassLabView>(); var camera = view.GetComponent<Camera>(); var nav = view.Navigation;
+            Assert(view.regions != null && view.regions.Length == 5, "original meadow plus four selectable regions");
+            PlantRegionChecks.Verify(view);
+            string[] ids = { "LowMeadow", "TallFlowers", "FernEdge", "Wetland" };
+            for (int i = 1; i < view.regions.Length; i++)
+            {
+                view.SelectRegion(i); yield return null;
+                Assert(view.meadow == view.regions[i] && nav.meadow == view.regions[i], "region selection drives controls and camera");
+                Assert(view.meadow.Counts.Sum() == view.meadow.totalClumps, "region has its saved population");
+                Capture("Biome_" + ids[i - 1], camera, 1600, 1000);
+                string[][] before = view.regions.Select(r => r.species.Select(s => JsonUtility.ToJson(s)).ToArray()).ToArray();
+                int revision = view.meadow.RequestedRevision;
+                int shapeIndex = Array.FindIndex(view.meadow.Counts, count => count > 0);
+                var visibleMesh = view.meadow.GetComponentsInChildren<MeshFilter>().First(f => f.GetComponent<MeshRenderer>().sharedMaterial == view.meadow.materials[shapeIndex]);
+                Vector3[] verticesBefore = visibleMesh.sharedMesh.vertices;
+                float initial = view.meadow.species[shapeIndex].height; view.meadow.species[shapeIndex].height = initial * 1.2f;
+                int frame = Time.frameCount; float deadline = Time.realtimeSinceStartup + 30;
+                do { Assert(Time.realtimeSinceStartup < deadline, "region shape update timed out"); yield return null; }
+                while (Time.frameCount - frame < 3 || view.meadow.IsLiveUpdating);
+                Assert(view.meadow.CompletedRevision > revision && string.IsNullOrEmpty(view.meadow.LiveError), "selected region responds without a rebuild button");
+                Assert(!visibleMesh.sharedMesh.vertices.SequenceEqual(verticesBefore), "selected region changes its displayed geometry");
+                for (int other = 0; other < view.regions.Length; other++)
+                    if (other != i) Assert(before[other].SequenceEqual(view.regions[other].species.Select(s => JsonUtility.ToJson(s))), "region edits preserve other regions");
+                view.meadow.species[shapeIndex].height = initial;
+                frame = Time.frameCount; deadline = Time.realtimeSinceStartup + 30;
+                do { Assert(Time.realtimeSinceStartup < deadline, "region restore timed out"); yield return null; }
+                while (Time.frameCount - frame < 3 || view.meadow.IsLiveUpdating);
+            }
+            ScreenCapture.CaptureScreenshot(Output + "/Biome_Controls.png");
+            yield return null;
+            nav.enabled = false;
+            camera.farClipPlane = 350;
+            camera.transform.position = new Vector3(0, 116, -144); camera.transform.LookAt(new Vector3(0, 3, 0));
+            Capture("Biomes_Overview", camera, 1600, 1000);
+            nav.enabled = true; view.SelectRegion(0); nav.Overview();
+            File.WriteAllText(Output + "/plant-biomes-live-checks.txt", "PASS: four saved regions; region selection; real Play shape updates; independent parameter clones; restores; all region GPU captures.\n");
+        }
+        public static void Capture(string name, Camera camera, int width, int height)
+        {
+            var target = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 4); var previous = camera.targetTexture; var active = RenderTexture.active;
             var texture = new Texture2D(width, height, TextureFormat.RGB24, false);
             try { camera.targetTexture = target; camera.Render(); RenderTexture.active = target; texture.ReadPixels(new Rect(0, 0, width, height), 0, 0); texture.Apply(); File.WriteAllBytes(Output + "/" + name + ".png", texture.EncodeToPNG()); }
             finally { camera.targetTexture = previous; RenderTexture.active = active; RenderTexture.ReleaseTemporary(target); Object.DestroyImmediate(texture); }
@@ -159,7 +225,7 @@ namespace WeatherHouse.Vegetation.Editor
             (steps as IDisposable)?.Dispose(); steps = null;
             EditorApplication.update -= Tick; SessionState.SetBool(Running, false);
             Application.logMessageReceived -= Log;
-            File.WriteAllText(Output + "/plant-library-result.txt", error == null ? "PASS: editor assets, 76 prefab variants, GPU captures, 19-slot live controls, legacy three-slot live controls, fly camera.\n" : "FAIL: " + error + "\n");
+            File.WriteAllText(ResultPath, error == null ? (SessionState.GetBool(Biomes, false) ? "PASS: four biome regions in original lab, independent sources, world ground alignment, Play region switching and live shape edits, GPU captures.\n" : "PASS: editor assets, 76 prefab variants, GPU captures, 19-slot live controls, legacy three-slot live controls, fly camera.\n") : "FAIL: " + error + "\n");
             if (EditorApplication.isPlaying) EditorApplication.isPlaying = false; else Restore();
         }
         static void Restore()

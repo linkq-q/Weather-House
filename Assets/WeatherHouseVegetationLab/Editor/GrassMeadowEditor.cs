@@ -35,21 +35,40 @@ namespace WeatherHouse.Vegetation.Editor
             {
                 var source = new SerializedObject(meadow.species[selectedSpecies]);
                 source.Update();
-                bool grass = GrassMeadow.IsGrass(meadow.species[selectedSpecies].kind);
-                foreach (string field in new[] { "displayName", "height", "width", "spread", "bend", "seed", "baseColor", "tipColor" })
-                    EditorGUILayout.PropertyField(source.FindProperty(field));
-                if (grass || meadow.species[selectedSpecies].kind == GrassKind.Daisy)
-                    EditorGUILayout.PropertyField(source.FindProperty("tipWidthRatio"));
-                if (grass)
-                    foreach (string field in new[] { "bladeCount", "rootSpread", "heightVariation", "outerBladeFraction", "clumpLayering" })
-                        EditorGUILayout.PropertyField(source.FindProperty(field));
-                else
+                GrassKind kind = meadow.species[selectedSpecies].kind;
+                foreach (string field in new[] { "displayName", "height", "width", "spread", "bend", "tipWidthRatio", "bladeCount", "rootSpread", "heightVariation", "outerBladeFraction", "clumpLayering", "flowerCount", "flowerRadius", "petalCount", "headLength", "leafAspect", "curl", "seed", "baseColor", "tipColor", "flowerColor", "centerColor" })
                 {
-                    foreach (string field in new[] { "flowerCount", "flowerRadius", "flowerColor", "centerColor" })
-                        EditorGUILayout.PropertyField(source.FindProperty(field));
-                    if (meadow.species[selectedSpecies].kind != GrassKind.Daisy)
-                        foreach (string field in new[] { "bladeCount", "rootSpread", "heightVariation", "petalCount", "headLength", "leafAspect", "curl" })
-                            EditorGUILayout.PropertyField(source.FindProperty(field));
+                    string caption = PlantControlRules.Label(kind, field);
+                    if (caption == null) continue;
+                    var parameter = source.FindProperty(field);
+                    if (field == "bladeCount")
+                    {
+                        PlantControlRules.DensityRange(kind, out int min, out int max);
+                        int value = PlantControlRules.DensityValue(kind, parameter.intValue);
+                        int next = EditorGUILayout.IntSlider(caption, value, min, max);
+                        if (next != value) parameter.intValue = PlantControlRules.DensityRaw(kind, next);
+                    }
+                    else if (field == "headLength" && kind == GrassKind.Fern)
+                    {
+                        int pairs = PlantControlRules.FernPairs(parameter.floatValue);
+                        int next = EditorGUILayout.IntSlider(caption, pairs, 12, 18);
+                        if (next != pairs) parameter.floatValue = Mathf.Max(.05f, (next - 12) * .1f);
+                    }
+                    else if (field == "flowerCount")
+                    {
+                        int max = kind == GrassKind.Plume || kind == GrassKind.LeafyHerb ? 5 : 7;
+                        int count = Mathf.Clamp(parameter.intValue, 1, max);
+                        int next = EditorGUILayout.IntSlider(caption, count, 1, max);
+                        if (next != count) parameter.intValue = next;
+                    }
+                    else if (field == "petalCount")
+                    {
+                        int max = kind == GrassKind.FlowerSpike || kind == GrassKind.FlowerSpray ? 5 : 12;
+                        int count = Mathf.Clamp(parameter.intValue, 3, max);
+                        int next = EditorGUILayout.IntSlider(caption, count, 3, max);
+                        if (next != count) parameter.intValue = next;
+                    }
+                    else EditorGUILayout.PropertyField(parameter, new GUIContent(caption));
                 }
                 source.ApplyModifiedProperties();
             }

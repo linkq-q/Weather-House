@@ -22,9 +22,10 @@ namespace WeatherHouse.Vegetation
         public GrassCameraMode mode;
         [Tooltip("植物资源库专用视角；原草地水体场景保持关闭。")]
         public bool libraryLayout;
+        [Tooltip("非资源库场景的地面半宽、半长；应比实际地面边缘略小。")]
+        public Vector2 groundHalfExtents = new Vector2(39.5f, 34.5f);
 
-        // The lab ground is 80 x 70 m. This is a browsing camera, without tree/rock collision.
-        const float HalfWidth = 39.5f, HalfLength = 34.5f;
+        // This is a browsing camera, without tree/rock collision.
         bool looking, suppressLookUntilRelease;
         GrassCameraMode appliedMode;
 
@@ -127,9 +128,21 @@ namespace WeatherHouse.Vegetation
             }
         }
 
-        public void Overview() { if (libraryLayout) Preset(new Vector3(-8, 3.3f, 0), 24, 48, 31); else Preset(new Vector3(3, 1, 3), 34, 23, 28); }
-        public void CloseGrass() { if (libraryLayout) Preset(new Vector3(-10.5f, 3.5f, -9.8f), 0, 20, 7); else Preset(new Vector3(-6, 3.15f, -9), 35, 23, 4.5f); }
-        public void Shore() { if (libraryLayout) Preset(new Vector3(-13.5f, 3.5f, 1), 0, 40, 12); else Preset(new Vector3(6, .1f, 4), 34, 22, 18.5f); }
+        public void Overview() { if (libraryLayout) { GetComponent<Camera>().fieldOfView = 48; Preset(new Vector3(-8, 3.3f, 0), 24, 48, 31); } else Preset(new Vector3(3, 1, 3), 34, 23, 28); }
+        public void CloseGrass() { if (libraryLayout) { GetComponent<Camera>().fieldOfView = 35; Preset(new Vector3(-10.5f, 3.45f, -9.8f), 0, 16, 4.5f); } else Preset(new Vector3(-6, 3.15f, -9), 35, 23, 4.5f); }
+        public void Shore() { if (libraryLayout) { GetComponent<Camera>().fieldOfView = 48; Preset(new Vector3(-13.5f, 3.5f, 1), 0, 40, 12); } else Preset(new Vector3(6, .1f, 4), 34, 22, 18.5f); }
+
+        public void FocusMeadow(GrassMeadow region)
+        {
+            if (!region) return;
+            meadow = region;
+            Vector3 center = region.transform.position;
+            center.y = Ground(center) + .5f;
+            float range = Mathf.Max(10, Mathf.Max(region.size.x, region.size.y) * 1.15f);
+            Camera camera = GetComponent<Camera>();
+            camera.farClipPlane = Mathf.Max(camera.farClipPlane, range + groundHalfExtents.magnitude * 2);
+            Preset(center, yaw, 35, range);
+        }
 
         void Preset(Vector3 point, float horizontal, float vertical, float range)
         {
@@ -162,12 +175,18 @@ namespace WeatherHouse.Vegetation
             transform.position = position;
         }
 
-        float Ground(Vector3 position) { return meadow ? meadow.GetGroundHeight(position.x, position.z) : 0; }
-        bool Walkable(Vector3 position) { return !meadow || Ground(position) > meadow.waterLevel + .20f; }
+        float Ground(Vector3 position)
+        {
+            if (!meadow) return 0;
+            Vector3 local = meadow.transform.InverseTransformPoint(position);
+            return meadow.GetGroundHeight(local.x, local.z) + meadow.transform.position.y;
+        }
+        bool Walkable(Vector3 position) { return !meadow || Ground(position) > meadow.waterLevel + meadow.transform.position.y + .20f; }
         Vector3 ClampHorizontal(Vector3 position)
         {
-            position.x = Mathf.Clamp(position.x, libraryLayout ? -22.5f : -HalfWidth, libraryLayout ? 7.5f : HalfWidth);
-            position.z = Mathf.Clamp(position.z, libraryLayout ? -12.5f : -HalfLength, libraryLayout ? 11.5f : HalfLength);
+            float halfWidth = Mathf.Max(1, groundHalfExtents.x), halfLength = Mathf.Max(1, groundHalfExtents.y);
+            position.x = Mathf.Clamp(position.x, libraryLayout ? -22.5f : -halfWidth, libraryLayout ? 7.5f : halfWidth);
+            position.z = Mathf.Clamp(position.z, libraryLayout ? -12.5f : -halfLength, libraryLayout ? 11.5f : halfLength);
             return position;
         }
         Vector3 NearestLand(Vector3 origin)

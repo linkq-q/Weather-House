@@ -68,16 +68,17 @@ namespace WeatherHouse.Vegetation
         {
             public int[] counts;
             public int seed;
-            Vector2 size, pond;
+            Vector2 size, pond, offset;
             float radius, water;
             public LayoutState(GrassMeadow meadow, int[] population)
             {
                 counts=(int[])population.Clone(); seed=meadow.seed; size=meadow.size;
                 pond=meadow.pondCenter; radius=meadow.pondRadius; water=meadow.waterLevel;
+                offset=meadow.groundOffset;
             }
             public bool Equals(LayoutState s)
             {
-                if (counts==null || s.counts==null || counts.Length!=s.counts.Length || seed!=s.seed || size!=s.size || pond!=s.pond || radius!=s.radius || water!=s.water) return false;
+                if (counts==null || s.counts==null || counts.Length!=s.counts.Length || seed!=s.seed || size!=s.size || pond!=s.pond || radius!=s.radius || water!=s.water || offset!=s.offset) return false;
                 for (int i=0;i<counts.Length;i++) if (counts[i]!=s.counts[i]) return false;
                 return true;
             }

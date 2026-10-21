@@ -18,6 +18,7 @@ namespace WeatherHouse.Vegetation
         [Range(0, 40000)] public int totalClumps = 28000;
         public int seed = 431;
         [HideInInspector] public Vector2 size = new Vector2(42, 34);
+        [HideInInspector] public Vector2 groundOffset;
         [HideInInspector] public Vector2 pondCenter = new Vector2(6, 4);
         [HideInInspector] public float pondRadius = 9;
         [HideInInspector] public float waterLevel;
@@ -121,7 +122,7 @@ namespace WeatherHouse.Vegetation
         public float GetGroundHeight(float x, float z)
         {
             return waterLevel + Mathf.Clamp((PondDistance(new Vector2(x, z)) - 1) * 5, -2, 2.8f)
-                + .22f * Mathf.Sin(x * .22f) * Mathf.Sin(z * .19f);
+                + .22f * Mathf.Sin((x + groundOffset.x) * .22f) * Mathf.Sin((z + groundOffset.y) * .19f);
         }
 
         public bool IsPlantable(Vector2 p)
@@ -227,7 +228,7 @@ namespace WeatherHouse.Vegetation
                         {
                             string path = storageFolder + "/Species" + kind + "_" + chunkIndex + ".asset";
                             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
-                            if (existing) { EditorUtility.CopySerialized(mesh, existing); DestroyImmediate(mesh); mesh = existing; EditorUtility.SetDirty(mesh); }
+                            if (existing) { GrassMeshFactory.UpdateStoredMesh(mesh, existing); DestroyImmediate(mesh); mesh = existing; EditorUtility.SetDirty(mesh); }
                             else AssetDatabase.CreateAsset(mesh, path);
                         }
                         else
