@@ -60,7 +60,8 @@ namespace ForestSpriteCharacter.Editor
                 Require(Mathf.Abs(bounds.size.y - 1.65f) < .01f, "Actual fitted character height: " + bounds.size.y);
                 AssignMaterials(renderers);
                 var originalWalk = clips["Walk"];
-                clips["Walk"] = CreateLongerWalk(visual, originalWalk);
+                clips["Walk"] = CreateLongerGait(visual, originalWalk, false, out float originalWalkDistance, out float walkDistance);
+                clips["Run"] = CreateLongerGait(visual, clips["Run"], true, out _, out float runDistance);
                 clips["Idle"].SampleAnimation(visual, 0f);
                 var animator = visual.GetComponent<Animator>();
                 if (animator == null) animator = visual.AddComponent<Animator>();
@@ -79,6 +80,9 @@ namespace ForestSpriteCharacter.Editor
                 var preview = player.AddComponent<ForestSpriteDemoController>();
                 preview.animator = animator;
                 preview.visual = visual.transform;
+                preview.originalWalkCycleDistance = originalWalkDistance;
+                preview.walkCycleDistance = walkDistance;
+                preview.runCycleDistance = runDistance;
                 preview.secondaryMotion = ConfigureSecondaryMotion(visual);
                 preview.capeCloth = ForestSpriteClothBuilder.Build(player, visual, preview.secondaryMotion);
                 player.AddComponent<ForestSpriteCapePanel>().cape = preview.capeCloth;
@@ -168,7 +172,10 @@ namespace ForestSpriteCharacter.Editor
                 if (!controller.parameters.Any(p => p.name == parameter))
                     controller.AddParameter(new AnimatorControllerParameter
                         { name = parameter, type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
-            var strideTree = AssetDatabase.LoadAllAssetsAtPath(path).OfType<BlendTree>().FirstOrDefault(t => t.name == "WalkStride");
+            // Removing a state also removes its owned BlendTree. Recreate/reuse only after removal.
+            var machine = controller.layers[0].stateMachine;
+            foreach (var state in machine.states) machine.RemoveState(state.state);
+            var strideTree = AssetDatabase.LoadAllAssetsAtPath(path).OfType<BlendTree>().FirstOrDefault(t => t != null && t.name == "WalkStride");
             if (strideTree == null)
             {
                 strideTree = new BlendTree { name = "WalkStride" };
@@ -183,23 +190,21 @@ namespace ForestSpriteCharacter.Editor
                 new ChildMotion { motion = clips["Walk"], threshold = 1f, timeScale = 1f }
             };
             EditorUtility.SetDirty(strideTree);
-            var machine = controller.layers[0].stateMachine;
-            foreach (var state in machine.states) machine.RemoveState(state.state);
             foreach (string name in ClipNames)
             {
                 var state = machine.AddState(name);
                 state.motion = name == "Walk" ? (Motion)strideTree : clips[name];
                 state.writeDefaultValues = true;
-                // Walk has a 50% longer planted-foot path; Run keeps its original path at a faster cadence.
+                // The parameter is cycles per second; clip duration converts it to playback speed.
                 if (name == "Walk")
                 {
-                    state.speed = 2f;
+                    state.speed = clips[name].length;
                     state.speedParameter = "WalkCadence";
                     state.speedParameterActive = true;
                 }
                 if (name == "Run")
                 {
-                    state.speed = 2.97f;
+                    state.speed = clips[name].length;
                     state.speedParameter = "RunCadence";
                     state.speedParameterActive = true;
                 }
@@ -211,26 +216,35 @@ namespace ForestSpriteCharacter.Editor
         }
 
         [Serializable]
-        sealed class WalkStrideEvidence
+        sealed class GaitStrideEvidence
         {
             public string result = "PASS";
             public string clip;
             public float[] originalFootSpan, generatedFootSpan, strideRatio;
             public float originalGroundContactError, generatedGroundContactError, maximumIKTargetError;
+            public float stanceFraction, cycleDistance, pelvisDrop, minimumReachMargin;
             public int sampledFrames;
         }
 
-        static AnimationClip CreateLongerWalk(GameObject visual, AnimationClip source)
+        static AnimationClip CreateLongerGait(GameObject visual, AnimationClip source, bool running,
+            out float originalCycleDistance, out float cycleDistance)
         {
             var bones = visual.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
             var legs = new[] { "L", "R" }.SelectMany(side => new[]
-                { bones["UpperLeg." + side], bones["LowerLeg." + side], bones["Foot." + side] }).ToArray();
+                { bones["UpperLeg." + side], bones["LowerLeg." + side], bones["Foot." + side] })
+                .Concat(new[] { bones["Hips"] }).ToArray();
             var body = visual.GetComponentsInChildren<Renderer>().Single(r => r.name == "Body");
             Vector3 forward = visual.transform.parent.forward;
             const int sampleCount = 120;
+            const float plantedTravel = .32f;
+            float stanceFraction = running ? .36f : .5f;
+            float pelvisDrop = running ? .04f : .03f;
+            float[] hipCenters = new float[2], ankleFloor = { float.MaxValue, float.MaxValue };
             var original = Measure(source, out float oldGroundError, out float[] centers);
+            originalCycleDistance = original.Average() / .5f;
+            cycleDistance = plantedTravel / stanceFraction;
             var result = Object.Instantiate(source);
-            result.name = "Walk";
+            result.name = running ? "Run" : "Walk";
             result.hideFlags = HideFlags.None;
             result.frameRate = 60f;
             string[] properties = { "m_LocalPosition.x", "m_LocalPosition.y", "m_LocalPosition.z",
@@ -247,21 +261,52 @@ namespace ForestSpriteCharacter.Editor
                 for (int channel = 0; channel < properties.Length; channel++) curves[bone, channel] = new AnimationCurve();
             int bakeFrames = Mathf.RoundToInt(source.length * result.frameRate);
             float maximumTargetError = 0;
+            float minimumReachMargin = float.MaxValue;
             for (int frame = 0; frame <= bakeFrames; frame++)
             {
                 float time = source.length * frame / bakeFrames;
                 source.SampleAnimation(visual, time);
+                var targets = new Vector3[2];
+                var rotations = new Quaternion[2];
+                for (int side = 0; side < 2; side++)
+                {
+                    var foot = legs[side * 3 + 2];
+                    Vector3 target = foot.position;
+                    float forwardOffset = (Vector3.Dot(target, forward) - centers[side]) * plantedTravel / original[side];
+                    if (running)
+                    {
+                        float phase = Mathf.Repeat((float)frame / bakeFrames + side * .5f, 1f);
+                        if (phase <= stanceFraction)
+                            forwardOffset = plantedTravel * (.5f - phase / stanceFraction);
+                        else
+                        {
+                            float u = (phase - stanceFraction) / (1f - stanceFraction);
+                            float tangent = -plantedTravel * (1f - stanceFraction) / stanceFraction;
+                            // The swing continues backward after toe-off, then reaches forward before landing.
+                            // Its endpoint velocities match the planted foot, avoiding a snap at contact.
+                            forwardOffset = -.5f * plantedTravel + tangent * u +
+                                (3f * plantedTravel - 3f * tangent) * u * u +
+                                (-2f * plantedTravel + 2f * tangent) * u * u * u;
+                            target.y = ankleFloor[side] + .095f * Mathf.Pow(Mathf.Sin(Mathf.PI * u), 1.25f);
+                        }
+                        if (phase <= stanceFraction) target.y = ankleFloor[side];
+                    }
+                    target += forward * (hipCenters[side] + forwardOffset - Vector3.Dot(target, forward));
+                    targets[side] = target;
+                    rotations[side] = foot.rotation;
+                }
+                bones["Hips"].position -= Vector3.up * pelvisDrop;
                 for (int side = 0; side < 2; side++)
                 {
                     var upper = legs[side * 3]; var lower = legs[side * 3 + 1]; var foot = legs[side * 3 + 2];
                     Vector3 hip = upper.position, knee = lower.position, ankle = foot.position;
-                    Quaternion footRotation = foot.rotation;
-                    Vector3 target = ankle + forward * ((Vector3.Dot(ankle, forward) - centers[side]) * .5f);
+                    Vector3 target = targets[side];
                     float upperLength = Vector3.Distance(hip, knee), lowerLength = Vector3.Distance(knee, ankle);
                     Vector3 delta = target - hip;
                     float distance = delta.magnitude;
+                    minimumReachMargin = Mathf.Min(minimumReachMargin, upperLength + lowerLength - distance);
                     Require(distance < upperLength + lowerLength && distance > Mathf.Abs(upperLength - lowerLength),
-                        "Longer walk target is reachable without moving the pelvis: frame " + frame + ", side " + side);
+                        result.name + " target reachable without stretching bones: frame " + frame + ", side " + side);
                     Vector3 axis = delta / distance;
                     Vector3 bend = Vector3.ProjectOnPlane(knee - hip, axis).normalized;
                     if (bend.sqrMagnitude < .001f) bend = Vector3.ProjectOnPlane(forward, axis).normalized;
@@ -269,7 +314,7 @@ namespace ForestSpriteCharacter.Editor
                     Vector3 desiredKnee = hip + axis * along + bend * Mathf.Sqrt(Mathf.Max(0, upperLength * upperLength - along * along));
                     upper.rotation = Quaternion.FromToRotation(knee - hip, desiredKnee - hip) * upper.rotation;
                     lower.rotation = Quaternion.FromToRotation(foot.position - lower.position, target - lower.position) * lower.rotation;
-                    foot.rotation = footRotation;
+                    foot.rotation = rotations[side];
                     maximumTargetError = Mathf.Max(maximumTargetError, Vector3.Distance(foot.position, target));
                 }
                 for (int bone = 0; bone < legs.Length; bone++)
@@ -295,17 +340,21 @@ namespace ForestSpriteCharacter.Editor
             result.EnsureQuaternionContinuity();
             var generated = Measure(result, out float newGroundError, out _);
             var ratios = generated.Select((span, i) => span / original[i]).ToArray();
-            Require(ratios.All(ratio => ratio >= 1.3f), "Sampled Walk foot travel grows at least 30%: " + string.Join(", ", ratios));
+            Require(generated.All(span => span >= (running ? .37f : .31f)),
+                result.name + " has a genuinely wider step: " + string.Join(", ", generated));
+            Require(minimumReachMargin >= .005f, result.name + " keeps knee extension reserve: " + minimumReachMargin);
             Require(newGroundError <= .05f && maximumTargetError < .002f,
-                "Longer Walk keeps visible foot contact and reaches its targets: " + newGroundError + ", " + maximumTargetError);
-            string assetPath = Generated + "/Walk_LongStride.anim";
+                result.name + " keeps visible foot contact and reaches its targets: " + newGroundError + ", " + maximumTargetError);
+            string assetPath = Generated + "/" + result.name + "_LongStride.anim";
             var existing = AssetDatabase.LoadAssetAtPath<AnimationClip>(assetPath);
             if (existing == null) AssetDatabase.CreateAsset(result, assetPath);
             else { EditorUtility.CopySerialized(result, existing); Object.DestroyImmediate(result); result = existing; }
-            File.WriteAllText(Review + "/walk-stride.json", JsonUtility.ToJson(new WalkStrideEvidence
+            File.WriteAllText(Review + (running ? "/run-stride.json" : "/walk-stride.json"), JsonUtility.ToJson(new GaitStrideEvidence
             {
                 clip = assetPath, originalFootSpan = original, generatedFootSpan = generated, strideRatio = ratios,
                 originalGroundContactError = oldGroundError, generatedGroundContactError = newGroundError,
+                stanceFraction = stanceFraction, cycleDistance = cycleDistance, pelvisDrop = pelvisDrop,
+                minimumReachMargin = minimumReachMargin,
                 maximumIKTargetError = maximumTargetError, sampledFrames = sampleCount + 1
             }, true));
             return result;
@@ -322,6 +371,11 @@ namespace ForestSpriteCharacter.Editor
                         float position = Vector3.Dot(legs[side * 3 + 2].position, forward);
                         minimum[side] = Mathf.Min(minimum[side], position);
                         maximum[side] = Mathf.Max(maximum[side], position);
+                        if (clip == source)
+                        {
+                            hipCenters[side] += Vector3.Dot(legs[side * 3].position, forward) / (sampleCount + 1);
+                            ankleFloor[side] = Mathf.Min(ankleFloor[side], legs[side * 3 + 2].position.y);
+                        }
                     }
                     groundError = Mathf.Max(groundError, Mathf.Abs(BoundsOf(new[] { body }).min.y));
                 }

@@ -13,6 +13,9 @@ namespace ForestSpriteCharacter
         public float walkSpeed = .78f;
         [Range(0f, 1f)] public float walkStride = 1f;
         public float runSpeed = 1.35f;
+        [HideInInspector] public float originalWalkCycleDistance = .264f;
+        [HideInInspector] public float walkCycleDistance = .64f;
+        [HideInInspector] public float runCycleDistance = .888889f;
         public float jumpHeight = .42f;
         public float gravity = -12f;
         public float cameraHeight = .8f;
@@ -57,8 +60,10 @@ namespace ForestSpriteCharacter
         {
             float stride = Mathf.Clamp01(walkStride);
             animator.SetFloat("WalkStride", stride);
-            animator.SetFloat("WalkCadence", Mathf.Max(0f, walkSpeed) / (.52f * (1f + .5f * stride)));
-            animator.SetFloat("RunCadence", Mathf.Max(0f, runSpeed) / 1.35f);
+            // One cycle includes both steps. Match the planted foot's backward travel to root movement.
+            animator.SetFloat("WalkCadence", Mathf.Max(0f, walkSpeed) /
+                Mathf.Max(.01f, Mathf.Lerp(originalWalkCycleDistance, walkCycleDistance, stride)));
+            animator.SetFloat("RunCadence", Mathf.Max(0f, runSpeed) / Mathf.Max(.01f, runCycleDistance));
             if (Input.GetKeyDown(KeyCode.R)) ResetPosition();
             if (Input.GetKeyDown(KeyCode.P)) ToggleSecondaryMotion();
             for (int i = 0; i <= 5; i++)

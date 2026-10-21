@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.LowLevel;
@@ -21,6 +22,7 @@ namespace ForestSpriteCharacter.Editor
             public int[] capturePhases;
             public int renderers, vertices, weightedVertices, bones, secondaryChains, runtimeSamples, clothParticles, pinnedParticles, freeParticles, capturedFrames;
             public float walkDistance, runDistance, jumpRise, springPeakAngle;
+            public float walkFootSpan, runFootSpan;
             public float maximumClothDisplacement, maximumPinnedError, maximumCollisionPenetration, initialPinnedPenetration;
             public float turnDegrees, earlySettleSpeed, lateSettleSpeed;
             public float runUpperBend, runLowerBend, runUpperBoneRotation, runLowerBoneRotation;
@@ -35,6 +37,8 @@ namespace ForestSpriteCharacter.Editor
         }
 
         static ForestSpriteDemoController player;
+        static Transform strideFoot;
+        static float[] gaitMinimum, gaitMaximum;
         static Report runtime;
         static readonly HashSet<string> observed = new HashSet<string>();
         static readonly List<float> captureTimes = new List<float>();
@@ -78,6 +82,16 @@ namespace ForestSpriteCharacter.Editor
         {
             Require(preview != null, "Demo controller exists");
             Require(preview.animator != null && preview.animator.runtimeAnimatorController != null, "Animator and controller assigned");
+            var controllerAsset = preview.animator.runtimeAnimatorController as AnimatorController;
+            Require(controllerAsset != null, "Persistent AnimatorController assigned");
+            foreach (var entry in controllerAsset.layers[0].stateMachine.states)
+            {
+                Require(entry.state.motion != null && EditorUtility.IsPersistent(entry.state.motion),
+                    "Saved animation motion for " + entry.state.name);
+                if (entry.state.motion is BlendTree tree)
+                    Require(tree.children.Length == 2 && tree.children.All(child => child.motion != null && EditorUtility.IsPersistent(child.motion)),
+                        "Saved short and long Walk clips in BlendTree");
+            }
             Require(preview.demoCamera != null && preview.visual != null, "Visual and demo camera assigned");
             Require(!preview.animator.applyRootMotion, "CharacterController owns displacement");
             Require(preview.GetComponent<CharacterController>() != null, "CharacterController exists");
@@ -178,6 +192,9 @@ namespace ForestSpriteCharacter.Editor
             player.capeCloth.ResetSimulation();
             player.SetScriptedInput(Vector2.zero, false, false);
             observed.Clear();
+            strideFoot = player.visual.GetComponentsInChildren<Transform>().Single(t => t.name == "Foot.L");
+            gaitMinimum = new[] { float.MaxValue, float.MaxValue };
+            gaitMaximum = new[] { float.MinValue, float.MinValue };
             runtime = new Report { time = DateTime.UtcNow.ToString("O"), scene = ForestSpriteDemoBuilder.ScenePath,
                 result = "RUNNING", evidence = "Live Play-mode frames through the same movement and Animator path as keyboard input. Input is scripted; keyboard focus and subjective visual quality require human review." };
             phase = 0;
@@ -230,6 +247,12 @@ namespace ForestSpriteCharacter.Editor
                 float distance = Vector3.ProjectOnPlane(position - previousPosition, Vector3.up).magnitude;
                 if (phase == 1) runtime.walkDistance += distance;
                 if (phase == 2) runtime.runDistance += distance;
+                if ((phase == 1 || phase == 2) && elapsed > .2f)
+                {
+                    float ankleForward = player.transform.InverseTransformPoint(strideFoot.position).z;
+                    gaitMinimum[phase - 1] = Mathf.Min(gaitMinimum[phase - 1], ankleForward);
+                    gaitMaximum[phase - 1] = Mathf.Max(gaitMaximum[phase - 1], ankleForward);
+                }
                 if (phase == 3) runtime.jumpRise = Mathf.Max(runtime.jumpRise, position.y - baseY);
                 previousPosition = position;
                 if (Time.time >= nextCapture && phase < 9)
@@ -268,6 +291,10 @@ namespace ForestSpriteCharacter.Editor
                 {
                     string expected = phase == 1 ? "Walk" : "Run";
                     Require(player.CurrentState == expected && player.animator.GetCurrentAnimatorStateInfo(0).IsName(expected), "Animator reached " + expected);
+                    float span = gaitMaximum[phase - 1] - gaitMinimum[phase - 1];
+                    if (phase == 1) runtime.walkFootSpan = span;
+                    else runtime.runFootSpan = span;
+                    Require(span >= (phase == 1 ? .30f : .36f), "Live " + expected + " really moves the ankle through its wider stride: " + span);
                 }
                 if (phase == 2)
                 {
