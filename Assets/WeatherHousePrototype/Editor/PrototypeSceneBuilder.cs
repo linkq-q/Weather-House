@@ -53,6 +53,21 @@ namespace WeatherHousePrototype.Editor
                 else if (command == "movement") PrototypeMovementReview.Run();
                 else if (command == "gameplay-check") GameplayStateChecks.Run();
                 else if (command == "ui-review") ProceduralUiReview.Run();
+                else if (command == "album-prepare") AlbumBookChecks.Prepare();
+                else if (command == "album-review") AlbumBookChecks.CaptureReference();
+                else if (command == "album-check") AlbumBookChecks.Run();
+                else if (command == "ui-inventory") UiInventoryCapture.Run();
+                else if (command == "album-state")
+                    File.WriteAllText("PrototypeReview/AlbumBook/editor-state.txt", "Scene=" + SceneManager.GetActiveScene().path +
+                        "\nPlay=" + EditorApplication.isPlaying + "\nDirty=" + SceneManager.GetActiveScene().isDirty +
+                        "\nPlayStart=" + AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
+                else if (command == "album-show")
+                {
+                    if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play before opening the album.");
+                    var hud = Object.FindObjectOfType<GameplayHud>();
+                    if (hud == null) throw new InvalidOperationException("GameplayHud is missing.");
+                    if (!hud.JournalOpen) hud.ToggleJournal();
+                }
                 else if (command == "glyph-check") AnimalGlyphChecks.Run();
                 else if (command == "install-gameplay") GameplaySceneInstaller.Install(true);
                 else if (command == "gameplay-runtime") GameplayRuntimeChecks.Run();
