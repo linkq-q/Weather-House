@@ -21,13 +21,18 @@ namespace WeatherHousePrototype
         [Tooltip("参考画布中的字形高度。气泡变小时，整句字语会继续等比缩小，避免挤出边缘。")]
         public float animalGlyphHeight = 43f;
         [InspectorName("字语笔画粗细"), Range(.5f, 14f)]
-        [Tooltip("原始 100×120 字形坐标中的描边宽度；同步作用于气泡、照片和手账里的所有原字形，并随显示尺寸等比缩放。")]
+        [Tooltip("原始 100×120 字形坐标中的描边宽度；作用于气泡和照片详情。书页字符按设计稿使用独立的描边比例。")]
         public float animalGlyphStrokeWidth = 5f;
 
         [Header("人物对话气泡")]
         [InspectorName("人物气泡尺寸")]
         [Tooltip("输入和已发送的中文气泡共用这个尺寸；输入框、按钮与字体按气泡尺寸成比例排布。")]
         public Vector2 playerBubbleSize = new Vector2(900f, 190f);
+
+        [Header("相册符号页")]
+        [InspectorName("使用 P1 示例照片与完整字形")]
+        [Tooltip("用于设计稿对照；只影响符号页展示，不解锁字库或写入存档。相片页签始终显示实际拍摄记录。")]
+        public bool useAlbumDesignSamples = true;
 
         public bool CameraMode { get; private set; }
         public bool JournalOpen { get; private set; }
@@ -39,10 +44,13 @@ namespace WeatherHousePrototype
         private float focusMarkUntil;
         private Text statusLabel, captureLabel, playbackLabel;
         private InputField replyInput, guessInput;
-        private Font font;
+        private Font font, albumCountFont;
+        private RectTransform albumRoot;
         private AnimalActor bubbleAnimal;
-        private string bubbleUtterance, selectedGlyph, guessDraft = "", replyDraft = "", lastReply;
+        private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "", replyDraft = "", lastReply;
         private int page, currentFrame;
+        private int glyphPage;
+        private bool albumPhotosSelected, glyphDetailOpen;
         private bool dialogueOpen, dirty, playingPhoto, inspectorDirty;
         private float nextFrameAt, echoUntil;
         private ObservationRecord expandedPhoto;
@@ -60,6 +68,7 @@ namespace WeatherHousePrototype
             session = GetComponent<GameplaySession>();
             if (session == null) { Debug.LogError("GameplayHud needs GameplaySession on the same object.", this); enabled = false; return; }
             font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "微软雅黑", "Arial" }, 22);
+            albumCountFont = Font.CreateDynamicFontFromOSFont(new[] { "Comic Sans MS", "Segoe Print", "Arial" }, 72);
             var root = new GameObject("Weather House HUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             root.transform.SetParent(transform, false);
             root.layer = 5;
@@ -193,6 +202,11 @@ namespace WeatherHousePrototype
             if (echoRoot != null) echoRoot.gameObject.SetActive(!JournalOpen && !dialogueOpen && Time.unscaledTime < echoUntil);
             if (InputFocused()) return;
             if (Input.GetKeyDown(KeyCode.J)) { ToggleJournal(); return; }
+            if (JournalOpen && expandedPhoto == null && !glyphDetailOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.RightArrow)) { TurnGlyphPage(1); return; }
+                if (Input.GetKeyDown(KeyCode.LeftArrow)) { TurnGlyphPage(-1); return; }
+            }
             if (Input.GetKeyDown(KeyCode.C) && !JournalOpen && !dialogueOpen) SetCameraMode(!CameraMode);
             if (Input.GetKeyDown(KeyCode.E) && !JournalOpen && !CameraMode && session.Observed != null)
             {
@@ -213,13 +227,26 @@ namespace WeatherHousePrototype
             if (Input.GetKeyDown(KeyCode.Alpha3)) session.Cast(LocalWeather.Wind);
         }
 
-        private void LateUpdate() { if (session != null && canvas != null) PositionAnimalBubble(); }
+        private void LateUpdate()
+        {
+            if (session == null || canvas == null) return;
+            PositionAnimalBubble();
+            FitAlbum();
+        }
+
+        private void FitAlbum()
+        {
+            if (albumRoot == null) return;
+            float scale = Mathf.Min(canvasRect.rect.width / 1672f, canvasRect.rect.height / 941f);
+            albumRoot.localScale = Vector3.one * scale;
+        }
 
         public void ToggleJournal()
         {
             JournalOpen = !JournalOpen;
             dialogueOpen = false;
             expandedPhoto = null;
+            glyphDetailOpen = false;
             SetCameraMode(false);
             ClearFocus();
             RebuildModal();
@@ -249,6 +276,7 @@ namespace WeatherHousePrototype
         {
             ClearFocus();
             if (expandedPhoto != null) { expandedPhoto = null; RebuildModal(); return; }
+            if (glyphDetailOpen) { glyphDetailOpen = false; RebuildModal(); return; }
             if (JournalOpen) JournalOpen = false;
             else if (dialogueOpen) dialogueOpen = false;
             else if (CameraMode) { SetCameraMode(false); return; }
@@ -257,18 +285,22 @@ namespace WeatherHousePrototype
 
         private void RebuildModal()
         {
+            canvasRect.Find("Controls").gameObject.SetActive(!JournalOpen);
+            statusLabel.gameObject.SetActive(!JournalOpen);
             ReleasePhotoTextures();
             playingPhoto = false;
             expandedImage = null;
             playbackLabel = null;
             replyInput = null;
             guessInput = null;
+            albumRoot = null;
             if (modalRoot != null) { modalRoot.gameObject.SetActive(false); Destroy(modalRoot.gameObject); modalRoot = null; }
             if (!JournalOpen && !dialogueOpen) return;
             modalRoot = Panel(canvasRect, "Modal backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .48f));
             if (expandedPhoto != null) BuildPhoto();
             else if (JournalOpen) BuildJournal();
             else BuildDialogue();
+            if (JournalOpen && expandedPhoto == null && glyphDetailOpen) BuildGlyphDetail();
         }
 
         private void BuildDialogue()
@@ -328,91 +360,113 @@ namespace WeatherHousePrototype
 
         private void BuildJournal()
         {
-            var book = Panel(modalRoot, "Notebook", Vector2.zero, new Vector2(1380f, 860f), Paper);
-            Label(book, "Notebook title", "林间手账", new Vector2(-530f, 370f), new Vector2(240f, 50f), 31, Ink, TextAnchor.MiddleLeft);
-            Label(book, "Photos heading", selectedGlyph == null ? "观察照片" : "与这个字有关的照片", new Vector2(-408f, 310f), new Vector2(480f, 34f), 20, Ink, TextAnchor.MiddleLeft);
-            TextButton(book, "All photos", "全部照片", new Vector2(-60f, 310f), new Vector2(130f, 36f), () => { selectedGlyph = null; page = 0; RebuildModal(); });
-            CloseButton(book, new Vector2(634f, 371f), CloseTop);
-            Panel(book, "Page fold", new Vector2(139f, -25f), new Vector2(1.5f, 720f), new Color(.32f, .39f, .29f, .17f), false);
+            albumRoot = AlbumBookView.Create(modalRoot, albumPhotosSelected,
+                () => { albumPhotosSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildModal(); },
+                () => { albumPhotosSelected = true; selectedGlyph = null; glyphDetailOpen = false; ClearFocus(); RebuildModal(); },
+                CloseTop, () => TurnGlyphPage(1));
+            bool samples = useAlbumDesignSamples && !albumPhotosSelected;
+            if (samples)
+            {
+                string[] names = { "SampleHouse", "SampleFrog", "SampleSquirrel", "SampleTraveler" };
+                for (int i = 0; i < names.Length; i++)
+                    AlbumBookView.Photo(albumRoot, i, Resources.Load<Texture2D>("AlbumBook/" + names[i]), "Sample photo " + (i + 1));
+            }
+            else BuildAlbumPhotos(albumRoot);
+            AlbumBookView.AddStickers(albumRoot);
+            BuildWordPage(albumRoot);
+            int collected = samples ? session.Catalog.glyphs.Length :
+                Array.FindAll(session.Catalog.glyphs, glyph => session.Notebook.GetWord(glyph.id)?.encountered == true).Length;
+            AlbumBookView.Count(albumRoot, collected, session.Catalog.glyphs.Length, albumCountFont);
+            FitAlbum();
+        }
+
+        private void TurnGlyphPage(int direction)
+        {
+            int pages = Mathf.Max(1, Mathf.CeilToInt(session.Catalog.glyphs.Length / 22f));
+            glyphPage = (glyphPage + direction + pages) % pages;
+            ClearFocus();
+            RebuildModal();
+        }
+
+        private void BuildAlbumPhotos(Transform book)
+        {
             List<ObservationRecord> photos = selectedGlyph == null ? session.Notebook.observations : session.Notebook.FindEvidence(selectedGlyph);
             int pages = Mathf.Max(1, Mathf.CeilToInt(photos.Count / 4f));
             page = Mathf.Clamp(page, 0, pages - 1);
             for (int i = 0; i < 4; i++)
             {
                 int index = page * 4 + i;
-                if (index >= photos.Count) break;
-                Vector2 position = new Vector2(-468f + (i % 2) * 354f, 163f - (i / 2) * 263f);
-                BuildPhotoCard(book, photos[index], position);
+                if (index < photos.Count) BuildPhotoCard(book, photos[index], i);
+                else AlbumBookView.Photo(book, i, null, "Empty photo " + (i + 1));
             }
             if (photos.Count == 0)
-                Label(book, "No photos", selectedGlyph == null ? "把一次相遇拍下来，留在这里。" : "还没有这个字的照片。\n下次见到它时，拍下它所在的场景。", new Vector2(-290f, 20f), new Vector2(650f, 150f), 22, Ink);
-            TextButton(book, "Previous photos", "上一页", new Vector2(-500f, -340f), new Vector2(120f, 40f), () => { page = Mathf.Max(0, page - 1); RebuildModal(); });
-            Label(book, "Photo page", (page + 1) + " / " + pages, new Vector2(-295f, -340f), new Vector2(130f, 40f), 18, Ink);
-            TextButton(book, "Next photos", "下一页", new Vector2(-90f, -340f), new Vector2(120f, 40f), () => { page = Mathf.Min(pages - 1, page + 1); RebuildModal(); });
-            Label(book, "Photo hint", "点开照片后，可以手动播放当时的片刻。", new Vector2(-290f, -393f), new Vector2(650f, 30f), 16, Ink);
-            BuildWordPage(book);
+                Label(book, "No photos", selectedGlyph == null ? "把一次相遇拍下来，\n留在这里。" : "还没有这个字的照片。", new Vector2(-419f, 160f), new Vector2(210f, 110f), 20, Ink);
+            var previous = TextButton(book, "Previous photos", "‹", new Vector2(-485f, -345f), new Vector2(46f, 25f), () => { page--; RebuildModal(); });
+            var next = TextButton(book, "Next photos", "›", new Vector2(-127f, -345f), new Vector2(46f, 25f), () => { page++; RebuildModal(); });
+            previous.interactable = page > 0;
+            next.interactable = page < pages - 1;
+            Label(book, "Photo page", (page + 1) + " / " + pages, new Vector2(-306f, -345f), new Vector2(130f, 30f), 16, Ink);
         }
 
-        private void BuildPhotoCard(Transform parent, ObservationRecord record, Vector2 position)
+        private void BuildPhotoCard(Transform parent, ObservationRecord record, int slot)
         {
-            var card = Panel(parent, "Photo " + record.id, position, new Vector2(330f, 238f), new Color(.88f, .90f, .82f));
-            var image = Raw(card, "Cover frame", new Vector2(0f, 20f), new Vector2(310f, 174.375f));
-            try { Texture2D texture = MotionPhotoRecorder.LoadFrame(record, 0); thumbnailTextures.Add(texture); image.texture = texture; }
-            catch (Exception exception) { Label(card, "Missing frame", "照片暂时无法读取", new Vector2(0f, 20f), new Vector2(300f, 60f), 17, Ink); Debug.LogWarning(exception.Message, this); }
-            GlyphLine(card, record.glyphIds, new Vector2(0f, -91f), 27f, 280f);
-            var button = card.gameObject.AddComponent<Button>();
-            button.targetGraphic = card.GetComponent<Image>();
-            button.onClick.AddListener(() => { expandedPhoto = record; currentFrame = 0; ClearFocus(); RebuildModal(); });
+            Texture2D texture = null;
+            try { texture = MotionPhotoRecorder.LoadFrame(record, 0); thumbnailTextures.Add(texture); }
+            catch (Exception exception) { Debug.LogWarning(exception.Message, this); }
+            var image = AlbumBookView.Photo(parent, slot, texture, "Photo " + record.id,
+                () => { expandedPhoto = record; glyphDetailOpen = false; currentFrame = 0; ClearFocus(); RebuildModal(); });
+            if (texture == null)
+                Label(image.transform, "Missing frame", "照片暂时无法读取", Vector2.zero, new Vector2(180f, 80f), 17, Ink);
         }
 
         private void BuildWordPage(Transform book)
         {
-            Label(book, "Words heading", "遇见的字", new Vector2(407f, 312f), new Vector2(430f, 36f), 22, Ink);
             GlyphDefinition[] glyphs = session.Catalog.glyphs;
-            for (int i = 0; i < glyphs.Length; i++)
+            glyphPage = Mathf.Clamp(glyphPage, 0, Mathf.Max(0, (glyphs.Length - 1) / 22));
+            int first = glyphPage * 22;
+            for (int i = first; i < Mathf.Min(first + 22, glyphs.Length); i++)
             {
                 GlyphDefinition glyph = glyphs[i];
                 GlyphKnowledge knowledge = session.Notebook.GetWord(glyph.id);
                 bool seen = knowledge != null && knowledge.encountered;
-                Vector2 position = new Vector2(251f + (i % 4) * 102f, 244f - (i / 4) * 75f);
-                var cell = Panel(book, "Word " + glyph.id, position, new Vector2(78f, 67f), selectedGlyph == glyph.id ? new Color(.74f, .81f, .63f) : new Color(.88f, .90f, .82f));
-                if (!seen) ProceduralUiLibrary.Create(cell, "Unseen word", UiMark.Dot, Vector2.zero, new Vector2(15f, 15f), new Color(.48f, .54f, .46f, .48f));
-                else
+                bool visible = seen || (useAlbumDesignSamples && !albumPhotosSelected);
+                AlbumBookView.Word(book, i - first, glyph, visible, selectedGlyph == glyph.id, () =>
                 {
-                    Glyph(cell, glyph, Vector2.zero, new Vector2(44f, 53f));
-                    var button = cell.gameObject.AddComponent<Button>();
-                    button.targetGraphic = cell.GetComponent<Image>();
-                    button.onClick.AddListener(() =>
-                    {
-                        selectedGlyph = glyph.id;
-                        guessDraft = knowledge.guess ?? "";
-                        page = 0;
-                        ClearFocus();
-                        RebuildModal();
-                    });
-                    if (knowledge.confirmed) ProceduralUiLibrary.Create(cell, "Confirmed", UiMark.Dot, new Vector2(28f, -23f), new Vector2(8f, 8f), Ink);
-                }
+                    if (guessGlyphId != glyph.id) guessDraft = knowledge?.guess ?? "";
+                    guessGlyphId = glyph.id;
+                    selectedGlyph = glyph.id;
+                    glyphDetailOpen = true;
+                    ClearFocus();
+                    RebuildModal();
+                });
             }
-            if (selectedGlyph == null)
+        }
+
+        private void BuildGlyphDetail()
+        {
+            var shade = Panel(modalRoot, "Word detail backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .38f));
+            var card = Panel(shade, "Word detail", Vector2.zero, new Vector2(620f, 400f), Paper);
+            CloseButton(card, new Vector2(263f, 153f), CloseTop);
+            GlyphDefinition definition = FindGlyph(selectedGlyph);
+            if (definition != null) Glyph(card, definition, new Vector2(0f, 113f), new Vector2(50f, 60f));
+            GlyphKnowledge selected = session.Notebook.GetWord(selectedGlyph);
+            if (selected == null || !selected.encountered)
             {
-                Label(book, "Choose word", "点一个遇见过的字，\n看看它出现过的场景。", new Vector2(405f, -273f), new Vector2(430f, 130f), 20, Ink);
+                Label(card, "Unseen meaning", "还没有在相遇中记录这个字。\n听听动物的字语，再留下你的猜测。", new Vector2(0f, -35f), new Vector2(500f, 100f), 21, Ink);
                 return;
             }
-            GlyphKnowledge selected = session.Notebook.GetWord(selectedGlyph);
-            if (selected != null && selected.confirmed)
-            {
-                GlyphDefinition definition = FindGlyph(selectedGlyph);
-                Label(book, "Confirmed meaning", "已确认\n" + (definition == null ? "" : definition.meaning), new Vector2(405f, -279f), new Vector2(430f, 160f), 21, Ink);
-            }
+            if (selected.confirmed)
+                Label(card, "Confirmed meaning", "已确认\n" + (definition == null ? "" : definition.meaning), new Vector2(0f, 5f), new Vector2(500f, 100f), 21, Ink);
             else
             {
-                Label(book, "Guess heading", "我的猜测", new Vector2(405f, -224f), new Vector2(430f, 34f), 19, Ink, TextAnchor.MiddleLeft);
-                guessInput = InputBox(book, "Word guess", guessDraft, "这个字可能是什么意思？", new Vector2(405f, -277f), new Vector2(430f, 54f));
+                Label(card, "Guess heading", "我的猜测", new Vector2(0f, 40f), new Vector2(480f, 34f), 19, Ink, TextAnchor.MiddleLeft);
+                guessInput = InputBox(card, "Word guess", guessDraft, "这个字可能是什么意思？", new Vector2(0f, -15f), new Vector2(480f, 54f));
                 guessInput.characterLimit = 160;
                 guessInput.onValueChanged.AddListener(value => guessDraft = value);
-                TextButton(book, "Save guess", "记下来", new Vector2(405f, -341f), new Vector2(144f, 43f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); });
-                Label(book, "Guess hint", "猜测可以修改，去下一次相遇中验证。", new Vector2(405f, -393f), new Vector2(450f, 30f), 16, Ink);
+                TextButton(card, "Save guess", "记下来", new Vector2(0f, -84f), new Vector2(144f, 43f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); });
             }
+            TextButton(card, "Word evidence", "查看相关照片", new Vector2(0f, -151f), new Vector2(190f, 38f), () =>
+            { albumPhotosSelected = true; glyphDetailOpen = false; page = 0; ClearFocus(); RebuildModal(); });
         }
 
         private void BuildPhoto()
@@ -625,6 +679,7 @@ namespace WeatherHousePrototype
             if (session != null) session.Changed -= OnChanged;
             ReleasePhotoTextures();
             if (font != null) Destroy(font);
+            if (albumCountFont != null) Destroy(albumCountFont);
         }
     }
 }
