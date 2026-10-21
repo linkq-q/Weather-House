@@ -1,0 +1,161 @@
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
+namespace WeatherHouse.Vegetation
+{
+    [ExecuteAlways, RequireComponent(typeof(Renderer))]
+    public sealed class PainterlyWaterReflection : MonoBehaviour
+    {
+        [Range(256, 1536)] public int resolution = 1024;
+        [Min(0.001f)] public float clipOffset = 0.04f;
+        public LayerMask reflectionLayers = ~(1 << 4);
+
+        static bool renderingReflection;
+        Camera reflectionCamera;
+        RenderTexture reflectionTexture;
+        Renderer waterRenderer;
+        MaterialPropertyBlock properties;
+        static readonly int ReflectionTextureId = Shader.PropertyToID("_PlanarReflectionTex");
+        static readonly int HasReflectionId = Shader.PropertyToID("_HasPlanarReflection");
+        static readonly int ReflectionMatrixId = Shader.PropertyToID("_PlanarReflectionVP");
+
+        void OnEnable()
+        {
+            waterRenderer = GetComponent<Renderer>();
+            properties = new MaterialPropertyBlock();
+            RenderPipelineManager.beginCameraRendering += RenderReflection;
+        }
+
+        void OnDisable()
+        {
+            RenderPipelineManager.beginCameraRendering -= RenderReflection;
+            if (waterRenderer && properties != null)
+            {
+                waterRenderer.GetPropertyBlock(properties);
+                properties.SetFloat(HasReflectionId, 0);
+                properties.SetTexture(ReflectionTextureId, Texture2D.blackTexture);
+                waterRenderer.SetPropertyBlock(properties);
+            }
+            if (reflectionTexture) { reflectionTexture.Release(); Dispose(reflectionTexture); }
+            if (reflectionCamera) Dispose(reflectionCamera.gameObject);
+            reflectionTexture = null;
+            reflectionCamera = null;
+        }
+
+        void RenderReflection(ScriptableRenderContext context, Camera source)
+        {
+            if (renderingReflection || source == reflectionCamera || !isActiveAndEnabled || !waterRenderer || !waterRenderer.enabled) return;
+            if (source.cameraType != CameraType.Game && source.cameraType != CameraType.SceneView) return;
+            if ((source.cullingMask & (1 << gameObject.layer)) == 0) return;
+
+            if (!reflectionCamera)
+            {
+                var go = new GameObject("Painterly Water Reflection Camera", typeof(Camera), typeof(UniversalAdditionalCameraData));
+                go.hideFlags = HideFlags.HideAndDontSave;
+                reflectionCamera = go.GetComponent<Camera>();
+                reflectionCamera.enabled = false;
+            }
+            float aspect = Mathf.Max(0.1f, source.aspect);
+            int longest = Mathf.Clamp(resolution, 256, 1536);
+            int width = aspect >= 1 ? longest : Mathf.RoundToInt(longest * aspect);
+            int height = aspect >= 1 ? Mathf.RoundToInt(longest / aspect) : longest;
+            if (!reflectionTexture || reflectionTexture.width != width || reflectionTexture.height != height)
+            {
+                if (reflectionTexture) { reflectionTexture.Release(); Dispose(reflectionTexture); }
+                reflectionTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGBHalf)
+                {
+                    name = "Painterly Pond Reflection",
+                    hideFlags = HideFlags.HideAndDontSave,
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                    useMipMap = true,
+                    autoGenerateMips = true
+                };
+                reflectionTexture.Create();
+            }
+
+            reflectionCamera.CopyFrom(source);
+            reflectionCamera.enabled = false;
+            // URP 14 only reads UniversalAdditionalCameraData for Game/VR camera types.
+            reflectionCamera.cameraType = CameraType.Game;
+            reflectionCamera.targetTexture = reflectionTexture;
+            reflectionCamera.rect = new Rect(0, 0, 1, 1);
+            reflectionCamera.cullingMask = source.cullingMask & reflectionLayers.value & ~(1 << 4);
+            reflectionCamera.useOcclusionCulling = false;
+            reflectionCamera.allowMSAA = false;
+            var data = reflectionCamera.GetUniversalAdditionalCameraData();
+            data.renderType = CameraRenderType.Base;
+            data.renderPostProcessing = false;
+            data.renderShadows = true;
+            data.requiresColorOption = CameraOverrideOption.Off;
+            data.requiresDepthOption = CameraOverrideOption.Off;
+
+            Vector3 position = transform.position;
+            Vector3 normal = transform.up;
+            float planeDistance = -Vector3.Dot(normal, position);
+            Matrix4x4 reflection = ReflectionMatrix(new Vector4(normal.x, normal.y, normal.z, planeDistance));
+            Vector3 reflectedPosition = reflection.MultiplyPoint(source.transform.position);
+            Vector3 reflectedForward = reflection.MultiplyVector(source.transform.forward);
+            Vector3 reflectedUp = reflection.MultiplyVector(source.transform.up);
+            reflectionCamera.transform.SetPositionAndRotation(reflectedPosition, Quaternion.LookRotation(reflectedForward, reflectedUp));
+            reflectionCamera.worldToCameraMatrix = source.worldToCameraMatrix * reflection;
+            Vector3 clipPosition = reflectionCamera.worldToCameraMatrix.MultiplyPoint(position + normal * clipOffset);
+            Vector3 clipNormal = reflectionCamera.worldToCameraMatrix.MultiplyVector(normal).normalized;
+            var clipPlane = new Vector4(clipNormal.x, clipNormal.y, clipNormal.z, -Vector3.Dot(clipPosition, clipNormal));
+            reflectionCamera.projectionMatrix = source.CalculateObliqueMatrix(clipPlane);
+
+            bool oldInvertCulling = GL.invertCulling;
+            bool oldFog = RenderSettings.fog;
+            renderingReflection = true;
+            try
+            {
+                GL.invertCulling = !oldInvertCulling;
+                // Oblique projection changes clip.z, so depth fog would incorrectly wash out the reflection.
+                RenderSettings.fog = false;
+                // URP 14's standalone API renders inside the current render context without camera callbacks.
+                UniversalRenderPipeline.RenderSingleCamera(context, reflectionCamera);
+            }
+            finally
+            {
+                GL.invertCulling = oldInvertCulling;
+                RenderSettings.fog = oldFog;
+                renderingReflection = false;
+            }
+            waterRenderer.GetPropertyBlock(properties);
+            properties.SetTexture(ReflectionTextureId, reflectionTexture);
+            properties.SetFloat(HasReflectionId, 1);
+            Matrix4x4 textureBias = Matrix4x4.identity;
+            textureBias.m00 = 0.5f;
+            textureBias.m03 = 0.5f;
+            textureBias.m11 = SystemInfo.graphicsUVStartsAtTop ? -0.5f : 0.5f;
+            textureBias.m13 = 0.5f;
+            properties.SetMatrix(ReflectionMatrixId, textureBias * GL.GetGPUProjectionMatrix(reflectionCamera.projectionMatrix, true)
+                * reflectionCamera.worldToCameraMatrix);
+            waterRenderer.SetPropertyBlock(properties);
+        }
+
+        static Matrix4x4 ReflectionMatrix(Vector4 plane)
+        {
+            Matrix4x4 m = Matrix4x4.identity;
+            m.m00 = 1 - 2 * plane.x * plane.x;
+            m.m01 = -2 * plane.x * plane.y;
+            m.m02 = -2 * plane.x * plane.z;
+            m.m03 = -2 * plane.w * plane.x;
+            m.m10 = -2 * plane.y * plane.x;
+            m.m11 = 1 - 2 * plane.y * plane.y;
+            m.m12 = -2 * plane.y * plane.z;
+            m.m13 = -2 * plane.w * plane.y;
+            m.m20 = -2 * plane.z * plane.x;
+            m.m21 = -2 * plane.z * plane.y;
+            m.m22 = 1 - 2 * plane.z * plane.z;
+            m.m23 = -2 * plane.w * plane.z;
+            return m;
+        }
+
+        static void Dispose(Object value)
+        {
+            if (Application.isPlaying) Destroy(value); else DestroyImmediate(value);
+        }
+    }
+}

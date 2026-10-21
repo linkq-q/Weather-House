@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0667f7a5eaaf09e4dac1c5722667bdec, type: 3}
+  m_Name: WhiteDaisy
+  m_EditorClassIdentifier: 
+  kind: 2
+  height: 0.5
+  width: 0.055
+  bladeCount: 5
+  spread: 0.2
+  bend: 0.25
+  heightVariation: 0.3
+  seed: 421
+  baseColor: {r: 0.3, g: 0.41, b: 0.22, a: 1}
+  tipColor: {r: 0.65, g: 0.73, b: 0.36, a: 1}
+  flowerCount: 3
+  flowerRadius: 0.085
+  flowerColor: {r: 1, g: 0.985, b: 0.92, a: 1}
+  centerColor: {r: 0.94, g: 0.65, b: 0.14, a: 1}

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0667f7a5eaaf09e4dac1c5722667bdec, type: 3}
+  m_Name: ShortGrass
+  m_EditorClassIdentifier: 
+  kind: 0
+  height: 0.3
+  width: 0.036
+  tipWidthRatio: 0.11
+  bladeCount: 12
+  spread: 0.16
+  rootSpread: 0.12
+  bend: 0.5
+  heightVariation: 0.35
+  seed: 137
+  baseColor: {r: 0.34, g: 0.44, b: 0.14, a: 1}
+  tipColor: {r: 0.86, g: 0.83, b: 0.38, a: 1}
+  flowerCount: 3
+  flowerRadius: 0.09
+  flowerColor: {r: 0.98, g: 0.97, b: 0.85, a: 1}
+  centerColor: {r: 0.94, g: 0.65, b: 0.14, a: 1}

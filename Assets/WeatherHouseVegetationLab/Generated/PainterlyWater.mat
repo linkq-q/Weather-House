@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PainterlyWater
+  m_Shader: {fileID: 4800000, guid: efb193899fe450a4891519cbd8f96eb2, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _PlanarReflectionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _DebugDepth: 0
+    - _DepthDistance: 1.2
+    - _HasPlanarReflection: 0
+    - _ReflectionDistortion: 0.009
+    - _ReflectionStrength: 0.86
+    - _RippleSpeed: 0.16
+    - _RippleStrength: 0.65
+    - _ShoreWidth: 0.16
+    - _StrokeScale: 0.8
+    m_Colors:
+    - _BrushDirection: {r: 0.829, g: -0.559, b: 0, a: 0}
+    - _DeepColor: {r: 0.6039216, g: 0.78039217, b: 0.7529412, a: 1}
+    - _ReflectionTint: {r: 0.72156864, g: 0.84705883, b: 0.79607844, a: 1}
+    - _RippleColor: {r: 0.83137256, g: 0.8745098, b: 0.827451, a: 1}
+    - _ShallowColor: {r: 0.70980394, g: 0.8117647, b: 0.7529412, a: 1}
+  m_BuildTextureStacks: []
