@@ -1,0 +1,732 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.LowLevel;
+using Object = UnityEngine.Object;
+
+namespace ForestSpriteCharacter.Editor
+{
+    public static class ForestSpriteDemoChecks
+    {
+        [Serializable]
+        sealed class Report
+        {
+            public string time, scene, result, evidence, error;
+            public string[] clips, observedStates;
+            public float[] captureTimes;
+            public int[] capturePhases;
+            public int renderers, vertices, weightedVertices, bones, secondaryChains, runtimeSamples, clothParticles, pinnedParticles, freeParticles, capturedFrames;
+            public float walkDistance, runDistance, jumpRise, springPeakAngle;
+            public float maximumClothDisplacement, maximumPinnedError, maximumCollisionPenetration, initialPinnedPenetration;
+            public float turnDegrees, earlySettleSpeed, lateSettleSpeed;
+            public float runUpperBend, runLowerBend, runUpperBoneRotation, runLowerBoneRotation;
+            public float windPreviewUpperBend, tunedUpperBend, tunedBoneRotation, tunedClothShapeDifference;
+            public float strongWindUpperBend, strongWindLowerBend;
+            public float windPreviewWingSpread, tunedWingSpread;
+            public int rearHemParticles, rearHemSamples;
+            public float maximumRearHemLocalZ, minimumRearHemFootRearClearance;
+            public bool legacySettingsMigration;
+            public float idleFootHeight, walkFootHeight, runFootHeight, maximumGroundedFootError, idleCharacterHeight;
+            public bool groundedAfterJump, settingsRoundTrip, recommendedSettingsRestored, tuningKeptSimulation;
+        }
+
+        static ForestSpriteDemoController player;
+        static Report runtime;
+        static readonly HashSet<string> observed = new HashSet<string>();
+        static readonly List<float> captureTimes = new List<float>();
+        static readonly List<int> capturePhases = new List<int>();
+        static float phaseStarted, baseY;
+        static Vector3 previousPosition, restorePosition;
+        static Quaternion restoreRotation;
+        static ForestSpriteDemoController.Demonstration restoreDemo;
+        static bool restoreMotion, restoreCloth, phaseCaptured;
+        static bool restoreWindPreview;
+        static string restoreCapeSettings;
+        static Quaternion initialUpper, initialLower, windPreviewUpper;
+        static Vector3[] windPreviewParticles;
+        static int phase, sampledFrame, initialSimulationSteps, frameCaptureIndex;
+        static float nextCapture, previousSampleTime, earlySettleSum, lateSettleSum;
+        static int earlySettleSamples, lateSettleSamples;
+        static Quaternion turnStart;
+        static SkinnedMeshRenderer clothSkin;
+        static Vector3[] meshVertices, previousOffsets, previousAnchorsWorld, previousAnchorsLocal;
+        static BoneWeight[] meshWeights;
+        static Matrix4x4[] bindposes;
+        static int[] clothToMesh;
+        static int[] rearHemParticles, footVertices;
+        static SkinnedMeshRenderer footSkin;
+        static Vector3[] footMeshVertices;
+        static BoneWeight[] footWeights;
+        static Matrix4x4[] footBindposes;
+        static ClothSkinningCoefficient[] coefficients;
+        static PlayerLoopSystem originalPlayerLoop;
+        static bool playerLoopInstalled;
+        struct ClothSampleAfterFinish { }
+
+        [MenuItem("Weather House/Forest Sprite/Validate Open Demo")]
+        public static void ValidateOpen()
+        {
+            Require(SceneManager.GetActiveScene().path == ForestSpriteDemoBuilder.ScenePath, "Open the independent forest sprite scene first");
+            Validate(Object.FindObjectOfType<ForestSpriteDemoController>());
+        }
+
+        public static void Validate(ForestSpriteDemoController preview)
+        {
+            Require(preview != null, "Demo controller exists");
+            Require(preview.animator != null && preview.animator.runtimeAnimatorController != null, "Animator and controller assigned");
+            Require(preview.demoCamera != null && preview.visual != null, "Visual and demo camera assigned");
+            Require(!preview.animator.applyRootMotion, "CharacterController owns displacement");
+            Require(preview.GetComponent<CharacterController>() != null, "CharacterController exists");
+            var clips = ForestSpriteDemoBuilder.LoadClips();
+            foreach (string name in ForestSpriteDemoBuilder.ClipNames)
+            {
+                Require(clips.ContainsKey(name) && clips[name].length > .1f, "Nonempty clip " + name);
+                Require(AnimationUtility.GetCurveBindings(clips[name]).Length > 0, "Animated curves in " + name);
+            }
+            Require(ForestSpriteDemoBuilder.StateName("ForestSpriteRig|Walk") == "Walk", "FBX action naming");
+            Require(ForestSpriteDemoController.IsGait("Walk") && ForestSpriteDemoController.IsGait("Run") &&
+                !ForestSpriteDemoController.IsGait("Jump"), "Only locomotion states share gait phase");
+            var transforms = preview.visual.GetComponentsInChildren<Transform>();
+            foreach (string bone in new[] { "Root", "Hips", "Spine", "Chest", "Neck", "Head", "UpperLeg.L", "LowerLeg.L", "Foot.L", "UpperLeg.R", "LowerLeg.R", "Foot.R" })
+                Require(transforms.Any(t => t.name == bone), "Body bone " + bone);
+            var skins = preview.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s => s.enabled).ToArray();
+            Require(skins.Length >= 4, "Body, hair, hat and cape are skinned");
+            int vertices = 0, weighted = 0;
+            foreach (var skin in skins)
+            {
+                Require(skin.sharedMesh != null && skin.bones.Length > 0 && skin.bones.All(b => b != null), "Bound mesh " + skin.name);
+                var weights = skin.sharedMesh.boneWeights;
+                vertices += skin.sharedMesh.vertexCount;
+                Require(weights.Length == skin.sharedMesh.vertexCount, "Every vertex has skinning data: " + skin.name);
+                foreach (var weight in weights)
+                {
+                    float sum = weight.weight0 + weight.weight1 + weight.weight2 + weight.weight3;
+                    Require(!float.IsNaN(sum) && Mathf.Abs(sum - 1f) < .02f, "Normalized nonzero vertex weights: " + skin.name);
+                    weighted++;
+                }
+                Require(skin.sharedMaterials.All(m => m != null && m.shader != null), "Material slots: " + skin.name);
+            }
+            Require(preview.secondaryMotion != null && preview.secondaryMotion.chains.Length == 4, "One hat and three hair spring chains");
+            foreach (var chain in preview.secondaryMotion.chains)
+            {
+                Require(chain.bones != null && chain.bones.Length >= 3 && chain.bones.All(b => b != null), "Secondary chain endpoints");
+                Require(chain.kind != ForestSpriteSecondaryMotion.MotionKind.Cape, "Cloth is the sole cape secondary-motion solver");
+            }
+            Require(preview.capeCloth != null && preview.capeCloth.cloth != null, "Native cape Cloth exists");
+            var cloth = preview.capeCloth.cloth;
+            Require(cloth.enabled && cloth.GetComponent<SkinnedMeshRenderer>().enabled, "Cape Cloth and renderer enabled");
+            Require(Vector3.Distance(cloth.transform.lossyScale, Vector3.one) < .0001f, "Cape simulation uses metre-scale geometry");
+            var particles = cloth.vertices;
+            var constraints = cloth.coefficients;
+            Require(particles.Length > 0 && constraints.Length == particles.Length && preview.capeCloth.restParticles.Length == particles.Length,
+                "Cloth constraints use simulation particle indices, including welded UV seams");
+            int pins = constraints.Count(c => c.maxDistance <= .00001f);
+            int free = constraints.Count(c => c.maxDistance > .01f);
+            Require(pins > 0 && free > 0, "Fixed collar and free cape particles");
+            Require(cloth.sphereColliders.Any(p => p.first != null) || cloth.capsuleColliders.Any(c => c != null), "Explicit body colliders assigned");
+            var cape = preview.capeCloth;
+            var panel = preview.GetComponent<ForestSpriteCapePanel>();
+            Require(panel != null && panel.enabled && panel.cape == cape, "Live cape adjustment panel targets this cape");
+            Require(cape.flowUpper?.Length == 4 && cape.flowLower?.Length == 4 && cape.flowAxes?.Length == 4 && cape.flowInfluence?.Length == 4,
+                "Four cape S-shape target chains and axes");
+            for (int i = 0; i < 4; i++)
+            {
+                Require(cape.flowUpper[i] != null && cape.flowLower[i] != null && cape.flowLower[i].parent == cape.flowUpper[i], "Connected S-shape chain " + i);
+                Require(cape.flowUpper[i].name.StartsWith("Cape_", StringComparison.Ordinal) && cape.flowLower[i].name.StartsWith("Cape_", StringComparison.Ordinal), "Only cape bones receive flow targets");
+                Require(IsFinite(cape.flowAxes[i]) && Mathf.Abs(cape.flowAxes[i].magnitude - 1f) < .001f && cape.flowInfluence[i] > 0,
+                    "Usable S-shape rotation axis and influence " + i);
+            }
+            Require(cape.flowUpper.Distinct().Count() == 4 && cape.flowLower.Distinct().Count() == 4, "Each cape flow target is unique");
+            Require(cape.freedomWeights?.Length == particles.Length && cape.freedomWeights.All(w => w >= 0 && w <= 1.0001f), "Particle freedom masks preserve collar pins");
+            if (!Application.isPlaying) Require(constraints.Max(c => c.maxDistance) < .05f, "Recommended cape physics stays within five centimetres of its flow shape");
+            var report = new Report { time = DateTime.UtcNow.ToString("O"), scene = ForestSpriteDemoBuilder.ScenePath, result = "PASS",
+                evidence = "Imported clips, skin weights, required bones and scene wiring. Runtime and visual acceptance are separate.",
+                clips = clips.Keys.ToArray(), renderers = skins.Length, vertices = vertices, weightedVertices = weighted,
+                bones = skins.SelectMany(s => s.bones).Distinct().Count(), secondaryChains = preview.secondaryMotion.chains.Length,
+                clothParticles = particles.Length, pinnedParticles = pins, freeParticles = free };
+            WriteReport("import-and-wiring.json", report);
+            Debug.Log("Forest sprite import and scene wiring checks passed.");
+        }
+
+        [MenuItem("Weather House/Forest Sprite/Run Play Checks (14 seconds)")]
+        public static void RunRuntimeChecks()
+        {
+            Require(EditorApplication.isPlaying, "Play mode is required");
+            Require(SceneManager.GetActiveScene().path == ForestSpriteDemoBuilder.ScenePath, "Only exercise the independent demo");
+            Require(player == null, "A runtime check is not already active");
+            var candidate = Object.FindObjectOfType<ForestSpriteDemoController>();
+            Require(candidate != null && candidate.enabled, "Active demo controller exists");
+            Validate(candidate);
+            player = candidate;
+            restorePosition = player.transform.position;
+            restoreRotation = player.transform.rotation;
+            restoreDemo = player.demonstration;
+            restoreMotion = player.secondaryMotion.MotionEnabled;
+            restoreCloth = player.capeCloth.cloth.enabled;
+            restoreWindPreview = player.capeCloth.WindPreview;
+            restoreCapeSettings = JsonUtility.ToJson(player.capeCloth.settings);
+            player.capeCloth.ResetSettings();
+            player.capeCloth.SetWindPreview(false);
+            player.ResetPosition();
+            player.secondaryMotion.MotionEnabled = true;
+            player.secondaryMotion.ResetSimulation();
+            player.capeCloth.SetMotionEnabled(true);
+            player.capeCloth.ResetSimulation();
+            player.SetScriptedInput(Vector2.zero, false, false);
+            observed.Clear();
+            runtime = new Report { time = DateTime.UtcNow.ToString("O"), scene = ForestSpriteDemoBuilder.ScenePath,
+                result = "RUNNING", evidence = "Live Play-mode frames through the same movement and Animator path as keyboard input. Input is scripted; keyboard focus and subjective visual quality require human review." };
+            phase = 0;
+            phaseCaptured = false;
+            phaseStarted = Time.time;
+            sampledFrame = -1;
+            initialSimulationSteps = player.secondaryMotion.SimulationSteps;
+            previousPosition = player.transform.position;
+            baseY = player.transform.position.y;
+            frameCaptureIndex = 0;
+            captureTimes.Clear();
+            capturePhases.Clear();
+            nextCapture = Time.time;
+            previousSampleTime = Time.time;
+            earlySettleSum = lateSettleSum = 0;
+            earlySettleSamples = lateSettleSamples = 0;
+            try
+            {
+                PrepareClothSampling();
+                InstallClothSamplingLoop();
+            }
+            catch (Exception exception)
+            {
+                runtime.result = "FAIL";
+                runtime.error = exception.ToString();
+                FinishRuntime();
+                throw;
+            }
+        }
+
+        static void SampleRuntime()
+        {
+            try
+            {
+                Require(EditorApplication.isPlaying && player != null, "Play remained active during checks");
+                if (Time.frameCount == sampledFrame) return;
+                sampledFrame = Time.frameCount;
+                float elapsed = Time.time - phaseStarted;
+                runtime.runtimeSamples++;
+                Vector3 position = player.transform.position;
+                Require(IsFinite(position) && player.secondaryMotion.HasFiniteState, "Finite root and spring state");
+                observed.Add(player.CurrentState);
+                runtime.springPeakAngle = Mathf.Max(runtime.springPeakAngle, player.secondaryMotion.MaxCurrentAngle);
+                if (phase < 9) SampleCloth(elapsed);
+                if (phase < 9)
+                    Require(player.capeCloth.UpperBendDegrees >= 0f && player.capeCloth.UpperBendDegrees <= 75.001f
+                        && player.capeCloth.UpperBendDegrees + player.capeCloth.LowerBendDegrees >= -.001f
+                        && player.capeCloth.WingSpreadDegrees >= 0f && player.capeCloth.WingSpreadDegrees <= 40.001f,
+                        "Cape wave preserves rearward bend and bounded wing opening");
+                float distance = Vector3.ProjectOnPlane(position - previousPosition, Vector3.up).magnitude;
+                if (phase == 1) runtime.walkDistance += distance;
+                if (phase == 2) runtime.runDistance += distance;
+                if (phase == 3) runtime.jumpRise = Mathf.Max(runtime.jumpRise, position.y - baseY);
+                previousPosition = position;
+                if (Time.time >= nextCapture && phase < 9)
+                {
+                    QueueCapture("cloth-frame-" + frameCaptureIndex.ToString("D3") + ".png", 540);
+                    captureTimes.Add(Time.time);
+                    capturePhases.Add(phase);
+                    frameCaptureIndex++;
+                    runtime.capturedFrames = frameCaptureIndex;
+                    nextCapture = Time.time + 1f / 30f;
+                }
+                if (phase < 4 && !phaseCaptured && elapsed >= (phase == 3 ? .25f : phase == 0 ? .35f : .5f))
+                {
+                    QueueCapture("unity-" + ForestSpriteDemoBuilder.ClipNames[phase].ToLowerInvariant() + ".png", 900);
+                    phaseCaptured = true;
+                }
+                float duration = phase == 0 ? .7f : phase == 3 ? 1.8f : phase == 5 ? 3f : phase == 9 ? .4f : 1.3f;
+                if (elapsed < duration) return;
+                if (phase <= 2)
+                {
+                    var body = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body");
+                    float foot = ForestSpriteDemoBuilder.BoundsOf(new Renderer[] { body }).min.y;
+                    if (phase == 0)
+                    {
+                        runtime.idleCharacterHeight = ForestSpriteDemoBuilder.BoundsOf(player.visual.GetComponentsInChildren<Renderer>()).size.y;
+                        Require(runtime.idleCharacterHeight > 1.5f && runtime.idleCharacterHeight < 1.8f, "Actual visible character height: " + runtime.idleCharacterHeight);
+                    }
+                    if (phase == 0) runtime.idleFootHeight = foot;
+                    if (phase == 1) runtime.walkFootHeight = foot;
+                    if (phase == 2) runtime.runFootHeight = foot;
+                    runtime.maximumGroundedFootError = Mathf.Max(runtime.maximumGroundedFootError, Mathf.Abs(foot));
+                    Require(Mathf.Abs(foot) <= .05f, "Visible foot contacts the floor in " + ForestSpriteDemoBuilder.ClipNames[phase] + ": " + foot);
+                }
+                if (phase == 0) Require(player.IsGrounded, "Controller settles on floor");
+                if (phase == 1 || phase == 2)
+                {
+                    string expected = phase == 1 ? "Walk" : "Run";
+                    Require(player.CurrentState == expected && player.animator.GetCurrentAnimatorStateInfo(0).IsName(expected), "Animator reached " + expected);
+                }
+                if (phase == 2)
+                {
+                    Require(runtime.rearHemSamples > 0, "Actual rear hem direction was sampled during steady running");
+                    var cape = player.capeCloth;
+                    runtime.runUpperBend = cape.UpperBendDegrees;
+                    runtime.runLowerBend = cape.LowerBendDegrees;
+                    runtime.runUpperBoneRotation = Quaternion.Angle(initialUpper, cape.flowUpper[0].localRotation);
+                    runtime.runLowerBoneRotation = Quaternion.Angle(initialLower, cape.flowLower[0].localRotation);
+                    Require(runtime.runUpperBend > 5 && runtime.runLowerBend < -5 && runtime.runUpperBoneRotation > 5 && runtime.runLowerBoneRotation > 5,
+                        "Running produces opposing S-shape bends on actual cape bones");
+                }
+                if (phase == 3)
+                {
+                    runtime.groundedAfterJump = player.IsGrounded;
+                    Require(runtime.jumpRise > .2f && runtime.groundedAfterJump, "Jump rises then lands");
+                    Require(runtime.walkDistance > .5f && runtime.runDistance > runtime.walkDistance * 1.5f, "Run travels faster than walk");
+                    Require(observed.IsSupersetOf(ForestSpriteDemoBuilder.ClipNames), "All four states ran");
+                    Require(player.secondaryMotion.SimulationSteps > initialSimulationSteps && runtime.springPeakAngle > .05f, "Secondary simulation responds during locomotion");
+                }
+                if (phase == 4)
+                {
+                    runtime.turnDegrees = Quaternion.Angle(turnStart, player.transform.rotation);
+                    Require(runtime.turnDegrees > 60f, "Controller exercised a running turn");
+                }
+                if (phase == 5)
+                {
+                    runtime.earlySettleSpeed = earlySettleSamples > 0 ? earlySettleSum / earlySettleSamples : 0;
+                    runtime.lateSettleSpeed = lateSettleSamples > 0 ? lateSettleSum / lateSettleSamples : 0;
+                    Require(runtime.maximumClothDisplacement > .01f, "Native cloth deforms independently of the animated mesh");
+                    Require(earlySettleSamples > 0 && lateSettleSamples > 0 && runtime.lateSettleSpeed <= runtime.earlySettleSpeed + .03f,
+                        "Cape motion does not grow after stopping");
+                    player.capeCloth.SetWindPreview(true);
+                }
+                if (phase == 6)
+                {
+                    var cape = player.capeCloth;
+                    Require(player.CurrentState == "Idle" && cape.FlowAmount > .5f && cape.UpperBendDegrees > 5 && cape.LowerBendDegrees < -5,
+                        "Standing wind preview drives the cape without moving the character");
+                    runtime.windPreviewUpperBend = cape.UpperBendDegrees;
+                    runtime.windPreviewWingSpread = cape.WingSpreadDegrees;
+                    windPreviewUpper = cape.flowUpper[0].localRotation;
+                    windPreviewParticles = CapeParticlesInPlayerSpace();
+                    CheckSettingsRoundTrip(cape);
+                }
+                if (phase == 7)
+                {
+                    var cape = player.capeCloth;
+                    runtime.tunedUpperBend = cape.UpperBendDegrees;
+                    runtime.tunedWingSpread = cape.WingSpreadDegrees;
+                    runtime.tunedBoneRotation = Quaternion.Angle(windPreviewUpper, cape.flowUpper[0].localRotation);
+                    var changed = CapeParticlesInPlayerSpace();
+                    runtime.tunedClothShapeDifference = changed.Select((p, i) => Vector3.Distance(p, windPreviewParticles[i])).Average();
+                    Require(runtime.tunedUpperBend > runtime.windPreviewUpperBend + 3f && runtime.tunedBoneRotation > 3f && runtime.tunedClothShapeDifference > .005f,
+                        "Live parameter changes alter the cape target and simulated fabric");
+                    Require(runtime.tunedWingSpread > runtime.windPreviewWingSpread + 5f, "Live wing spread tuning opens the cape without restarting simulation");
+                    cape.settings.windStrength = 2f;
+                    cape.settings.lift = 1f;
+                    cape.settings.sCurve = 1f;
+                    cape.settings.wingSpread = 1f;
+                    cape.ApplySettings();
+                }
+                if (phase == 8)
+                {
+                    var cape = player.capeCloth;
+                    runtime.strongWindUpperBend = cape.UpperBendDegrees;
+                    runtime.strongWindLowerBend = cape.LowerBendDegrees;
+                    Require(runtime.strongWindUpperBend > 60f && runtime.strongWindLowerBend < -20f
+                        && runtime.strongWindUpperBend + runtime.strongWindLowerBend > 30f && cape.WingSpreadDegrees > 39f,
+                        "Maximum wind and S-curve retain a rearward boundary pose");
+                    Require(Quaternion.Angle(initialUpper, cape.flowUpper[0].localRotation) <= 75.1f
+                        && Quaternion.Angle(initialLower, cape.flowLower[0].localRotation) <= 33.85f,
+                        "Actual cape bones respect the strong-wind bend limits");
+                    float flow = cape.FlowAmount;
+                    cape.ResetSettings();
+                    Require(JsonUtility.ToJson(cape.settings) == JsonUtility.ToJson(new ForestSpriteCapeCloth.Settings()), "Reset restores recommended parameters");
+                    Require(cape.cloth.enabled && cape.FlowAmount == flow, "Resetting parameters preserves running simulation");
+                    runtime.recommendedSettingsRestored = true;
+                    cape.SetWindPreview(false);
+                    player.secondaryMotion.MotionEnabled = false;
+                    player.secondaryMotion.ResetSimulation();
+                    cape.SetMotionEnabled(false);
+                }
+                if (phase == 9)
+                {
+                    Require(player.secondaryMotion.MaxCurrentAngle < .01f, "Physics toggle restores the animated pose");
+                    Require(!player.capeCloth.cloth.enabled, "Physics toggle disables cape Cloth");
+                    runtime.result = "PASS";
+                    FinishRuntime();
+                    return;
+                }
+                phase++;
+                phaseCaptured = false;
+                phaseStarted = Time.time;
+                if (phase == 1) player.SetScriptedInput(Vector2.up, false, false);
+                else if (phase == 2) player.SetScriptedInput(Vector2.up, true, false);
+                else if (phase == 3) { baseY = position.y; player.SetScriptedInput(Vector2.zero, false, true); }
+                else if (phase == 4) { turnStart = player.transform.rotation; player.SetScriptedInput(Vector2.left, true, false); }
+                else player.SetScriptedInput(Vector2.zero, false, false);
+            }
+            catch (Exception exception)
+            {
+                runtime.result = "FAIL";
+                runtime.error = exception.ToString();
+                Debug.LogException(exception);
+                FinishRuntime();
+            }
+        }
+
+        static void CheckSettingsRoundTrip(ForestSpriteCapeCloth cape)
+        {
+            // Never write the user's persistent settings: exercise the same API in Verification~.
+            string path = Path.GetFullPath(Path.Combine(ForestSpriteDemoBuilder.Review, "cape-settings-check-" + Guid.NewGuid().ToString("N") + ".json"));
+            float flow = cape.FlowAmount, upperBend = cape.UpperBendDegrees;
+            Quaternion upper = cape.flowUpper[0].localRotation;
+            try
+            {
+                cape.settings = new ForestSpriteCapeCloth.Settings { windStrength = 1.2f, lift = .85f, wingSpread = 1f, sCurve = .7f,
+                    waveAmplitude = .015f, waveSpeed = .9f, settleTime = .7f, clothFreedom = .3f, damping = .3f, bendStiffness = .22f };
+                cape.ApplySettings();
+                string expected = JsonUtility.ToJson(cape.settings);
+                cape.SaveSettings(path);
+                cape.settings = new ForestSpriteCapeCloth.Settings();
+                cape.LoadSettings(path);
+                Require(JsonUtility.ToJson(cape.settings) == expected, "All cape parameters survive save/load round trip");
+                int wingStart = expected.IndexOf("\"wingSpread\":", StringComparison.Ordinal);
+                int wingEnd = expected.IndexOf(',', wingStart);
+                string legacy = expected.Remove(wingStart, wingEnd - wingStart + 1);
+                File.WriteAllText(path, legacy);
+                cape.LoadSettings(path);
+                var migrated = JsonUtility.FromJson<ForestSpriteCapeCloth.Settings>(expected);
+                migrated.wingSpread = new ForestSpriteCapeCloth.Settings().wingSpread;
+                Require(JsonUtility.ToJson(cape.settings) == JsonUtility.ToJson(migrated) && File.ReadAllText(path) == legacy,
+                    "Legacy settings preserve all prior values, gain the recommended wing spread, and are not rewritten on load");
+                runtime.legacySettingsMigration = true;
+                File.WriteAllText(path, expected);
+                cape.LoadSettings(path);
+                Require(cape.cloth.enabled && cape.FlowAmount == flow && cape.UpperBendDegrees == upperBend && Quaternion.Angle(upper, cape.flowUpper[0].localRotation) < .001f,
+                    "Saving, loading and applying settings do not reset flow or bone pose");
+                runtime.settingsRoundTrip = runtime.tuningKeptSimulation = true;
+            }
+            finally { if (File.Exists(path)) File.Delete(path); }
+        }
+
+        static Vector3[] CapeParticlesInPlayerSpace() => player.capeCloth.cloth.vertices
+            .Select(p => player.transform.InverseTransformPoint(ParticleWorld(p))).ToArray();
+
+        static void InstallClothSamplingLoop()
+        {
+            Require(!playerLoopInstalled, "Cloth sampling loop is not already installed");
+            originalPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
+            var instrumented = originalPlayerLoop;
+            var before = new List<string>();
+            DescribeLoop(originalPlayerLoop, 0, before);
+            bool found = InsertAfterCloth(ref instrumented);
+            Directory.CreateDirectory(ForestSpriteDemoBuilder.Review);
+            var description = new List<string> { "Original PlayerLoop (native execution order):" };
+            description.AddRange(before);
+            description.Add("\nInstrumented PlayerLoop:");
+            DescribeLoop(instrumented, 0, description);
+            File.WriteAllLines(ForestSpriteDemoBuilder.Review + "/cloth-playerloop.txt", description);
+            Require(found, "PhysicsSkinnedClothFinishUpdate exists in the current PlayerLoop");
+            var after = new List<string>();
+            DescribeLoop(originalPlayerLoop, 0, after);
+            Require(before.SequenceEqual(after), "Original PlayerLoop remains unchanged for restoration");
+            PlayerLoop.SetPlayerLoop(instrumented);
+            playerLoopInstalled = true;
+            AssemblyReloadEvents.beforeAssemblyReload += RestorePlayerLoop;
+            EditorApplication.playModeStateChanged += HandlePlayModeChange;
+        }
+
+        static bool InsertAfterCloth(ref PlayerLoopSystem loop)
+        {
+            if (loop.subSystemList == null) return false;
+            // Clone each edited array: PlayerLoopSystem is a struct but its children are shared arrays.
+            var children = (PlayerLoopSystem[])loop.subSystemList.Clone();
+            for (int i = 0; i < children.Length; i++)
+            {
+                if (children[i].type == typeof(UnityEngine.PlayerLoop.PostLateUpdate.PhysicsSkinnedClothFinishUpdate))
+                {
+                    var expanded = new PlayerLoopSystem[children.Length + 1];
+                    Array.Copy(children, 0, expanded, 0, i + 1);
+                    expanded[i + 1] = new PlayerLoopSystem { type = typeof(ClothSampleAfterFinish), updateDelegate = SampleRuntime };
+                    Array.Copy(children, i + 1, expanded, i + 2, children.Length - i - 1);
+                    loop.subSystemList = expanded;
+                    return true;
+                }
+                if (InsertAfterCloth(ref children[i]))
+                {
+                    loop.subSystemList = children;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static void DescribeLoop(PlayerLoopSystem loop, int depth, List<string> lines)
+        {
+            lines.Add(new string(' ', depth * 2) + (loop.type?.FullName ?? "<root>"));
+            if (loop.subSystemList != null)
+                foreach (var child in loop.subSystemList) DescribeLoop(child, depth + 1, lines);
+        }
+
+        static void RestorePlayerLoop()
+        {
+            AssemblyReloadEvents.beforeAssemblyReload -= RestorePlayerLoop;
+            EditorApplication.playModeStateChanged -= HandlePlayModeChange;
+            if (!playerLoopInstalled) return;
+            PlayerLoop.SetPlayerLoop(originalPlayerLoop);
+            playerLoopInstalled = false;
+        }
+
+        static void HandlePlayModeChange(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.ExitingPlayMode || player == null) return;
+            runtime.result = "FAIL";
+            runtime.error = "Play stopped before the cloth runtime checks completed.";
+            FinishRuntime();
+        }
+
+        static readonly Queue<KeyValuePair<string, int>> captures = new Queue<KeyValuePair<string, int>>();
+        static void QueueCapture(string name, int size)
+        {
+            captures.Enqueue(new KeyValuePair<string, int>(name, size));
+            // Keep explicit capture outside the native cloth update and sampling callback.
+            EditorApplication.delayCall -= CaptureQueued;
+            EditorApplication.delayCall += CaptureQueued;
+        }
+        static void CaptureQueued()
+        {
+            while (captures.Count > 0)
+            {
+                var capture = captures.Dequeue();
+                if (EditorApplication.isPlaying) ForestSpriteDemoRelay.CaptureDemo(capture.Key, capture.Value);
+            }
+        }
+
+        static void PrepareClothSampling()
+        {
+            var cape = player.capeCloth;
+            clothSkin = cape.cloth.GetComponent<SkinnedMeshRenderer>();
+            meshVertices = clothSkin.sharedMesh.vertices;
+            meshWeights = clothSkin.sharedMesh.boneWeights;
+            bindposes = clothSkin.sharedMesh.bindposes;
+            coefficients = cape.cloth.coefficients;
+            clothToMesh = new int[cape.restParticles.Length];
+            previousOffsets = new Vector3[clothToMesh.Length];
+            previousAnchorsWorld = new Vector3[clothToMesh.Length];
+            previousAnchorsLocal = new Vector3[clothToMesh.Length];
+            initialUpper = cape.flowUpper[0].localRotation;
+            initialLower = cape.flowLower[0].localRotation;
+            // Cloth welds duplicate seam vertices; match positions once, never assume mesh-index parity.
+            for (int i = 0; i < clothToMesh.Length; i++)
+            {
+                float nearest = float.PositiveInfinity;
+                for (int j = 0; j < meshVertices.Length; j++)
+                {
+                    float distance = (cape.restParticles[i] - meshVertices[j]).sqrMagnitude;
+                    if (distance < nearest) { nearest = distance; clothToMesh[i] = j; }
+                }
+                Require(nearest < .000001f, "Cloth particle maps to a metre-scale bind vertex: " + i);
+            }
+            runtime.clothParticles = clothToMesh.Length;
+            runtime.pinnedParticles = coefficients.Count(c => c.maxDistance <= .00001f);
+            runtime.freeParticles = coefficients.Length - runtime.pinnedParticles;
+            bool[] backBones = clothSkin.bones.Select(b => b.name == "Cape_Back_01" || b.name == "Cape_Back_02").ToArray();
+            float hemY = Mathf.Lerp(cape.restParticles.Min(p => p.y), cape.restParticles.Max(p => p.y), .35f);
+            rearHemParticles = Enumerable.Range(0, clothToMesh.Length).Where(i => cape.restParticles[i].y <= hemY
+                && SelectedWeight(meshWeights[clothToMesh[i]], backBones) >= .75f).ToArray();
+            Require(rearHemParticles.Length >= 3, "Back-weighted lower hem particles exist independently of the front flap");
+            runtime.rearHemParticles = rearHemParticles.Length;
+            footSkin = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body");
+            footMeshVertices = footSkin.sharedMesh.vertices;
+            footWeights = footSkin.sharedMesh.boneWeights;
+            footBindposes = footSkin.sharedMesh.bindposes;
+            bool[] footBones = footSkin.bones.Select(b => b.name.StartsWith("Foot.") || b.name.StartsWith("Toe.")).ToArray();
+            footVertices = Enumerable.Range(0, footWeights.Length).Where(i => SelectedWeight(footWeights[i], footBones) >= .25f).ToArray();
+            Require(footVertices.Length > 0, "Actual foot-weighted body mesh vertices exist");
+            var matrices = SkinMatrices();
+            for (int i = 0; i < clothToMesh.Length; i++)
+            {
+                Vector3 anchor = SkinnedWorld(clothToMesh[i], matrices);
+                previousAnchorsWorld[i] = anchor;
+                previousAnchorsLocal[i] = player.transform.InverseTransformPoint(anchor);
+                if (coefficients[i].maxDistance <= .00001f)
+                    runtime.initialPinnedPenetration = Mathf.Max(runtime.initialPinnedPenetration, BodyPenetration(anchor));
+            }
+            Require(runtime.initialPinnedPenetration <= .0001f, "Pinned collar begins outside body collision volumes");
+        }
+
+        static void SampleCloth(float phaseElapsed)
+        {
+            var particles = player.capeCloth.cloth.vertices;
+            coefficients = player.capeCloth.cloth.coefficients;
+            Require(particles.Length == clothToMesh.Length, "Stable cloth particle count during Play");
+            var matrices = SkinMatrices();
+            float sampleTime = Time.time - previousSampleTime;
+            float squaredSpeed = 0;
+            int moving = 0;
+            for (int i = 0; i < particles.Length; i++)
+            {
+                Require(IsFinite(particles[i]), "Finite cloth particle " + i);
+                Vector3 world = ParticleWorld(particles[i]);
+                Vector3 anchor = SkinnedWorld(clothToMesh[i], matrices);
+                Vector3 rebasedPreviousAnchor = player.transform.TransformPoint(previousAnchorsLocal[i]);
+                Vector3 offset = world - anchor;
+                float displacement = offset.magnitude;
+                Require(displacement < coefficients[i].maxDistance + .025f, "Cloth remains within skin constraint at particle " + i + ": " + displacement
+                    + "; max=" + coefficients[i].maxDistance + "; point=" + world.ToString("F5") + "; anchor=" + anchor.ToString("F5")
+                    + "; distanceToPreviousWorldAnchor=" + Vector3.Distance(world, previousAnchorsWorld[i])
+                    + "; distanceToRebasedPreviousAnchor=" + Vector3.Distance(world, rebasedPreviousAnchor)
+                    + "; previousWorldAnchor=" + previousAnchorsWorld[i].ToString("F5") + "; rebasedPreviousAnchor=" + rebasedPreviousAnchor.ToString("F5")
+                    + "; sampleDt=" + sampleTime
+                    + "; previousOffset=" + previousOffsets[i].ToString("F5") + "; phase=" + phase + "; phaseTime=" + phaseElapsed);
+                if (coefficients[i].maxDistance <= .00001f)
+                {
+                    runtime.maximumPinnedError = Mathf.Max(runtime.maximumPinnedError, displacement);
+                    Require(displacement <= .01f, "Pinned collar follows the animated chest: " + displacement);
+                }
+                else
+                {
+                    runtime.maximumClothDisplacement = Mathf.Max(runtime.maximumClothDisplacement, displacement);
+                    if (sampleTime > .00001f && previousSampleTime > phaseStarted)
+                    {
+                        squaredSpeed += (offset - previousOffsets[i]).sqrMagnitude / (sampleTime * sampleTime);
+                        moving++;
+                    }
+                }
+                float penetration = BodyPenetration(world);
+                runtime.maximumCollisionPenetration = Mathf.Max(runtime.maximumCollisionPenetration, penetration);
+                Require(penetration <= .015f, "Cape stays outside collision volumes: " + penetration + "; particle=" + i
+                    + "; point=" + world.ToString("F5") + "; phase=" + phase + "; phaseTime=" + phaseElapsed);
+                previousOffsets[i] = offset;
+                previousAnchorsWorld[i] = anchor;
+                previousAnchorsLocal[i] = player.transform.InverseTransformPoint(anchor);
+            }
+            if ((phase == 2 || phase == 8) && phaseElapsed >= .4f) SampleRearHemDirection(particles);
+            if (phase == 5 && moving > 0)
+            {
+                float speed = Mathf.Sqrt(squaredSpeed / moving);
+                if (phaseElapsed <= .75f) { earlySettleSum += speed; earlySettleSamples++; }
+                if (phaseElapsed >= 2.25f) { lateSettleSum += speed; lateSettleSamples++; }
+            }
+            previousSampleTime = Time.time;
+        }
+
+        static float SelectedWeight(BoneWeight w, bool[] bones) =>
+            (bones[w.boneIndex0] ? w.weight0 : 0) + (bones[w.boneIndex1] ? w.weight1 : 0)
+            + (bones[w.boneIndex2] ? w.weight2 : 0) + (bones[w.boneIndex3] ? w.weight3 : 0);
+
+        static void SampleRearHemDirection(Vector3[] particles)
+        {
+            float maxZ = rearHemParticles.Max(i => player.transform.InverseTransformPoint(ParticleWorld(particles[i])).z);
+            var matrices = footSkin.bones.Select((b, i) => b.localToWorldMatrix * footBindposes[i]).ToArray();
+            float footBackZ = float.PositiveInfinity;
+            foreach (int i in footVertices)
+            {
+                var w = footWeights[i];
+                var v = footMeshVertices[i];
+                Vector3 world = matrices[w.boneIndex0].MultiplyPoint3x4(v) * w.weight0
+                    + matrices[w.boneIndex1].MultiplyPoint3x4(v) * w.weight1
+                    + matrices[w.boneIndex2].MultiplyPoint3x4(v) * w.weight2
+                    + matrices[w.boneIndex3].MultiplyPoint3x4(v) * w.weight3;
+                footBackZ = Mathf.Min(footBackZ, player.transform.InverseTransformPoint(world).z);
+            }
+            float clearance = footBackZ - maxZ;
+            bool first = runtime.rearHemSamples++ == 0;
+            runtime.maximumRearHemLocalZ = first ? maxZ : Mathf.Max(runtime.maximumRearHemLocalZ, maxZ);
+            runtime.minimumRearHemFootRearClearance = first ? clearance : Mathf.Min(runtime.minimumRearHemFootRearClearance, clearance);
+            Require(maxZ < 0f && clearance > 0f, "Native rear hem stays behind the character and actual foot mesh: maxZ=" + maxZ
+                + "; footBackZ=" + footBackZ + "; clearance=" + clearance + "; phase=" + phase);
+        }
+
+        static Vector3 ParticleWorld(Vector3 particle) => player.capeCloth.cloth.transform.TransformPoint(particle);
+
+        static Matrix4x4[] SkinMatrices() => clothSkin.bones.Select((bone, i) => bone.localToWorldMatrix * bindposes[i]).ToArray();
+
+        static Vector3 SkinnedWorld(int index, Matrix4x4[] matrices)
+        {
+            var w = meshWeights[index];
+            var v = meshVertices[index];
+            return matrices[w.boneIndex0].MultiplyPoint3x4(v) * w.weight0
+                + matrices[w.boneIndex1].MultiplyPoint3x4(v) * w.weight1
+                + matrices[w.boneIndex2].MultiplyPoint3x4(v) * w.weight2
+                + matrices[w.boneIndex3].MultiplyPoint3x4(v) * w.weight3;
+        }
+
+        static float BodyPenetration(Vector3 world)
+        {
+            float penetration = 0;
+            foreach (var pair in player.capeCloth.cloth.sphereColliders)
+            {
+                if (!pair.first) continue;
+                Vector3 a = pair.first.transform.TransformPoint(pair.first.center);
+                float radiusA = WorldRadius(pair.first);
+                if (!pair.second) penetration = Mathf.Max(penetration, radiusA - Vector3.Distance(world, a));
+                else
+                {
+                    Vector3 b = pair.second.transform.TransformPoint(pair.second.center);
+                    Vector3 axis = b - a;
+                    float length = axis.magnitude;
+                    float radiusB = WorldRadius(pair.second), difference = radiusB - radiusA;
+                    if (length <= Mathf.Abs(difference) + .00001f)
+                        penetration = Mathf.Max(penetration, radiusA - Vector3.Distance(world, a), radiusB - Vector3.Distance(world, b));
+                    else
+                    {
+                        float z = Vector3.Dot(world - a, axis / length);
+                        float radial = (world - a - axis * (z / length)).magnitude;
+                        float t = Mathf.Clamp01((z + difference * radial / Mathf.Sqrt(length * length - difference * difference)) / length);
+                        penetration = Mathf.Max(penetration, Mathf.Lerp(radiusA, radiusB, t) - Vector3.Distance(world, a + axis * t));
+                    }
+                }
+            }
+            return penetration;
+        }
+
+        static float WorldRadius(SphereCollider sphere)
+        {
+            Vector3 scale = sphere.transform.lossyScale;
+            return sphere.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+        }
+
+        static void FinishRuntime()
+        {
+            RestorePlayerLoop();
+            runtime.observedStates = observed.ToArray();
+            runtime.captureTimes = captureTimes.ToArray();
+            runtime.capturePhases = capturePhases.ToArray();
+            WriteReport("runtime.json", runtime);
+            if (player != null)
+            {
+                player.ReleaseScriptedInput();
+                player.ResetPosition();
+                var controller = player.GetComponent<CharacterController>();
+                controller.enabled = false;
+                player.transform.SetPositionAndRotation(restorePosition, restoreRotation);
+                controller.enabled = true;
+                player.secondaryMotion.MotionEnabled = restoreMotion;
+                player.secondaryMotion.ResetSimulation();
+                player.capeCloth.SetMotionEnabled(restoreCloth);
+                player.capeCloth.ResetSimulation();
+                player.capeCloth.settings = JsonUtility.FromJson<ForestSpriteCapeCloth.Settings>(restoreCapeSettings);
+                player.capeCloth.ApplySettings();
+                player.capeCloth.SetWindPreview(restoreWindPreview);
+                player.SetDemonstration(restoreDemo);
+            }
+            Debug.Log("Forest sprite live runtime checks: " + runtime.result + ". " + ForestSpriteDemoBuilder.Review + "/runtime.json");
+            player = null;
+        }
+
+        static bool IsFinite(Vector3 value) => !(float.IsNaN(value.x) || float.IsNaN(value.y) || float.IsNaN(value.z) ||
+            float.IsInfinity(value.x) || float.IsInfinity(value.y) || float.IsInfinity(value.z));
+
+        static void WriteReport(string name, Report report)
+        {
+            Directory.CreateDirectory(ForestSpriteDemoBuilder.Review);
+            File.WriteAllText(ForestSpriteDemoBuilder.Review + "/" + name, JsonUtility.ToJson(report, true));
+        }
+
+        static void Require(bool condition, string message) => ForestSpriteDemoBuilder.Require(condition, message);
+    }
+}

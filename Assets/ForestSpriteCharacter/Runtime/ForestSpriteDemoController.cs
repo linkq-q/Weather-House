@@ -1,0 +1,235 @@
+using UnityEngine;
+
+namespace ForestSpriteCharacter
+{
+    [RequireComponent(typeof(CharacterController))]
+    public sealed class ForestSpriteDemoController : MonoBehaviour
+    {
+        public Animator animator;
+        public Transform visual;
+        public Camera demoCamera;
+        public ForestSpriteSecondaryMotion secondaryMotion;
+        public ForestSpriteCapeCloth capeCloth;
+        public float walkSpeed = .78f;
+        [Range(0f, 1f)] public float walkStride = 1f;
+        public float runSpeed = 1.35f;
+        public float jumpHeight = .42f;
+        public float gravity = -12f;
+        public float cameraHeight = .8f;
+        public float cameraDistance = 3.5f;
+        public float cameraYaw = 170f;
+        public float cameraPitch = 8f;
+
+        public enum Demonstration { Manual, Idle, Walk, Run, Jump, Sequence }
+        public Demonstration demonstration;
+        public string CurrentState { get; private set; } = "";
+        public bool IsGrounded => controller != null && controller.isGrounded;
+        public float VerticalSpeed => verticalSpeed;
+        public bool ScriptedInput { get; private set; }
+
+        CharacterController controller;
+        Vector3 startPosition;
+        Quaternion startRotation;
+        Vector2 scriptedMovement;
+        bool scriptedRun, scriptedJump;
+        float verticalSpeed, modeStarted, nextJump;
+        bool airborne;
+        GUIStyle label, button;
+
+        void Awake()
+        {
+            controller = GetComponent<CharacterController>();
+            startPosition = transform.position;
+            startRotation = transform.rotation;
+            if (demoCamera == null) demoCamera = Camera.main;
+            if (animator == null || visual == null)
+            {
+                Debug.LogError("Forest sprite requires an Animator and its visual root.", this);
+                enabled = false;
+                return;
+            }
+            animator.applyRootMotion = false;
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            SwitchState("Idle");
+        }
+
+        void Update()
+        {
+            float stride = Mathf.Clamp01(walkStride);
+            animator.SetFloat("WalkStride", stride);
+            animator.SetFloat("WalkCadence", Mathf.Max(0f, walkSpeed) / (.52f * (1f + .5f * stride)));
+            animator.SetFloat("RunCadence", Mathf.Max(0f, runSpeed) / 1.35f);
+            if (Input.GetKeyDown(KeyCode.R)) ResetPosition();
+            if (Input.GetKeyDown(KeyCode.P)) ToggleSecondaryMotion();
+            for (int i = 0; i <= 5; i++)
+                if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) SetDemonstration((Demonstration)i);
+
+            var movement = new Vector2((Input.GetKey(KeyCode.D) ? 1 : 0) - (Input.GetKey(KeyCode.A) ? 1 : 0),
+                (Input.GetKey(KeyCode.W) ? 1 : 0) - (Input.GetKey(KeyCode.S) ? 1 : 0));
+            bool running = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            bool jump = Input.GetKeyDown(KeyCode.Space);
+            if (ScriptedInput)
+            {
+                movement = scriptedMovement;
+                running = scriptedRun;
+                jump = scriptedJump;
+                scriptedJump = false;
+            }
+            else if (movement.sqrMagnitude > 0f || jump)
+                demonstration = Demonstration.Manual;
+            else if (demonstration != Demonstration.Manual)
+                DemoInput(out movement, out running, out jump);
+
+            float dt = Mathf.Min(Time.deltaTime, .05f);
+            bool grounded = controller.isGrounded;
+            if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
+            if (grounded && airborne) airborne = false;
+            if (jump && grounded)
+            {
+                verticalSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                airborne = true;
+                SwitchState("Jump", true);
+            }
+            Vector3 forward = demoCamera != null
+                ? Vector3.ProjectOnPlane(demoCamera.transform.forward, Vector3.up).normalized : Vector3.forward;
+            Vector3 direction = forward * movement.y + Vector3.Cross(Vector3.up, forward) * movement.x;
+            direction = Vector3.ClampMagnitude(direction, 1f);
+            if (direction.sqrMagnitude > .001f)
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 540f * dt);
+            verticalSpeed += gravity * dt;
+            var collision = controller.Move((direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt);
+            if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
+            if (controller.isGrounded && verticalSpeed <= 0f) airborne = false;
+            string state = airborne || !controller.isGrounded ? "Jump" :
+                direction.sqrMagnitude > .001f ? (running ? "Run" : "Walk") : "Idle";
+            SwitchState(state);
+            if (transform.position.y < -4f) ResetPosition();
+
+            if (demoCamera != null && !ScriptedInput)
+            {
+                bool overPanel = (Input.mousePosition.x < 320f && Screen.height - Input.mousePosition.y < 310f)
+                    || ForestSpriteCapePanel.PointerOverPanel;
+                if (Input.GetMouseButton(1) && !overPanel)
+                {
+                    cameraYaw += Input.GetAxis("Mouse X") * 3f;
+                    cameraPitch = Mathf.Clamp(cameraPitch - Input.GetAxis("Mouse Y") * 2f, -10f, 65f);
+                }
+                if (!overPanel) cameraDistance = Mathf.Clamp(cameraDistance - Input.mouseScrollDelta.y * .2f, 1.5f, 7f);
+            }
+        }
+
+        void LateUpdate()
+        {
+            if (demoCamera == null) return;
+            Vector3 target = transform.position + Vector3.up * cameraHeight;
+            demoCamera.transform.position = target + Quaternion.Euler(cameraPitch, cameraYaw, 0f) * Vector3.back * cameraDistance;
+            demoCamera.transform.LookAt(target);
+        }
+
+        void DemoInput(out Vector2 movement, out bool running, out bool jump)
+        {
+            Demonstration mode = demonstration;
+            float elapsed = Time.time - modeStarted;
+            if (mode == Demonstration.Sequence)
+            {
+                float phase = Mathf.Repeat(elapsed, 12f);
+                mode = phase < 2f ? Demonstration.Idle : phase < 5f ? Demonstration.Walk :
+                    phase < 8f ? Demonstration.Run : phase < 10f ? Demonstration.Jump : Demonstration.Idle;
+            }
+            bool moving = mode == Demonstration.Walk || mode == Demonstration.Run;
+            movement = moving ? new Vector2(Mathf.Sin(elapsed * .8f), Mathf.Cos(elapsed * .8f)) : Vector2.zero;
+            running = mode == Demonstration.Run;
+            jump = mode == Demonstration.Jump && IsGrounded && Time.time >= nextJump;
+            if (jump) nextJump = Time.time + 1.6f;
+        }
+
+        void SwitchState(string state, bool restart = false)
+        {
+            if (!restart && state == CurrentState) return;
+            float phase = 0f;
+            if (IsGait(CurrentState) && IsGait(state))
+                phase = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
+            if (CurrentState.Length == 0) animator.Play(state, 0, 0f);
+            else animator.CrossFade(state, .12f, 0, phase);
+            CurrentState = state;
+        }
+
+        public static bool IsGait(string state) => state == "Walk" || state == "Run";
+
+        public void SetDemonstration(Demonstration mode)
+        {
+            demonstration = mode;
+            modeStarted = Time.time;
+            nextJump = Time.time;
+        }
+
+        public void SetScriptedInput(Vector2 movement, bool run, bool jump)
+        {
+            ScriptedInput = true;
+            scriptedMovement = Vector2.ClampMagnitude(movement, 1f);
+            scriptedRun = run;
+            scriptedJump |= jump;
+        }
+
+        public void ReleaseScriptedInput()
+        {
+            ScriptedInput = false;
+            scriptedMovement = Vector2.zero;
+            scriptedJump = false;
+            SetDemonstration(Demonstration.Manual);
+        }
+
+        public void ResetPosition()
+        {
+            controller.enabled = false;
+            transform.SetPositionAndRotation(startPosition, startRotation);
+            controller.enabled = true;
+            verticalSpeed = 0f;
+            airborne = false;
+            if (secondaryMotion != null) secondaryMotion.ResetSimulation();
+            if (capeCloth != null) capeCloth.ResetSimulation();
+            SetDemonstration(Demonstration.Manual);
+            SwitchState("Idle", true);
+        }
+
+        public void ToggleSecondaryMotion()
+        {
+            if (secondaryMotion == null) return;
+            secondaryMotion.MotionEnabled = !secondaryMotion.MotionEnabled;
+            if (capeCloth != null) capeCloth.SetMotionEnabled(secondaryMotion.MotionEnabled);
+            secondaryMotion.ResetSimulation();
+        }
+
+        void OnGUI()
+        {
+            if (label == null)
+            {
+                var font = Font.CreateDynamicFontFromOSFont("Microsoft YaHei", 14);
+                label = new GUIStyle(GUI.skin.label) { font = font, fontSize = 14, wordWrap = true };
+                button = new GUIStyle(GUI.skin.button) { font = font, fontSize = 14 };
+            }
+            GUILayout.BeginArea(new Rect(12, 12, 300, 295), GUI.skin.box);
+            GUILayout.Label("森林小精灵 · 柔软布料预览", label);
+            GUILayout.Label("WASD 走路 / Shift 跑步 / Space 跳跃\n右键转视角 / 滚轮远近 / R 归位", label);
+            GUILayout.Label("当前动作 " + CurrentState + (IsGrounded ? " · 地面" : " · 空中"), label);
+            GUILayout.BeginHorizontal();
+            DemoButton("1 待机", Demonstration.Idle); DemoButton("2 走路", Demonstration.Walk);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            DemoButton("3 跑步", Demonstration.Run); DemoButton("4 跳跃", Demonstration.Jump);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            DemoButton("5 循环演示", Demonstration.Sequence); DemoButton("0 手动", Demonstration.Manual);
+            GUILayout.EndHorizontal();
+            if (GUILayout.Button("P 披风布料 / 帽尖与发梢 " +
+                (secondaryMotion != null && secondaryMotion.MotionEnabled ? "开" : "关"), button)) ToggleSecondaryMotion();
+            if (GUILayout.Button("R 角色归位", button)) ResetPosition();
+            GUILayout.EndArea();
+        }
+
+        void DemoButton(string text, Demonstration mode)
+        {
+            if (GUILayout.Button(text, button)) SetDemonstration(mode);
+        }
+    }
+}

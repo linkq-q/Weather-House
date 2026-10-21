@@ -1,0 +1,208 @@
+{
+    "result": "CAPTURED",
+    "stage": "Complete; screenshots need visual inspection",
+    "utc": "2026-10-21T14:34:39.0462146Z",
+    "error": "",
+    "captureMethod": "GameView + WaitForEndOfFrame + ScreenCapture.CaptureScreenshotAsTexture",
+    "inputMethod": "GameView.SendEvent; windowPoint = gamePixel / gameMouseScale - gameMouseOffset; no Y flip",
+    "defaultImage": "C:\\Users\\31483\\Desktop\\天气屋\\3d资产\\模型拼接预览_20261021\\绑定动作_20261021\\Unity验证工程\\Assets\\ForestSpriteVerification\\GameViewCapture~\\cape-panel-default.png",
+    "changedImage": "C:\\Users\\31483\\Desktop\\天气屋\\3d资产\\模型拼接预览_20261021\\绑定动作_20261021\\Unity验证工程\\Assets\\ForestSpriteVerification\\GameViewCapture~\\cape-panel-changed.png",
+    "width": 1280,
+    "height": 800,
+    "queuedEvents": 31,
+    "acceptedWindowEvents": 26,
+    "runtimeMouseDownEvents": 0,
+    "runtimeMouseDragEvents": 0,
+    "runtimeMouseUpEvents": 0,
+    "gameMouseScale": 2.192639112472534,
+    "gameMouseOffset": {
+        "x": -280.2571105957031,
+        "y": -20.999998092651368
+    },
+    "lastWindowPointer": {
+        "x": 572.142822265625,
+        "y": 372.17498779296877
+    },
+    "lastRuntimeGuiPointer": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "toggleVerified": false,
+    "sliderVerified": false,
+    "pointerObserved": false,
+    "rightButtonObserved": false,
+    "cameraGuardVerified": false,
+    "windBefore": 1.0,
+    "windAfter": 1.7999999523162842,
+    "outsideCameraDelta": 0.0,
+    "insideCameraDelta": 0.0,
+    "interactionResult": "PARTIAL: see individual flags and API fallback",
+    "cameraGuardResult": "INCONCLUSIVE: injected input did not establish every positive control",
+    "parameterChangeMethod": "API fallback; GUI slider NOT verified",
+    "defaultSettings": {
+        "windStrength": 1.0,
+        "lift": 0.6499999761581421,
+        "sCurve": 0.6000000238418579,
+        "waveAmplitude": 0.02500000037252903,
+        "waveSpeed": 0.6499999761581421,
+        "settleTime": 0.800000011920929,
+        "clothFreedom": 0.25,
+        "damping": 0.2199999988079071,
+        "bendStiffness": 0.18000000715255738,
+        "walkSpeed": 0.7799999713897705,
+        "walkStride": 1.0,
+        "runSpeed": 1.350000023841858
+    },
+    "changedSettings": {
+        "windStrength": 1.7999999523162842,
+        "lift": 0.8999999761581421,
+        "sCurve": 0.8999999761581421,
+        "waveAmplitude": 0.02500000037252903,
+        "waveSpeed": 0.6499999761581421,
+        "settleTime": 0.800000011920929,
+        "clothFreedom": 0.25,
+        "damping": 0.2199999988079071,
+        "bendStiffness": 0.18000000715255738,
+        "walkSpeed": 0.7799999713897705,
+        "walkStride": 1.0,
+        "runSpeed": 1.350000023841858
+    },
+    "defaultPose": {
+        "flow": 0.9999992251396179,
+        "upperBendDegrees": 23.851207733154298,
+        "lowerBendDegrees": -35.93339920043945,
+        "boneNames": [
+            "Cape_Back_01",
+            "Cape_Left_01",
+            "Cape_Right_01",
+            "Cape_Front_01",
+            "Cape_Back_02",
+            "Cape_Left_02",
+            "Cape_Right_02",
+            "Cape_Front_02"
+        ],
+        "boneLocalRotations": [
+            {
+                "x": 0.9353325366973877,
+                "y": -3.7170101978899149e-17,
+                "z": -1.5371300454087127e-17,
+                "w": -0.3537697494029999
+            },
+            {
+                "x": 0.8636012077331543,
+                "y": 0.41771164536476138,
+                "z": 0.26284438371658327,
+                "w": -0.1030670776963234
+            },
+            {
+                "x": 0.8636012077331543,
+                "y": -0.41771164536476138,
+                "z": -0.26284438371658327,
+                "w": -0.1030670776963234
+            },
+            {
+                "x": 0.9670284986495972,
+                "y": 9.545121638380105e-17,
+                "z": 7.265759286041233e-17,
+                "w": 0.2546682059764862
+            },
+            {
+                "x": -0.326970636844635,
+                "y": 1.4350625132260235e-18,
+                "z": -2.5442755461873498e-17,
+                "w": 0.9450345039367676
+            },
+            {
+                "x": -0.12291143834590912,
+                "y": -0.01946284808218479,
+                "z": 0.18235304951667787,
+                "w": 0.9753262400627136
+            },
+            {
+                "x": -0.12291143834590912,
+                "y": 0.01946284808218479,
+                "z": -0.18235304951667787,
+                "w": 0.9753262400627136
+            },
+            {
+                "x": 0.0821411982178688,
+                "y": -6.673961602186601e-18,
+                "z": 3.7632902914177667e-17,
+                "w": 0.9966207146644592
+            }
+        ]
+    },
+    "changedPose": {
+        "flow": 1.7999993562698365,
+        "upperBendDegrees": 65.0,
+        "lowerBendDegrees": -70.0,
+        "boneNames": [
+            "Cape_Back_01",
+            "Cape_Left_01",
+            "Cape_Right_01",
+            "Cape_Front_01",
+            "Cape_Back_02",
+            "Cape_Left_02",
+            "Cape_Right_02",
+            "Cape_Front_02"
+        ],
+        "boneLocalRotations": [
+            {
+                "x": 0.7513510584831238,
+                "y": -6.588829083441317e-17,
+                "z": -9.930917848894224e-18,
+                "w": -0.659902811050415
+            },
+            {
+                "x": 0.7493299245834351,
+                "y": 0.6036357283592224,
+                "z": 0.21403424441814423,
+                "w": -0.16827936470508576
+            },
+            {
+                "x": 0.7493299245834351,
+                "y": -0.6036357283592224,
+                "z": -0.21403424441814423,
+                "w": -0.16827936470508576
+            },
+            {
+                "x": 0.9462615847587586,
+                "y": 1.2464063349067429e-16,
+                "z": 6.976124972405995e-17,
+                "w": 0.3234022855758667
+            },
+            {
+                "x": -0.589454710483551,
+                "y": 1.9161925818065866e-19,
+                "z": -4.6112983191781446e-17,
+                "w": 0.807801365852356
+            },
+            {
+                "x": -0.22954490780830384,
+                "y": -0.012562564574182034,
+                "z": 0.3314092755317688,
+                "w": 0.9150514602661133
+            },
+            {
+                "x": -0.22954490780830384,
+                "y": 0.012562564574182034,
+                "z": -0.3314092755317688,
+                "w": 0.9150514602661133
+            },
+            {
+                "x": 0.1412176489830017,
+                "y": -5.896456907730139e-18,
+                "z": 6.689819895300161e-17,
+                "w": 0.989978551864624
+            }
+        ]
+    },
+    "flowDelta": 0.8000001311302185,
+    "maximumBoneAngleDelta": 41.14875793457031,
+    "windResponseVerified": true,
+    "boneResponseVerified": true,
+    "settingsRoundTrip": true,
+    "roundTripPreservedSimulation": true,
+    "roundTripPath": "C:\\Users\\31483\\Desktop\\天气屋\\3d资产\\模型拼接预览_20261021\\绑定动作_20261021\\Unity验证工程\\Assets\\ForestSpriteVerification\\GameViewCapture~\\cape-settings-roundtrip-0f1c09e82bbf4a7187c59f4913b9f894.json",
+    "roundTripResult": "PASS"
+}

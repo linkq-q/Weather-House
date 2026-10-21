@@ -1,0 +1,2175 @@
+{
+  "utc": "2026-10-21T14:44:40.504250+00:00",
+  "scope": "Actual FBX binary skin clusters, hierarchy and animation connections; actual Unity generated mesh vertex streams; no simulation or implementation edits.",
+  "files": {
+    "C:\\unity project\\Weather House\\Assets\\ForestSpriteCharacter\\Model\\ForestSprite.fbx": {
+      "sha256": "cba964d3a401e3e249c11bce834b5a74e4a90311e68f7196f933599027fad43e",
+      "bytes": 2119788
+    },
+    "C:\\unity project\\Weather House\\Assets\\ForestSpriteCharacter\\Generated\\CapeClothMetres.asset": {
+      "sha256": "698e75cf393dadc3276da83f1b0c18016414f1d901a49e1981390097ce2b5f79",
+      "bytes": 159486
+    },
+    "C:\\unity project\\Weather House\\Assets\\ForestSpriteCharacter\\ForestSprite_Demo.unity": {
+      "sha256": "ac36fc68b4a6259496dd68ecd2f6697ced1f60c5a6eef773990d3cf0dc2150d4",
+      "bytes": 139323
+    }
+  },
+  "generatedMesh": {
+    "vertexCount": 789,
+    "boneCount": 45,
+    "boneNameResolution": "All bone hashes exactly matched CRC32 of full FBX model hierarchy path",
+    "boneIndexToPath": [
+      "ForestSpriteRig/Root",
+      "ForestSpriteRig/Root/Hips",
+      "ForestSpriteRig/Root/Hips/Spine",
+      "ForestSpriteRig/Root/Hips/Spine/Chest",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hat_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hat_01/Hat_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hat_01/Hat_02/Hat_03",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hat_01/Hat_02/Hat_03/Hat_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Left_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Left_01/Hair_Left_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Left_01/Hair_Left_02/Hair_Left_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Right_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Right_01/Hair_Right_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Right_01/Hair_Right_02/Hair_Right_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Back_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Back_01/Hair_Back_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Neck/Head/Hair_Back_01/Hair_Back_02/Hair_Back_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/UpperArm.L",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/UpperArm.L/Forearm.L",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/UpperArm.L/Forearm.L/Hand.L",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/UpperArm.R",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/UpperArm.R/Forearm.R",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/UpperArm.R/Forearm.R/Hand.R",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Right_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Right_01/Cape_Right_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Right_01/Cape_Right_02/Cape_Right_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Back_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Back_01/Cape_Back_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Back_01/Cape_Back_02/Cape_Back_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Left_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Left_01/Cape_Left_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Left_01/Cape_Left_02/Cape_Left_Tip",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Front_01",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Front_01/Cape_Front_02",
+      "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Front_01/Cape_Front_02/Cape_Front_Tip",
+      "ForestSpriteRig/Root/Hips/UpperLeg.L",
+      "ForestSpriteRig/Root/Hips/UpperLeg.L/LowerLeg.L",
+      "ForestSpriteRig/Root/Hips/UpperLeg.L/LowerLeg.L/Foot.L",
+      "ForestSpriteRig/Root/Hips/UpperLeg.L/LowerLeg.L/Foot.L/Toe.L",
+      "ForestSpriteRig/Root/Hips/UpperLeg.R",
+      "ForestSpriteRig/Root/Hips/UpperLeg.R/LowerLeg.R",
+      "ForestSpriteRig/Root/Hips/UpperLeg.R/LowerLeg.R/Foot.R",
+      "ForestSpriteRig/Root/Hips/UpperLeg.R/LowerLeg.R/Foot.R/Toe.R"
+    ],
+    "positiveBoneWeights": {
+      "Cape_Back_01": {
+        "vertices": 150,
+        "weightSum": 42.83758675609715,
+        "maxWeight": 1.0,
+        "minPositiveWeight": 0.0013516610488295555
+      },
+      "Cape_Back_02": {
+        "vertices": 126,
+        "weightSum": 51.024627160513774,
+        "maxWeight": 1.0,
+        "minPositiveWeight": 0.003630301682278514
+      },
+      "Cape_Front_01": {
+        "vertices": 175,
+        "weightSum": 43.849281777162105,
+        "maxWeight": 0.9910987019538879,
+        "minPositiveWeight": 0.001499808393418789
+      },
+      "Cape_Front_02": {
+        "vertices": 132,
+        "weightSum": 57.304495729506016,
+        "maxWeight": 1.0,
+        "minPositiveWeight": 0.0018873399822041392
+      },
+      "Cape_Left_01": {
+        "vertices": 154,
+        "weightSum": 45.28948613454122,
+        "maxWeight": 0.982333779335022,
+        "minPositiveWeight": 0.0010137304197996855
+      },
+      "Cape_Left_02": {
+        "vertices": 122,
+        "weightSum": 45.42480559507385,
+        "maxWeight": 0.9557907581329346,
+        "minPositiveWeight": 0.0019067204557359219
+      },
+      "Cape_Right_01": {
+        "vertices": 150,
+        "weightSum": 43.49617316981312,
+        "maxWeight": 0.9823333024978638,
+        "minPositiveWeight": 0.0010137310018762946
+      },
+      "Cape_Right_02": {
+        "vertices": 118,
+        "weightSum": 44.58960927394219,
+        "maxWeight": 0.9557904005050659,
+        "minPositiveWeight": 0.0019067225512117147
+      },
+      "Chest": {
+        "vertices": 505,
+        "weightSum": 415.1839366736822,
+        "maxWeight": 1.0,
+        "minPositiveWeight": 0.003831911366432905
+      }
+    },
+    "weightSumMin": 0.999999878462404,
+    "weightSumMax": 1.0000000912696123,
+    "legFootToeWeightedVertexCount": 0,
+    "legFootToeWeights": []
+  },
+  "fbxCape": {
+    "version": 7400,
+    "geometryId": 563475428,
+    "controlPointCount": 556,
+    "skinIds": [
+      539792397
+    ],
+    "clusterCount": 45,
+    "emptyClusters": [
+      "Root",
+      "Hips",
+      "Spine",
+      "Neck",
+      "Head",
+      "Hat_01",
+      "Hat_02",
+      "Hat_03",
+      "Hat_Tip",
+      "Hair_Left_01",
+      "Hair_Left_02",
+      "Hair_Left_Tip",
+      "Hair_Right_01",
+      "Hair_Right_02",
+      "Hair_Right_Tip",
+      "Hair_Back_01",
+      "Hair_Back_02",
+      "Hair_Back_Tip",
+      "UpperArm.L",
+      "Forearm.L",
+      "Hand.L",
+      "UpperArm.R",
+      "Forearm.R",
+      "Hand.R",
+      "Cape_Right_Tip",
+      "Cape_Back_Tip",
+      "Cape_Left_Tip",
+      "Cape_Front_Tip",
+      "UpperLeg.L",
+      "LowerLeg.L",
+      "Foot.L",
+      "Toe.L",
+      "UpperLeg.R",
+      "LowerLeg.R",
+      "Foot.R",
+      "Toe.R"
+    ],
+    "positiveBoneWeights": {
+      "Cape_Back_01": {
+        "vertices": 102,
+        "weightSum": 25.139862029716824,
+        "maxWeight": 0.998916745185852,
+        "minPositiveWeight": 6.516683697554981e-06
+      },
+      "Cape_Back_02": {
+        "vertices": 109,
+        "weightSum": 44.70581712715534,
+        "maxWeight": 0.9996888041496277,
+        "minPositiveWeight": 1.5167711353569757e-06
+      },
+      "Cape_Front_01": {
+        "vertices": 123,
+        "weightSum": 28.773109455476515,
+        "maxWeight": 0.9906319975852966,
+        "minPositiveWeight": 0.0005307559622451663
+      },
+      "Cape_Front_02": {
+        "vertices": 114,
+        "weightSum": 48.17108025948801,
+        "maxWeight": 0.9996889233589172,
+        "minPositiveWeight": 2.3288210286409594e-05
+      },
+      "Cape_Left_01": {
+        "vertices": 119,
+        "weightSum": 25.50388694047433,
+        "maxWeight": 0.98224937915802,
+        "minPositiveWeight": 2.0026533093187027e-05
+      },
+      "Cape_Left_02": {
+        "vertices": 117,
+        "weightSum": 38.39345158301967,
+        "maxWeight": 0.955341100692749,
+        "minPositiveWeight": 8.96027540875366e-06
+      },
+      "Cape_Right_01": {
+        "vertices": 105,
+        "weightSum": 25.5002850574092,
+        "maxWeight": 0.9822489619255066,
+        "minPositiveWeight": 2.4881133867893368e-05
+      },
+      "Cape_Right_02": {
+        "vertices": 106,
+        "weightSum": 38.390848100888434,
+        "maxWeight": 0.9553406238555908,
+        "minPositiveWeight": 8.96028086572187e-06
+      },
+      "Chest": {
+        "vertices": 331,
+        "weightSum": 281.42165896022925,
+        "maxWeight": 1.0,
+        "minPositiveWeight": 0.0005910751060582697
+      }
+    },
+    "weightedControlPointCount": 556,
+    "weightSumMin": 0.999999962747097,
+    "weightSumMax": 1.000000037252903,
+    "legFootToeWeightedControlPointCount": 0,
+    "legFootToeWeights": []
+  },
+  "capeBoneHierarchy": {
+    "paths": {
+      "Cape_Right_01": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Right_01",
+      "Cape_Right_02": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Right_01/Cape_Right_02",
+      "Cape_Right_Tip": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Right_01/Cape_Right_02/Cape_Right_Tip",
+      "Cape_Back_01": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Back_01",
+      "Cape_Back_02": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Back_01/Cape_Back_02",
+      "Cape_Back_Tip": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Back_01/Cape_Back_02/Cape_Back_Tip",
+      "Cape_Left_01": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Left_01",
+      "Cape_Left_02": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Left_01/Cape_Left_02",
+      "Cape_Left_Tip": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Left_01/Cape_Left_02/Cape_Left_Tip",
+      "Cape_Front_01": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Front_01",
+      "Cape_Front_02": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Front_01/Cape_Front_02",
+      "Cape_Front_Tip": "ForestSpriteRig/Root/Hips/Spine/Chest/Cape_Front_01/Cape_Front_02/Cape_Front_Tip"
+    },
+    "legFootToeAncestorPaths": [],
+    "directParents": {
+      "Cape_Right_01": "Chest",
+      "Cape_Right_02": "Cape_Right_01",
+      "Cape_Right_Tip": "Cape_Right_02",
+      "Cape_Back_01": "Chest",
+      "Cape_Back_02": "Cape_Back_01",
+      "Cape_Back_Tip": "Cape_Back_02",
+      "Cape_Left_01": "Chest",
+      "Cape_Left_02": "Cape_Left_01",
+      "Cape_Left_Tip": "Cape_Left_02",
+      "Cape_Front_01": "Chest",
+      "Cape_Front_02": "Cape_Front_01",
+      "Cape_Front_Tip": "Cape_Front_02"
+    },
+    "interpretation": "Cape upper bones are children of Chest. Hips is an ordinary torso ancestor via Spine/Chest; legs and feet are separate branches, not Cape ancestors."
+  },
+  "runClip": {
+    "stack": "ForestSpriteRig|Run",
+    "capeCurveCount": 108,
+    "capeAnimatedCurveCountRangeAbove1e_5": 4,
+    "capeAnimatedCurves": [
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 33.2421875,
+        "max": 33.2421989440918,
+        "range": 1.1444091796875e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -37.3283805847168,
+        "max": -37.328365325927734,
+        "range": 1.52587890625e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -33.2421989440918,
+        "max": -33.2421875,
+        "range": 1.1444091796875e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 37.328365325927734,
+        "max": 37.3283805847168,
+        "range": 1.52587890625e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      }
+    ],
+    "capeCurves": [
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -4.967822819779144e-10,
+        "max": 4.967822819779144e-10,
+        "range": 9.935645639558288e-10,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.12912288308143616,
+        "max": 0.1291230022907257,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.14222249388694763,
+        "max": 0.14222252368927002,
+        "range": 2.9802322387695312e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 155.26239013671875,
+        "max": 155.26239013671875,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -1.0957448637327616e-07,
+        "max": 1.0957448637327616e-07,
+        "range": 2.1914897274655232e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.4982794378256585e-08,
+        "max": 4.498278372011555e-08,
+        "range": 8.996557809837213e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999988675117493,
+        "max": 0.9999989867210388,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -9.12696123123169e-08,
+        "max": 8.568167686462402e-08,
+        "range": 1.7695128917694092e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.41880783438682556,
+        "max": 0.4188079535961151,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -5.3318217396736145e-08,
+        "max": 5.587935447692871e-08,
+        "range": 1.0919757187366486e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 1.3020045116718393e-05,
+        "max": 1.4941034351068083e-05,
+        "range": 1.9209892343496904e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 1.536792842671275e-05,
+        "max": 1.750236151565332e-05,
+        "range": 2.1344330889405683e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -2.2518279365613125e-05,
+        "max": -1.8035967514151707e-05,
+        "range": 4.482311851461418e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0000001192092896,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0000001192092896,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.3969838619232178e-09,
+        "max": 1.3969838619232178e-09,
+        "range": 2.7939677238464355e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.36999982595443726,
+        "max": 0.37000006437301636,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.497996997088194e-08,
+        "max": 2.9802322387695312e-08,
+        "range": 7.478229235857725e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -9.397971552971285e-06,
+        "max": -8.551076462026685e-06,
+        "range": 8.468950909445994e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -2.1674767936019634e-07,
+        "max": 2.1674767936019634e-07,
+        "range": 4.334953587203927e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -2.1049622489499598e-08,
+        "max": 2.1049622489499598e-08,
+        "range": 4.2099244978999195e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -0.28000006079673767,
+        "max": -0.2799999713897705,
+        "range": 8.940696716308594e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.11976615339517593,
+        "max": 0.11976630985736847,
+        "range": 1.564621925354004e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -0.00748539250344038,
+        "max": -0.007485386915504932,
+        "range": 5.587935447692871e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 176.51295471191406,
+        "max": 176.51295471191406,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 33.2421875,
+        "max": 33.2421989440918,
+        "range": 1.1444091796875e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -37.3283805847168,
+        "max": -37.328365325927734,
+        "range": 1.52587890625e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999994039535522,
+        "max": 0.9999996423721313,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999997019767761,
+        "max": 0.9999998807907104,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -4.936009645462036e-08,
+        "max": 3.899913281202316e-08,
+        "range": 8.835922926664352e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.380131334066391,
+        "max": 0.38013166189193726,
+        "range": 3.2782554626464844e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.563480615615845e-08,
+        "max": 5.029141902923584e-08,
+        "range": 9.592622518539429e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.1880722045898438,
+        "max": -1.1880698204040527,
+        "range": 2.384185791015625e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 2.034050941467285,
+        "max": 2.0340569019317627,
+        "range": 5.9604644775390625e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -1.7156982421875,
+        "max": -1.715694546699524,
+        "range": 3.6954879760742188e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999998211860657,
+        "max": 1.0000001192092896,
+        "range": 2.980232238769531e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -3.357220723643195e-09,
+        "max": 3.357220723643195e-09,
+        "range": 6.71444144728639e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.3699999451637268,
+        "max": 0.3700000047683716,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -5.212496034801006e-08,
+        "max": 7.185735739767551e-08,
+        "range": 1.2398231774568558e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 5.968077857687604e-06,
+        "max": 8.53273468237603e-06,
+        "range": 2.564656824688427e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -8.277641683207548e-08,
+        "max": 8.277640972664813e-08,
+        "range": 1.655528265587236e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.11278051615227e-08,
+        "max": 4.112781581966374e-08,
+        "range": 8.225562098118644e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.2799999713897705,
+        "max": 0.28000006079673767,
+        "range": 8.940696716308594e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.11976615339517593,
+        "max": 0.11976630985736847,
+        "range": 1.564621925354004e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -0.00748539250344038,
+        "max": -0.007485386915504932,
+        "range": 5.587935447692871e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 176.51295471191406,
+        "max": 176.51295471191406,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -33.2421989440918,
+        "max": -33.2421875,
+        "range": 1.1444091796875e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 37.328365325927734,
+        "max": 37.3283805847168,
+        "range": 1.52587890625e-05,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999994039535522,
+        "max": 0.9999996423721313,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999997019767761,
+        "max": 0.9999998807907104,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -3.899913281202316e-08,
+        "max": 4.936009645462036e-08,
+        "range": 8.835922926664352e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.380131334066391,
+        "max": 0.38013166189193726,
+        "range": 3.2782554626464844e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.563480615615845e-08,
+        "max": 5.029141902923584e-08,
+        "range": 9.592622518539429e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.1880722045898438,
+        "max": -1.1880698204040527,
+        "range": 2.384185791015625e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -2.0340569019317627,
+        "max": -2.034050941467285,
+        "range": 5.9604644775390625e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 1.715694546699524,
+        "max": 1.7156982421875,
+        "range": 3.6954879760742188e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Right_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999998211860657,
+        "max": 1.0000001192092896,
+        "range": 2.980232238769531e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.5133991837501526e-09,
+        "max": 1.5133991837501526e-09,
+        "range": 3.026798367500305e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.33241522312164307,
+        "max": 0.3324154019355774,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -7.774542609695345e-08,
+        "max": 4.272442311048508e-08,
+        "range": 1.2046984920743853e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -2.23661470413208,
+        "max": -2.23661208152771,
+        "range": 2.6226043701171875e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -1.1128614829658545e-07,
+        "max": 1.1128614829658545e-07,
+        "range": 2.225722965931709e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.273270803878404e-08,
+        "max": 4.273270448607036e-08,
+        "range": 8.54654125248544e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999997615814209,
+        "max": 1.0,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0000001192092896,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -8.568167686462402e-08,
+        "max": 9.12696123123169e-08,
+        "range": 1.7695128917694092e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.41880783438682556,
+        "max": 0.4188079535961151,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -5.3318217396736145e-08,
+        "max": 5.587935447692871e-08,
+        "range": 1.0919757187366486e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 1.3020045116718393e-05,
+        "max": 1.4941034351068083e-05,
+        "range": 1.9209892343496904e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -1.750236151565332e-05,
+        "max": -1.536792842671275e-05,
+        "range": 2.1344330889405683e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 1.8035967514151707e-05,
+        "max": 2.2518279365613125e-05,
+        "range": 4.482311851461418e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0000001192092896,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0000001192092896,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Left_Tip",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -9.862770600221893e-10,
+        "max": 9.862770600221893e-10,
+        "range": 1.9725541200443786e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.1104094386100769,
+        "max": 0.11040954291820526,
+        "range": 1.043081283569336e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -0.15719328820705414,
+        "max": -0.15719325840473175,
+        "range": 2.9802322387695312e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -162.4150848388672,
+        "max": -162.4150848388672,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -1.0639060832318137e-07,
+        "max": 1.0639060832318137e-07,
+        "range": 2.1278121664636274e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -1.314635422744459e-08,
+        "max": 1.314635600380143e-08,
+        "range": 2.629271023124602e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0000001192092896,
+        "range": 2.384185791015625e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Back_01",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 1.0000019073486328,
+        "max": 1.0000020265579224,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.4767844724872248e-09,
+        "max": 1.4767844724872248e-09,
+        "range": 2.9535689449744496e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.33241525292396545,
+        "max": 0.3324154317378998,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -4.8603396862745285e-08,
+        "max": 6.052141543477774e-08,
+        "range": 1.0912481229752302e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 2.236621379852295,
+        "max": 2.236623525619507,
+        "range": 2.1457672119140625e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -1.403364109364702e-07,
+        "max": 1.403364109364702e-07,
+        "range": 2.806728218729404e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -9.298582170913505e-08,
+        "max": 9.298582881456241e-08,
+        "range": 1.8597165052369746e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Cape_Front_02",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      }
+    ],
+    "torsoCurves": [
+      {
+        "bone": "Root",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 90.00000762939453,
+        "max": 90.00000762939453,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -0.0,
+        "max": -0.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Root",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.0,
+        "max": 0.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.5119999647140503,
+        "max": 0.5379999876022339,
+        "range": 0.026000022888183594,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -0.03999999910593033,
+        "max": -0.03999999910593033,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 6.3401899337768555,
+        "max": 6.3401923179626465,
+        "range": 2.384185791015625e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -2.005357503890991,
+        "max": 2.005357503890991,
+        "range": 4.010715007781982,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -2.9431898695975178e-08,
+        "max": 2.9431898695975178e-08,
+        "range": 5.8863797391950357e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0000001192092896,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Hips",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -7.586578587570614e-11,
+        "max": 7.586578587570614e-11,
+        "range": 1.5173157175141228e-10,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.17999988794326782,
+        "max": 0.18000006675720215,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -1.8630581521961176e-09,
+        "max": 1.8250876365755175e-09,
+        "range": 3.688145788771635e-09,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.0073235034942627,
+        "max": -1.0073233842849731,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -1.0684376405833973e-07,
+        "max": 1.0684376405833973e-07,
+        "range": 2.1368752811667946e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -5.006664416384865e-09,
+        "max": 5.006664416384865e-09,
+        "range": 1.001332883276973e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.9999998807907104,
+        "max": 1.0,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Chest",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0000001192092896,
+        "range": 1.7881393432617188e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -1.1641532182693481e-10,
+        "max": 1.1641532182693481e-10,
+        "range": 2.3283064365386963e-10,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 0.18110764026641846,
+        "max": 0.18110774457454681,
+        "range": 1.043081283569336e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -9.573341230861843e-09,
+        "max": 4.862158675678074e-09,
+        "range": 1.4435499906539917e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 25,
+        "min": -6.3401923179626465,
+        "max": -6.340190410614014,
+        "range": 1.9073486328125e-06,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": -5.2419654394952886e-08,
+        "max": 5.2419654394952886e-08,
+        "range": 1.0483930878990577e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": -7.1515176003345005e-09,
+        "max": 7.1515176003345005e-09,
+        "range": 1.4303035200669001e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 25,
+        "min": 1.0,
+        "max": 1.0000001192092896,
+        "range": 1.1920928955078125e-07,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      },
+      {
+        "bone": "Spine",
+        "property": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 25,
+        "min": 0.9999999403953552,
+        "max": 1.0,
+        "range": 5.960464477539063e-08,
+        "firstTimeSeconds": 0.0,
+        "lastTimeSeconds": 0.8
+      }
+    ],
+    "capeCurveMaximumRangeByProperty": {
+      "Lcl Translation": 3.2782554626464844e-07,
+      "Lcl Rotation": 1.52587890625e-05,
+      "Lcl Scaling": 2.980232238769531e-07
+    },
+    "interpretation": "108 exported Cape scalar curves (12 bones x translation/rotation/scaling XYZ), 25 samples each across 0.8 seconds. All effectively constant: rotation spread <= 0.00001526 degrees; smaller ranges are floating-point export noise, not an authored Cape run swing.",
+    "controllerRunState": {
+      "motionReference": "{fileID: -1238169965373983814, guid: be6e2ba96d54f36409bacca4b3e96d5e,\n    type: 3}",
+      "speed": 2.97,
+      "speedParameter": "RunCadence"
+    }
+  },
+  "vertexCountExplanation": "FBX Cape has 556 source control points. Unity expands UV/normal seams to 789 render vertices. Native Cloth welds these duplicates back to 556 particles in the saved demo. Counts refer to different representations.",
+  "savedNativeClothParticleCount": 556,
+  "proposedRearHemRegressionSelection": {
+    "rule": "back chain summed weight >= 0.75 and normalized height from top >= 0.65",
+    "count": 23,
+    "particles": [
+      {
+        "particle": 318,
+        "rest": [
+          -0.25988877,
+          0.13890108,
+          -0.34788817
+        ],
+        "backWeight": 0.7500728368759155,
+        "lowerRatio": 0.8527409274040175
+      },
+      {
+        "particle": 319,
+        "rest": [
+          -0.23421678,
+          0.126121,
+          -0.36145377
+        ],
+        "backWeight": 0.7849935293197632,
+        "lowerRatio": 0.8695963671315686
+      },
+      {
+        "particle": 320,
+        "rest": [
+          -0.18884467,
+          0.1392655,
+          -0.3930246
+        ],
+        "backWeight": 0.8538466691970825,
+        "lowerRatio": 0.8522602997909263
+      },
+      {
+        "particle": 321,
+        "rest": [
+          -0.20697701,
+          0.112120174,
+          -0.37541512
+        ],
+        "backWeight": 0.8204022645950317,
+        "lowerRatio": 0.888061828911067
+      },
+      {
+        "particle": 322,
+        "rest": [
+          -0.1786097,
+          0.097605504,
+          -0.38947132
+        ],
+        "backWeight": 0.8558921217918396,
+        "lowerRatio": 0.9072049911878519
+      },
+      {
+        "particle": 323,
+        "rest": [
+          -0.1488967,
+          0.082591176,
+          -0.4039107
+        ],
+        "backWeight": 0.8917704224586487,
+        "lowerRatio": 0.9270071442771662
+      },
+      {
+        "particle": 324,
+        "rest": [
+          -0.11776842,
+          0.06811559,
+          -0.41802764
+        ],
+        "backWeight": 0.9273809790611267,
+        "lowerRatio": 0.9460987593017969
+      },
+      {
+        "particle": 326,
+        "rest": [
+          -0.056243096,
+          0.08315681,
+          -0.45732215
+        ],
+        "backWeight": 1.0,
+        "lowerRatio": 0.9262611387909053
+      },
+      {
+        "particle": 327,
+        "rest": [
+          -0.084178835,
+          0.05584484,
+          -0.43290234
+        ],
+        "backWeight": 0.9635924696922302,
+        "lowerRatio": 0.9622824519732707
+      },
+      {
+        "particle": 328,
+        "rest": [
+          -0.04756716,
+          0.045885473,
+          -0.44731733
+        ],
+        "backWeight": 1.0,
+        "lowerRatio": 0.9754176991855777
+      },
+      {
+        "particle": 329,
+        "rest": [
+          -0.051511336,
+          0.16052602,
+          -0.45701784
+        ],
+        "backWeight": 0.9999999664723873,
+        "lowerRatio": 0.8242201456262892
+      },
+      {
+        "particle": 330,
+        "rest": [
+          -0.19028544,
+          0.21388917,
+          -0.3902997
+        ],
+        "backWeight": 0.8554900214076042,
+        "lowerRatio": 0.7538403546940519
+      },
+      {
+        "particle": 334,
+        "rest": [
+          -0.034067236,
+          0.25567797,
+          -0.430112
+        ],
+        "backWeight": 1.0,
+        "lowerRatio": 0.6987257857956812
+      },
+      {
+        "particle": 355,
+        "rest": [
+          -0.009980868,
+          0.03924214,
+          -0.46081135
+        ],
+        "backWeight": 0.9635923504829407,
+        "lowerRatio": 0.9841794830688986
+      },
+      {
+        "particle": 356,
+        "rest": [
+          0.02787697,
+          0.033702534,
+          -0.47175732
+        ],
+        "backWeight": 0.9273808002471924,
+        "lowerRatio": 0.9914855793568232
+      },
+      {
+        "particle": 357,
+        "rest": [
+          0.09652976,
+          0.05951626,
+          -0.4967349
+        ],
+        "backWeight": 0.8538464903831482,
+        "lowerRatio": 0.9574402758269143
+      },
+      {
+        "particle": 358,
+        "rest": [
+          0.06447812,
+          0.029737167,
+          -0.47966337
+        ],
+        "backWeight": 0.8917702436447144,
+        "lowerRatio": 0.9967154374223535
+      },
+      {
+        "particle": 359,
+        "rest": [
+          0.100762516,
+          0.027246756,
+          -0.48235974
+        ],
+        "backWeight": 0.8558919429779053,
+        "lowerRatio": 1.0
+      },
+      {
+        "particle": 360,
+        "rest": [
+          0.13701132,
+          0.02767466,
+          -0.4792111
+        ],
+        "backWeight": 0.8204020857810974,
+        "lowerRatio": 0.9994356443714612
+      },
+      {
+        "particle": 361,
+        "rest": [
+          0.17412665,
+          0.03229778,
+          -0.46955737
+        ],
+        "backWeight": 0.7849932312965393,
+        "lowerRatio": 0.9933382865682834
+      },
+      {
+        "particle": 362,
+        "rest": [
+          0.21209404,
+          0.0415648,
+          -0.45353857
+        ],
+        "backWeight": 0.7500725388526917,
+        "lowerRatio": 0.9811161645577787
+      },
+      {
+        "particle": 387,
+        "rest": [
+          0.1042734,
+          0.12806034,
+          -0.49443263
+        ],
+        "backWeight": 0.8554898351430893,
+        "lowerRatio": 0.8670386031362549
+      },
+      {
+        "particle": 388,
+        "rest": [
+          0.12516001,
+          0.22109224,
+          -0.4620733
+        ],
+        "backWeight": 0.8571355938911438,
+        "lowerRatio": 0.744340342781894
+      }
+    ]
+  },
+  "sceneHierarchyOverrides": {
+    "serializedMFatherPropertyOverrides": 0,
+    "note": "No per-bone reparent overrides found in saved scene. This report inspects saved source/assets, not runtime procedural pose."
+  },
+  "directionRegressionRecommendation": {
+    "sampleTiming": "Existing callback after PhysicsSkinnedClothFinishUpdate",
+    "steadyRun": "Use controller scripted input for world +Z; begin evaluation once player forward dot world +Z > .99 and at least .4 seconds of steady run.",
+    "nativeMetrics": [
+      "rear hem mean player-local z",
+      "rear hem maximum player-local z",
+      "rear hem minimum player-local y"
+    ],
+    "targetMetrics": "Same summaries for current skinned anchors; distinguish target bending forward from native physics deviation.",
+    "defaultComparison": "Compare native steady-run mean z against native idle mean z; determine a margin that fails the current reproduced bug and passes the intended repair.",
+    "parameterBoundary": "Repeat direction/leg-clearance envelope during existing strongest-wind phase with actual run input; angle limits alone do not prove hem direction.",
+    "limitations": "A direction envelope does not prove cloth-foot triangle nonintersection. Do not compare absolute world z displacement to judge trailing direction."
+  }
+}
