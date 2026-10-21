@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace WeatherHouse.Vegetation
 {
-    public class GrassMeadow : MonoBehaviour
+    public partial class GrassMeadow : MonoBehaviour
     {
         public GrassSpecies[] species = new GrassSpecies[3];
         public Material[] materials = new Material[3];
@@ -47,6 +47,7 @@ namespace WeatherHouse.Vegetation
                     if (renderer.sharedMaterial == original) renderer.sharedMaterial = materials[i];
             }
             ApplyMaterials();
+            ResetLiveTracking();
         }
 
         public float PondDistance(Vector2 p)
@@ -112,6 +113,7 @@ namespace WeatherHouse.Vegetation
 
         public void Rebuild(bool saveMeshes)
         {
+            CancelLiveBuild();
             if (species.Length != 3 || materials.Length != 3 || weights.Length != 3)
                 throw new InvalidOperationException("草地需要短草、高草和雏菊三个槽位。");
             for (int i = 0; i < 3; i++)
@@ -142,7 +144,6 @@ namespace WeatherHouse.Vegetation
             var root = new GameObject("Generated Grass").transform;
             root.SetParent(transform, false);
             counts = requested;
-            var random = new System.Random(seed);
             ApplyMaterials();
             for (int kind = 0; kind < 3; kind++)
             {
@@ -154,25 +155,11 @@ namespace WeatherHouse.Vegetation
                     while (placed < counts[kind])
                     {
                         int amount = Math.Min(128, counts[kind] - placed);
+                        var random = PlacementRandom(seed, kind, chunkIndex);
                         var combine = new CombineInstance[amount];
                         for (int j = 0; j < amount; j++)
                         {
-                            Vector2 point = Vector2.zero;
-                            bool found = false;
-                            for (int attempt = 0; attempt < 10000; attempt++)
-                            {
-                                point = new Vector2(((float)random.NextDouble() - .5f) * size.x,
-                                    ((float)random.NextDouble() - .5f) * size.y);
-                                if (IsPlantable(point)) { found = true; break; }
-                            }
-                            if (!found) throw new InvalidOperationException("当前范围没有足够的陆地区域可种草。");
-                            float scale = .8f + (float)random.NextDouble() * .4f;
-                            combine[j] = new CombineInstance
-                            {
-                                mesh = meshes[random.Next(4)],
-                                transform = Matrix4x4.TRS(new Vector3(point.x, GetGroundHeight(point.x, point.y) - .025f, point.y),
-                                    Quaternion.Euler(0, (float)random.NextDouble() * 360, 0), Vector3.one * scale)
-                            };
+                            combine[j] = NextInstance(random, meshes);
                         }
                         var mesh = new Mesh { name = species[kind].name + "_" + chunkIndex, indexFormat = IndexFormat.UInt32 };
                         mesh.CombineMeshes(combine, true, true);
@@ -203,6 +190,34 @@ namespace WeatherHouse.Vegetation
 #if UNITY_EDITOR
             if (!Application.isPlaying && saveMeshes) AssetDatabase.SaveAssets();
 #endif
+            ResetLiveTracking();
+        }
+
+        static System.Random PlacementRandom(int distributionSeed, int kind, int chunk)
+        {
+            // Independent chunks can update fairly while sliders keep changing, without replaying earlier placements.
+            return new System.Random(unchecked(distributionSeed + kind * 92821 + chunk * 104729));
+        }
+
+        CombineInstance NextInstance(System.Random random, Mesh[] variants)
+        {
+            Vector2 point = Vector2.zero;
+            bool found = false;
+            for (int attempt = 0; attempt < 10000; attempt++)
+            {
+                point = new Vector2(((float)random.NextDouble() - .5f) * size.x,
+                    ((float)random.NextDouble() - .5f) * size.y);
+                if (IsPlantable(point)) { found = true; break; }
+            }
+            if (!found) throw new InvalidOperationException("当前范围没有足够的陆地区域可种草。");
+            float scale = .8f + (float)random.NextDouble() * .4f;
+            int variation = random.Next(4);
+            float rotation = (float)random.NextDouble() * 360;
+            return new CombineInstance {
+                mesh = variants == null ? null : variants[variation],
+                transform = Matrix4x4.TRS(new Vector3(point.x, GetGroundHeight(point.x, point.y) - .025f, point.y),
+                    Quaternion.Euler(0, rotation, 0), Vector3.one * scale)
+            };
         }
 
         static void Dispose(UnityEngine.Object obj)
@@ -211,6 +226,7 @@ namespace WeatherHouse.Vegetation
         }
         void OnDestroy()
         {
+            CancelLiveBuild();
             foreach (var mesh in runtimeMeshes) if (mesh) Dispose(mesh);
             foreach (var material in runtimeMaterials) if (material) Dispose(material);
             if (runtimeSpecies != null) foreach (var item in runtimeSpecies) if (item) Dispose(item);

@@ -31,6 +31,11 @@ namespace WeatherHouse.Vegetation.Editor
             }
             int[] desired = GrassMeadow.Allocate(meadow.totalClumps, meadow.weights);
             EditorGUILayout.LabelField("目标数量", string.Join(" / ", desired));
+            if (Application.isPlaying)
+            {
+                EditorGUILayout.HelpBox("运行中拖动参数会自动更新草地，无需点击应用。退出 Play 后恢复保存的配置。", MessageType.Info);
+                return;
+            }
             if (GUILayout.Button("应用草种与比例 · 重新生成", GUILayout.Height(32)))
             {
                 meadow.Rebuild();
