@@ -1,0 +1,205 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba9ceb44af520ea4099471d147db2cfc, type: 3}
+  m_Name: PlantLibraryCatalog
+  m_EditorClassIdentifier: 
+  entries:
+  - id: G1_TallBroad
+    reference: "\u56DB\u6863\u8349\u56FE\uFF0C\u4ECE\u5DE6\u81F3\u53F3 G1"
+    silhouette: "\u957F\u77ED\u5C42\u53E0\uFF0C\u5BBD\u53F6\u3001\u675F\u6839\uFF0C\u8F83\u5BC6"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 889ce5d9f513d3245874a4683a309784, type: 2}
+    variants:
+    - {fileID: 4518954254783797251, guid: 6940029adb29f994a8260b1b1f053bd6, type: 3}
+    - {fileID: 5975331456362505587, guid: de6bc53837f529943aa011086d0ef5a8, type: 3}
+    - {fileID: 4468831645500697278, guid: fb72c0512f177da41afa2c770e97ec1f, type: 3}
+    - {fileID: 9084331785763507191, guid: fd168ba9686de2144a6bb0e133a58a62, type: 3}
+  - id: G2_Upright
+    reference: "\u56DB\u6863\u8349\u56FE\uFF0C\u4ECE\u5DE6\u81F3\u53F3 G2"
+    silhouette: "\u72ED\u7A84\u6839\u90E8\u4E0E\u7EC6\u957F\u76F4\u7ACB\u53F6\uFF0C\u8F6E\u5ED3\u6536\u675F"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 6dafabca7aae7a44483f005c383b5e92, type: 2}
+    variants:
+    - {fileID: 7257537950358531243, guid: 5f1d8d237f6175641969b5d6e9607e6c, type: 3}
+    - {fileID: 245479465290628929, guid: 1b5adac90279fb246a1d1f88c8b2bd2d, type: 3}
+    - {fileID: 8761720103859489220, guid: 8c07bcb6ece7c10449436b99857c9e35, type: 3}
+    - {fileID: 4236791335192498774, guid: 3fe227af50f8a9f45a6c7c93488d1130, type: 3}
+  - id: G3_OpenLow
+    reference: "\u56DB\u6863\u8349\u56FE\uFF0C\u4ECE\u5DE6\u81F3\u53F3 G3"
+    silhouette: "\u758F\u53F6\u4E0E\u659C\u53F6\uFF0C\u5206\u5E03\u4E0D\u5BF9\u79F0"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: d94bc2a9025bd4b4ca898a96264c0af5, type: 2}
+    variants:
+    - {fileID: 4450104766659829695, guid: d277431e6d088ea479c44e17c8ebacb5, type: 3}
+    - {fileID: 7700736523021231295, guid: aabd111ad3b9a1844968e9e4fea2b351, type: 3}
+    - {fileID: 6818680423103185929, guid: 3313026bcf09ab64a91a355ff78b2af6, type: 3}
+    - {fileID: 4847851529314220881, guid: 7f9f1b49ab350b14a8330848ea8caaf4, type: 3}
+  - id: G4_DenseShort
+    reference: "\u56DB\u6863\u8349\u56FE\uFF0C\u4ECE\u5DE6\u81F3\u53F3 G4"
+    silhouette: "\u9AD8\u5EA6\u6700\u4F4E\uFF0C\u53F6\u6570\u6700\u591A\uFF0C\u7D27\u51D1\u4E14\u504F\u5BBD"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 9f20eddfb168ba7479e792159f53bf88, type: 2}
+    variants:
+    - {fileID: 951214270772447338, guid: a693889f80956cb4c81ac4789fa25e42, type: 3}
+    - {fileID: 5237114535334970047, guid: 788c7eaa5fea542409450806557010e3, type: 3}
+    - {fileID: 7394345519280908264, guid: c9e3e2fb973d941409984c7f8834798a, type: 3}
+    - {fileID: 3894859604697903518, guid: 662c6f3f3f6d3834e963a1d7aa05066c, type: 3}
+  - id: R01_Plume
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R1"
+    silhouette: "\u9AD8\u6311\u7EC6\u79C6\u4E0E\u5F2F\u5782\u7FBD\u6BDB\u72B6\u4E73\u767D\u7A57"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 40ba04865d03a8d47bc0af64efdd282e, type: 2}
+    variants:
+    - {fileID: 7007054827316139277, guid: db82858f786e33c4d873483b76a044f3, type: 3}
+    - {fileID: 1075290350360704469, guid: 8e2534daa943a4745a18a6f91f2be0bc, type: 3}
+    - {fileID: 8705208062077826132, guid: 977bd4bd229387d48ba4ff29e3476bf8, type: 3}
+    - {fileID: 8043289109292990082, guid: a5b26506425669d4b8729693d458f955, type: 3}
+  - id: R02_BrownSeed
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R2"
+    silhouette: "\u7EC6\u957F\u76F4\u7ACB\u79C6\u4E0E\u6DF1\u68D5\u5706\u67F1\u7A57"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 85c0fc19c76f0084f9fb20a3945f0193, type: 2}
+    variants:
+    - {fileID: 193011384707535276, guid: 90929f3dd80a1a9408fe39ef87df186c, type: 3}
+    - {fileID: 174017325956484701, guid: 33a12084dc78ca4458d56f1fc2ad0f14, type: 3}
+    - {fileID: 147020663049371175, guid: ead8365e2ba73a840b57f984c731f945, type: 3}
+    - {fileID: 2000857940812440682, guid: f554ccf06a903a6479e45c830c6b3b7f, type: 3}
+  - id: R03_YellowSpike
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R3"
+    silhouette: "\u9EC4\u8272\u5C0F\u82B1\u6CBF\u9AD8\u8F74\u95F4\u9694\u6392\u5217"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 14779056d10df834a9da4767673fa892, type: 2}
+    variants:
+    - {fileID: 4523344943515683651, guid: fce7ecdabe1ab95469ecb184923e3ae0, type: 3}
+    - {fileID: 9125957672052862112, guid: 6a306b425b4ed204e931b543d7fb1464, type: 3}
+    - {fileID: 4105566446739218814, guid: dfcacc15e6f415a49bbfae0f07056780, type: 3}
+    - {fileID: 5784491323788012599, guid: 6ec5e541e139a4440b6bfe4221ff9925, type: 3}
+  - id: R04_PaleSpike
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R4"
+    silhouette: "\u4E2D\u7B49\u9AD8\u5EA6\u7684\u758F\u751F\u6D45\u767D\u82B1\u5E8F"
+    uncertainty: "R4 \u4E0E R9 \u53EF\u80FD\u5C5E\u4E8E\u540C\u7C7B\u690D\u7269\uFF0C\u6309\u758F\u5BC6\u548C\u82B1\u5E8F\u5DEE\u5F02\u5206\u522B\u5236\u4F5C\u3002"
+    species: {fileID: 11400000, guid: a0961446d07d92b449770ceed1cc6bac, type: 2}
+    variants:
+    - {fileID: 5432057851595351544, guid: 5d8cfad2e1437834bb5d41643f58eb8e, type: 3}
+    - {fileID: 6840695707597633236, guid: 6e431a981b164124880375dfd6740724, type: 3}
+    - {fileID: 701249840874172992, guid: 5e65d755f6b345a4abf931d785712946, type: 3}
+    - {fileID: 8794050067479826478, guid: 0488ed5dc673de640aa5d5ddf15465c7, type: 3}
+  - id: R05_WhiteSpray
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R5"
+    silhouette: "\u5206\u679D\u830E\u4E0A\u7684\u7EC6\u788E\u767D\u82B1"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 02c08a0d54fd6d643a518daed9bd0658, type: 2}
+    variants:
+    - {fileID: 8254493730785545742, guid: 29776fe4a070da84fbbb066024950ee9, type: 3}
+    - {fileID: 2584779356818223274, guid: c1fc249c0b3d50d49bf1220b5ed7294a, type: 3}
+    - {fileID: 3164949634438370550, guid: 69f8421e1f42d84478b0ab11b7d3e260, type: 3}
+    - {fileID: 6355179393793971059, guid: a281a1460bb5e394e8e2257a6172e29e, type: 3}
+  - id: R06_Daisy
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R6"
+    silhouette: "\u767D\u8272\u5706\u74E3\u4E0E\u9EC4\u8272\u82B1\u5FC3"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 232202ef8f2ddb74a96d76c2be998ed3, type: 2}
+    variants:
+    - {fileID: 130250730218600511, guid: 9fd47a1f426d8604e9c5541f855e7dda, type: 3}
+    - {fileID: 7393481387275939856, guid: c9c215e9a2d28684e89564b1e79d57ee, type: 3}
+    - {fileID: 8696835789220760365, guid: 0e1745ed8b3317649a6e78d22bfe9e7e, type: 3}
+    - {fileID: 3286939785765472025, guid: 8a6ea8e1ae80ce044ab64d23d2c10a39, type: 3}
+  - id: R07_BlueFlower
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R7"
+    silhouette: "\u7EC6\u830E\u6D45\u84DD\u5C0F\u82B1"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 60c8bed049b37194e9294e8077681dc7, type: 2}
+    variants:
+    - {fileID: 6404489156412695638, guid: 8da2776ab13e74944b4ef52bf1b40233, type: 3}
+    - {fileID: 6552086605415534196, guid: 654e9af4d5e6d9141a7b68cbbc2ac88b, type: 3}
+    - {fileID: 1802966180153224726, guid: d24fc868cb42299468b1639ad3396f65, type: 3}
+    - {fileID: 6956843486961220330, guid: 019ca06183e2d6342a101a84cb99eaa9, type: 3}
+  - id: R08_Fern
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R8"
+    silhouette: "\u5F2F\u66F2\u53F6\u8F74\u4E0E\u6210\u5BF9\u5C0F\u53F6"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: c0c9e48f2ff64164a9e069dccc92f4ee, type: 2}
+    variants:
+    - {fileID: 8534410341705659692, guid: 656df814864626e44bb31f9d2d28316b, type: 3}
+    - {fileID: 3101360633739125261, guid: 229b103f3791a9242b0546a5cfd403ed, type: 3}
+    - {fileID: 4817755859821360553, guid: 7c1b9956ac2b665459e45b478a9ae492, type: 3}
+    - {fileID: 8956157024464284385, guid: 4e2b656685f6fbf48bc57aced3258511, type: 3}
+  - id: R09_CreamFoxtail
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R9"
+    silhouette: "\u5BC6\u96C6\u5976\u767D\u5375\u5F62\u77ED\u7A57"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: 3dd56cfe983dec4478fbd55b4a1e95a7, type: 2}
+    variants:
+    - {fileID: 3296060506146046943, guid: 2a6dbb5a05980094a87799582e5ebab5, type: 3}
+    - {fileID: 8125121482889596012, guid: 6af10de39f2fa774f9ca162ff7bccd77, type: 3}
+    - {fileID: 4809104189577348947, guid: 7149afa563887ff46ac6a0ab8f54d65a, type: 3}
+    - {fileID: 7452901160984758530, guid: 806ac76ec4843464bbd6b6058cac745e, type: 3}
+  - id: R10_OrangeFlower
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R10"
+    silhouette: "\u6A59\u8272\u5706\u74E3\u5C0F\u82B1"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: ebd460001ca2bf04ba23a28827827463, type: 2}
+    variants:
+    - {fileID: 450655610474857634, guid: e6bc7f8532abfff4e878f0801d34550f, type: 3}
+    - {fileID: 3051246813733024757, guid: 65d68c7bf04b3e64bba6bb2ac44c1fdd, type: 3}
+    - {fileID: 7009171452842418578, guid: f4356952fe2fb93448237367db8b67e4, type: 3}
+    - {fileID: 6808625287517725078, guid: daf12c7154189f9499cdc7ac34871947, type: 3}
+  - id: R11_YellowButton
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R11"
+    silhouette: "\u9EC4\u8272\u7EC6\u830E\u7EBD\u6263\u72B6\u82B1\u5934"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: f63d2c597f57ebb4eb1f38964ebeb1c4, type: 2}
+    variants:
+    - {fileID: 429835606074427508, guid: 3ab6032565a00e746b253e022e23ccb3, type: 3}
+    - {fileID: 863587705076116364, guid: 6affdc465b8ef61409502fcc677eac03, type: 3}
+    - {fileID: 6958017208601799263, guid: 2ab3b20d16801f54786323758f8d74cc, type: 3}
+    - {fileID: 6229276636057692221, guid: 765b7d7da342cbf4e8a92f740e861be7, type: 3}
+  - id: R12_LilacBell
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R12"
+    silhouette: "\u6D45\u7D2B\u676F\u5F62\u82B1\u51A0"
+    uncertainty: "\u6309\u53C2\u8003\u5916\u5F62\u91CD\u5EFA\uFF0C\u7C73\u5236\u9AD8\u5EA6\u4E0E\u6570\u91CF\u4E3A\u672C\u9879\u76EE\u5236\u4F5C\u8BBE\u5B9A\u3002"
+    species: {fileID: 11400000, guid: cfe86a98d204a8a4090edb4cafa74669, type: 2}
+    variants:
+    - {fileID: 8559154071029662215, guid: 5a49e483b01622141a297c87732b8401, type: 3}
+    - {fileID: 6429498909468795925, guid: 0479c9395fdef0541a15df97188257ff, type: 3}
+    - {fileID: 1726938775502555066, guid: 44a757597c3f6ea4a9a588f7ff23ded4, type: 3}
+    - {fileID: 4739354136746251091, guid: 50a6570ba78f93d4788cef5b16122140, type: 3}
+  - id: R13_LeafyHerb
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R13"
+    silhouette: "\u4F4E\u77EE\u591A\u5C42\u62AB\u9488\u53F6"
+    uncertainty: "\u539F\u56FE\u5206\u8FA8\u7387\u4E0D\u8DB3\u4EE5\u786E\u8BA4\u7269\u79CD\uFF0C\u6309\u53EF\u89C1\u8F6E\u5ED3\u5236\u4F5C\uFF1B\u4E0D\u4F5C\u751F\u7269\u5B66\u547D\u540D\u3002"
+    species: {fileID: 11400000, guid: 598a2ce61544cd947b1e7cf5e972e670, type: 2}
+    variants:
+    - {fileID: 1687751416535200944, guid: 5bf624ee217cc2e4dbbae8b1a6214a4d, type: 3}
+    - {fileID: 33623671039991687, guid: 407dd7481fc7200468d11777626c63d4, type: 3}
+    - {fileID: 5845990256256610654, guid: e8e122f00b482c14ebfae4589e8f101c, type: 3}
+    - {fileID: 7013424331884231216, guid: c5bcab0945f351b4d8a194ce2f9b7dbf, type: 3}
+  - id: R14_RoundGroundcover
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R14"
+    silhouette: "\u5706\u9614\u53F6\u6210\u7EC4\u7684\u4F4E\u4F4D\u5730\u88AB"
+    uncertainty: "\u539F\u56FE\u5206\u8FA8\u7387\u4E0D\u8DB3\u4EE5\u786E\u8BA4\u7269\u79CD\uFF0C\u6309\u53EF\u89C1\u8F6E\u5ED3\u5236\u4F5C\uFF1B\u4E0D\u4F5C\u751F\u7269\u5B66\u547D\u540D\u3002"
+    species: {fileID: 11400000, guid: 3a615c871d52d514eb3d51973756fc82, type: 2}
+    variants:
+    - {fileID: 3130492680887991604, guid: 0e51c25f0c7aff94992d16e49b3b0848, type: 3}
+    - {fileID: 1985521280937712749, guid: 1d19c559d33a5134db479ce0fb48ab70, type: 3}
+    - {fileID: 2148467384291269654, guid: 08310fc092e4b844fb99cd0cfc698b34, type: 3}
+    - {fileID: 3853316768317770992, guid: 65f44143de9b6814f994546891fcb0b5, type: 3}
+  - id: R15_LowSeed
+    reference: "\u8D44\u6E90\u603B\u89C8\u7EA2\u6846 R15"
+    silhouette: "\u4F4E\u4F4D\u6D45\u8272\u5C0F\u7A57\uFF0C\u8F83\u758F"
+    uncertainty: "\u539F\u56FE\u5206\u8FA8\u7387\u4E0D\u8DB3\u4EE5\u786E\u8BA4\u7269\u79CD\uFF0C\u6309\u53EF\u89C1\u8F6E\u5ED3\u5236\u4F5C\uFF1B\u4E0D\u4F5C\u751F\u7269\u5B66\u547D\u540D\u3002"
+    species: {fileID: 11400000, guid: ae242f912a506664d9eb85969c2c2dc8, type: 2}
+    variants:
+    - {fileID: 3780415806710930532, guid: 1856872d5f94a854b9b0c5379a49e3cc, type: 3}
+    - {fileID: 8080366563418930329, guid: 7376c26413b9f7744b688632f61a6da4, type: 3}
+    - {fileID: 5739673778664185935, guid: 7c40c90fa96088949a69022a919a8c52, type: 3}
+    - {fileID: 1105319623990203195, guid: aa423691325021641962b25542111196, type: 3}
