@@ -70,11 +70,27 @@ namespace WeatherHouse.Vegetation
             }
             void Triangle(int a, int b, int c)
             {
-                // All poles use a single vertex. Skip an accidental collinear face before it reaches Unity.
-                if (Vector3.Cross(vertices[b] - vertices[a], vertices[c] - vertices[a]).sqrMagnitude < 1e-18f) return;
+                // Ring builders may reference the next vertex before that ring is complete.
                 indices.Add(a); indices.Add(b); indices.Add(c);
             }
             void Quad(int a, int b, int c, int d) { Triangle(a, b, c); Triangle(c, b, d); }
+            void ValidateAndFilterTriangles()
+            {
+                // Resolve indices and reject degenerate faces only after every builder has finished.
+                int kept = 0;
+                for (int i = 0; i < indices.Count; i += 3)
+                {
+                    int a = indices[i], b = indices[i + 1], c = indices[i + 2];
+                    if ((uint)a >= (uint)vertices.Count || (uint)b >= (uint)vertices.Count || (uint)c >= (uint)vertices.Count)
+                        throw new InvalidOperationException(source.kind + " triangle " + (i / 3) + " references a missing vertex.");
+                    float areaSquared = Vector3.Cross(vertices[b] - vertices[a], vertices[c] - vertices[a]).sqrMagnitude;
+                    if (float.IsNaN(areaSquared) || float.IsInfinity(areaSquared))
+                        throw new InvalidOperationException(source.kind + " triangle " + (i / 3) + " has nonfinite geometry.");
+                    if (areaSquared <= 1e-18f) continue;
+                    indices[kept++] = a; indices[kept++] = b; indices[kept++] = c;
+                }
+                if (kept < indices.Count) indices.RemoveRange(kept, indices.Count - kept);
+            }
             static void Frame(Vector3 direction, out Vector3 side, out Vector3 normal)
             {
                 direction = direction.sqrMagnitude < 1e-10f ? Vector3.up : direction.normalized;
@@ -98,6 +114,7 @@ namespace WeatherHouse.Vegetation
                     case GrassKind.RoundGroundcover: Groundcover(); break;
                     default: throw new ArgumentOutOfRangeException(nameof(source.kind), "PlantMeshFactory handles the additional plant kinds.");
                 }
+                ValidateAndFilterTriangles();
                 if (indices.Count / 3 >= 15000) throw new InvalidOperationException("Plant mesh exceeded its 15000 triangle budget.");
                 var mesh = new Mesh { name = source.name + "_Plant", indexFormat = IndexFormat.UInt32 };
                 mesh.SetVertices(vertices); mesh.SetUVs(0, uv); mesh.SetUVs(1, wind); mesh.SetColors(colors);
@@ -233,28 +250,34 @@ namespace WeatherHouse.Vegetation
                     Vector3 root = Root(); float angle = R(0, Mathf.PI * 2), h = height * R(1 - variation, 1);
                     float length = Mathf.Clamp(headLength, h * .15f, h * .62f);
                     Vector3 head = Stem(root, h - length * .78f, angle, Mathf.Clamp(blades / 7, 1, 3));
-                    Vector3 outward = Radial(angle);
-                    Func<float, Vector3> axis = t => head + Vector3.up * (length * t) + outward * (length * bend * .25f * t * t);
-                    Tube(axis, Mathf.Max(.0013f, width * .065f), Pigment(source.flowerColor, .82f), 5, 4);
+                    Vector3 outward = Radial(angle), across = Radial(angle + Mathf.PI * .5f);
+                    float startAngle = .12f + bend * .15f, arc = .30f + bend * .45f + curl * 1.30f;
+                    // A continuous arc lets the plume tip droop while its base meets the stem.
+                    Func<float, Vector3> axis = t => head
+                        + Vector3.up * (length * (Mathf.Sin(startAngle + arc * t) - Mathf.Sin(startAngle)) / arc)
+                        + outward * (length * (Mathf.Cos(startAngle) - Mathf.Cos(startAngle + arc * t)) / arc);
+                    Tube(axis, Mathf.Max(.0013f, width * .065f), Pigment(source.flowerColor, .82f), 7, 4);
                     int levels = Mathf.Clamp(blades, 6, 14);
                     for (int level = 0; level < levels; level++)
                     {
-                        float t = .08f + level * .84f / Mathf.Max(1, levels - 1);
-                        float envelope = Mathf.Pow(Mathf.Sin(t * Mathf.PI), .65f);
+                        float t = .05f + level * .89f / Mathf.Max(1, levels - 1);
+                        float envelope = Mathf.Pow(Mathf.Sin(t * Mathf.PI), .60f);
+                        Vector3 tangent = Vector3.up * Mathf.Cos(startAngle + arc * t) + outward * Mathf.Sin(startAngle + arc * t);
+                        Vector3 depth = Vector3.Cross(across, tangent).normalized;
                         for (int side = -1; side <= 1; side += 2)
                         {
-                            Vector3 branchDirection = Radial(angle + side * Mathf.PI * .5f + R(-.45f, .45f));
+                            Vector3 branchDirection = (across * side + depth * R(-.35f, .35f)).normalized;
                             Vector3 from = axis(t);
                             float arm = length * (.18f + radius * 1.4f) * envelope;
-                            Vector3 tip = from + branchDirection * arm + Vector3.up * length * (.07f + curl * .08f);
-                            Tube(u => Vector3.Lerp(from, tip, u) + Vector3.up * Mathf.Sin(u * Mathf.PI) * arm * .1f,
+                            Vector3 tip = from + branchDirection * arm + tangent * length * .10f;
+                            Tube(u => Vector3.Lerp(from, tip, u) + tangent * Mathf.Sin(u * Mathf.PI) * arm * .1f,
                                 Mathf.Max(.0007f, width * .025f), Pigment(source.flowerColor, .88f), 2, 3);
-                            for (int floret = 0; floret < 3; floret++)
+                            for (int floret = 0; floret < 4; floret++)
                             {
-                                Vector3 at = Vector3.Lerp(from, tip, .25f + floret * .25f);
-                                Vector3 end = tip + Vector3.up * length * R(.025f, .11f) + outward * R(-arm * .25f, arm * .25f);
-                                Leaf(at, end, Mathf.Max(.006f, arm * .27f), arm * .10f,
-                                    Pigment(source.flowerColor, R(.85f, 1.04f)), true, floret * 45 - 45);
+                                Vector3 at = Vector3.Lerp(from, tip, .10f + floret * .19f);
+                                Vector3 end = tip + tangent * length * R(.06f, .16f) + depth * R(-arm * .18f, arm * .18f);
+                                Leaf(at, end, Mathf.Max(.008f, arm * .42f), arm * .07f,
+                                    Pigment(source.flowerColor, R(.88f, 1.04f)), true, floret * 40 - 60);
                             }
                         }
                     }
@@ -337,7 +360,7 @@ namespace WeatherHouse.Vegetation
 
             void Ferns()
             {
-                int fronds = Mathf.Clamp(Mathf.RoundToInt(Mathf.Sqrt(blades) * 1.5f), 3, 8);
+                int fronds = Mathf.Clamp(Mathf.RoundToInt(Mathf.Sqrt(blades) * 2.05f), 4, 12);
                 float phase = R(0, Mathf.PI * 2);
                 for (int f = 0; f < fronds; f++)
                 {
@@ -347,19 +370,20 @@ namespace WeatherHouse.Vegetation
                     float reach = spread + h * (.45f + bend * .22f);
                     Func<float, Vector3> axis = t => root + direction * reach * t + Vector3.up * (h * Mathf.Sin(t * Mathf.PI * (.65f + curl * .2f)));
                     Tube(axis, Mathf.Clamp(width * .07f, .0012f, .004f), green, 8, 4);
-                    int pairs = Mathf.Clamp(8 + Mathf.RoundToInt(headLength * 12), 8, 14);
+                    int pairs = Mathf.Clamp(12 + Mathf.RoundToInt(headLength * 10), 12, 18);
                     for (int i = 0; i < pairs; i++)
                     {
-                        float t = .16f + i * .76f / (pairs - 1f);
-                        float pinna = h * .26f * Mathf.Pow(1 - t, .6f) * aspect;
+                        float t = .12f + i * .82f / (pairs - 1f);
+                        float pinna = h * .34f * Mathf.Pow(Mathf.Sin(t * Mathf.PI), .55f) * (1 - t * .5f) * aspect;
                         for (int s = -1; s <= 1; s += 2)
                         {
                             Vector3 point = axis(t + (s > 0 ? .009f : 0));
-                            Leaf(point, point + side * (s * pinna) + direction * pinna * .36f + Vector3.up * pinna * .05f,
-                                Mathf.Max(width * .45f, pinna * .20f / Mathf.Sqrt(aspect)), pinna * (.10f + curl * .1f), green);
+                            Leaf(point, point + side * (s * pinna) + direction * pinna * .28f + Vector3.up * pinna * .03f,
+                                Mathf.Max(width * .95f * Mathf.Pow(1 - t, .35f), pinna * .48f / Mathf.Sqrt(aspect)),
+                                pinna * (.08f + curl * .08f), green);
                         }
                     }
-                    Leaf(axis(.91f), axis(1), width * .6f, h * .015f, green);
+                    Leaf(axis(.88f), axis(1), width * .8f, h * .015f, green);
                 }
             }
 

@@ -7,6 +7,16 @@ namespace WeatherHouse.Vegetation
 {
     public static class GrassMeshFactory
     {
+        public static void UpdateStoredMesh(Mesh source, Mesh destination)
+        {
+            // Native setters invalidate the GPU buffers; CopySerialized alone can leave stale draws.
+            destination.Clear(); destination.indexFormat = source.indexFormat; destination.name = source.name;
+            destination.vertices = source.vertices; destination.normals = source.normals;
+            destination.uv = source.uv; destination.uv2 = source.uv2; destination.colors = source.colors;
+            destination.triangles = source.triangles; destination.bounds = source.bounds;
+            destination.UploadMeshData(false);
+        }
+
         public static Mesh Build(GrassSpecies species, int variation = 0)
         {
             if (species == null) throw new ArgumentNullException(nameof(species));

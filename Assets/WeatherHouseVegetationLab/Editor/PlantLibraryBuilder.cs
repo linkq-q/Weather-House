@@ -85,14 +85,14 @@ namespace WeatherHouse.Vegetation.Editor
             }
             switch (i)
             {
-                case 4: s.flowerCount = 6; s.headLength = .46f; s.width = .035f; s.spread = .25f; s.bend = .36f; s.curl = .4f; break;
+                case 4: s.flowerCount = 6; s.bladeCount = 12; s.headLength = .60f; s.width = .035f; s.spread = .25f; s.bend = .65f; s.curl = .8f; break;
                 case 5: s.flowerColor = C("866E40"); s.flowerCount = 5; s.headLength = .18f; s.flowerRadius = .026f; s.curl = .05f; break;
                 case 6: s.flowerColor = C("E9DA66"); s.flowerCount = 3; s.headLength = .48f; s.flowerRadius = .038f; break;
                 case 7: s.flowerCount = 3; s.headLength = .35f; s.flowerRadius = .036f; s.spread = .15f; break;
                 case 8: s.flowerCount = 5; s.flowerRadius = .029f; s.spread = .19f; break;
                 case 9: s.flowerColor = C("FFF9DC"); s.flowerCount = 4; s.flowerRadius = .065f; s.bladeCount = 6; break;
                 case 10: s.flowerColor = C("BBCEDC"); s.petalCount = 5; s.flowerCount = 4; break;
-                case 11: s.bladeCount = 7; s.width = .045f; s.spread = .4f; s.leafAspect = .8f; s.curl = .4f; s.bend = .5f; break;
+                case 11: s.bladeCount = 22; s.width = .09f; s.spread = .28f; s.leafAspect = 1.35f; s.curl = .4f; s.bend = .5f; break;
                 case 12: s.flowerCount = 7; s.headLength = .15f; s.flowerRadius = .042f; s.spread = .20f; break;
                 case 13: s.flowerColor = C("EFBB7A"); s.flowerCount = 5; s.petalCount = 7; s.flowerRadius = .052f; break;
                 case 14: s.flowerColor = C("ECDD69"); s.centerColor = C("D4AD4A"); s.petalCount = 9; s.flowerCount = 5; s.flowerRadius = .029f; break;
@@ -120,20 +120,26 @@ namespace WeatherHouse.Vegetation.Editor
             mat.SetColor("_BaseColor", entry.species.baseColor); mat.SetColor("_TipColor", entry.species.tipColor);
             mat.SetFloat("_UpNormals", 1); mat.SetFloat("_WindStrength", .08f); mat.SetFloat("_WindSpeed", .65f);
             EditorUtility.SetDirty(mat);
-            for (int v = 0; v < 4; v++)
+            var staging = EditorSceneManager.NewPreviewScene();
+            try
             {
-                string name = entry.id + "_v" + (v + 1);
-                var mesh = StoreMesh(GrassMeshFactory.Build(entry.species, v), name);
-                var go = new GameObject(name);
-                try
+                for (int v = 0; v < 4; v++)
                 {
-                    go.AddComponent<MeshFilter>().sharedMesh = mesh;
-                    var renderer = go.AddComponent<MeshRenderer>(); renderer.sharedMaterial = mat; renderer.shadowCastingMode = ShadowCastingMode.Off;
-                    var specimen = go.AddComponent<PlantSpecimen>(); specimen.source = entry.species; specimen.variation = v;
-                    entry.variants[v] = PrefabUtility.SaveAsPrefabAsset(go, Root + "/Prefabs/" + name + ".prefab");
+                    string name = entry.id + "_v" + (v + 1);
+                    var mesh = StoreMesh(GrassMeshFactory.Build(entry.species, v), name);
+                    var go = new GameObject(name);
+                    SceneManager.MoveGameObjectToScene(go, staging);
+                    try
+                    {
+                        go.AddComponent<MeshFilter>().sharedMesh = mesh;
+                        var renderer = go.AddComponent<MeshRenderer>(); renderer.sharedMaterial = mat; renderer.shadowCastingMode = ShadowCastingMode.TwoSided;
+                        var specimen = go.AddComponent<PlantSpecimen>(); specimen.source = entry.species; specimen.variation = v;
+                        entry.variants[v] = PrefabUtility.SaveAsPrefabAsset(go, Root + "/Prefabs/" + name + ".prefab");
+                    }
+                    finally { Object.DestroyImmediate(go); }
                 }
-                finally { Object.DestroyImmediate(go); }
             }
+            finally { EditorSceneManager.ClosePreviewScene(staging); }
         }
 
         static Mesh StoreMesh(Mesh mesh, string name)
@@ -142,7 +148,7 @@ namespace WeatherHouse.Vegetation.Editor
             string path = Root + "/Meshes/" + name + ".asset";
             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
             if (!existing) { AssetDatabase.CreateAsset(mesh, path); return mesh; }
-            EditorUtility.CopySerialized(mesh, existing); Object.DestroyImmediate(mesh); EditorUtility.SetDirty(existing); return existing;
+            GrassMeshFactory.UpdateStoredMesh(mesh, existing); Object.DestroyImmediate(mesh); EditorUtility.SetDirty(existing); return existing;
         }
 
         static Material Solid(string name, Color color)
@@ -164,7 +170,7 @@ namespace WeatherHouse.Vegetation.Editor
             meadow.weights = (float[])Mix.Clone(); meadow.totalClumps = 1400; meadow.size = new Vector2(8, 9); meadow.pondCenter = new Vector2(100, 100); meadow.pondRadius = 1;
             meadow.windStrength = .08f; meadow.windSpeed = .65f;
             Ground(meadow);
-            var tile = Solid("SpecimenSoil", C("ADB28A"));
+            var tile = Solid("SpecimenSoil", C("ACB29E"));
             var group = new GameObject("02 19种样本 · 每种四个种子变体 · 原尺寸").transform;
             for (int i = 0; i < catalog.entries.Length; i++)
             {
@@ -182,12 +188,12 @@ namespace WeatherHouse.Vegetation.Editor
             }
             var lineup = new GameObject("03 四档草同尺度对比 · G1至G4").transform;
             lineup.position = new Vector3(-10.5f, 3.1f, -10);
-            Box(lineup, "四档同尺度台", new Vector3(0, -.1f, 0), new Vector3(9.4f, .15f, 3.1f), tile);
+            Box(lineup, "四档同尺度台", new Vector3(0, -.1f, 0), new Vector3(5.2f, .15f, 2.4f), tile);
             for (int i = 0; i < 4; i++)
             {
                 var go = (GameObject)PrefabUtility.InstantiatePrefab(catalog.entries[i].variants[0]); go.transform.SetParent(lineup);
-                go.transform.localPosition = new Vector3(-3.3f + i * 2.2f, 0, .2f);
-                Label(lineup, "G" + (i + 1) + "  " + Heights[i].ToString("0.00") + "m / " + catalog.entries[i].species.bladeCount + " blades", new Vector3(-4.05f + i * 2.2f, .02f, -1), .12f);
+                go.transform.localPosition = new Vector3(-1.8f + i * 1.2f, 0, .2f);
+                Label(lineup, "G" + (i + 1) + "  " + Heights[i].ToString("0.00") + "m", new Vector3(-2.25f + i * 1.2f, .02f, -.65f), .12f);
             }
             RenderSettings.fog = false; RenderSettings.ambientMode = AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = C("D8E7DE"); RenderSettings.ambientEquatorColor = C("B8C2A7"); RenderSettings.ambientGroundColor = C("797A5C"); RenderSettings.ambientIntensity = 1;
@@ -210,7 +216,23 @@ namespace WeatherHouse.Vegetation.Editor
         static void Label(Transform parent, string text, Vector3 position, float size)
         {
             var go = new GameObject(text); go.transform.SetParent(parent, false); go.transform.localPosition = position; go.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            var label = go.AddComponent<TextMesh>(); label.text = text; label.fontSize = 52; label.characterSize = size; label.color = C("435046"); label.anchor = TextAnchor.MiddleLeft;
+            var label = go.AddComponent<TextMesh>(); label.text = text; label.fontSize = 52; label.characterSize = size / 8; label.color = C("435046"); label.anchor = TextAnchor.MiddleLeft;
+        }
+        public static void RefreshScenePresentation()
+        {
+            RequireSavedScene();
+            BuildResources();
+            EditorSceneManager.OpenScene(ScenePath);
+            foreach (var label in Object.FindObjectsOfType<TextMesh>()) label.characterSize = .015f;
+            var lineup = GameObject.Find("03 四档草同尺度对比 · G1至G4").transform;
+            lineup.Find("四档同尺度台").localScale = new Vector3(5.2f, .15f, 2.4f);
+            var specimens = lineup.GetComponentsInChildren<PlantSpecimen>();
+            for (int i = 0; i < specimens.Length; i++) specimens[i].transform.localPosition = new Vector3(-1.8f + i * 1.2f, 0, .2f);
+            var labels = lineup.GetComponentsInChildren<TextMesh>();
+            for (int i = 0; i < labels.Length; i++) { labels[i].text = "G" + (i + 1) + "  " + Heights[i].ToString("0.00") + "m"; labels[i].transform.localPosition = new Vector3(-2.25f + i * 1.2f, .02f, -.65f); }
+            Object.FindObjectOfType<GrassMeadow>().Rebuild();
+            Object.FindObjectOfType<GrassLabCamera>().Overview();
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
         }
         static void Ground(GrassMeadow meadow)
         {
@@ -224,7 +246,7 @@ namespace WeatherHouse.Vegetation.Editor
             int t = 0;
             for (int z = 0; z < nz; z++) for (int x = 0; x < nx; x++) { int k = z * (nx + 1) + x; triangles[t++] = k; triangles[t++] = k + nx + 1; triangles[t++] = k + 1; triangles[t++] = k + 1; triangles[t++] = k + nx + 1; triangles[t++] = k + nx + 2; }
             var mesh = new Mesh { vertices = vertices, triangles = triangles, uv = uv }; mesh.RecalculateNormals(); mesh.RecalculateBounds();
-            var go = new GameObject("00 中性地面"); go.AddComponent<MeshFilter>().sharedMesh = StoreMesh(mesh, "LibraryGround"); go.AddComponent<MeshRenderer>().sharedMaterial = Solid("LibraryGround", C("969F73"));
+            var go = new GameObject("00 中性地面"); go.AddComponent<MeshFilter>().sharedMesh = StoreMesh(mesh, "LibraryGround"); go.AddComponent<MeshRenderer>().sharedMaterial = Solid("LibraryGround", C("879083"));
         }
     }
 }
