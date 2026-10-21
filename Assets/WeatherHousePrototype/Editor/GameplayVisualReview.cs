@@ -81,11 +81,14 @@ namespace WeatherHousePrototype.Editor
                 yield return Capture("Gameplay_Photo");
             }
             hud.ToggleJournal();
+            float closeDeadline = Time.realtimeSinceStartup + AlbumBookOpening.Duration + .5f;
+            while (hud.JournalOpen && Time.realtimeSinceStartup < closeDeadline) yield return null;
+            if (hud.JournalOpen) throw new InvalidOperationException("Journal reverse playback did not finish closing.");
             File.WriteAllText("PrototypeReview/gameplay-visual.txt", "PASS: first-person capture uses photo camera; avatar hidden; 35/70 mm review images; 18-frame real clip added and opened in notebook. Inspect PNGs visually.\n");
             }
             finally
             {
-                if (hud.JournalOpen) hud.ToggleJournal();
+                if (hud.JournalOpen && !hud.GetComponentsInChildren<AlbumBookOpening>().Any(a => a.IsClosing)) hud.ToggleJournal();
                 hud.SetCameraMode(false);
                 walker.Teleport(prior); walker.yaw = priorYaw; walker.pitch = priorPitch;
                 Application.runInBackground = background;

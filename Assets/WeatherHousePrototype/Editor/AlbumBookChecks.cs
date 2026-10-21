@@ -30,6 +30,7 @@ namespace WeatherHousePrototype.Editor
             AssetDatabase.Refresh();
             foreach (string path in Directory.GetFiles(AssetFolder, "*.png").Select(p => p.Replace('\\', '/')))
             {
+                bool noise = Path.GetFileNameWithoutExtension(path) == "RevealNoise";
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                 Require(importer != null, "Texture importer is missing: " + path);
                 // RawImage uses the original texture, so sprite slicing is unnecessary.
@@ -38,10 +39,11 @@ namespace WeatherHousePrototype.Editor
                 importer.maxTextureSize = 4096;
                 importer.npotScale = TextureImporterNPOTScale.None;
                 importer.alphaSource = TextureImporterAlphaSource.FromInput;
-                importer.alphaIsTransparency = true;
-                importer.sRGBTexture = true;
+                importer.alphaIsTransparency = !noise;
+                importer.sRGBTexture = !noise;
+                if (noise) importer.isReadable = true;
                 importer.mipmapEnabled = false;
-                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.wrapMode = noise ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
                 importer.filterMode = FilterMode.Bilinear;
                 importer.SaveAndReimport();
             }
@@ -59,7 +61,7 @@ namespace WeatherHousePrototype.Editor
             Debug.Log("Album review prepared. Enter Play, then run AlbumBookChecks.Run(). No scene was saved.");
         }
 
-        public static void Run()
+        public static void Run(bool captureOpening = false)
         {
             Require(!running, "Album checks are already running.");
             Directory.CreateDirectory(Output);
@@ -74,7 +76,7 @@ namespace WeatherHousePrototype.Editor
                 Require(!session.Judging && !session.Recorder.IsRecording, "Wait for the current reply judgement or photo capture to finish.");
                 running = true;
                 File.WriteAllLines(Output + "/checks.txt", report);
-                session.StartCoroutine(Guard(CheckLive(session, hud, report), report));
+                session.StartCoroutine(Guard(CheckLive(session, hud, report, captureOpening), report, captureOpening ? 90f : 25f));
             }
             catch (Exception error)
             {
@@ -85,7 +87,7 @@ namespace WeatherHousePrototype.Editor
             }
         }
 
-        private static IEnumerator Guard(IEnumerator checks, List<string> report)
+        private static IEnumerator Guard(IEnumerator checks, List<string> report, float timeout)
         {
             bool background = Application.runInBackground;
             Application.runInBackground = true;
@@ -99,7 +101,7 @@ namespace WeatherHousePrototype.Editor
                     object next = null;
                     try
                     {
-                        Require(Time.realtimeSinceStartup - start < 25f, "Album checks exceeded 25 seconds.");
+                        Require(Time.realtimeSinceStartup - start < timeout, "Album checks exceeded their timeout.");
                         complete = !checks.MoveNext();
                         if (!complete) next = checks.Current;
                     }
@@ -121,7 +123,7 @@ namespace WeatherHousePrototype.Editor
             }
         }
 
-        private static IEnumerator CheckLive(GameplaySession session, GameplayHud hud, List<string> report)
+        private static IEnumerator CheckLive(GameplaySession session, GameplayHud hud, List<string> report, bool captureOpening)
         {
             string[] names = { "selectedGlyph", "guessGlyphId", "guessDraft", "replyDraft", "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen",
                 "dialogueOpen", "expandedPhoto", "currentFrame", "playingPhoto", "nextFrameAt", "dirty" };
@@ -133,6 +135,7 @@ namespace WeatherHousePrototype.Editor
             LanguageNotebook originalNotebook = session.Notebook;
             string notebookJson = JsonUtility.ToJson(originalNotebook);
             byte[] save = File.Exists(session.SavePath) ? File.ReadAllBytes(session.SavePath) : null;
+            float originalTimeScale = Time.timeScale;
             try
             {
                 Set(session, "nextObservation", float.PositiveInfinity);
@@ -146,8 +149,95 @@ namespace WeatherHousePrototype.Editor
                 Set(hud, "glyphPage", 0);
                 Set(hud, "page", 0);
                 Set(hud, "albumPhotosSelected", false);
-                if (hud.JournalOpen) hud.ToggleJournal();
+                Set(hud, "<JournalOpen>k__BackingField", false);
+                Rebuild(hud);
                 hud.ToggleJournal();
+                typeof(GameplayHud).GetMethod("PositionAnimalBubble", Fields).Invoke(hud, null);
+                var opening = Find<AlbumBookOpening>(hud, "Notebook");
+                var openingRoot = (RectTransform)opening.transform;
+                Check(hud.IsAlbumOpening && !openingRoot.GetComponent<CanvasGroup>().blocksRaycasts,
+                    "J opens the real animation and blocks book clicks during the transition", report);
+                typeof(GameplayHud).GetMethod("TurnGlyphPage", Fields).Invoke(hud, new object[] { 1 });
+                Check(Get<int>(hud, "glyphPage") == 0, "Symbol paging is ignored while the book is opening", report);
+                yield return new WaitForSecondsRealtime(.18f);
+                Check(openingRoot.GetComponentsInChildren<AlbumPaperCircleGraphic>().All(g =>
+                        Vector4.Distance(g.canvasRenderer.GetColor(), Color.white) < .002f),
+                    "Opening keeps symbol button tint fully colored and opaque instead of the disabled gray", report);
+                float deadline = Time.realtimeSinceStartup + AlbumBookOpening.Duration + .5f;
+                while (hud.IsAlbumOpening && Time.realtimeSinceStartup < deadline) yield return null;
+                Check(!hud.IsAlbumOpening && openingRoot.anchoredPosition.sqrMagnitude < .001f &&
+                    openingRoot.GetComponent<CanvasGroup>().blocksRaycasts,
+                    "Automatic playback completes, returns to the exact final position and restores book clicks", report);
+                Check(!openingRoot.GetComponentsInChildren<Graphic>().Any(g =>
+                        g.material != null && g.material.name == "Album opening reveal (runtime)"),
+                    "Completing the reveal restores every original UI material", report);
+                CheckOpeningModes(hud, opening, report);
+
+                if (captureOpening)
+                {
+                    Directory.CreateDirectory(Output + "/OpeningFrames");
+                    Time.timeScale = 0f;
+                    opening.Play();
+                    Color32[] midRevealPixels = null;
+                    var revealRegions = new Dictionary<string, Rect>();
+                    for (int frame = 0; frame < 76; frame++)
+                    {
+                        opening.Sample(frame / 30f);
+                        Canvas.ForceUpdateCanvases();
+                        yield return new WaitForEndOfFrame();
+                        Texture2D captured = ScreenCapture.CaptureScreenshotAsTexture();
+                        try
+                        {
+                            File.WriteAllBytes(Output + "/OpeningFrames/frame-" + frame.ToString("D3") + ".jpg", captured.EncodeToJPG(92));
+                            if (frame == 24)
+                            {
+                                midRevealPixels = captured.GetPixels32();
+                                var visibleItems = openingRoot.GetComponentsInChildren<Graphic>()
+                                    .Where(g => g is AlbumPaperCircleGraphic || g.name.StartsWith("Sample photo "));
+                                foreach (Graphic item in visibleItems)
+                                {
+                                    var corners = new Vector3[4];
+                                    item.rectTransform.GetWorldCorners(corners);
+                                    Vector2 lo = RectTransformUtility.WorldToScreenPoint(null, corners[0]);
+                                    Vector2 hi = RectTransformUtility.WorldToScreenPoint(null, corners[2]);
+                                    revealRegions[item.name] = Rect.MinMaxRect(lo.x, lo.y, hi.x, hi.y);
+                                }
+                            }
+                            if (frame == 40)
+                            {
+                                Color32[] settled = captured.GetPixels32();
+                                Require(revealRegions.Count == 26 && midRevealPixels.Length == settled.Length,
+                                    "The GPU reveal comparison needs all four photos and 22 symbols at a stable resolution.");
+                                foreach (var region in revealRegions)
+                                {
+                                    int changed = 0, sampled = 0;
+                                    Rect bounds = region.Value;
+                                    for (int y = Mathf.CeilToInt(bounds.yMin + bounds.height*.15f); y < bounds.yMax - bounds.height*.15f; y++)
+                                        for (int x = Mathf.CeilToInt(bounds.xMin + bounds.width*.15f); x < bounds.xMax - bounds.width*.15f; x++)
+                                        {
+                                            int pixel = y*captured.width+x;
+                                            if (pixel < 0 || pixel >= settled.Length) continue;
+                                            Color32 a = midRevealPixels[pixel], b = settled[pixel];
+                                            if (Mathf.Abs(a.r-b.r)+Mathf.Abs(a.g-b.g)+Mathf.Abs(a.b-b.b) > 30) changed++;
+                                            sampled++;
+                                        }
+                                    Check(sampled > 0 && changed/(float)sampled > .12f,
+                                        "GPU pixels participate in reveal: " + region.Key + " (" +
+                                        (100f*changed/Mathf.Max(1,sampled)).ToString("F1") + "% changing)", report);
+                                }
+                            }
+                        }
+                        finally { Object.Destroy(captured); }
+                    }
+                    File.WriteAllText(Output + "/OpeningFrames/capture.txt",
+                        "Actual Unity gameplay Canvas, deterministic animation samples at 30 fps. Scene time paused during sampling.\n" +
+                        "Frames 0..75 cover 2.5 seconds; opening duration " + AlbumBookOpening.Duration +
+                        " seconds, then final view held.\n");
+                    report.Add("PASS: recorded 76 actual Unity Canvas frames using the same opening renderer at 30 fps");
+                    Time.timeScale = originalTimeScale;
+                }
+
+                foreach (object step in CheckClosing(hud, report, captureOpening)) yield return step;
                 yield return null;
                 Canvas.ForceUpdateCanvases();
 
@@ -183,6 +273,8 @@ namespace WeatherHousePrototype.Editor
 
                 Find<Button>(hud, "Next symbols").onClick.Invoke();
                 yield return null;
+                Check(!hud.IsAlbumOpening && hud.GetComponentInChildren<AlbumBookOpening>() != null,
+                    "Changing the symbol page retains an idle animation controller without replaying the opening", report);
                 var second = WordIds(hud);
                 Check(second.Count == 2 && !first.Overlaps(second) && new HashSet<string>(first.Concat(second)).SetEquals(session.Catalog.glyphs.Select(g => g.id)),
                     "Second page contains the remaining two glyphs; both pages cover the catalog exactly once", report);
@@ -190,9 +282,35 @@ namespace WeatherHousePrototype.Editor
                 yield return new WaitForEndOfFrame();
                 SaveScreen("live-symbols-2.png");
 
+                var pagedOpening = Find<AlbumBookOpening>(hud, "Notebook");
+                hud.ToggleJournal();
+                Check(hud.JournalOpen && pagedOpening.IsClosing && hud.BlocksMovement,
+                    "J closes a rebuilt symbol page through its own reverse timeline", report);
+                deadline = Time.realtimeSinceStartup + AlbumBookOpening.Duration + .5f;
+                while (hud.JournalOpen && Time.realtimeSinceStartup < deadline) yield return null;
+                Check(!hud.JournalOpen && !hud.BlocksMovement, "Closing after paging completes and releases movement", report);
+                hud.ToggleJournal();
+                Find<AlbumBookOpening>(hud, "Notebook").FinishImmediately();
+                Check(Get<int>(hud, "glyphPage") == 1 && WordIds(hud).SetEquals(second),
+                    "Closing and reopening preserves the selected symbol page", report);
+
+                AlbumMagicRevealSettingsEditor.Replay();
+                yield return null;
+                Check(hud.JournalOpen && hud.IsAlbumOpening && Get<int>(hud,"glyphPage") == 1,
+                    "Inspector replay reopens the book after paging and preserves its selected page", report);
+                Find<AlbumBookOpening>(hud,"Notebook").FinishImmediately();
+                AlbumMagicRevealSettingsEditor.Replay();
+                yield return null;
+                Check(hud.IsAlbumOpening && hud.GetComponentsInChildren<Transform>().Count(t => t.name == "Opening magic aura") ==
+                    (AlbumMagicRevealSettings.Load().enableNoiseDissolve ? 1 : 0) &&
+                    hud.GetComponentsInChildren<Transform>().Count(t => t.name == "Opening magic stars") == 1,
+                    "Repeated Inspector replay keeps one star layer and only the selected mode's aura", report);
+                Find<AlbumBookOpening>(hud,"Notebook").FinishImmediately();
+
                 int symbolPage = Get<int>(hud, "glyphPage"), photoPage = Get<int>(hud, "page");
                 Find<Button>(hud, "Photos tab").onClick.Invoke();
                 yield return null;
+                Check(!hud.IsAlbumOpening, "Changing tabs does not replay the opening animation", report);
                 CheckTabs(hud, true, report);
                 Check(Get<int>(hud, "page") == photoPage && Get<int>(hud, "glyphPage") == symbolPage,
                     "Switching tabs preserves independent photo and symbol page indices", report);
@@ -287,11 +405,13 @@ namespace WeatherHousePrototype.Editor
                     if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
                     hud.SetCameraMode(camera);
                     Rebuild(hud);
+                    typeof(GameplayHud).GetMethod("PositionAnimalBubble", Fields).Invoke(hud, null);
                     // Rebuild resets playback; restore its in-memory cursor/state after recreating the original view.
                     for (int i = 0; i < names.Length; i++) Set(hud, names[i], values[i]);
                 }
                 finally
                 {
+                    Time.timeScale = originalTimeScale;
                     hud.enabled = hudEnabled;
                     Set(session, "nextObservation", nextObservation);
                     session.walker.enabled = walkerEnabled;
@@ -301,6 +421,385 @@ namespace WeatherHousePrototype.Editor
                 }
                 report.Add("RESTORED: original notebook object, sample setting, HUD open state, drafts, pages, playback cursor and player input. No review view was left open.");
             }
+        }
+
+        private static IEnumerable<object> CheckClosing(GameplayHud hud, List<string> report, bool capture)
+        {
+            var opening = Find<AlbumBookOpening>(hud, "Notebook");
+            var root = (RectTransform)opening.transform;
+            var settings = AlbumMagicRevealSettings.Load();
+            AdditionalCanvasShaderChannels originalChannels = Get<Canvas>(hud, "canvas").additionalShaderChannels;
+            opening.Sample(AlbumBookOpening.Duration * .7f);
+            Canvas.ForceUpdateCanvases();
+            float forwardTime = Get<float>(opening, "elapsed");
+            Vector2 forwardPosition = root.anchoredPosition;
+            hud.ToggleJournal();
+            Check(hud.JournalOpen && hud.BlocksMovement && opening.IsClosing && opening.IsPlaying &&
+                !root.GetComponent<CanvasGroup>().blocksRaycasts && Get<float>(opening, "elapsed") == forwardTime &&
+                Vector2.Distance(root.anchoredPosition, forwardPosition) < .02f,
+                "J reverses an opening book from its current pose while keeping movement and book clicks blocked", report);
+            yield return null;
+            Check(opening != null && opening.IsClosing && Get<float>(opening, "elapsed") < forwardTime &&
+                Get<float>(opening, "elapsed") > 0f,
+                "The actual Update loop moves backward through the existing playback timeline", report);
+            Canvas.ForceUpdateCanvases();
+            float reverseTime = Get<float>(opening, "elapsed");
+            Vector2 reversePosition = root.anchoredPosition;
+            var reverseAlpha = root.GetComponentsInChildren<CanvasGroup>().ToDictionary(g => g, g => g.alpha);
+            var reverseGeometry = root.GetComponentsInChildren<Graphic>().Where(g => g.name.StartsWith("Opening "))
+                .ToDictionary(g => g, g => g.name == "Opening magic stars"
+                    ? VisibleParticleVertices(g.canvasRenderer.GetMesh()) : g.canvasRenderer.GetMesh().vertices);
+            Check(reverseGeometry.Any(pair => pair.Key.name == "Opening magic stars" && pair.Value.Length > 0),
+                "The reverse-pose comparison contains visible star geometry", report);
+            opening.Sample(reverseTime);
+            Canvas.ForceUpdateCanvases();
+            Check(Vector2.Distance(root.anchoredPosition, reversePosition) < .02f &&
+                reverseAlpha.All(pair => Mathf.Abs(pair.Key.alpha - pair.Value) < .001f) &&
+                reverseGeometry.Count > 0 && reverseGeometry.All(pair => SameVertices(pair.Value,
+                    pair.Key.name == "Opening magic stars" ? VisibleParticleVertices(pair.Key.canvasRenderer.GetMesh())
+                        : pair.Key.canvasRenderer.GetMesh().vertices)),
+                "Reverse playback matches forward sampling at the exact same time for position, content fade, paper and visible star geometry", report);
+            hud.ToggleJournal();
+            hud.ToggleJournal();
+            Check(Find<AlbumBookOpening>(hud, "Notebook") == opening && !opening.IsClosing && opening.IsPlaying &&
+                Get<float>(opening, "elapsed") == reverseTime && Vector2.Distance(root.anchoredPosition, reversePosition) < .02f &&
+                (((Get<Canvas>(hud, "canvas").additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) != 0) == settings.enableNoiseDissolve),
+                "J during closing resumes the same book and cursor without a position jump or stale noise channels", report);
+            float deadline = Time.realtimeSinceStartup + AlbumBookOpening.Duration + .5f;
+            while (hud.IsAlbumOpening && Time.realtimeSinceStartup < deadline) yield return null;
+            Check(hud.JournalOpen && !hud.IsAlbumOpening && root.GetComponent<CanvasGroup>().blocksRaycasts,
+                "Resumed opening finishes normally without a stale close callback", report);
+
+            hud.ToggleJournal();
+            Check(hud.JournalOpen && opening.IsClosing && Get<float>(opening, "elapsed") == AlbumBookOpening.Duration,
+                "J starts a complete reverse playback from the fully open endpoint", report);
+            float closingStarted = Time.realtimeSinceStartup;
+            deadline = closingStarted + AlbumBookOpening.Duration + .5f;
+            float previousTime = Get<float>(opening, "elapsed");
+            int frame = 0;
+            var timing = new List<string> { "frame,wall_seconds,playback_seconds,source_seconds,journal_open" };
+            if (capture) Directory.CreateDirectory(Output + "/ClosingFrames");
+            while (hud.JournalOpen && Time.realtimeSinceStartup < deadline)
+            {
+                yield return capture ? (object)new WaitForEndOfFrame() : null;
+                float playback = opening != null && opening.IsClosing ? Get<float>(opening, "elapsed") : 0f;
+                Require(playback <= previousTime, "Reverse playback must never increase its playback cursor.");
+                previousTime = playback;
+                if (!capture) continue;
+                Texture2D captured = ScreenCapture.CaptureScreenshotAsTexture();
+                try { File.WriteAllBytes(Output + "/ClosingFrames/frame-" + frame.ToString("D3") + ".jpg", captured.EncodeToJPG(92)); }
+                finally { Object.Destroy(captured); }
+                timing.Add(FormattableString.Invariant($"{frame},{Time.realtimeSinceStartup - closingStarted:R},{playback:R},{settings.MapPlaybackTime(playback):R},{hud.JournalOpen}"));
+                frame++;
+            }
+            Check(!hud.JournalOpen && !hud.IsAlbumOpening && !hud.BlocksMovement &&
+                !hud.GetComponentsInChildren<Transform>().Any(t => t.name == "Notebook" || t.name == "Opening magic aura" ||
+                    t.name == "Opening magic stars" || t.name == "Opening visual") &&
+                Get<Canvas>(hud, "canvas").additionalShaderChannels == originalChannels,
+                "Complete reverse playback removes the book and temporary layers, restores Canvas channels and releases movement", report);
+            if (capture)
+            {
+                File.WriteAllLines(Output + "/ClosingFrames/timing.csv", timing);
+                File.WriteAllText(Output + "/ClosingFrames/capture.txt",
+                    "Actual Unity Canvas frames from automatic reverse Update, with no manual Sample calls.\n" +
+                    "Variable frame cadence: use timing.csv rather than assuming 30 fps. Frames 0.." + (frame - 1) + ".\n");
+                report.Add("PASS: recorded " + frame + " actual reverse-playback frames with decreasing playback cursor and mapped source timing");
+            }
+            hud.ToggleJournal();
+            opening = Find<AlbumBookOpening>(hud, "Notebook");
+            opening.Sample(AlbumBookOpening.Duration * .5f);
+            typeof(GameplayHud).GetMethod("CloseTop", Fields).Invoke(hud, null);
+            Check(hud.JournalOpen && opening.IsClosing && hud.BlocksMovement,
+                "Escape's CloseTop also reverses a partially opened book without removing it early", report);
+            deadline = Time.realtimeSinceStartup + AlbumBookOpening.Duration + .5f;
+            while (hud.JournalOpen && Time.realtimeSinceStartup < deadline) yield return null;
+            Check(!hud.JournalOpen && !hud.BlocksMovement, "Escape finishes closing and releases movement", report);
+            hud.ToggleJournal();
+            Find<AlbumBookOpening>(hud, "Notebook").FinishImmediately();
+        }
+
+        private static void CheckOpeningModes(GameplayHud hud, AlbumBookOpening opening, List<string> report)
+        {
+            var settings = AlbumMagicRevealSettings.Load();
+            string initialSettings = EditorJsonUtility.ToJson(settings);
+            string settingsPath = AssetDatabase.GetAssetPath(settings);
+            byte[] settingsBytes = File.ReadAllBytes(settingsPath);
+            var openingRoot = (RectTransform)opening.transform;
+            Graphic[] originalGraphics = openingRoot.GetComponentsInChildren<Graphic>();
+            var originalMaterials = originalGraphics.ToDictionary(g => g, g => g.material);
+            string[] navigation = { "Symbols tab", "Photos tab", "Close album" };
+            CanvasGroup[] content = openingRoot.Cast<Transform>().Where(t => t.gameObject.activeInHierarchy &&
+                t.name != "Book artwork").Select(t => t.GetComponent<CanvasGroup>()).ToArray();
+            try
+            {
+                settings.playbackSpeed = 1f;
+                settings.playbackCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+                settings.enableNoiseDissolve = true;
+                Shader revealShader = Resources.Load<Shader>("AlbumBook/AlbumMagicReveal");
+                Check(revealShader != null && revealShader.isSupported && !ShaderUtil.ShaderHasError(revealShader),
+                    "The dissolve shader compiles and is supported by the current graphics device" +
+                    (revealShader == null ? " (missing)" : string.Join("", ShaderUtil.GetShaderMessages(revealShader)
+                        .Select(m => "\n" + m.message + " at " + m.file + ":" + m.line))), report);
+                opening.Sample(.20f);
+                Canvas.ForceUpdateCanvases();
+                var pageStack = openingRoot.Find("Opening visual/Opening page stack").GetComponent<Graphic>();
+                Check(pageStack.canvasRenderer.GetMesh().vertexCount > 0,
+                    "The closed-book stage retains visible page-stack thickness", report);
+                var loosePage = openingRoot.Find("Opening visual/Opening loose left leaf").GetComponent<Graphic>();
+                Mesh pageMesh = loosePage.canvasRenderer.GetMesh();
+                pageMesh.RecalculateBounds();
+                float carriedCenter = pageMesh.bounds.center.x;
+                Check(pageMesh.bounds.min.x >= 0f,
+                    "The carried paper remains inside the closed cover hinge without a left-side leak", report);
+                opening.Sample(.40f);
+                Canvas.ForceUpdateCanvases();
+                Check(pageStack.canvasRenderer.GetMesh().vertexCount == 0,
+                    "The temporary page stack has no geometry after the cover passes 90 degrees", report);
+                pageMesh = loosePage.canvasRenderer.GetMesh();
+                Vector3[] leafVertices = pageMesh.vertices;
+                Vector2[] leafUvs = pageMesh.uv;
+                float lowestUv = leafUvs.Min(uv => uv.y);
+                float[] edgeX = leafVertices.Where((v, i) => Mathf.Abs(leafUvs[i].y - lowestUv) < .0001f)
+                    .Select(v => v.x).ToArray();
+                Check(edgeX.Length > 2 && edgeX.Zip(edgeX.Skip(1), (a, b) => b >= a - .001f).All(x => x),
+                    "The near-edge-on paper projection stays monotonic without overlapping triangle bands", report);
+                opening.Sample(.60f);
+                Canvas.ForceUpdateCanvases();
+                pageMesh = loosePage.canvasRenderer.GetMesh();
+                pageMesh.RecalculateBounds();
+                Check(carriedCenter > 0f && pageMesh.bounds.center.x < -100f,
+                    "The independent inner sheet starts on the right and lands toward the left", report);
+                opening.Sample(settings.revealStart + settings.revealDuration * .5f);
+                var revealingPhoto = Find<RawImage>(hud, "Sample photo 1");
+                Check(revealingPhoto.material.shader == revealShader &&
+                    revealingPhoto.material.GetFloat("_Reveal") > 0f && revealingPhoto.material.GetFloat("_Reveal") < 1f &&
+                    Find<Transform>(hud, "Opening magic stars") != null,
+                    "Photo content uses the active dissolve material with a separate sparkle overlay", report);
+                var secondPhoto = Find<RawImage>(hud, "Sample photo 2");
+                Check(revealingPhoto.material != secondPhoto.material &&
+                    revealingPhoto.material == Find<RawImage>(hud, "Photo frame 1").material,
+                    "Each photo and its frame share the same reveal material and bounds", report);
+                var revealingWords = openingRoot.GetComponentsInChildren<AlbumPaperCircleGraphic>();
+                Check(revealingWords.Select(g => g.material).Distinct().Count() == 22 &&
+                    revealingWords.All(g => g.GetComponentInChildren<AnimalGlyphGraphic>().material == g.material),
+                    "All 22 symbol circles share their material with their own glyph", report);
+                Transform aura = Find<Transform>(hud, "Opening magic aura");
+                Check(aura != null && aura.gameObject.activeInHierarchy,
+                    "Magic reveal has an exterior light layer separate from the source image", report);
+                Graphic[] lights = aura.GetComponentsInChildren<Graphic>();
+                Check(lights.Length == 29, "Each of the four photos, 22 symbols and three navigation elements owns an exterior aura", report);
+                var sharedNoise = Resources.Load<Texture2D>("AlbumBook/RevealNoise");
+                Check(sharedNoise != null && sharedNoise.isReadable && sharedNoise.wrapMode == TextureWrapMode.Repeat,
+                    "The shared noise texture supports matching GPU and CPU repeat sampling", report);
+                Material[] revealMaterials = openingRoot.GetComponentsInChildren<Graphic>()
+                    .Where(g => g.material.shader == revealShader || g.material.shader.name == "Weather House/UI/Album Magic Aura")
+                    .Select(g => g.material).Distinct().ToArray();
+                Check(revealMaterials.All(m => m.GetTexture("_NoiseTex") == sharedNoise &&
+                    m.GetFloat("_NoiseSize") == revealingPhoto.material.GetFloat("_NoiseSize") &&
+                    m.GetVector("_NoiseOffset") == revealingPhoto.material.GetVector("_NoiseOffset") &&
+                    m.GetFloat("_Reveal") == revealingPhoto.material.GetFloat("_Reveal")),
+                    "All photos, symbols, navigation and exterior auras use one noise texture, coordinate scale, offset and progress", report);
+                Check(AssetDatabase.Contains(settings), "Inspector settings are a persistent project asset", report);
+                string savedSettings = EditorJsonUtility.ToJson(settings);
+                try
+                {
+                    settings.noiseSize = 173f;
+                    settings.noiseOffset = new Vector2(.31f, .72f);
+                    settings.edgeWidth = .09f;
+                    settings.softness = .04f;
+                    settings.glowIntensity = 1.7f;
+                    settings.glowSpread = 32f;
+                    settings.gold = new Color(.7f,.9f,.3f);
+                    settings.revealStart = .66f;
+                    settings.revealDuration = 1.3f;
+                    opening.Sample(1.31f);
+                    Check(opening.IsPlaying && Mathf.Abs(AlbumBookOpening.Duration - 2.03f) < .001f &&
+                        revealMaterials.All(m => Mathf.Abs(m.GetFloat("_Reveal")-.5f) < .001f &&
+                            m.GetFloat("_NoiseSize") == 173f && m.GetFloat("_EdgeWidth") == .09f &&
+                            m.GetFloat("_Softness") == .04f && m.GetFloat("_GlowIntensity") == 1.7f &&
+                            m.GetFloat("_GlowSpread") == 32f &&
+                            Vector4.Distance(m.GetColor("_GoldColor"),settings.gold) < .001f &&
+                            Vector4.Distance(m.GetVector("_NoiseOffset"),new Vector4(.31f,.72f,0,0)) < .001f),
+                        "Live Inspector changes reach every material and longer reveal duration completes after the unchanged book motion", report);
+                }
+                finally
+                {
+                    EditorJsonUtility.FromJsonOverwrite(savedSettings, settings);
+                    opening.Sample(settings.revealStart + settings.revealDuration * .5f);
+                }
+                Canvas.ForceUpdateCanvases();
+                foreach (Graphic item in openingRoot.GetComponentsInChildren<Graphic>().Where(g =>
+                    g is AlbumPaperCircleGraphic || g.name.StartsWith("Sample photo ") || navigation.Contains(g.name)))
+                {
+                    Mesh sourceMesh = item.canvasRenderer.GetMesh();
+                    Vector3[] positions = sourceMesh.vertices;
+                    Vector2[] bookCoordinates = sourceMesh.uv2;
+                    Require(bookCoordinates.Length == positions.Length && positions.Length > 0,
+                        "The reveal needs explicit book coordinates on every content vertex: " + item.name);
+                    for (int vertex = 0; vertex < positions.Length; vertex++)
+                    {
+                        Vector2 expected = openingRoot.InverseTransformPoint(item.transform.TransformPoint(positions[vertex]));
+                        Require(Vector2.Distance(expected,bookCoordinates[vertex]) < .1f,
+                            "Content coordinates must stay aligned during UI batching: " + item.name);
+                    }
+                }
+                report.Add("PASS: all photo, symbol and navigation meshes carry their actual book-local coordinates");
+                foreach (Graphic light in lights)
+                {
+                    Shader shader = light.material.shader;
+                    Check(shader.isSupported && !ShaderUtil.ShaderHasError(shader),
+                        "Exterior aura shader is supported: " + light.name, report);
+                    Mesh lightMesh = light.canvasRenderer.GetMesh();
+                    Vector4 sourceBounds = light.material.GetVector("_NoiseOrigin");
+                    Vector2 minimum = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+                    Vector2 maximum = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+                    foreach (Vector3 vertex in lightMesh.vertices)
+                    {
+                        Vector2 local = openingRoot.InverseTransformPoint(light.transform.TransformPoint(vertex));
+                        minimum = Vector2.Min(minimum, local);
+                        maximum = Vector2.Max(maximum, local);
+                    }
+                    Require(minimum.x < sourceBounds.x - 30f && minimum.y < sourceBounds.y - 30f &&
+                        maximum.x > sourceBounds.x + sourceBounds.z + 30f &&
+                        maximum.y > sourceBounds.y + sourceBounds.w + 30f,
+                        "Aura geometry must extend beyond the content on all four sides: " + light.name);
+                }
+                report.Add("PASS: all 29 aura meshes extend outside the content instead of clipping glow to source pixels");
+                Shader particlesShader = Find<Transform>(hud, "Opening magic stars").GetComponent<Graphic>().material.shader;
+                Check(particlesShader.name == "Weather House/UI/Album Magic Particles" &&
+                    particlesShader.isSupported && !ShaderUtil.ShaderHasError(particlesShader),
+                    "Escaping star dust uses its dedicated additive light shader", report);
+                opening.FinishImmediately();
+                Check(!openingRoot.GetComponentsInChildren<Graphic>().Any(g =>
+                        g.material != null && g.material.name == "Album opening reveal (runtime)"),
+                    "Finishing a sampled reveal also restores the original materials", report);
+                Check(!aura.gameObject.activeInHierarchy &&
+                    !openingRoot.GetComponentsInChildren<Graphic>().Any(g =>
+                        g.material != null && (g.material.shader.name == "Weather House/UI/Album Magic Aura" ||
+                        g.material.shader.name == "Weather House/UI/Album Magic Particles")),
+                    "The aura and additive star dust leave no active light layer after the reveal", report);
+
+                opening.Sample(settings.revealStart + settings.revealDuration * .5f);
+                settings.enableNoiseDissolve = false;
+                opening.Sample(settings.revealStart + settings.revealDuration * .5f);
+                Canvas.ForceUpdateCanvases();
+                Check(originalGraphics.All(g => g.material == originalMaterials[g]) &&
+                    !openingRoot.GetComponentsInChildren<Transform>().Any(t => t.name == "Opening magic aura") &&
+                    content.All(g => g != null && Mathf.Abs(g.alpha - .5f) < .001f),
+                    "Noise-off content uses its original material and a half-opacity SmoothStep fade without an aura", report);
+                Check(navigation.All(name => {
+                    Transform item = openingRoot.Find(name);
+                    Graphic graphic = item.GetComponent<Graphic>();
+                    var coordinates = item.GetComponent("AlbumRevealCoordinates") as Behaviour;
+                    return Mathf.Abs(item.GetComponent<CanvasGroup>().alpha - .5f) < .001f &&
+                        graphic.material == originalMaterials[graphic] &&
+                        (coordinates == null || !coordinates.isActiveAndEnabled);
+                }), "Both tabs and the close button share the half-opacity fade with original materials and no active noise coordinates", report);
+                var stars = Find<Graphic>(hud, "Opening magic stars");
+                object[] sparkleGroups = Get<IList>(stars, "groups").Cast<object>().Where(g => Get<bool>(g, "sparkles")).ToArray();
+                Check(sparkleGroups.Length == 29 && navigation.All(name => sparkleGroups.Any(g =>
+                        Get<bool>(g, "navigation") && Mathf.Abs(Get<float>(g, "progress") - .5f) < .001f &&
+                        Get<IList>(g, "graphics").Cast<Graphic>().Any(graphic => graphic.name == name))),
+                    "The live star overlay includes all 29 content groups, including both tabs and the close button", report);
+                Check(stars.canvasRenderer.GetMesh().vertexCount > 0 && stars.transform.parent == openingRoot &&
+                    stars.GetComponentsInParent<CanvasGroup>().All(g => Mathf.Abs(g.alpha - 1f) < .001f),
+                    "Star dust has visible geometry under the book root and is not multiplied by content fade", report);
+
+                // Put the fade and stars inside the moving-page interval for a meaningful time-mapping check.
+                settings.revealStart = .15f;
+                settings.revealDuration = .5f;
+                float sourceDuration = settings.TotalDuration;
+                float sourceTime = sourceDuration * .25f;
+                opening.Sample(sourceTime);
+                Canvas.ForceUpdateCanvases();
+                Vector2 position = openingRoot.anchoredPosition;
+                var leaf = Find<Graphic>(hud, "Opening loose left leaf");
+                Vector3[] leafPose = leaf.canvasRenderer.GetMesh().vertices;
+                Mesh starMesh = stars.canvasRenderer.GetMesh();
+                int rawStarVertexCount = starMesh.vertexCount;
+                Vector3[] starPose = VisibleParticleVertices(starMesh);
+                float linearMappedTime = settings.MapPlaybackTime(sourceTime);
+                float linearStarTime = Get<float>(stars, "seconds");
+                float alpha = content[0].alpha;
+                Require(starPose.Length > 0, "The time-mapping comparison needs live star geometry.");
+                settings.playbackSpeed = 2f;
+                settings.playbackCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 0f), new Keyframe(1f, 1f, 2f, 2f));
+                float playbackTime = settings.PlaybackDuration * .5f;
+                opening.Sample(playbackTime);
+                Canvas.ForceUpdateCanvases();
+                Vector3[] curvedLeafPose = leaf.canvasRenderer.GetMesh().vertices;
+                Mesh curvedStarMesh = stars.canvasRenderer.GetMesh();
+                Vector3[] curvedStarPose = VisibleParticleVertices(curvedStarMesh);
+                report.Add($"DIAGNOSTIC: curve duration actual={AlbumBookOpening.Duration:R}, expected={sourceDuration * .5f:R}; " +
+                    $"playback={playbackTime:R}, mapped linear={linearMappedTime:R}, curved={settings.MapPlaybackTime(playbackTime):R}, target={sourceTime:R}; " +
+                    $"star time linear={linearStarTime:R}, curved={Get<float>(stars, "seconds"):R}");
+                report.Add($"DIAGNOSTIC: root position linear=({position.x:R},{position.y:R}), " +
+                    $"curved=({openingRoot.anchoredPosition.x:R},{openingRoot.anchoredPosition.y:R}), " +
+                    $"distance={Vector2.Distance(position, openingRoot.anchoredPosition):R}; " +
+                    $"content alpha linear={alpha:R}, curved={content[0].alpha:R}, difference={Mathf.Abs(content[0].alpha - alpha):R}");
+                report.Add("DIAGNOSTIC: leaf " + VertexDifference(leafPose, curvedLeafPose) + "; visible stars " + VertexDifference(starPose, curvedStarPose) +
+                    $"; raw star vertices={rawStarVertexCount}/{curvedStarMesh.vertexCount}");
+                Check(Mathf.Abs(AlbumBookOpening.Duration - sourceDuration * .5f) < .001f &&
+                    Mathf.Abs(settings.MapPlaybackTime(playbackTime) - sourceTime) < .001f &&
+                    Vector2.Distance(position, openingRoot.anchoredPosition) < .02f &&
+                    SameVertices(leafPose, curvedLeafPose) &&
+                    SameVertices(starPose, curvedStarPose) &&
+                    Mathf.Abs(content[0].alpha - alpha) < .001f,
+                    "One global curve and 2x speed preserve the same book, loose-page, fade and star pose at equal source time", report);
+                opening.Sample(settings.PlaybackDuration * .5f);
+                Canvas.ForceUpdateCanvases();
+                Vector3[] curvedHalf = leaf.canvasRenderer.GetMesh().vertices;
+                settings.playbackCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+                opening.Sample(settings.PlaybackDuration * .5f);
+                Canvas.ForceUpdateCanvases();
+                Check(!SameVertices(curvedHalf, leaf.canvasRenderer.GetMesh().vertices),
+                    "A nonlinear global curve changes the actual rendered page pose at half playback time", report);
+                opening.Sample(AlbumBookOpening.Duration);
+                Check(!opening.IsPlaying && openingRoot.anchoredPosition.sqrMagnitude < .001f &&
+                    content.All(g => Mathf.Abs(g.alpha - 1f) < .001f) &&
+                    originalGraphics.All(g => g.material == originalMaterials[g]) &&
+                    !openingRoot.GetComponentsInChildren<Transform>().Any(t => t.name == "Opening magic stars" || t.name == "Opening magic aura"),
+                    "The global-curve endpoint restores full content, original materials and removes temporary light layers", report);
+            }
+            finally
+            {
+                EditorJsonUtility.FromJsonOverwrite(initialSettings, settings);
+                opening.FinishImmediately();
+            }
+            Check(EditorJsonUtility.ToJson(settings) == initialSettings && File.ReadAllBytes(settingsPath).SequenceEqual(settingsBytes),
+                "Synchronous mode and curve checks preserve all user Inspector values and the settings asset bytes", report);
+        }
+
+        private static bool SameVertices(Vector3[] first, Vector3[] second)
+        {
+            return first.Length == second.Length && first.Zip(second, (a, b) => Vector3.Distance(a, b)).All(d => d < .02f);
+        }
+
+        private static Vector3[] VisibleParticleVertices(Mesh mesh)
+        {
+            Vector3[] vertices = mesh.vertices;
+            Color32[] colors = mesh.colors32;
+            const int verticesPerParticle = 18; // Eight-point halo and core, each with a center vertex.
+            Require(vertices.Length % verticesPerParticle == 0 && colors.Length == vertices.Length,
+                "Star geometry must contain complete particles with vertex colors.");
+            var visible = new List<Vector3>();
+            for (int start = 0; start < vertices.Length; start += verticesPerParticle)
+            {
+                // Near birth/death, float rounding can emit an extra particle whose actual GPU alpha is entirely zero.
+                bool hasVisibleVertex = false;
+                for (int i = 0; i < verticesPerParticle; i++) hasVisibleVertex |= colors[start + i].a != 0;
+                if (hasVisibleVertex)
+                    for (int i = 0; i < verticesPerParticle; i++) visible.Add(vertices[start + i]);
+            }
+            return visible.ToArray();
+        }
+
+        private static string VertexDifference(Vector3[] first, Vector3[] second)
+        {
+            float[] distances = first.Zip(second, (a, b) => Vector3.Distance(a, b)).ToArray();
+            int mismatch = Array.FindIndex(distances, d => d >= .02f);
+            return $"counts={first.Length}/{second.Length}, maxDistance={distances.DefaultIfEmpty(0f).Max():R}, " +
+                $"firstMismatch={mismatch}, same={SameVertices(first, second)}";
         }
 
         public static void CaptureReference()

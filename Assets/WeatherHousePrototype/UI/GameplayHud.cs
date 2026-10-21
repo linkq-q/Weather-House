@@ -36,6 +36,7 @@ namespace WeatherHousePrototype
 
         public bool CameraMode { get; private set; }
         public bool JournalOpen { get; private set; }
+        public bool IsAlbumOpening => albumOpening != null && albumOpening.IsPlaying;
         public bool BlocksMovement => JournalOpen || dialogueOpen || InputFocused();
 
         private GameplaySession session;
@@ -46,6 +47,7 @@ namespace WeatherHousePrototype
         private InputField replyInput, guessInput;
         private Font font, albumCountFont;
         private RectTransform albumRoot;
+        private AlbumBookOpening albumOpening;
         private AnimalActor bubbleAnimal;
         private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "", replyDraft = "", lastReply;
         private int page, currentFrame;
@@ -184,7 +186,7 @@ namespace WeatherHousePrototype
         private void Update()
         {
             if (session == null || canvas == null) return;
-            if (inspectorDirty) RebuildInspectorPreview();
+            if (inspectorDirty && !IsAlbumOpening) RebuildInspectorPreview();
             statusLabel.text = session.Status ?? "";
             if (captureLabel != null)
                 captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
@@ -192,7 +194,7 @@ namespace WeatherHousePrototype
                     : session.PhotoRig.FocalLength.ToString("F0") + " mm  ·  " + session.PhotoRig.FocusLabel + "\n滚轮变焦 · 点击对焦 · 空格拍照 · ESC 返回";
             if (focusMark != null) focusMark.gameObject.SetActive(Time.unscaledTime < focusMarkUntil);
             if (Input.GetKeyDown(KeyCode.Escape)) { CloseTop(); return; }
-            if (dirty && !InputFocused())
+            if (dirty && !InputFocused() && !IsAlbumOpening)
             {
                 dirty = false;
                 if (JournalOpen && expandedPhoto == null) RebuildModal();
@@ -202,6 +204,7 @@ namespace WeatherHousePrototype
             if (echoRoot != null) echoRoot.gameObject.SetActive(!JournalOpen && !dialogueOpen && Time.unscaledTime < echoUntil);
             if (InputFocused()) return;
             if (Input.GetKeyDown(KeyCode.J)) { ToggleJournal(); return; }
+            if (IsAlbumOpening) return;
             if (JournalOpen && expandedPhoto == null && !glyphDetailOpen)
             {
                 if (Input.GetKeyDown(KeyCode.RightArrow)) { TurnGlyphPage(1); return; }
@@ -243,13 +246,43 @@ namespace WeatherHousePrototype
 
         public void ToggleJournal()
         {
-            JournalOpen = !JournalOpen;
+            if (JournalOpen)
+            {
+                if (albumOpening != null && albumOpening.IsClosing) albumOpening.Resume();
+                else CloseJournal();
+                return;
+            }
+            JournalOpen = true;
             dialogueOpen = false;
             expandedPhoto = null;
             glyphDetailOpen = false;
             SetCameraMode(false);
             ClearFocus();
             RebuildModal();
+            dirty = false;
+            if (albumOpening != null) albumOpening.Play();
+        }
+
+        private void CloseJournal()
+        {
+            if (albumOpening != null && albumOpening.IsClosing) return;
+            ClearFocus();
+            // Details replace or cover the book; return to its current page before folding it away.
+            if (expandedPhoto != null || glyphDetailOpen)
+            {
+                expandedPhoto = null;
+                glyphDetailOpen = false;
+                RebuildModal();
+            }
+            if (albumOpening != null) albumOpening.PlayReverse(CompleteJournalClose);
+            else CompleteJournalClose();
+        }
+
+        private void CompleteJournalClose()
+        {
+            JournalOpen = false;
+            RebuildModal();
+            dirty = false;
         }
 
         public void SetCameraMode(bool value)
@@ -277,7 +310,7 @@ namespace WeatherHousePrototype
             ClearFocus();
             if (expandedPhoto != null) { expandedPhoto = null; RebuildModal(); return; }
             if (glyphDetailOpen) { glyphDetailOpen = false; RebuildModal(); return; }
-            if (JournalOpen) JournalOpen = false;
+            if (JournalOpen) { CloseJournal(); return; }
             else if (dialogueOpen) dialogueOpen = false;
             else if (CameraMode) { SetCameraMode(false); return; }
             RebuildModal();
@@ -294,6 +327,7 @@ namespace WeatherHousePrototype
             replyInput = null;
             guessInput = null;
             albumRoot = null;
+            albumOpening = null;
             if (modalRoot != null) { modalRoot.gameObject.SetActive(false); Destroy(modalRoot.gameObject); modalRoot = null; }
             if (!JournalOpen && !dialogueOpen) return;
             modalRoot = Panel(canvasRect, "Modal backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .48f));
@@ -378,10 +412,12 @@ namespace WeatherHousePrototype
                 Array.FindAll(session.Catalog.glyphs, glyph => session.Notebook.GetWord(glyph.id)?.encountered == true).Length;
             AlbumBookView.Count(albumRoot, collected, session.Catalog.glyphs.Length, albumCountFont);
             FitAlbum();
+            albumOpening = albumRoot.gameObject.AddComponent<AlbumBookOpening>();
         }
 
         private void TurnGlyphPage(int direction)
         {
+            if (IsAlbumOpening) return;
             int pages = Mathf.Max(1, Mathf.CeilToInt(session.Catalog.glyphs.Length / 22f));
             glyphPage = (glyphPage + direction + pages) % pages;
             ClearFocus();

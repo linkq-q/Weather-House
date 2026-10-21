@@ -56,6 +56,8 @@ namespace WeatherHousePrototype.Editor
                 else if (command == "album-prepare") AlbumBookChecks.Prepare();
                 else if (command == "album-review") AlbumBookChecks.CaptureReference();
                 else if (command == "album-check") AlbumBookChecks.Run();
+                else if (command == "album-animation-review") AlbumBookChecks.Run(true);
+                else if (command == "album-reveal-settings") AlbumMagicRevealSettingsEditor.SelectSettings();
                 else if (command == "ui-inventory") UiInventoryCapture.Run();
                 else if (command == "album-state")
                     File.WriteAllText("PrototypeReview/AlbumBook/editor-state.txt", "Scene=" + SceneManager.GetActiveScene().path +
