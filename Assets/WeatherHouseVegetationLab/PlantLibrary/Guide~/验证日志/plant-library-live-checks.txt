@@ -1,0 +1,16 @@
+Plant library checks use the real GrassMeadow.Update in Play mode.
+START all 19 slots generate: stage=all 19 slots generate; frame=884; framesAdvanced=883; editorTicks=884; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=0/1; updating=True; progress=1.000; counts=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0; liveError=
+PASS all 19 slots generate: 30 frames, 0.185 s
+START last-slot-only distribution: stage=last-slot-only distribution; frame=914; framesAdvanced=913; editorTicks=914; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=1/1; updating=False; progress=1.000; counts=20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20; liveError=
+PASS last-slot-only distribution: 9 frames, 0.034 s
+START continuous last-slot height edits: stage=continuous last-slot height edits; frame=929; framesAdvanced=928; editorTicks=929; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=6/8; updating=True; progress=1.000; counts=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,257; liveError=
+PASS continuous last-slot height edits: 5 frames, 0.023 s
+START all new geometry fields tracked: stage=all new geometry fields tracked; frame=946; framesAdvanced=945; editorTicks=946; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=14/14; updating=False; progress=1.000; counts=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,257; liveError=
+PASS all new geometry fields tracked: 4 frames, 0.013 s
+START restoring valid slot configuration: stage=restoring valid slot configuration; frame=954; framesAdvanced=953; editorTicks=954; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=14/14; updating=False; progress=1.000; counts=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,257; liveError=Species、Materials、Weights 需要相同的 1–32 个槽位；请退出 Play 后配置种类数量。
+PASS restoring valid slot configuration: 4 frames, 0.014 s
+START clear every library species: stage=clear every library species; frame=958; framesAdvanced=957; editorTicks=958; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=15/15; updating=False; progress=1.000; counts=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,257; liveError=
+PASS clear every library species: 4 frames, 0.014 s
+START restore slot 19 after clearing: stage=restore slot 19 after clearing; frame=962; framesAdvanced=961; editorTicks=962; playing=True; paused=False; focused=True; runInBackground=True; timeScale=1; waitFrames=0; enabled=True; revisions=16/16; updating=False; progress=1.000; counts=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0; liveError=
+PASS restore slot 19 after clearing: 4 frames, 0.018 s
+PASS 19 species; complete presets; last-slot weights and shape; new geometry fields; clear/repopulate; runtime configuration guard; resource cleanup

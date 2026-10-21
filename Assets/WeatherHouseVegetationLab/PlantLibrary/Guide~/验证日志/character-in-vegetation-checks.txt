@@ -1,0 +1,16 @@
+PASS
+Evidence: real Play frames, ForestSpriteDemoController.SetScriptedInput, actual displacement and body-bone poses.
+This is automated entrypoint coverage, not manual keyboard/mouse testing.
+Persistent resources: original AnimatorController and 1 body mesh reference(s) retained; runtime cloth meshes excluded.
+main start: grounded=True capsuleGroundError=0.0150m world=(-8.000, 3.019, -10.000)
+Idle: frames=65 distance=0.0000m boneAngle=6.6863 bonePosition=0.000079 footSpan=0.0000m
+Walk: frames=67 distance=0.9812m boneAngle=88.2016 bonePosition=0.000102 footSpan=0.3156m
+Run: frames=67 distance=1.6970m boneAngle=119.8048 bonePosition=0.000250 footSpan=0.3857m
+jump landing: grounded=True capsuleGroundError=0.0146m world=(-6.090, 3.025, -7.273)
+Jump: rise=0.3821m frames=29 boneAngle=56.1812 landed=True
+Main: grounded=True capsuleGroundError=0.0150m world=(-8.000, 3.019, -10.000)
+LowMeadow: grounded=True capsuleGroundError=0.0150m world=(-50.000, 2.623, -44.000)
+TallFlowers: grounded=True capsuleGroundError=0.0150m world=(50.000, 3.007, -44.000)
+FernEdge: grounded=True capsuleGroundError=0.0150m world=(-50.000, 3.007, 44.000)
+Wetland: grounded=True capsuleGroundError=0.0150m world=(50.000, 2.623, 44.000)
+Modes: character -> browse -> character; one active scene Camera and AudioListener in each mode; character input disabled while browsing.

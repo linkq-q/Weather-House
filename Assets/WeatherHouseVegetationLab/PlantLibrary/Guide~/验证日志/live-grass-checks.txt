@@ -1,0 +1,10 @@
+Grass live checks use the real GrassMeadow.Update in Play mode.
+PASS initial 4096 clumps: 14 frames, 0.077 s
+PASS cancel partial shape edit by returning to original value: 14 frames, 0.063 s
+PASS continuous tall-grass dragging: 6 frames, 0.024 s
+PASS continuous white-flower proportion dragging: visible population updates before release at 28000 requested clumps
+PASS continuous density, weights, seed and shape edits: latest wins: 60 frames, 0.235 s
+PASS latest geometry matches synchronous production rebuild vertex-for-vertex
+PASS all weights zero clears all grass: 4 frames, 0.018 s
+PASS repopulate only tall grass: 4 frames, 0.013 s
+PASS cancellation; latest parameters; species isolation; exact proportions; clear/repopulate; mesh/root/clone cleanup
