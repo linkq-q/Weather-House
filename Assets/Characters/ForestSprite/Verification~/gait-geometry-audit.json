@@ -1,0 +1,694 @@
+{
+  "method": "Read-only Blender pose samples and independent Unity serialized clip reconstruction. No Unity was started; no model, settings or implementation edited. Metres use current 1.65m character fit.",
+  "source_sha256": "19c596c04e00e14ce5374187eb1db3818eec0b2e4ce814768cc0801352c3620e",
+  "fbx_sha256": "cba964d3a401e3e249c11bce834b5a74e4a90311e68f7196f933599027fad43e",
+  "source_fitted_height": 2.504963920448951,
+  "metres_per_blender_unit": 0.6586921218826495,
+  "source_floor": -4.5632056355771056e-08,
+  "legs": {
+    "L": {
+      "upper_length_m": 0.13895126317685985,
+      "lower_length_m": 0.13255922459149272,
+      "total_length_m": 0.27151048776835257,
+      "rest_hip_height_m": 0.3688676198822041,
+      "rest_ankle_height_m": 0.09880385226598444
+    },
+    "R": {
+      "upper_length_m": 0.13895126317685985,
+      "lower_length_m": 0.13255922459149272,
+      "total_length_m": 0.27151048776835257,
+      "rest_hip_height_m": 0.3688676198822041,
+      "rest_ankle_height_m": 0.09880385226598444
+    }
+  },
+  "clips": {
+    "Idle": {
+      "duration_s": 2.0,
+      "sides": {
+        "L": {
+          "ankle_forward_travel_m": 9.313225746154785e-08,
+          "hip_height_m": [
+            0.3510829212832908,
+            0.357669890182064
+          ],
+          "ankle_height_m": [
+            0.09880356516127393,
+            0.0988041388559799
+          ],
+          "ankle_forward_center_m": 0.03622804023325443
+        },
+        "R": {
+          "ankle_forward_travel_m": 9.313225746154785e-08,
+          "hip_height_m": [
+            0.3510829212832908,
+            0.357669890182064
+          ],
+          "ankle_height_m": [
+            0.09880355771069334,
+            0.0988041239548187
+          ],
+          "ankle_forward_center_m": 0.03622804023325443
+        }
+      }
+    },
+    "Walk": {
+      "duration_s": 1.0,
+      "sides": {
+        "L": {
+          "ankle_forward_travel_m": 0.1317384336143732,
+          "hip_height_m": [
+            0.32877379681353375,
+            0.3365917804408531
+          ],
+          "ankle_height_m": [
+            0.09877572979216383,
+            0.1349730941224556
+          ],
+          "ankle_forward_center_m": 0.03622802626341581
+        },
+        "R": {
+          "ankle_forward_travel_m": 0.13320454768836498,
+          "hip_height_m": [
+            0.32877379681353375,
+            0.3365917804408531
+          ],
+          "ankle_height_m": [
+            0.09843287642483518,
+            0.1349730941224556
+          ],
+          "ankle_forward_center_m": 0.03549497667700052
+        }
+      }
+    },
+    "Run": {
+      "duration_s": 0.8,
+      "sides": {
+        "L": {
+          "ankle_forward_travel_m": 0.18443379923701286,
+          "hip_height_m": [
+            0.3240765931773643,
+            0.3412025871444206
+          ],
+          "ankle_height_m": [
+            0.0985960888433914,
+            0.16152028764967727
+          ],
+          "ankle_forward_center_m": 0.036228055134415627
+        },
+        "R": {
+          "ankle_forward_travel_m": 0.18456269428133965,
+          "hip_height_m": [
+            0.3240765931773643,
+            0.3412025871444206
+          ],
+          "ankle_height_m": [
+            0.0985859038997154,
+            0.16152027274851607
+          ],
+          "ankle_forward_center_m": 0.036163607612252235
+        }
+      }
+    }
+  },
+  "target_feasibility": {
+    "Walk": {
+      "0.28": {
+        "maximum_required_pelvis_drop_m": 0.010772461440421432,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.02057998234643449,
+        "min_original_target_reach_margin_m": -0.009069309914703727,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.3": {
+        "maximum_required_pelvis_drop_m": 0.01755103871366312,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.02767472752855693,
+        "min_original_target_reach_margin_m": -0.014420897652738962,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.32": {
+        "maximum_required_pelvis_drop_m": 0.025014449494442675,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.03551132831676798,
+        "min_original_target_reach_margin_m": -0.020017368750629316,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.35": {
+        "maximum_required_pelvis_drop_m": 0.03766311261759084,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.04886145716375903,
+        "min_original_target_reach_margin_m": -0.02884114614241018,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.375": {
+        "maximum_required_pelvis_drop_m": 0.04976126889266316,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.06172744346378173,
+        "min_original_target_reach_margin_m": -0.03655934570127517,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.4": {
+        "maximum_required_pelvis_drop_m": 0.06358801984782686,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.07657726545163249,
+        "min_original_target_reach_margin_m": -0.04458354344304777,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      }
+    },
+    "Run": {
+      "0.35": {
+        "maximum_required_pelvis_drop_m": 0.04227392919237474,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.05347227471154095,
+        "min_original_target_reach_margin_m": -0.03250456090850251,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.38": {
+        "maximum_required_pelvis_drop_m": 0.056987487205690995,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.0691341964247775,
+        "min_original_target_reach_margin_m": -0.041695127241446694,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.4": {
+        "maximum_required_pelvis_drop_m": 0.06819885881056409,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.08118810755094513,
+        "min_original_target_reach_margin_m": -0.04806656646853491,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.42": {
+        "maximum_required_pelvis_drop_m": 0.08080091051487323,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.09489576404198352,
+        "min_original_target_reach_margin_m": -0.05462021195028305,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.45": {
+        "maximum_required_pelvis_drop_m": 0.10314626634809224,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.11978340298038231,
+        "min_original_target_reach_margin_m": -0.06476891969792159,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.475": {
+        "maximum_required_pelvis_drop_m": 0.12644471916232994,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.14706456746487456,
+        "min_original_target_reach_margin_m": -0.07349640635347221,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      },
+      "0.5": {
+        "maximum_required_pelvis_drop_m": 0.15762313100533007,
+        "maximum_required_drop_with_3pct_reach_reserve_m": 0.1891993647850836,
+        "min_original_target_reach_margin_m": -0.08245022328898993,
+        "horizontal_overreach": false,
+        "worst": {
+          "normalized_time": 0.5,
+          "side": "L"
+        }
+      }
+    }
+  },
+  "maximum_same_path_travel_for_drop_budget_m": {
+    "Walk": {
+      "0": {
+        "full_extension": 0.2435801270417869,
+        "with_3pct_reach_reserve": 0.20704349311999976
+      },
+      "0.02": {
+        "full_extension": 0.30677723321132355,
+        "with_3pct_reach_reserve": 0.27827384504489594
+      },
+      "0.03": {
+        "full_extension": 0.3323572221212089,
+        "with_3pct_reach_reserve": 0.3061454239301384
+      },
+      "0.04": {
+        "full_extension": 0.3550852480810135,
+        "with_3pct_reach_reserve": 0.33061074642464516
+      },
+      "0.05": {
+        "full_extension": 0.3754619899671525,
+        "with_3pct_reach_reserve": 0.35235437192022795
+      }
+    },
+    "Run": {
+      "0": {
+        "full_extension": 0.22571187824942168,
+        "with_3pct_reach_reserve": 0.18592276792041956
+      },
+      "0.02": {
+        "full_extension": 0.2938280962407588,
+        "with_3pct_reach_reserve": 0.2639962694607675
+      },
+      "0.03": {
+        "full_extension": 0.32095500449649983,
+        "with_3pct_reach_reserve": 0.29377105459570885
+      },
+      "0.04": {
+        "full_extension": 0.34492390961386277,
+        "with_3pct_reach_reserve": 0.3197031281422823
+      },
+      "0.05": {
+        "full_extension": 0.36633360008709126,
+        "with_3pct_reach_reserve": 0.34263366074301305
+      }
+    }
+  },
+  "interpretation": {
+    "all_target_spans_mean": "single ankle front-to-back peak-to-peak travel in character space, not two-foot separation or distance per full gait cycle",
+    "same_path_limitation": "Feasibility preserves existing ankle height and phase. Any stated pelvis drop is the maximum extra drop needed across both legs. 3% reserve avoids reaching a fully straight knee.",
+    "run_airborne_option": "Instead of lowering the pelvis by the full amount, raise the ankle at maximum front/back reach by the same missing vertical distance. These extrema must occur during airborne swing/toe-off, with a redesigned shorter planted-foot interval. Simply scaling the existing Run curve cannot achieve this.",
+    "recommendation": "Start Walk around 0.30-0.32m with about 2.7-3.6cm maximum extra pelvis lowering including 3% reach reserve. Run around 0.38-0.42m needs an authored flight/toe-off path; 0.45-0.50m should not be obtained by scaling the original planted trajectory or stretching legs.",
+    "cadence": "Keep or reduce cadence as genuine travel grows. Current Run is about 7.43 footfalls/sec at default move speed, which contributes to the shuffling impression.",
+    "evidence_boundary": "Geometry reachability and offline curve audit only; no new gait animation or visual/runtime acceptance is claimed."
+  },
+  "generated_walk_actual_serialized_clip": {
+    "sha256": "733eaa67d5113e35946c175e226805490125e4f961c32c19219fcc31ca9847ca",
+    "method": "121 samples, local TRS hierarchy, cubic Hermite component curves, normalized quaternions; no Unity execution",
+    "ankle_forward_travel_m": {
+      "L": 0.19821210205554962,
+      "R": 0.19819405674934387
+    },
+    "unity_previous_generation_evidence": {
+      "result": "PASS",
+      "clip": "Assets/Characters/ForestSprite/Generated/Walk_LongStride.anim",
+      "originalFootSpan": [
+        0.1321905553340912,
+        0.13217787444591522
+      ],
+      "generatedFootSpan": [
+        0.19780421257019043,
+        0.1977771371603012
+      ],
+      "strideRatio": [
+        1.4963566064834595,
+        1.4962953329086304
+      ],
+      "originalGroundContactError": 0.0005877017974853516,
+      "generatedGroundContactError": 0.0005640387535095215,
+      "maximumIKTargetError": 0.00015356094809249043,
+      "sampledFrames": 121
+    }
+  },
+  "current_cadence_source": {
+    "walk_base_state_speed": 2.0,
+    "run_base_state_speed": 2.97,
+    "walk_default_stride1_speed_078_gait_cycles_per_s": 2.0,
+    "run_default_speed135_gait_cycles_per_s": 3.7125,
+    "note": "Controller additionally scales cadence with move speed. This audit changes no frequency."
+  },
+  "centering_and_candidate_runpath": {
+    "units": "Unity metres",
+    "centers": {
+      "Walk": {
+        "L": {
+          "hip_forward_mean_blenderY_m": 0.029640136441836756,
+          "hip_forward_range_m": [
+            0.025742197409272194,
+            0.03353609889745712
+          ],
+          "ankle_path_center_blenderY_m": 0.03622802626341581,
+          "ankle_center_minus_hip_mean_m": 0.006587889821579058
+        },
+        "R": {
+          "hip_forward_mean_blenderY_m": 0.029640136356465518,
+          "hip_forward_range_m": [
+            0.025742197409272194,
+            0.03353609889745712
+          ],
+          "ankle_path_center_blenderY_m": 0.035466025583446026,
+          "ankle_center_minus_hip_mean_m": 0.005825889226980508
+        }
+      },
+      "Run": {
+        "L": {
+          "hip_forward_mean_blenderY_m": 0.02964013742748648,
+          "hip_forward_range_m": [
+            0.025720704346895218,
+            0.03355755656957626
+          ],
+          "ankle_path_center_blenderY_m": 0.036228055134415627,
+          "ankle_center_minus_hip_mean_m": 0.006587917706929146
+        },
+        "R": {
+          "hip_forward_mean_blenderY_m": 0.02964013742748648,
+          "hip_forward_range_m": [
+            0.025720704346895218,
+            0.03355755656957626
+          ],
+          "ankle_path_center_blenderY_m": 0.036163607612252235,
+          "ankle_center_minus_hip_mean_m": 0.006523470184765755
+        }
+      }
+    },
+    "candidates": {
+      "Walk_original_drop0.025": {
+        "min_reach_margin_m": -1.1321148209453291e-05,
+        "min_3pct_reserve_margin_m": -0.008156635994801709,
+        "max_required_extra_drop_m": 1.4443533978197864e-05,
+        "worst": {
+          "t": 0.5,
+          "side": "L",
+          "phase": 0.5,
+          "hip": [
+            0.11197765171527863,
+            0.02964114397764206,
+            0.3115917444229126
+          ],
+          "target": [
+            0.13832533359527588,
+            0.19622802734375,
+            0.0988038033246994
+          ],
+          "leg_length": 0.2715104948864083
+        },
+        "ankle_travel": {
+          "L": 0.3200000002980232,
+          "R": 0.3200000002980232
+        }
+      },
+      "Walk_original_drop0.03": {
+        "min_reach_margin_m": 0.0038890857315558858,
+        "min_3pct_reserve_margin_m": -0.00425622911503637,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.5,
+          "side": "L",
+          "phase": 0.5,
+          "hip": [
+            0.11197765171527863,
+            0.02964114397764206,
+            0.3065917491912842
+          ],
+          "target": [
+            0.13832533359527588,
+            0.19622802734375,
+            0.0988038033246994
+          ],
+          "leg_length": 0.2715104948864083
+        },
+        "ankle_travel": {
+          "L": 0.3200000002980232,
+          "R": 0.3200000002980232
+        }
+      },
+      "Walk_mean_hip_drop0.025": {
+        "min_reach_margin_m": 0.003978796404027096,
+        "min_3pct_reserve_margin_m": -0.004166520385700867,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.0,
+          "side": "L",
+          "phase": 0.0,
+          "hip": [
+            0.11197765171527863,
+            0.02964114397764206,
+            0.3115917444229126
+          ],
+          "target": [
+            0.13832533359527588,
+            -0.13035985827445984,
+            0.09880377352237701
+          ],
+          "leg_length": 0.2715105596575992
+        },
+        "ankle_travel": {
+          "L": 0.3199999928474426,
+          "R": 0.3199999928474426
+        },
+        "approx_min_knee_flexion_deg": 19.64715241383316
+      },
+      "Walk_mean_hip_drop0.03": {
+        "min_reach_margin_m": 0.007938242437338927,
+        "min_3pct_reserve_margin_m": -0.00020707435238903615,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.0,
+          "side": "L",
+          "phase": 0.0,
+          "hip": [
+            0.11197765171527863,
+            0.02964114397764206,
+            0.3065917491912842
+          ],
+          "target": [
+            0.13832533359527588,
+            -0.13035985827445984,
+            0.09880377352237701
+          ],
+          "leg_length": 0.2715105596575992
+        },
+        "ankle_travel": {
+          "L": 0.3199999928474426,
+          "R": 0.3199999928474426
+        }
+      },
+      "Walk_current_hip_drop0.025": {
+        "min_reach_margin_m": 0.003979358243514919,
+        "min_3pct_reserve_margin_m": -0.0041659566030773365,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.5,
+          "side": "L",
+          "phase": 0.5,
+          "hip": [
+            0.11197765171527863,
+            0.02964114397764206,
+            0.3115917444229126
+          ],
+          "target": [
+            0.13832533359527588,
+            0.18964114785194397,
+            0.0988038033246994
+          ],
+          "leg_length": 0.2715104948864083
+        },
+        "ankle_travel": {
+          "L": 0.3200000077486038,
+          "R": 0.32030752301216125
+        }
+      },
+      "Walk_current_hip_drop0.03": {
+        "min_reach_margin_m": 0.00793881368994398,
+        "min_3pct_reserve_margin_m": -0.0002065011566482755,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.5,
+          "side": "L",
+          "phase": 0.5,
+          "hip": [
+            0.11197765171527863,
+            0.02964114397764206,
+            0.3065917491912842
+          ],
+          "target": [
+            0.13832533359527588,
+            0.18964114785194397,
+            0.0988038033246994
+          ],
+          "leg_length": 0.2715104948864083
+        },
+        "ankle_travel": {
+          "L": 0.3200000077486038,
+          "R": 0.32030752301216125
+        }
+      },
+      "Run_original_drop0.035": {
+        "min_reach_margin_m": -0.0005927589653002552,
+        "min_3pct_reserve_margin_m": -0.008738074274725782,
+        "max_required_extra_drop_m": 0.0008557193627496407,
+        "worst": {
+          "t": 0.4125,
+          "side": "L",
+          "phase": 0.4125,
+          "hip": [
+            0.11189872771501541,
+            0.03168824687600136,
+            0.301527202129364
+          ],
+          "target": [
+            0.13832595944404602,
+            0.22593171894550323,
+            0.11281773447990417
+          ],
+          "leg_length": 0.27151051031418394
+        },
+        "ankle_travel": {
+          "L": 0.38587453961372375,
+          "R": 0.38587453961372375
+        }
+      },
+      "Run_original_drop0.04": {
+        "min_reach_margin_m": 0.0028480996522260438,
+        "min_3pct_reserve_margin_m": -0.0052972160423856995,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.4166666666666667,
+          "side": "L",
+          "phase": 0.4166666666666667,
+          "hip": [
+            0.1119028776884079,
+            0.03160014748573303,
+            0.2969210743904114
+          ],
+          "target": [
+            0.13832534849643707,
+            0.2269267737865448,
+            0.11435914784669876
+          ],
+          "leg_length": 0.2715105231537249
+        },
+        "ankle_travel": {
+          "L": 0.38587453961372375,
+          "R": 0.38587453961372375
+        }
+      },
+      "Run_mean_hip_drop0.035": {
+        "min_reach_margin_m": 0.00042346751798361115,
+        "min_3pct_reserve_margin_m": -0.007721847047592323,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.9625,
+          "side": "L",
+          "phase": 0.9625,
+          "hip": [
+            0.11200014501810074,
+            0.028757618740200996,
+            0.30526894330978394
+          ],
+          "target": [
+            0.13835622370243073,
+            -0.15489554405212402,
+            0.10762014240026474
+          ],
+          "leg_length": 0.27151048551919754
+        },
+        "ankle_travel": {
+          "L": 0.38587455451488495,
+          "R": 0.38587455451488495
+        }
+      },
+      "Run_mean_hip_drop0.04": {
+        "min_reach_margin_m": 0.004047057259329079,
+        "min_3pct_reserve_margin_m": -0.004098257306246855,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.9625,
+          "side": "L",
+          "phase": 0.9625,
+          "hip": [
+            0.11200014501810074,
+            0.028757618740200996,
+            0.3002689480781555
+          ],
+          "target": [
+            0.13835622370243073,
+            -0.15489554405212402,
+            0.10762014240026474
+          ],
+          "leg_length": 0.27151048551919754
+        },
+        "ankle_travel": {
+          "L": 0.38587455451488495,
+          "R": 0.38587455451488495
+        },
+        "approx_min_knee_flexion_deg": 19.81557384552189
+      },
+      "Run_current_hip_drop0.035": {
+        "min_reach_margin_m": -0.00017623989003723306,
+        "min_3pct_reserve_margin_m": -0.008321554273112652,
+        "max_required_extra_drop_m": 0.00024234112660692642,
+        "worst": {
+          "t": 0.4625,
+          "side": "R",
+          "phase": 0.9625,
+          "hip": [
+            -0.11200082302093506,
+            0.028726112097501755,
+            0.30526894330978394
+          ],
+          "target": [
+            -0.13836759328842163,
+            -0.15580958127975464,
+            0.10762014240026474
+          ],
+          "leg_length": 0.2715104794358476
+        },
+        "ankle_travel": {
+          "L": 0.3892529159784317,
+          "R": 0.3892880082130432
+        }
+      },
+      "Run_current_hip_drop0.04": {
+        "min_reach_margin_m": 0.003417659738621237,
+        "min_3pct_reserve_margin_m": -0.004727654969798489,
+        "max_required_extra_drop_m": 0.0,
+        "worst": {
+          "t": 0.9583333333333334,
+          "side": "L",
+          "phase": 0.9583333333333334,
+          "hip": [
+            0.112002894282341,
+            0.02862664684653282,
+            0.3000553250312805
+          ],
+          "target": [
+            0.13832533359527588,
+            -0.15759815275669098,
+            0.10900241881608963
+          ],
+          "leg_length": 0.27151049028065766
+        },
+        "ankle_travel": {
+          "L": 0.3892529159784317,
+          "R": 0.3892880082130432
+        }
+      }
+    },
+    "assumptions": {
+      "RunF": "stance fraction 0.36",
+      "swing_height": "0.095 metres, not Blender source units",
+      "center": "fixed average upper-leg head forward position per clip",
+      "sample_count_per_clip": 241,
+      "limitation": "offline target geometry only; does not prove final pose blend or foot contact mesh"
+    }
+  }
+}

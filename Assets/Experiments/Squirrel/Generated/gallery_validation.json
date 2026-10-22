@@ -1,0 +1,75 @@
+{
+    "scene": "Assets/Scenes/Experimental/SquirrelMotionGallery.unity",
+    "playing": false,
+    "paused": false,
+    "tailWave": true,
+    "tailAmplitude": 44.0,
+    "actors": [
+        {
+            "id": "walk_biped",
+            "sourceAsset": "Assets/Experiments/Squirrel/Models/walk_biped.fbx",
+            "clipName": "Squirrel_Rig|Reconstructed_Action",
+            "clipSeconds": 1.9666668176651,
+            "skinnedRenderers": 1,
+            "boneCount": 27,
+            "texturedMaterials": 1,
+            "tailReady": true,
+            "applyRootMotion": false
+        },
+        {
+            "id": "run_biped",
+            "sourceAsset": "Assets/Experiments/Squirrel/Models/run_biped.fbx",
+            "clipName": "Squirrel_Rig|Reconstructed_Action",
+            "clipSeconds": 1.9666668176651,
+            "skinnedRenderers": 1,
+            "boneCount": 27,
+            "texturedMaterials": 1,
+            "tailReady": true,
+            "applyRootMotion": false
+        },
+        {
+            "id": "wave",
+            "sourceAsset": "Assets/Experiments/Squirrel/Models/wave.fbx",
+            "clipName": "Squirrel_Rig|Reconstructed_Action",
+            "clipSeconds": 1.9666668176651,
+            "skinnedRenderers": 1,
+            "boneCount": 27,
+            "texturedMaterials": 1,
+            "tailReady": true,
+            "applyRootMotion": false
+        },
+        {
+            "id": "dance",
+            "sourceAsset": "Assets/Experiments/Squirrel/Models/dance.fbx",
+            "clipName": "Squirrel_Rig|Reconstructed_Action",
+            "clipSeconds": 1.9666668176651,
+            "skinnedRenderers": 1,
+            "boneCount": 27,
+            "texturedMaterials": 1,
+            "tailReady": true,
+            "applyRootMotion": false
+        },
+        {
+            "id": "turn",
+            "sourceAsset": "Assets/Experiments/Squirrel/Models/turn.fbx",
+            "clipName": "Squirrel_Rig|Reconstructed_Action",
+            "clipSeconds": 1.9666668176651,
+            "skinnedRenderers": 1,
+            "boneCount": 27,
+            "texturedMaterials": 1,
+            "tailReady": true,
+            "applyRootMotion": false
+        },
+        {
+            "id": "jump_biped",
+            "sourceAsset": "Assets/Experiments/Squirrel/Models/jump_biped.fbx",
+            "clipName": "Squirrel_Rig|Reconstructed_Action",
+            "clipSeconds": 1.9666668176651,
+            "skinnedRenderers": 1,
+            "boneCount": 27,
+            "texturedMaterials": 1,
+            "tailReady": true,
+            "applyRootMotion": false
+        }
+    ]
+}

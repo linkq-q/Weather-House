@@ -2,11 +2,21 @@
 
 使用 Unity **2022.3.62f3c1** 和 URP **14.0.12**。
 
+## 目录
+
+- `Assets/Scenes/WeatherHouse_MapDraft.unity`：主场景；`Scenes/Experimental/`：全部实验与展示场景。
+- `Assets/Game/`：玩法、UI、运行时 Resources 与主场景生成资产。
+- `Assets/Characters/`：森林精灵、角色预览与卡通角色资源。
+- `Assets/Environment/OriginalTrees/`：原树模型、材质与预制体。
+- `Assets/Experiments/`：植被、材质、环境与松鼠实验所用代码和资产。
+- `Assets/HIGHLANDS - Stylized Environment/`：第三方资源，保留包内结构。
+- 项目根目录各 `*Review/`：历史验收资料，不属于 Unity 运行时资产。
+
 ## 打开与试玩
 
 1. 安装 Git LFS，克隆后执行 `git lfs pull`，确认模型、贴图和 TerrainData 已下载。
 2. 用 Unity Hub 打开项目，等待资源导入完成。
-3. 打开 `Assets/WeatherHousePrototype/WeatherHouse_MapDraft.unity`，进入 Play。
+3. 打开 `Assets/Scenes/WeatherHouse_MapDraft.unity`，进入 Play。
 
 WASD 移动，Shift 快走，空格跳跃，右键拖动视角，滚轮缩放，Tab 查看俯视地图。
 
@@ -34,4 +44,4 @@ UI 参数直接在场景 `06 观察、天气与动物` 的 `Gameplay Hud` 组件
 - `Weather House/Validate Gameplay State`、`Check Animal Glyph Geometry`、`Validate AI Result Parser` 检查手账状态、原字形与离线判定解析。
 - Play 模式下 `Weather House/Check Gameplay Runtime` 检查天气、动物反馈和真实动态照片。验收报告保存在本地 `PrototypeReview/`。
 
-`Assets/`（包括 `.meta` 和 `WeatherHousePrototype/Generated/`）、`Packages/`、`ProjectSettings/` 及概念设计纳入版本管理。Unity 缓存、IDE 工程文件和本地验收输出由 `.gitignore` 排除。
+`Assets/`（包括 `.meta` 和 `Game/Generated/`）、`Packages/`、`ProjectSettings/` 及概念设计纳入版本管理。Unity 缓存、IDE 工程文件和本地验收输出由 `.gitignore` 排除。
