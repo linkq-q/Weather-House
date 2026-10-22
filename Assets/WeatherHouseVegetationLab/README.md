@@ -49,20 +49,41 @@ Play 中使用独立的草种和材质副本，退出后试调恢复。要永久
 
 当前配色依据 `概念图/色彩参考/白天.png`，水纹另对照多视角中的池塘、溪流与远景。`Generated/PainterlyWater.mat` 控制浅岸色、深水色、波纹色、倒影强度、深度过渡和波纹速度。水体对象上的 `PainterlyWaterReflection` 使用最长边 1024 像素的实时平面倒影，排除 Water 层。
 
-草与地面的 `DepthNormals` Pass 继续保留，水深由深度纹理重建的水底世界坐标计算。岸线跟随岸边和相交石头，分成断续近岸线与向外的细线。水面另有稀疏、带收尖的横向短笔触；倒影按横向小块取样并简化亮度层次。
+草与地面的 `DepthNormals` Pass 继续保留，水深由深度纹理重建的水底世界坐标计算。岸线跟随岸边和相交石头，叠加局部宽窄不同、带断口的近岸笔触与较细的外层笔触。水面叠加大小两层宽短破边印章，每笔尺寸在 0.6–1.4 倍之间变化。印章默认锚定世界坐标，局部起伏的明暗与倒影随观察角度改变。倒影先按大笔触中心取色铺底，再比较大小笔触中心颜色，在差异明显处叠加小笔触。表面小笔触也跟随这个细节需求，让平色水域保留粗底。当前为单次着色中的局部近似，增加一次倒影采样。
 
 - `_Opacity = 0.70`：水层与可见水底合成约 70% / 30%，岸线另做边缘渐隐。
 - `_ShoreStrength / _ShoreWidth`：岸线明显程度与深度范围。
-- `_SurfaceStrokeStrength / _SurfaceStrokeDensity`：水面短横纹亮度与数量。
-- `_ReflectionBrushStrength / _ReflectionBrushSize / _ReflectionPosterize`：倒影分笔程度、笔触尺度、色阶强度。
+- `_SurfaceStrokeStrength / _SurfaceStrokeDensity`：水面笔触强度与数量。
+- `_WaterBrushAtlas / _UseWaterBrushAtlas`：四格笔触图集及开关；默认复用材质实验的 AI 破边印章。
+- `_SmallStrokeScale / _SmallStrokeWeight`：小笔触相对尺度与权重；默认 3.8 / 0.75，尺度越大，小笔触越小。权重设 0 可单独看粗底，两项同时影响倒影与表面笔触。
+- `_BrushViewResponse`：笔触随视角变化的明暗响应；默认 0.85。`_ViewAlignedStrokes=0` 保持世界锚定，避免转相机时整片纹理跟着旋转。
+- `_BrushGradientStrength`：每笔沿自身刷动方向的渐变强度。
+- `_ShadowPigmentColor / _ShadowPigmentBlend`：暗部颜料色与混合强度，默认较饱和的蓝绿色；保留局部明度，亮部保持浅青/奶油色。
+- `_ReflectionBrushStrength / _ReflectionBrushSize / _ReflectionPosterize`：倒影分笔程度、大笔触尺度、色阶强度。大笔触尺度默认 1.35，表面笔触强度默认 0.84。
 - `_CausticStrength / _CausticScale / _CausticSpeed / _CausticDepth`：水底焦散的强弱、大小、速度与深度衰减。焦散跟随重建的水底，并受主光阴影影响。
 - `_RefractionStrength`：轻微折射；深度检查会拒绝采到水面前方草叶和岸石的偏移样本。
 
 完整透底、折射与焦散在 Game 相机中验收，该相机单独开启 Depth/Opaque Texture。当前全局 Opaque Texture 关闭时，Scene 视图使用普通透明回退；不会读取其他相机留下的颜色纹理。
 
-本轮参考了 [Ameye 的 URP 14 风格水体](https://ameye.dev/notes/stylized-water-shader/)、[Cyanilux 的水体拆解](https://www.cyanilux.com/tutorials/water-shader-breakdown/)、[Unity 官方 BoatAttack](https://github.com/Unity-Technologies/BoatAttack)。油画方向参考 [Kyprianidis 的定向绘画抽象研究](https://www.kyprianidis.com/p/pg2009/) 中保留边界、简化局部细节的思想。本项目采用轻量反射分笔，没有复现完整 Kuwahara 后处理，也没有整包导入这些工程。
+本轮参考了 [Ameye 的 URP 14 风格水体](https://ameye.dev/notes/stylized-water-shader/)、[Cyanilux 的水体拆解](https://www.cyanilux.com/tutorials/water-shader-breakdown/)、[Unity 官方 BoatAttack](https://github.com/Unity-Technologies/BoatAttack)。油画方向参考 [Hertzmann 多尺寸笔触研究](https://mrl.cs.nyu.edu/publications/painterly98/) 的由粗到细分层，以及 [Alla 的笔触中心着色](https://allarakik.com/stroke-rendering)。[Sagit 的 Unity 6 实验](https://www.sagitsoftware.com/projects/oil-paint-shader/) 用于对照方向分析、厚涂和时域稳定的工作划分。本项目采用轻量反射分笔，没有移植完整图像重绘或时域管线。
 
 菜单 **Apply Day Concept Style** 会把这个测试场景的配色与草形参数恢复到白天概念图方案；它会覆盖测试场景中的手工调整。
+
+## 角色涉水法线尾迹
+
+进入原实验场 Play 后，点击底部 **池塘浅滩 · 向前走入水，查看波纹拖尾**，再用 WASD 沿浅水行走，停下观察消散。F6 切换角色与草地浏览。入口只移动角色到岸边，不改变行走、跑动或重力。
+
+水面上的 `PainterlyWaterInteraction` 跟踪现有角色碰撞体与水面交叉，把有方向的扰动写入 GPU 水波高度/速度纹理，再生成动态法线图，影响水体折射、倒影与亮暗。停下后继续传播和衰减。干地、完全离开水面的跳跃、完全潜入水底不会持续写入；瞬移只重置轨迹起点，不连接跨池塘长线。本轮未增加游泳或物理阻力。
+
+- `Strength`：法线影响强度，0–3，默认 1。
+- `Radius`：写入扰动半径，默认 0.38 米。
+- `Decay`：衰减速度，越大消散越快，默认 1.25。
+- `Wave Speed`：波传播速度，默认 1.15。
+- `Resolution`：默认 256，实际使用 64–512 的二次幂尺寸；大范围水面需同时考虑采样密度与性能。
+
+这些组件参数在 Play Inspector 中可即时调整；退出 Play 后恢复，永久值应在编辑状态保存场景。组件和反射共用但保留彼此的 MaterialPropertyBlock 字段，禁用组件会清理自己的纹理引用并释放 RT。
+
+菜单 **角色涉水 · 接入法线尾迹** 可为既有实验场恢复引用，不重建草地；**角色涉水 · 实际 Play 验证并截图** 运行真实角色移动及 GPU 法线场检查。检查记录在 `VegetationLabReview/water-interaction-checks.txt`。
 
 ## 阔叶树样本
 
