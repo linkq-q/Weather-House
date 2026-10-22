@@ -71,6 +71,12 @@ namespace WeatherHouseSquirrelLab.Editor
                 if (command == "build") SquirrelLabBuilder.Build();
                 else if (command == "refresh") AssetDatabase.Refresh();
                 else if (command == "bake-expressive") SquirrelExpressiveBaker.Build();
+                else if (command == "open-workbench")
+                {
+                    var window = SquirrelAnimationWorkbench.Open();
+                    window.position = new Rect(80, 80, 1200, 780);
+                }
+                else if (command == "capture-workbench") SquirrelWorkbenchChecks.CaptureWindow();
                 else if (command == "play")
                 {
                     if (Enumerable.Range(0, SceneManager.sceneCount).Any(i => SceneManager.GetSceneAt(i).isDirty))
