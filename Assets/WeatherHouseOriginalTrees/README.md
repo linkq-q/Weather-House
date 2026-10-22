@@ -64,3 +64,11 @@ URP 没有原 UE Subsurface 的独立透射阴影和厚度数据。第二批从�
 URP 14 默认 `UniversalAdditionalLightData.usePipelineSettings=true`，会忽略灯光自己的 Bias/Normal Bias，使用管线资产的 1/1。独立对照太阳现在显式关闭此选项，并保存深度偏移 0.02、法线偏移 0.15。软阴影仍沿用管线 Medium；URP 会在渲染时自动创建附加灯光数据，缺少序列化组件并不意味着原来使用 Low。
 
 修复前在实际 Play 复现覆盖断言失败。`AuthorTreeBiasProbe` 固定相机，验证全局 1/1 与同值局部设置图像一致、重复帧稳定，并拍摄两组较小偏移。结束后恢复所有临时灯光参数；原树模型、贴图、曝光和材质颜色不变。固定原图/修复前/修复后见 `OriginalTreesReview/shadow-bias.html`，GPU 记录见同目录 `shadow-bias-checks.txt`。
+
+## 半影与环境光校准
+
+独立太阳改用 High（7×7 tent PCF），原先为 Medium（5×5）。URP 同时将 caster bias 核半径从 2.5 放大到 3.5；实际比较时按该比例补偿两组偏移，避免将位置变化混进柔化判断。High 配合过小偏移会在无遮挡地面产生条纹，因此最终局部深度/法线偏移取 0.15/0.35，仍显式关闭管线偏移覆盖。
+
+Trilight 天空 RGB 改为 (0.53,0.60,0.72)，赤道 (0.34,0.37,0.43)，地面 (0.253,0.231,0.20)。曝光、阴影强度、白平衡和材质颜色保留前批值。实际 Play 中 SH L0 从 (0.114171,0.153935,0.219843) 变为 (0.112245,0.135561,0.188266)，确认环境进入渲染。地影核心冷色减弱；白桦冠内仍偏暗，需要继续单独校准下侧补光。
+
+`VerifySoftShadowQuality` 比较等效偏移下的 Medium/High，检查重复帧稳定与底部无遮蔽地面 600×60 区域无新增阴影差异；并结合实拍审阅条纹与接地。原作者太阳光源角只读导出值为 0.735700°，记录于 `Source/author-directional-light.json`（原工程 UE 5.1，由本机 UE 5.7.4 读取）。固定 PCF 不等同于原 UE 虚拟阴影的距离相关半影。第二批档案见 `OriginalTreesReview/shadow-softness.html`。

@@ -1,0 +1,45 @@
+{
+  "engine": "5.7.4-51494982+++UE5+Release-5.7",
+  "map": "/Game/Level/LVL_StylizedTrees",
+  "read_only": true,
+  "lights": [
+    {
+      "actor": "DirectionalLight",
+      "component": "/Game/Level/LVL_StylizedTrees.LVL_StylizedTrees:PersistentLevel.DirectionalLight_0.LightComponent0",
+      "properties": {
+        "light_source_angle": 0.7357000112533569,
+        "light_source_soft_angle": 0.0,
+        "shadow_source_angle_factor": 1.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "shadow_sharpen": 0.0,
+        "shadow_resolution_scale": 1.0,
+        "contact_shadow_length": 0.0,
+        "contact_shadow_length_in_ws": false,
+        "contact_shadow_casting_intensity": 1.0,
+        "contact_shadow_non_casting_intensity": 0.0,
+        "cast_shadows": true,
+        "cast_dynamic_shadows": true,
+        "cast_static_shadows": true,
+        "cast_raytraced_shadow": "<CastRayTracedShadow.USE_PROJECT_SETTING: 1>",
+        "use_ray_traced_distance_field_shadows": false,
+        "dynamic_shadow_distance_movable_light": 20000.0,
+        "dynamic_shadow_distance_stationary_light": 0.0,
+        "dynamic_shadow_cascades": 4,
+        "cascade_distribution_exponent": 3.0,
+        "cascade_transition_fraction": 0.10000000149011612,
+        "shadow_distance_fadeout_fraction": 0.10000000149011612,
+        "shadow_cascade_bias_distribution": 1.0,
+        "distance_field_shadow_distance": 30000.0,
+        "trace_distance": 10000.0,
+        "mobility": "<ComponentMobility.MOVABLE: 2>",
+        "intensity": 6.0,
+        "indirect_lighting_intensity": 1.0,
+        "temperature": 6500.0,
+        "use_temperature": true,
+        "light_color": "<Struct 'Color' (0x00000281067302B8) {b: 255, g: 255, r: 255, a: 255}>"
+      },
+      "unavailable_properties": {}
+    }
+  ]
+}

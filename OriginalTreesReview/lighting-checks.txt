@@ -1,6 +1,7 @@
-UTC 2026-10-22T06:22:24.9532233Z
+UTC 2026-10-22T06:56:43.6263484Z
 GPU NVIDIA GeForce RTX 5060 Laptop GPU / Direct3D11
-PASS GPU transmission: 768x768, thickness .5 -> 1 changes 25890 pixels (RGB8 absolute sum > 6); affected-leaf linear luminance sum 5818.200 -> 5090.296 (12.51% lower). Repeated thickness=1 capture is stable. Only runtime leaf material copies were changed. Source materials and renderer bindings preserved; camera, light and profile untouched.
-PASS GPU bias source: 1200x1200; pipeline=1/1; equal local override changed=0, repeat changed=0 (RGB8 sum > 3). Pipeline vs local .2/.4 changed=45589; pipeline vs .02/.15 changed=54441; middle vs small changed=25220 (RGB8 sum > 6).
+PASS GPU transmission: 768x768, thickness .5 -> 1 changes 25754 pixels (RGB8 absolute sum > 6); affected-leaf linear luminance sum 5613.221 -> 4889.607 (12.89% lower). Repeated thickness=1 capture is stable. Only runtime leaf material copies were changed. Source materials and renderer bindings preserved; camera, light and profile untouched.
+PASS GPU bias source: 1200x1200; pipeline=1/1; equal local override changed=0, repeat changed=0 (RGB8 sum > 3). Pipeline vs local .2/.4 changed=61528; pipeline vs .02/.15 changed=164989; middle vs small changed=122744 (RGB8 sum > 6).
 Only Light bias fields and usePipelineSettings were changed. Camera, materials, exposure, shadow strength and soft-shadow quality were held fixed.
 Image differences prove the bias source reaches GPU rendering; acne, contact and visual quality still require review of these fixed-camera captures.
+PASS soft-shadow quality GPU: 1200x1200; Medium -> High changed 43700 pixels (RGB8 sum > 6); repeated High changed 0 (sum > 3). Unoccluded foreground changed=0 (600x60, sum > 3). Depth and normal fields were compensated by the 3.5/2.5 kernel ratio to hold effective caster bias fixed.

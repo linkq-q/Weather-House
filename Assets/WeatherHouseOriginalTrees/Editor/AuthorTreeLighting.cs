@@ -44,8 +44,14 @@ namespace WeatherHouse.OriginalTrees.Editor
             sun.shadowStrength = .9f;
             var shadowData=sun.GetUniversalAdditionalLightData();
             shadowData.usePipelineSettings=false;
-            sun.shadowBias=.02f;
-            sun.shadowNormalBias=.15f;
+            shadowData.softShadowQuality=SoftShadowQuality.High;
+            RenderSettings.ambientMode=AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor=new Color(.53f,.60f,.72f);
+            RenderSettings.ambientEquatorColor=new Color(.34f,.37f,.43f);
+            RenderSettings.ambientGroundColor=new Color(.253f,.231f,.20f);
+            // High PCF needs a small caster margin to prevent ground self-shadow stripes.
+            sun.shadowBias=.15f;
+            sun.shadowNormalBias=.35f;
             EditorUtility.SetDirty(shadowData);
             if (!profile.TryGet<ColorAdjustments>(out var exposure))
             {
@@ -159,6 +165,62 @@ namespace WeatherHouse.OriginalTrees.Editor
                 AuthorTreeStudy.Assert(renderers[i].sharedMaterials.SequenceEqual(originals[i]) &&
                     originals[i][LeafSlot(i)].GetFloat(Thickness) == sourceValues[i], "Restore source material bindings and values");
             return report + " Source materials and renderer bindings preserved; camera, light and profile untouched.";
+        }
+
+        public static string VerifySoftShadowQuality()
+        {
+            AuthorTreeStudy.Assert(Application.isPlaying, "Soft-shadow verification requires actual Play");
+            var scene = ComparisonScene();
+            var camera = Camera.main; var sun = RenderSettings.sun;
+            AuthorTreeStudy.Assert(camera && sun && camera.gameObject.scene == scene && sun.gameObject.scene == scene,
+                "Comparison camera and sun required");
+            AuthorTreeStudy.Assert(sun.TryGetComponent<UniversalAdditionalLightData>(out var data), "Warm up Play first");
+            var before = data.softShadowQuality;
+            AuthorTreeStudy.Assert(before == SoftShadowQuality.High && !data.usePipelineSettings, "Calibrated High shadows with explicit bias required");
+            float depth = sun.shadowBias, normal = sun.shadowNormalBias;
+            Texture2D medium = null, high = null, repeat = null;
+            string report;
+            try
+            {
+                data.softShadowQuality = SoftShadowQuality.Medium;
+                sun.shadowBias = depth * (3.5f/2.5f);
+                sun.shadowNormalBias = normal * (3.5f/2.5f);
+                medium = AuthorTreeStudy.Render(camera, 1200, 1200);
+                data.softShadowQuality = SoftShadowQuality.High;
+                sun.shadowBias = depth; sun.shadowNormalBias = normal;
+                high = AuthorTreeStudy.Render(camera, 1200, 1200);
+                repeat = AuthorTreeStudy.Render(camera, 1200, 1200);
+                string folder = AuthorTreeStudy.Output + "/Softness";
+                Directory.CreateDirectory(folder);
+                File.WriteAllBytes(folder + "/Medium.png", medium.EncodeToPNG());
+                File.WriteAllBytes(folder + "/High.png", high.EncodeToPNG());
+                var a = medium.GetPixels32(); var b = high.GetPixels32(); var c = repeat.GetPixels32();
+                int changed = 0, unstable = 0, groundChanged = 0;
+                for (int i = 0; i < a.Length; i++)
+                {
+                    if (Difference(a[i], b[i]) > 6) changed++;
+                    if (Difference(b[i], c[i]) > 3) unstable++;
+                    // Fixed unoccluded foreground rectangle; Texture2D rows start at the bottom.
+                    int x=i%1200, y=i/1200;
+                    if(x>=300 && x<900 && y>=20 && y<80 && Difference(a[i],b[i])>3) groundChanged++;
+                }
+                AuthorTreeStudy.Assert(groundChanged == 0, "Unoccluded foreground must stay free of PCF self-shadow stripes; changed=" + groundChanged);
+                AuthorTreeStudy.Assert(changed > 100, "Medium to High must affect GPU pixels; changed=" + changed);
+                AuthorTreeStudy.Assert(unstable == 0, "Repeated High capture must be stable; changed=" + unstable);
+                report = "PASS soft-shadow quality GPU: 1200x1200; Medium -> High changed " + changed +
+                    " pixels (RGB8 sum > 6); repeated High changed " + unstable + " (sum > 3). " +
+                    "Unoccluded foreground changed=0 (600x60, sum > 3). Depth and normal fields were compensated by the 3.5/2.5 kernel ratio to hold effective caster bias fixed.";
+            }
+            finally
+            {
+                data.softShadowQuality = before;
+                sun.shadowBias = depth; sun.shadowNormalBias = normal;
+                if (medium) Object.DestroyImmediate(medium);
+                if (high) Object.DestroyImmediate(high);
+                if (repeat) Object.DestroyImmediate(repeat);
+            }
+            AuthorTreeStudy.Assert(data.softShadowQuality == before && sun.shadowBias == depth && sun.shadowNormalBias == normal, "Restore soft-shadow quality and bias");
+            return report;
         }
 
         static Scene ComparisonScene()

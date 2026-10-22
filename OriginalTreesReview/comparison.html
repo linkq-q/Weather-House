@@ -7,18 +7,18 @@
 *{box-sizing:border-box}body{margin:0;background:#111919;color:#e8e9dc;font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1440px;margin:auto;padding:36px 32px 64px}h1{font-size:30px;line-height:1.3;margin:8px 0 12px}p{max-width:850px;margin:8px 0;color:#bdc7c3}.eyebrow{color:#ddc98f;font-size:13px;letter-spacing:2px}a{color:#ddc98f}figure{margin:0;background:#1c2626}figcaption{padding:12px 18px;color:#d5ddd8}img{display:block;width:100%;height:auto}.pair{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:26px 0 20px}.pair img{aspect-ratio:1;object-fit:contain;background:#253c50}h2{font-size:20px;margin-top:38px}.details{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.note{border-left:3px solid #bda76a;padding:4px 18px;margin:26px 0}.foot{font-size:13px;color:#98aaa3;margin-top:36px}code{font:14px ui-monospace,monospace;background:#27312f;padding:2px 6px;border-radius:4px}@media(max-width:650px){main{padding:24px 16px 40px}h1{font-size:24px}.pair,.details{grid-template-columns:1fr}.pair{gap:22px}}
 </style>
 <main>
-<div class="eyebrow">WEATHER HOUSE / 原项目移植 / 阴影偏移修复</div>
-<h1>修复阴影偏移的设置来源</h1>
+<div class="eyebrow">WEATHER HOUSE / 原项目移植 / 半影与环境光</div>
+<h1>校准半影与地影冷暖</h1>
 <p>使用 Anastasia Kasyanik 公开项目中的白桦、山毛榉和冷杉。模型保持原尺寸与法线，材质沿用原叶片贴图、颜色参数与树冠膨胀逻辑。</p>
 <div class="pair">
 <figure><a href="Author_Original.png"><img src="Author_Original.png" alt="原作者公开项目的三树展示图，左为白桦，中为山毛榉，右为冷杉"></a><figcaption>原作者原图 · UE 项目 README</figcaption></figure>
-<figure><a href="Unity_BeforeShadowBias.png"><img src="Unity_BeforeShadowBias.png" alt="Unity 阴影偏移修复前"></a><figcaption>Unity · 偏移修复前</figcaption></figure>
-<figure><a href="Unity_AfterShadowBias.png"><img src="Unity_AfterShadowBias.png" alt="Unity 实际 Play 模式拍摄的三树移植对照"></a><figcaption>Unity · 偏移修复后</figcaption></figure>
+<figure><a href="Unity_AfterShadowBias.png"><img src="Unity_AfterShadowBias.png" alt="Unity 半影与环境光前"></a><figcaption>Unity · 第一批偏移修复后</figcaption></figure>
+<figure><a href="Unity_SoftnessOnly.png"><img src="Unity_SoftnessOnly.png" alt="Unity 实际 Play 模式拍摄的三树移植对照"></a><figcaption>Unity · 第二批半影与环境光</figcaption></figure>
 </div>
-<div class="note"><p>让此场景的方向光使用自己的深度偏移 0.02、法线偏移 0.15，修复原先被全局 1 / 1 覆盖的问题。相机、曝光、补光、材质和软阴影质量保持本批之前的设置。留意冷杉周围和细枝投影的位置；这一批先修偏移，柔和度与补光下一批调整。</p></div>
-<h2>实际验证</h2><p>修复前复现了“管线覆盖局部偏移”的失败；修复后实际 Play 检查通过。全局 1 / 1 与局部相同值的 GPU 图像差异为 0，重复帧差异为 0；切到 0.02 / 0.15 后有 54,441 个像素变化，说明偏移设置确实进入了渲染。这是行为验证，不是与 UE 的相似度分数。</p><p><a href="shadow-bias-red.txt">问题复现记录</a> · <a href="shadow-bias-checks.txt">本批 GPU 对照记录</a></p><h2>查看与复验</h2>
+<div class="note"><p>太阳采用 High 软阴影，减弱天空与水平环境光的冷色。曝光仍为 +0.65 EV、阴影强度仍为 0.9，作者模型和材质配色不变。为消除 High 过滤下的地面条纹，局部深度偏移调为 0.15、法线偏移 0.35；太阳继续使用自己的偏移。</p></div>
+<h2>实际验证</h2><p>实际 Play 与 GPU 检查通过。Medium / High 对照按核半径补偿偏移，保持实际偏移一致，43,700 个像素变化；重复帧差异为 0。无遮蔽地面 600×60 区域差异为 0，结合实拍确认最终候选没有先前的细条纹。</p><p>固定地影核心平均 RGB：原图 78 / 82 / 95，上一批 83 / 95 / 107，本批 81 / 87 / 100。区域只用于跟踪冷暖与明暗方向，原图和 Unity 并未逐像素配准。</p><p>原项目太阳光源角约 0.736°，使用虚拟阴影。URP High 是固定范围过滤，尚未实现 UE 随遮挡距离变化的半影。白桦冠内仍偏暗，下一步单独试下侧补光。</p><p><a href="softness-stage-checks.txt">本批固定检查记录</a> · <a href="soft-shadow-rejected.txt">被排除的条纹候选</a> · <a href="shadow-bias.html">第一批偏移档案</a></p><h2>查看与复验</h2>
 <p>Unity 菜单 <code>Weather House → Original Trees → 打开原作者树木对照</code>。进入 Play 查看固定视角，Scene 窗口可自由查看模型。</p>
-<p>本批前后图片已固定保存。后续半影和补光对照见 <a href="comparison.html">最新对照页</a>。森林布景暂缓。</p>
+<p>本批前后图片已固定保存。后续下侧补光对照见 <a href="comparison.html">最新对照页</a>。森林布景暂缓。</p>
 <p class="foot">来源 <a href="https://github.com/AnastasiaKasyanik/stylized-cozy-trees">stylized-cozy-trees</a> · Anastasia Kasyanik · 作者资产 MIT 许可。原图保留原貌；Unity 图片来自本机实际渲染。独立对照场景没有接入天气屋主地图。</p>
 </main>
 </html>

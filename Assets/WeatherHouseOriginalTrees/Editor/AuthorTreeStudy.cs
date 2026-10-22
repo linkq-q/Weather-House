@@ -187,9 +187,11 @@ namespace WeatherHouse.OriginalTrees.Editor
                     report.AppendLine("  vertex "+v+" pos="+mesh.vertices[v].ToString("F5")+" normal="+mesh.normals[v].ToString("F5")+" tangent="+mesh.tangents[v].ToString("F5")+" uv="+mesh.uv[v].ToString("F5"));
             }
             var sh=RenderSettings.ambientProbe;
+            report.AppendLine("Study ambient sky/equator/ground: "+RenderSettings.ambientSkyColor.ToString("F3")+" / "+RenderSettings.ambientEquatorColor.ToString("F3")+" / "+RenderSettings.ambientGroundColor.ToString("F3"));
             report.AppendLine("Ambient SH L0 RGB: "+sh[0,0]+", "+sh[1,0]+", "+sh[2,0]);
             string lightingReport=AuthorTreeLighting.Verify();
             lightingReport+="\n"+AuthorTreeBiasProbe.Run();
+            lightingReport+="\n"+AuthorTreeLighting.VerifySoftShadowQuality();
             report.AppendLine(lightingReport);
             File.WriteAllText(Output+"/lighting-checks.txt", "UTC "+DateTime.UtcNow.ToString("O")+"\nGPU "+SystemInfo.graphicsDeviceName+" / "+SystemInfo.graphicsDeviceType+"\n"+lightingReport+"\n");
             Capture(camera,"Unity_ThreeTrees",1200,1200);

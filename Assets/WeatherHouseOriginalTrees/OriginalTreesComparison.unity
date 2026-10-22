@@ -20,9 +20,9 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.55, g: 0.65, b: 0.78, a: 1}
-  m_AmbientEquatorColor: {r: 0.34, g: 0.39, b: 0.46, a: 1}
-  m_AmbientGroundColor: {r: 0.23, g: 0.22, b: 0.2, a: 1}
+  m_AmbientSkyColor: {r: 0.53, g: 0.6, b: 0.72, a: 1}
+  m_AmbientEquatorColor: {r: 0.34, g: 0.37, b: 0.43, a: 1}
+  m_AmbientGroundColor: {r: 0.253, g: 0.231, b: 0.2, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
@@ -746,8 +746,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.9
-    m_Bias: 0.02
-    m_NormalBias: 0.15
+    m_Bias: 0.15
+    m_NormalBias: 0.35
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -823,7 +823,7 @@ MonoBehaviour:
   m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
+  m_SoftShadowQuality: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
