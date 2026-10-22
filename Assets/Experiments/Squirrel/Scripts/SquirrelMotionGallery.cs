@@ -14,7 +14,9 @@ namespace WeatherHouseSquirrelLab
             public string sourceAsset;
             public Animator animator;
             public AnimationClip clip;
+            public AnimationClip expressiveClip;
             public SquirrelTailWave tail;
+            [NonSerialized] public AnimatorOverrideController overrides;
         }
 
         public Actor[] actors = new Actor[0];
@@ -25,18 +27,23 @@ namespace WeatherHouseSquirrelLab
         public float cameraDistance = 18f;
         public bool paused;
         public bool tailWave = true;
+        public bool expressiveMotion = true;
         [Range(0f, 65f)] public float tailAmplitude = 44f;
         public bool showPanel = true;
+        public int focusedActor = -1;
 
         private float previewTime;
         private Font font;
         private GUIStyle textStyle;
         private GUIStyle headingStyle;
-        private readonly Rect panel = new Rect(14f, 14f, 300f, 250f);
+        private Vector3 overviewTarget;
+        private readonly Rect panel = new Rect(14f, 14f, 300f, 390f);
 
         private void Start()
         {
+            Application.runInBackground = true;
             font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Arial" }, 16);
+            overviewTarget = cameraTarget;
             foreach (Actor actor in actors)
             {
                 if (actor.animator != null)
@@ -50,6 +57,7 @@ namespace WeatherHouseSquirrelLab
                 // The gallery owns the clock so pausing stops both animation and the tail.
                 actor.tail.enabled = false;
             }
+            SetExpressiveMotion(expressiveMotion);
             PlaceCamera();
         }
 
@@ -57,7 +65,11 @@ namespace WeatherHouseSquirrelLab
         {
             if (Input.GetKeyDown(KeyCode.Space)) SetPaused(!paused);
             if (Input.GetKeyDown(KeyCode.T)) tailWave = !tailWave;
+            if (Input.GetKeyDown(KeyCode.E)) SetExpressiveMotion(!expressiveMotion);
             if (Input.GetKeyDown(KeyCode.Tab)) showPanel = !showPanel;
+            if (Input.GetKeyDown(KeyCode.Alpha0)) FocusActor(-1);
+            for (int i = 0; i < Mathf.Min(6, actors.Length); i++)
+                if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i))) FocusActor(i);
             if (!paused) previewTime += Time.deltaTime;
 
             bool overPanel = showPanel && panel.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
@@ -67,7 +79,7 @@ namespace WeatherHouseSquirrelLab
                 cameraPitch = Mathf.Clamp(cameraPitch - Input.GetAxis("Mouse Y") * 2f, 8f, 75f);
             }
             if (!overPanel && galleryCamera != null)
-                galleryCamera.orthographicSize = Mathf.Clamp(galleryCamera.orthographicSize - Input.mouseScrollDelta.y * 0.4f, 2.5f, 13f);
+                galleryCamera.orthographicSize = Mathf.Clamp(galleryCamera.orthographicSize - Input.mouseScrollDelta.y * 0.4f, 1.25f, 13f);
             PlaceCamera();
         }
 
@@ -100,11 +112,46 @@ namespace WeatherHouseSquirrelLab
                 }
         }
 
+        public void SetExpressiveMotion(bool value)
+        {
+            expressiveMotion = value;
+            foreach (Actor actor in actors)
+            {
+                if (actor.animator == null || actor.clip == null || actor.expressiveClip == null) continue;
+                float phase = actor.animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                if (actor.overrides == null)
+                    actor.overrides = new AnimatorOverrideController(actor.animator.runtimeAnimatorController);
+                actor.overrides[actor.clip] = value ? actor.expressiveClip : actor.clip;
+                actor.animator.runtimeAnimatorController = actor.overrides;
+                actor.animator.Play("Preview", 0, phase);
+                actor.animator.Update(0f);
+            }
+        }
+
         public void PlaceCamera()
         {
             if (galleryCamera == null) return;
             galleryCamera.transform.position = cameraTarget + Quaternion.Euler(cameraPitch, cameraYaw, 0f) * Vector3.back * cameraDistance;
             galleryCamera.transform.LookAt(cameraTarget);
+        }
+
+        public void FocusActor(int index)
+        {
+            if (galleryCamera == null || index < -1 || index >= actors.Length) return;
+            focusedActor = index;
+            cameraYaw = 0f;
+            if (index < 0)
+            {
+                cameraTarget = overviewTarget;
+                galleryCamera.orthographicSize = 6.4f;
+            }
+            else
+            {
+                Transform actor = actors[index].animator.transform;
+                cameraTarget = (actor.parent != null ? actor.parent.position : actor.position) + Vector3.up * 1.1f;
+                galleryCamera.orthographicSize = 1.8f;
+            }
+            PlaceCamera();
         }
 
         private void OnGUI()
@@ -120,14 +167,28 @@ namespace WeatherHouseSquirrelLab
             GUI.Box(panel, GUIContent.none);
             GUILayout.BeginArea(new Rect(panel.x + 14f, panel.y + 10f, panel.width - 28f, panel.height - 20f));
             GUILayout.Label("松鼠 · UniMate 动作展示", headingStyle);
-            GUILayout.Label("主体保留生成结果；尾巴叠加大幅 S 形摆动。短片结束直接回到开头。", textStyle);
+            GUILayout.Label("加大手脚动作，加入压缩回弹；可切换原版对比。短片结束回到开头。", textStyle);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(paused ? "继续 Space" : "暂停 Space", GUILayout.Height(28f))) SetPaused(!paused);
             if (GUILayout.Button("重新播放", GUILayout.Height(28f))) Restart();
             GUILayout.EndHorizontal();
             tailWave = GUILayout.Toggle(tailWave, "S 形尾巴 T（关闭查看原始尾巴）");
+            bool expressive = GUILayout.Toggle(expressiveMotion, "动作增强 E（关闭对比原版）");
+            if (expressive != expressiveMotion) SetExpressiveMotion(expressive);
             GUILayout.Label("尾巴幅度  " + tailAmplitude.ToString("0") + "°", textStyle);
             tailAmplitude = GUILayout.HorizontalSlider(tailAmplitude, 0f, 65f);
+            if (GUILayout.Button("0 总览")) FocusActor(-1);
+            string[] focusLabels = { "1 行走", "2 奔跑", "3 招手", "4 跳舞", "5 转身", "6 跳跃" };
+            for (int row = 0; row < 2; row++)
+            {
+                GUILayout.BeginHorizontal();
+                for (int column = 0; column < 3; column++)
+                {
+                    int index = row * 3 + column;
+                    if (index < actors.Length && GUILayout.Button(focusLabels[index])) FocusActor(index);
+                }
+                GUILayout.EndHorizontal();
+            }
             GUILayout.Label("右键拖动旋转视角 · 滚轮缩放\nTab 隐藏面板", textStyle);
             GUILayout.EndArea();
             GUI.skin.font = previousFont;
@@ -154,7 +215,9 @@ namespace WeatherHouseSquirrelLab
             public bool playing;
             public bool paused;
             public bool tailWave;
+            public bool expressiveMotion;
             public float tailAmplitude;
+            public int focusedActor;
             public ActorReport[] actors;
         }
 
@@ -164,6 +227,8 @@ namespace WeatherHouseSquirrelLab
             {
                 scene = gameObject.scene.path, playing = Application.isPlaying,
                 paused = paused, tailWave = tailWave, tailAmplitude = tailAmplitude,
+                expressiveMotion = expressiveMotion,
+                focusedActor = focusedActor,
                 actors = new ActorReport[actors.Length]
             };
             for (int i = 0; i < actors.Length; i++)

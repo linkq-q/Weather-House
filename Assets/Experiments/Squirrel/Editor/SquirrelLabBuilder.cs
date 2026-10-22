@@ -32,7 +32,7 @@ namespace WeatherHouseSquirrelLab.Editor
                     throw new FileNotFoundException("Missing generated squirrel motion: " + id);
 
             Directory.CreateDirectory(Generated);
-            Directory.CreateDirectory(Root + "/Scenes");
+            Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
             AssetDatabase.Refresh();
             string[] models = Directory.GetFiles(Root + "/Models", "*.fbx")
                 .Select(path => path.Replace('\\', '/'))
@@ -185,8 +185,25 @@ namespace WeatherHouseSquirrelLab.Editor
         {
             SkinnedMeshRenderer[] renderers = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             if (renderers.Length == 0) throw new InvalidOperationException("No renderer in " + model.name);
-            Bounds bounds = renderers[0].bounds;
-            foreach (Renderer renderer in renderers) bounds.Encapsulate(renderer.bounds);
+            bool hasVertex = false;
+            Bounds bounds = default;
+            // Imported renderer bounds cover the entire animation, not just the binding geometry.
+            foreach (SkinnedMeshRenderer renderer in renderers)
+            {
+                if (renderer.sharedMesh == null) continue;
+                Matrix4x4 toWorld = renderer.transform.localToWorldMatrix;
+                foreach (Vector3 vertex in renderer.sharedMesh.vertices)
+                {
+                    Vector3 point = toWorld.MultiplyPoint3x4(vertex);
+                    if (!hasVertex)
+                    {
+                        bounds = new Bounds(point, Vector3.zero);
+                        hasVertex = true;
+                    }
+                    else bounds.Encapsulate(point);
+                }
+            }
+            if (!hasVertex) throw new InvalidOperationException("No binding mesh vertices in " + model.name);
             return bounds;
         }
 
