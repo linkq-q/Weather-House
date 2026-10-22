@@ -10705,6 +10705,7 @@ GameObject:
   - component: {fileID: 320149355}
   - component: {fileID: 320149354}
   - component: {fileID: 320149357}
+  - component: {fileID: 320149358}
   m_Layer: 4
   m_Name: "03 \u6D45\u9752\u8272\u6C60\u6C34 \xB7 \u6750\u8D28\u53EF\u8C03"
   m_TagString: Untagged
@@ -10794,6 +10795,29 @@ MonoBehaviour:
   reflectionLayers:
     serializedVersion: 2
     m_Bits: 4294967279
+--- !u!114 &320149358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 320149353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62be027f4ee91344ea4059e6c0ca05c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waterRenderer: {fileID: 320149354}
+  meadow: {fileID: 1595740867}
+  player: {fileID: 26940401}
+  simulationShader: {fileID: 4800000, guid: 7ef8d904074cbd14890113d10a7d5c99, type: 3}
+  resolution: 256
+  strength: 1
+  radius: 0.38
+  decay: 1.25
+  waveSpeed: 1.15
+  teleportDistance: 1.5
+  fieldPadding: 0.4
 --- !u!1 &320411675
 GameObject:
   m_ObjectHideFlags: 0

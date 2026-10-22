@@ -100,6 +100,33 @@ namespace WeatherHouse.Vegetation
             if (player.capeCloth) player.capeCloth.ResetSimulation();
         }
 
+        public void TeleportToPondShallows()
+        {
+            Connect();
+            GrassMeadow main = Region(0);
+            if (!main) return;
+            labView.SelectRegion(0);
+            SetCharacterMode(true);
+            Vector2 direction = new Vector2(-.707107f, -.707107f * .74f);
+            float low = 0, high = main.pondRadius * 2;
+            Vector2 point = main.pondCenter;
+            for (int i = 0; i < 30; i++)
+            {
+                float radius = (low + high) * .5f;
+                point = main.pondCenter + direction * radius;
+                if (main.GetGroundHeight(point.x, point.y) < main.waterLevel + .12f) low = radius;
+                else high = radius;
+            }
+            Vector3 position = main.transform.TransformPoint(new Vector3(point.x, main.GetGroundHeight(point.x, point.y) + .04f, point.y));
+            Vector3 forward = main.transform.TransformDirection(new Vector3(-direction.x, 0, -direction.y)).normalized;
+            Quaternion rotation = Quaternion.LookRotation(forward);
+            MoveAndReset(position, rotation);
+            player.cameraYaw = rotation.eulerAngles.y; player.cameraPitch = 22; player.cameraDistance = 4.8f;
+            player.ReleaseScriptedInput();
+            player.SetDemonstration(ForestSpriteDemoController.Demonstration.Manual);
+            PlacePlayerCamera(); UpdateCapeFloor();
+        }
+
         void PlacePlayerCamera()
         {
             Vector3 target = player.transform.position + Vector3.up * player.cameraHeight;
@@ -152,11 +179,13 @@ namespace WeatherHouse.Vegetation
             float left = CharacterMode ? 324 : 398, right = CharacterMode ? 324 : 12;
             float width = Mathf.Min(760, Mathf.Max(120, Screen.width - left - right));
             int columns = Mathf.Clamp(Mathf.FloorToInt((width - 16) / 116), 1, count);
-            float height = 64 + Mathf.CeilToInt(count / (float)columns) * 34;
+            float height = 98 + Mathf.CeilToInt(count / (float)columns) * 34;
             float x = Mathf.Clamp(left + (Screen.width - left - right - width) * .5f, 12, Mathf.Max(12, Screen.width - width - 12));
             GUILayout.BeginArea(new Rect(x, Mathf.Max(12, Screen.height - height - 12), width, height), GUI.skin.box);
             if (GUILayout.Button(CharacterMode ? "F6 · 切回草地浏览与参数" : "F6 · 进入角色试玩", button, GUILayout.Height(28)))
                 SetCharacterMode(!CharacterMode);
+            if (GUILayout.Button("池塘浅滩 · 向前走入水，查看波纹拖尾", button, GUILayout.Height(28)))
+                TeleportToPondShallows();
             GUILayout.Label(CharacterMode ? "传送区域 · WASD 走 / Shift 跑 / Space 跳" : "角色暂停在原地 · 切换后可传送", label);
             bool enabledBefore = GUI.enabled;
             GUI.enabled = enabledBefore && CharacterMode;
