@@ -5,6 +5,9 @@ Shader "Weather House/Painterly Ground"
         _BaseColor("Meadow Bed", Color) = (0.40, 0.49, 0.22, 1)
         _PatchColor("Warm Pigment", Color) = (0.57, 0.62, 0.31, 1)
         _ShoreColor("Shore Ochre", Color) = (0.69, 0.66, 0.45, 1)
+        _BoundaryHardness("Meadow boundary hardness", Range(0, 1)) = 0
+        _BoundaryBreakup("Meadow boundary breakup", Range(0, 0.25)) = 0
+        _BoundarySize("Meadow boundary group size (metres)", Range(0.15, 3)) = 0.65
         _ShadowTint("Cool Shadow", Color) = (0.56, 0.69, 0.62, 1)
         _WaterLevel("Water Height", Float) = 0
         _PatchScale("Pigment Patch Scale", Range(0.02, 2)) = 0.23
@@ -18,6 +21,7 @@ Shader "Weather House/Painterly Ground"
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor, _PatchColor, _ShoreColor, _ShadowTint;
             float _WaterLevel, _PatchScale;
+            float _BoundaryHardness, _BoundaryBreakup, _BoundarySize;
         CBUFFER_END
         struct Attributes { float4 positionOS:POSITION; float3 normalOS:NORMAL; };
         float Noise(float2 p)
@@ -54,7 +58,15 @@ Shader "Weather House/Painterly Ground"
             {
                 float patch=Noise(i.world.xz*_PatchScale);
                 float brush=Noise(i.world.xz*float2(2.1,4.8));
-                half3 meadow=lerp(_BaseColor.rgb,_PatchColor.rgb,smoothstep(0.30,0.75,patch)*0.65);
+                // Displace only the pigment boundary; leave the broad interiors calm.
+                float2 edgeUV = i.world.xz / max(_BoundarySize, 0.15);
+                float groups = Noise(edgeUV * 0.31 + 17.3);
+                float tufts = Noise(edgeUV * float2(1.0, 0.38));
+                float edgeBand = 1 - smoothstep(0.08, 0.24, abs(patch - 0.525));
+                float edgeField = patch + (tufts - 0.5) * (0.5 + groups) * _BoundaryBreakup * edgeBand;
+                float edgeWidth = max(lerp(0.225, 0.012, _BoundaryHardness), fwidth(edgeField));
+                float pigment = smoothstep(0.525 - edgeWidth, 0.525 + edgeWidth, edgeField);
+                half3 meadow=lerp(_BaseColor.rgb,_PatchColor.rgb,pigment*0.65);
                 meadow*=0.97+0.06*smoothstep(0.35,0.65,brush);
                 float bank=smoothstep(_WaterLevel+0.15,_WaterLevel+0.95,i.world.y+(patch-.5)*.25);
                 half3 surface=lerp(_ShoreColor.rgb,meadow,bank);

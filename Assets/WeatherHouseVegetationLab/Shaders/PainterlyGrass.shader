@@ -4,6 +4,9 @@ Shader "Weather House/Painterly Grass"
     {
         _BaseColor("Root Color", Color) = (0.34, 0.44, 0.11, 1)
         _TipColor("Tip Color", Color) = (0.83, 0.86, 0.31, 1)
+        _BoundaryHardness("Meadow boundary hardness", Range(0, 1)) = 0
+        _BoundaryBreakup("Meadow boundary breakup", Range(0, 0.25)) = 0
+        _BoundarySize("Meadow boundary group size (metres)", Range(0.15, 3)) = 0.65
         _ShadowTint("Cool Shadow Color", Color) = (0.28, 0.43, 0.40, 1)
         _ShadowStrength("Shadow Strength", Range(0, 1)) = 0.85
         _UpNormals("Upward Normals (0 Geometry / 1 Smooth Meadow)", Range(0, 1)) = 1
@@ -33,6 +36,7 @@ Shader "Weather House/Painterly Grass"
             float4 _WindDirection;
             float _ShadowStrength, _PatchScale, _PatchStrength, _UpNormals;
             float _WindStrength, _WindSpeed, _WindScale;
+            float _BoundaryHardness, _BoundaryBreakup, _BoundarySize;
         CBUFFER_END
         struct Attributes
         {
@@ -110,8 +114,16 @@ Shader "Weather House/Painterly Grass"
                 grass *= 0.97 + 0.03 * smoothstep(0.2, 0.55, input.uv.x);
                 // Use the ground's world-space pigment field; geometry remains visible at silhouettes.
                 float meadowPatch = PatchNoise(input.positionWS.xz * _MeadowPatchScale);
+                // Displace only the pigment boundary; leave the broad interiors calm.
+                float2 edgeUV = input.positionWS.xz / max(_BoundarySize, 0.15);
+                float groups = PatchNoise(edgeUV * 0.31 + 17.3);
+                float tufts = PatchNoise(edgeUV * float2(1.0, 0.38));
+                float edgeBand = 1 - smoothstep(0.08, 0.24, abs(meadowPatch - 0.525));
+                float edgeField = meadowPatch + (tufts - 0.5) * (0.5 + groups) * _BoundaryBreakup * edgeBand;
+                float edgeWidth = max(lerp(0.225, 0.012, _BoundaryHardness), fwidth(edgeField));
+                float pigment = smoothstep(0.525 - edgeWidth, 0.525 + edgeWidth, edgeField);
                 half3 meadow = lerp(_MeadowBaseColor.rgb, _MeadowPatchColor.rgb,
-                    smoothstep(0.30, 0.75, meadowPatch) * 0.65);
+                    pigment * 0.65);
                 meadow *= 1 + (pow(saturate(input.uv.y), 0.68) - 0.5) * _BladeContrast * 0.45;
                 grass = lerp(grass, meadow, _MeadowBlend);
                 half3 surface = lerp(grass, input.color.rgb, input.color.a);

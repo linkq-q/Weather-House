@@ -93,7 +93,7 @@ namespace WeatherHouse.Vegetation.Editor
         }
         static void Run(string command)
         {
-            Require(command == "baseline" || command == "verify" || command == "motion", "Unknown check command.");
+            Require(command == "baseline" || command == "verify" || command == "motion" || command == "grass-boundary", "Unknown check command.");
             Require(!EditorApplication.isPlayingOrWillChangePlaymode && SceneManager.sceneCount == 1, "Need one saved scene outside Play.");
             var original = SceneManager.GetActiveScene();
             Require(!original.isDirty && !string.IsNullOrEmpty(original.path), "Unsaved scene was preserved; save it before testing.");
@@ -138,6 +138,34 @@ namespace WeatherHouse.Vegetation.Editor
                     view.Overview(); Render(camera, "before_overview", 1200, 750);
                     view.CloseGrass(); Render(camera, "before_grass", 1200, 750);
                 }
+                else if (command == "grass-boundary")
+                {
+                    WaterGrassLookWindow.ApplyIllustratedStyle(materials); Freeze(materials);
+                    var meadowMaterials = materials.Where(m => m.HasProperty("_BoundaryHardness")).ToArray();
+                    foreach (var m in meadowMaterials) { m.SetFloat("_BoundaryHardness", 0); m.SetFloat("_BoundaryBreakup", 0); }
+                    Render(camera, "boundary_before", 1200, 750);
+                    WaterGrassLookWindow.ApplyIllustratedStyle(materials); Freeze(materials);
+                    Render(camera, "boundary_after", 1200, 750);
+                    foreach (var m in new[] { grass, materials.Single(m => m.shader.name == "Weather House/Painterly Ground") })
+                    {
+                        report.AppendLine(m.shader.name);
+                        Compare(m, "_BoundaryHardness", 0, 1);
+                        Compare(m, "_BoundaryBreakup", 0, .15f);
+                        Compare(m, "_BoundarySize", .2f, 2);
+                    }
+                    view.Overview(); Render(camera, "boundary_overview", 1200, 750);
+                    // Exercise the UI's synchronization path from a changed ground value.
+                    var ground = meadowMaterials.Single(m => m.shader.name == "Weather House/Painterly Ground");
+                    ground.SetFloat("_BoundarySize", 1.3f);
+                    WaterGrassLookWindow.SyncGround(materials);
+                    foreach (var m in meadowMaterials)
+                    {
+                        foreach (string p in new[] { "_BoundaryHardness", "_BoundaryBreakup", "_BoundarySize" })
+                            Require(m.GetFloat(p) == ground.GetFloat(p), "Mismatched meadow boundary " + p);
+                        Require(m.shader.isSupported && !ShaderUtil.ShaderHasError(m.shader), "Shader compile failure: " + m.shader.name);
+                    }
+                    report.AppendLine("PASS ground/grass boundary controls synchronized; shaders supported without compile errors.");
+                }
                 else
                 {
                     foreach (string p in waterProperties) Require(water.HasProperty(p), "Missing water control " + p);
@@ -176,7 +204,7 @@ namespace WeatherHouse.Vegetation.Editor
             {
                 if (window) { window.CancelPreview(); window.Close(); window = null; }
                 EditorSceneManager.OpenScene(originalPath);
-                File.WriteAllText(Folder + (command == "baseline" ? "/baseline.txt" : "/checks.txt"), report.ToString());
+                File.WriteAllText(Folder + (command == "baseline" ? "/baseline.txt" : command == "grass-boundary" ? "/boundary-checks.txt" : "/checks.txt"), report.ToString());
             }
             if (startPlay)
             {

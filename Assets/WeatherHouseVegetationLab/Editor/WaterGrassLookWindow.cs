@@ -189,6 +189,12 @@ namespace WeatherHouse.Vegetation.Editor
                     m.SetFloat("_MeadowBlend", .94f); m.SetFloat("_BladeContrast", .12f);
                     m.SetColor("_ShadowTint", new Color(.56f,.69f,.62f));
                 }
+                if (m.HasProperty("_BoundaryHardness"))
+                {
+                    m.SetFloat("_BoundaryHardness", .97f);
+                    m.SetFloat("_BoundaryBreakup", .16f);
+                    m.SetFloat("_BoundarySize", .45f);
+                }
                 if (m.shader.name == "Skybox/Procedural")
                 {
                     m.SetColor("_SkyTint", new Color(.66f,.73f,.69f));
@@ -206,6 +212,8 @@ namespace WeatherHouse.Vegetation.Editor
                 m.SetColor("_MeadowBaseColor", ground.GetColor("_BaseColor"));
                 m.SetColor("_MeadowPatchColor", ground.GetColor("_PatchColor"));
                 m.SetFloat("_MeadowPatchScale", ground.GetFloat("_PatchScale"));
+                foreach (string property in new[] { "_BoundaryHardness", "_BoundaryBreakup", "_BoundarySize" })
+                    m.SetFloat(property, ground.GetFloat(property));
             }
         }
         void OnGUI()
@@ -265,6 +273,14 @@ namespace WeatherHouse.Vegetation.Editor
                     FloatControl("太阳大小", "_SunSize", 0, 1);
                     EditorGUILayout.HelpBox("天空盒影响水面平面倒影。环境光和雾仍沿用当前场景设置。", MessageType.None);
                 }
+                if (page == 1 || page == 2)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("明暗交界（所有草与地面同步）", EditorStyles.boldLabel);
+                    BoundaryControl("边界硬度", "_BoundaryHardness", 0, 1);
+                    BoundaryControl("边缘起伏强度", "_BoundaryBreakup", 0, .25f);
+                    BoundaryControl("起伏分组尺度（米）", "_BoundarySize", .15f, 3);
+                }
                 if (GUILayout.Button("将地面色块同步到所有草材质")) SyncGround(previews.Values);
                 advanced = EditorGUILayout.Foldout(advanced, "全部 Shader 参数（高级）", true);
                 if (advanced)
@@ -283,6 +299,13 @@ namespace WeatherHouse.Vegetation.Editor
                 if (GUILayout.Button("保存试调到原材质（支持 Undo）")) SavePreview();
             if (Application.isPlaying) EditorGUILayout.HelpBox("Play 试调是临时的。需要保留时，请在编辑模式用同一窗口调整并保存。", MessageType.None);
             if (GUILayout.Button("结束试调，恢复原材质引用")) CancelPreview();
+        }
+        void BoundaryControl(string label, string property, float min, float max)
+        {
+            EditorGUI.BeginChangeCheck();
+            float value = EditorGUILayout.Slider(label, selected.GetFloat(property), min, max);
+            if (EditorGUI.EndChangeCheck())
+                foreach (var material in previews.Values.Where(m => m.HasProperty(property))) material.SetFloat(property, value);
         }
         void FloatControl(string label, string property, float min, float max)
         {
