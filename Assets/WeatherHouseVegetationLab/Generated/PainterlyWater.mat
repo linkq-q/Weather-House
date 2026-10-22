@@ -44,32 +44,45 @@ Material:
     - _HasPlanarReflection: 0
     - _HasSceneColor: 0
     - _InteractionStrength: 0
-    - _Opacity: 0.7
+    - _Opacity: 0.73
     - _ReflectionBrushSize: 1.35
     - _ReflectionBrushStrength: 0.78
     - _ReflectionColorSteps: 8
-    - _ReflectionDistortion: 0.005
+    - _ReflectionDistortion: 0.0045
     - _ReflectionPosterize: 0.48
-    - _ReflectionStrength: 0.82
+    - _ReflectionStrength: 0.802
     - _RefractionStrength: 0.012
     - _RippleSpeed: 0.12
     - _RippleStrength: 0.36
     - _ShadowPigmentBlend: 0.75
-    - _ShoreStrength: 0.68
-    - _ShoreWidth: 0.20
+    - _ShoreStrength: 1
+    - _ShoreWidth: 0.191
     - _SmallStrokeScale: 3.8
-    - _SmallStrokeWeight: 0.75
+    - _SmallStrokeWeight: 0.623
     - _StrokeScale: 0.8
     - _SurfaceStrokeDensity: 0.54
-    - _SurfaceStrokeStrength: 0.84
+    - _SurfaceStrokeStrength: 0.417
     - _UseWaterBrushAtlas: 1
     - _ViewAlignedStrokes: 0.0
+    - _WaterSaturation: 1.09
+    - _ReflectionNear: 0.845
+    - _ReflectionFar: 0.345
+    - _ReflectionFalloff: 3.05
+    - _ReflectionTintStrength: 0
+    - _WaveletStrength: 0.289
+    - _WaveletScale: 0.58
+    - _WaveletSpeed: 0.15
+    - _WaveletLength: 1.25
+    - _FoamSpeed: 0
+    - _FoamTravel: 0.183
+    - _FoamSoftness: 0.101
     m_Colors:
     - _InteractionWorldRect: {r: 0, g: 0, b: 0, a: 0}
     - _BrushDirection: {r: 0.829, g: -0.559, b: 0, a: 0}
-    - _DeepColor: {r: 0.55, g: 0.75, b: 0.74, a: 1}
-    - _ReflectionTint: {r: 0.75, g: 0.86, b: 0.82, a: 1}
-    - _RippleColor: {r: 0.96, g: 0.94, b: 0.82, a: 1}
-    - _ShallowColor: {r: 0.66, g: 0.79, b: 0.75, a: 1}
+    - _DeepColor: {r: 0, g: 0.431372549, b: 0.635294118, a: 1}
+    - _ReflectionTint: {r: 0.2, g: 0.443137255, b: 0.356862745, a: 1}
+    - _RippleColor: {r: 1, g: 0.984313725, b: 0.88627451, a: 1}
+    - _ShallowColor: {r: 0.192156863, g: 1, b: 0.811764706, a: 1}
     - _ShadowPigmentColor: {r: 0.035, g: 0.40, b: 0.43, a: 1}
+    - _FoamColor: {r: 0.992156863, g: 1, b: 0.905882353, a: 1}
   m_BuildTextureStacks: []

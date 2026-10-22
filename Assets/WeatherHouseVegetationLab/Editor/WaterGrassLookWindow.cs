@@ -164,44 +164,13 @@ namespace WeatherHouse.Vegetation.Editor
         }
         public static void ApplyIllustratedStyle(IEnumerable<Material> materials)
         {
-            foreach (var m in materials)
+            var defaults = new[] { "PainterlyWater", "PainterlyGround", "ShortGrass", "TallGrass", "WhiteDaisy", "QuietDaySky" }
+                .Select(name => AssetDatabase.LoadAssetAtPath<Material>(VegetationLabBuilder.Generated + "/" + name + ".mat")).Where(m => m).ToArray();
+            foreach (var material in materials)
             {
-                if (m.shader.name == "Weather House/Painterly Water")
-                {
-                    m.SetColor("_ShallowColor", new Color(.52f,.72f,.64f));
-                    m.SetColor("_DeepColor", new Color(.22f,.52f,.46f));
-                    m.SetColor("_ReflectionTint", new Color(.48f,.68f,.57f));
-                    m.SetColor("_RippleColor", new Color(.83f,.91f,.77f));
-                    m.SetColor("_FoamColor", new Color(.91f,.93f,.80f));
-                    m.SetFloat("_Opacity", .97f); m.SetFloat("_WaterSaturation", 1.12f);
-                    m.SetFloat("_ReflectionNear", .16f); m.SetFloat("_ReflectionFar", .95f);
-                    m.SetFloat("_ReflectionFalloff", 1.6f); m.SetFloat("_ReflectionTintStrength", .22f);
-                    m.SetFloat("_ReflectionStrength", .84f); m.SetFloat("_ReflectionDistortion", .018f);
-                    m.SetFloat("_SurfaceStrokeStrength", .30f); m.SetFloat("_SmallStrokeWeight", .28f);
-                    m.SetFloat("_RippleSpeed", .30f); m.SetFloat("_RippleStrength", .52f);
-                    m.SetFloat("_ShoreWidth", .30f); m.SetFloat("_ShoreStrength", .90f);
-                    m.SetFloat("_FoamSpeed", .65f); m.SetFloat("_FoamTravel", .8f);
-                    m.SetFloat("_FoamSoftness", .05f); m.SetFloat("_WaveletStrength", .32f);
-                    m.SetFloat("_WaveletScale", .7f); m.SetFloat("_WaveletSpeed", .45f);
-                }
-                if (m.shader.name == "Weather House/Painterly Grass")
-                {
-                    m.SetFloat("_MeadowBlend", .94f); m.SetFloat("_BladeContrast", .12f);
-                    m.SetColor("_ShadowTint", new Color(.56f,.69f,.62f));
-                }
-                if (m.HasProperty("_BoundaryHardness"))
-                {
-                    m.SetFloat("_BoundaryHardness", .97f);
-                    m.SetFloat("_BoundaryBreakup", .16f);
-                    m.SetFloat("_BoundarySize", .45f);
-                }
-                if (m.shader.name == "Skybox/Procedural")
-                {
-                    m.SetColor("_SkyTint", new Color(.66f,.73f,.69f));
-                    m.SetFloat("_Exposure", 1.0f);
-                }
+                var source = defaults.FirstOrDefault(m => material.name.StartsWith(m.name) && material.shader == m.shader);
+                if (source) GrassLabView.CopyLook(source, material);
             }
-            SyncGround(materials);
         }
         public static void SyncGround(IEnumerable<Material> materials)
         {
@@ -219,6 +188,19 @@ namespace WeatherHouse.Vegetation.Editor
         void OnGUI()
         {
             EditorGUILayout.LabelField("水体与草地 · 实时画风试调", EditorStyles.boldLabel);
+            if (Application.isPlaying)
+            {
+                EditorGUILayout.HelpBox("运行时请在 Game 的草地面板中选择‘水草画风’，参数拖动立即生效，并可保存为默认值。", MessageType.Info);
+                if (GUILayout.Button("打开 Game 内的水草画风面板"))
+                {
+                    var view = FindObjectOfType<GrassLabView>(true);
+                    var character = FindObjectOfType<VegetationCharacterPreview>();
+                    if (character) character.SetCharacterMode(false);
+                    if (view) view.ShowWaterGrassLook();
+                    EditorApplication.ExecuteMenuItem("Window/General/Game");
+                }
+                return;
+            }
             EditorGUILayout.HelpBox("先打开 VegetationLab。开始试调会使用材质副本；取消、关闭窗口、切换 Play 或编译会恢复。保存只写回本轮预览的材质。", MessageType.Info);
             if (!Previewing)
             {
@@ -226,7 +208,7 @@ namespace WeatherHouse.Vegetation.Editor
                 return;
             }
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("连片草地 / 灰绿池塘")) ApplyIllustratedStyle(previews.Values);
+            if (GUILayout.Button("读取已保存默认画风")) ApplyIllustratedStyle(previews.Values);
             if (GUILayout.Button("还原本次初始值")) foreach (var pair in previews) pair.Value.CopyPropertiesFromMaterial(pair.Key);
             EditorGUILayout.EndHorizontal();
             page = GUILayout.Toolbar(page, new[] { "水体", "草地", "地面", "天空" });

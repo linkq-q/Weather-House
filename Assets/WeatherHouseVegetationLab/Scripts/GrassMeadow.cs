@@ -30,7 +30,12 @@ namespace WeatherHouse.Vegetation
         public int[] Counts { get { return (int[])counts.Clone(); } }
         readonly List<Mesh> runtimeMeshes = new List<Mesh>();
         readonly List<Material> runtimeMaterials = new List<Material>();
+        readonly Dictionary<Material, Material> sourceMaterials = new Dictionary<Material, Material>();
         GrassSpecies[] runtimeSpecies;
+        public Material SourceMaterial(Material material)
+        {
+            return material && sourceMaterials.TryGetValue(material, out var source) ? source : material;
+        }
 
         public int SpeciesCount { get { return species == null ? 0 : species.Length; } }
         public string ConfigurationError
@@ -104,6 +109,7 @@ namespace WeatherHouse.Vegetation
                 var original = materials[i];
                 materials[i] = Instantiate(original);
                 runtimeMaterials.Add(materials[i]);
+                sourceMaterials.Add(materials[i], original);
                 foreach (var renderer in GetComponentsInChildren<MeshRenderer>())
                     if (renderer.sharedMaterial == original) renderer.sharedMaterial = materials[i];
             }

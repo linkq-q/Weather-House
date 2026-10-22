@@ -4,7 +4,7 @@ namespace WeatherHouse.Vegetation
 {
     [RequireComponent(typeof(Camera))]
     [DefaultExecutionOrder(-10)]
-    public class GrassLabView : MonoBehaviour
+    public partial class GrassLabView : MonoBehaviour
     {
         public GrassMeadow meadow;
         [Tooltip("可选的地形区块列表。留空时保持原场景单一区域操作。")]
@@ -14,7 +14,7 @@ namespace WeatherHouse.Vegetation
         [HideInInspector] public float distance = 31, yaw = -30, pitch = 27;
         public bool showPanel = true;
         Font font;
-        GUIStyle label, title, button;
+        GUIStyle label, title, button, tabs;
         GrassLabCamera navigation;
         Vector2 scroll;
         int page, selectedSpecies;
@@ -67,6 +67,7 @@ namespace WeatherHouse.Vegetation
                 label = new GUIStyle(GUI.skin.label) { font = font, fontSize = 14, wordWrap = true };
                 title = new GUIStyle(label) { fontSize = 22, fontStyle = FontStyle.Bold };
                 button = new GUIStyle(GUI.skin.button) { font = font, fontSize = 14, wordWrap = true };
+                tabs = new GUIStyle(button) { fontSize = 12, wordWrap = false };
             }
             Rect rect = PanelRect;
             GUI.Box(rect, GUIContent.none);
@@ -84,19 +85,21 @@ namespace WeatherHouse.Vegetation
                 int chosen = GUILayout.SelectionGrid(selected, labels, 2, button, GUILayout.Height(Mathf.CeilToInt(labels.Length / 2f) * 34));
                 if (chosen != selected) SelectRegion(chosen);
             }
-            page = GUILayout.Toolbar(page, new[] { "比例", "形状", "颜色/风", "相机" }, button, GUILayout.Height(30));
+            page = GUILayout.Toolbar(page, new[] { "比例", "形状", "颜色/风", "相机", "水草画风" }, tabs, GUILayout.Height(30));
             scroll = GUILayout.BeginScrollView(scroll);
             GUILayout.Space(8);
             if (meadow.ConfigurationError != null && page != 3) GUILayout.Label(meadow.ConfigurationError, label);
             else if (page == 0) DrawMeadow();
             else if (page == 1) DrawShape();
             else if (page == 2) DrawAppearance();
-            else DrawCamera();
+            else if (page == 3) DrawCamera();
+            else DrawWaterGrassLook();
             GUILayout.EndScrollView();
             GUILayout.Space(6);
             if (!string.IsNullOrEmpty(meadow.LiveError)) GUILayout.Label("更新失败：" + meadow.LiveError, label);
             else GUILayout.Label(meadow.IsLiveUpdating ? "正在更新草地 · " + (meadow.LiveProgress * 100).ToString("F0") + "%" : "草地已同步", label);
-            GUILayout.Label("拖动即更新，松开后自动完成整片草地。\nTab 隐藏面板 · 4 行走 · 5 飞行\nPlay 试调退出后恢复，永久保存请在 Inspector 中编辑。", label);
+            if (page == 4) GUILayout.Label("拖动立即改变画风；点击保存可在重开场景后保留。\nTab 隐藏面板 · 4 行走 · 5 飞行", label);
+            else GUILayout.Label("拖动即更新，松开后自动完成整片草地。\nTab 隐藏面板 · 4 行走 · 5 飞行\nPlay 试调退出后恢复，永久保存请在 Inspector 中编辑。", label);
             if (Navigation.libraryLayout) GUILayout.Label("参数作用于右侧混合草地；左侧展示台保留已保存的资源样本。", label);
             GUILayout.EndArea();
         }
@@ -233,7 +236,7 @@ namespace WeatherHouse.Vegetation
             int changed = Mathf.RoundToInt(GUILayout.HorizontalSlider(value, min, max) / step) * step;
             return changed;
         }
-        void OnDestroy() { if (font) Destroy(font); }
+        void OnDestroy() { RestoreLookMaterials(); if (font) Destroy(font); }
     }
 
     // The runtime panel and Inspector share the fields that each mesh actually uses.
