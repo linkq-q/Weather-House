@@ -1,0 +1,25 @@
+Original trees — static material port
+UTC 2026-10-22T05:09:18.1203517Z
+GPU NVIDIA GeForce RTX 5060 Laptop GPU
+PASS Birch: original FBX vs Unity, 32 leaf triangles / 96 corners; position max 0 m; UV0 max 0; minimum N/T/B dot 0.9999999; unit basis, tangent sign and UE->Unity world axes verified.
+PASS Birch: 15.96560 m local/world height; original position and unit world scale; 7296 triangles; normals/tangents/UV0-2 present; correct material slots.
+  vertex 0 pos=(-1.06307, 9.01617, -0.14712) normal=(-0.35578, 0.45856, -0.81434) tangent=(-0.11770, -0.88664, -0.44724, -1.00000) uv=(0.81689, 0.61914)
+  vertex 1 pos=(-1.08419, 8.99650, -0.14174) normal=(-0.28270, 0.04712, -0.95805) tangent=(0.18141, -0.97805, -0.10254, -1.00000) uv=(0.81689, 0.62085)
+  vertex 2 pos=(-1.08300, 9.00935, -0.15300) normal=(-0.61283, 0.23570, -0.75425) tangent=(-0.50464, -0.85158, 0.14193, -1.00000) uv=(0.81641, 0.62036)
+  vertex 3 pos=(-1.05752, 8.84436, -0.18487) normal=(-0.37048, -0.11036, -0.92226) tangent=(0.38586, -0.92135, -0.04725, -1.00000) uv=(0.84131, 0.36914)
+PASS Beech: original FBX vs Unity, 32 leaf triangles / 96 corners; position max 0 m; UV0 max 0; minimum N/T/B dot 0.9999999; unit basis, tangent sign and UE->Unity world axes verified.
+PASS Beech: 9.10423 m local/world height; original position and unit world scale; 10389 triangles; normals/tangents/UV0-2 present; correct material slots.
+  vertex 0 pos=(-0.14391, -0.00958, 0.02237) normal=(-0.96859, 0.04725, -0.24412) tangent=(0.18150, 0.79701, -0.57605, -1.00000) uv=(0.73535, 0.41797)
+  vertex 1 pos=(-0.12066, 0.01859, 0.00303) normal=(-0.99938, -0.01574, 0.03148) tangent=(-0.03150, 0.85845, -0.51192, -1.00000) uv=(0.73779, 0.41797)
+  vertex 2 pos=(-0.14174, 0.08775, 0.05471) normal=(-0.99299, 0.07093, 0.09457) tangent=(0.02361, 0.88941, -0.45651, -1.00000) uv=(0.73779, 0.42188)
+  vertex 3 pos=(0.14334, -0.13515, -0.08263) normal=(0.54397, -0.37841, -0.74894) tangent=(-0.83413, -0.13378, -0.53510, -1.00000) uv=(0.51563, 0.86792)
+PASS FirTree: original FBX vs Unity, 32 leaf triangles / 96 corners; position max 0 m; UV0 max 0; minimum N/T/B dot 0.9999999; unit basis, tangent sign and UE->Unity world axes verified.
+PASS FirTree: 6.61013 m local/world height; original position and unit world scale; 27268 triangles; normals/tangents/UV0-2 present; correct material slots.
+  vertex 0 pos=(0.88655, 3.39784, 0.15296) normal=(0.27545, 0.96015, 0.04722) tangent=(-0.31573, 0.13419, -0.93931, -1.00000) uv=(0.09033, 0.92047)
+  vertex 1 pos=(1.13228, 3.43833, 0.19155) normal=(0.33932, 0.93905, 0.05524) tangent=(-0.29098, 0.15729, -0.94371, -1.00000) uv=(0.08252, 0.97545)
+  vertex 2 pos=(0.91514, 3.29913, 0.30592) normal=(0.29111, 0.95202, 0.09442) tangent=(-0.38650, 0.20508, -0.89920, -1.00000) uv=(0.05698, 0.91528)
+  vertex 3 pos=(1.15907, 3.48696, 0.09577) normal=(0.33967, 0.94001, 0.03160) tangent=(-0.19660, 0.10223, -0.97514, -1.00000) uv=(0.10309, 0.98477)
+Ambient SH L0 RGB: 0.1141709, 0.1539346, 0.2198427
+PASS GPU original fluffy displacement: 24270 pixels changed in 512 square capture.
+PASS GPU leaf clipping: 31711 pixels changed with all Birch leaves clipped.
+PASS actual Play captures. Artistic similarity remains a visual review, not a test assertion.

@@ -1,0 +1,98 @@
+{
+  "MI_Foliage_Beech": {
+    "LeavesSize": 30.0,
+    "TopColorGradientHeight": 0.19998100399971008,
+    "TopColorGradientWidth": 1.344001054763794,
+    "ColorVariationNoiseTiling": 407.9891052246094,
+    "Opacity": 0.05000000074505806,
+    "RefractionDepthBias": 0.0,
+    "TopColor": [
+      0.4625000059604645,
+      0.0,
+      0.034703999757766724,
+      1.0
+    ],
+    "NoiseColor": [
+      0.3666659891605377,
+      0.22531600296497345,
+      0.0,
+      1.0
+    ],
+    "SubsurfaceColor": [
+      0.512499988079071,
+      0.3393070101737976,
+      0.0,
+      1.0
+    ],
+    "LeavesAlpha": "/Game/Textures/Leaves/TXT_Leaves_Beech.TXT_Leaves_Beech"
+  },
+  "MI_Foliage_Birch": {
+    "LeavesSize": 40.0,
+    "TopColorGradientHeight": 0.37599098682403564,
+    "TopColorGradientWidth": 0.2879999876022339,
+    "ColorVariationNoiseTiling": 1056.726806640625,
+    "Opacity": 0.05000000074505806,
+    "RefractionDepthBias": 0.0,
+    "TopColor": [
+      0.4083330035209656,
+      0.1861169934272766,
+      0.0389069989323616,
+      1.0
+    ],
+    "NoiseColor": [
+      0.6875,
+      0.39123299717903137,
+      0.020510999485850334,
+      1.0
+    ],
+    "SubsurfaceColor": [
+      0.4208329916000366,
+      0.056471001356840134,
+      0.0,
+      1.0
+    ],
+    "LeavesAlpha": "/Game/Textures/Leaves/TXT_Leaves_Birch.TXT_Leaves_Birch"
+  },
+  "MI_Foliage_FirTree": {
+    "LeavesSize": -1.2722630500793457,
+    "TopColorGradientHeight": 1.6079909801483154,
+    "TopColorGradientWidth": 5.0,
+    "ColorVariationNoiseTiling": 744.4962158203125,
+    "Opacity": 0.05000000074505806,
+    "RefractionDepthBias": 0.0,
+    "TopColor": [
+      0.05833299830555916,
+      0.026436999440193176,
+      0.0,
+      1.0
+    ],
+    "NoiseColor": [
+      0.1348710060119629,
+      0.15000000596046448,
+      0.0538799986243248,
+      1.0
+    ],
+    "SubsurfaceColor": [
+      0.024521000683307648,
+      0.07916700094938278,
+      0.0,
+      1.0
+    ],
+    "LeavesAlpha": "/Game/Textures/Leaves/TXT_Leaves_FirTree.TXT_Leaves_FirTree"
+  },
+  "MI_Trunk_Beech": {
+    "RefractionDepthBias": 0.0,
+    "BaseColor": "/Game/Textures/Trunks/TXT_Trunk_Beech_BaseColor.TXT_Trunk_Beech_BaseColor",
+    "AmbientOcclusion": "/Game/Textures/Trunks/TXT_Trunk_Beech_AO.TXT_Trunk_Beech_AO"
+  },
+  "MI_Trunk_Birch": {
+    "RefractionDepthBias": 0.0,
+    "BaseColor": "/Game/Textures/Trunks/TXT_Trunk_Birch_BaseColor.TXT_Trunk_Birch_BaseColor",
+    "AmbientOcclusion": "/Game/Textures/Trunks/TXT_Trunk_Birch_AO.TXT_Trunk_Birch_AO"
+  },
+  "MI_Trunk_FirTree": {
+    "RefractionDepthBias": 0.0,
+    "BaseColor": "/Game/Textures/Trunks/TXT_Trunk_FirTree_BaseColor.TXT_Trunk_FirTree_BaseColor",
+    "AmbientOcclusion": "/Game/Textures/Trunks/TXT_Trunk_FirTree_AO.TXT_Trunk_FirTree_AO"
+  }
+}

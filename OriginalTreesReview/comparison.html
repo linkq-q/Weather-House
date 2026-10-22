@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原作者树木 · Unity 移植对照</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111919;color:#e8e9dc;font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1440px;margin:auto;padding:36px 32px 64px}h1{font-size:30px;line-height:1.3;margin:8px 0 12px}p{max-width:850px;margin:8px 0;color:#bdc7c3}.eyebrow{color:#ddc98f;font-size:13px;letter-spacing:2px}a{color:#ddc98f}figure{margin:0;background:#1c2626}figcaption{padding:12px 18px;color:#d5ddd8}img{display:block;width:100%;height:auto}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 20px}.pair img{aspect-ratio:1;object-fit:contain;background:#253c50}h2{font-size:20px;margin-top:38px}.details{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.note{border-left:3px solid #bda76a;padding:4px 18px;margin:26px 0}.foot{font-size:13px;color:#98aaa3;margin-top:36px}code{font:14px ui-monospace,monospace;background:#27312f;padding:2px 6px;border-radius:4px}@media(max-width:650px){main{padding:24px 16px 40px}h1{font-size:24px}.pair,.details{grid-template-columns:1fr}.pair{gap:22px}}
+</style>
+<main>
+<div class="eyebrow">WEATHER HOUSE / 原项目移植 / 第一批</div>
+<h1>原作者的树，移植到 Unity</h1>
+<p>使用 Anastasia Kasyanik 公开项目中的白桦、山毛榉和冷杉。模型保持原尺寸与法线，材质沿用原叶片贴图、颜色参数与树冠膨胀逻辑。</p>
+<div class="pair">
+<figure><a href="Author_Original.png"><img src="Author_Original.png" alt="原作者公开项目的三树展示图，左为白桦，中为山毛榉，右为冷杉"></a><figcaption>原作者原图 · UE 项目 README</figcaption></figure>
+<figure><a href="Unity_ThreeTrees.png"><img src="Unity_ThreeTrees.png" alt="Unity 实际 Play 模式拍摄的三树移植对照"></a><figcaption>Unity 实拍 · URP 14 · 点击查看原尺寸</figcaption></figure>
+</div>
+<div class="note"><p>先看树冠轮廓、叶缘孔隙和亮暗层次。相机按原图估计；Unity 的薄叶透光为近似实现，天空与地面是对照布景。本批保持树木静止，森林场景等待画面确认后继续。</p></div>
+<h2>单树近景</h2>
+<div class="details">
+<figure><a href="Unity_Birch.png"><img src="Unity_Birch.png" loading="lazy" alt="Unity 白桦近景"></a><figcaption>白桦 · Birch</figcaption></figure>
+<figure><a href="Unity_Beech.png"><img src="Unity_Beech.png" loading="lazy" alt="Unity 山毛榉近景"></a><figcaption>山毛榉 · Beech</figcaption></figure>
+<figure><a href="Unity_FirTree.png"><img src="Unity_FirTree.png" loading="lazy" alt="Unity 冷杉近景"></a><figcaption>冷杉 · Fir</figcaption></figure>
+</div>
+<h2>查看与复验</h2>
+<p>Unity 菜单 <code>Weather House → Original Trees → 打开原作者树木对照</code>。进入 Play 查看固定视角，Scene 窗口可自由查看模型。</p>
+<p><a href="checks.txt">本批实际检查记录</a>包含原始尺寸、三角形数量、叶片顶点属性、材质裁切与实际 GPU 拍摄。检查通过表示移植行为已验证，画面是否接近原图仍由视觉对照判断。</p>
+<p class="foot">来源 <a href="https://github.com/AnastasiaKasyanik/stylized-cozy-trees">stylized-cozy-trees</a> · Anastasia Kasyanik · 作者资产 MIT 许可。原图保留原貌；Unity 图片来自本机实际渲染。独立对照场景没有接入天气屋主地图。</p>
+</main>
+</html>
