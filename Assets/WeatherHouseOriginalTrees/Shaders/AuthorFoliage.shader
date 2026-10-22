@@ -14,6 +14,7 @@ Shader "Weather House/Author Foliage Static"
         _ColorVariationNoiseTiling("Author noise world period (centimetres)", Float) = 2000
         _Cutoff("Author opacity mask clip", Range(0,1)) = .3333
         _Opacity("Author subsurface Opacity", Range(0,1)) = .05
+        _TransmissionThicknessScale("URP blocker thickness scale", Range(0,2)) = 1
         [ToggleUI] _ApproximateSubsurface("URP scattering approximation (not UE Subsurface)", Float) = 1
         [HideInInspector] _UEWorldX("UE world X in Unity coordinates", Vector) = (0,0,1,0)
         [HideInInspector] _UEWorldY("UE world Y in Unity coordinates", Vector) = (1,0,0,0)
@@ -38,8 +39,43 @@ Shader "Weather House/Author Foliage Static"
             float4 _TopColor, _NoiseColor, _SubsurfaceColor;
             float4 _UEWorldX, _UEWorldY, _UEWorldZ;
             float _LeavesSize, _IsFluffy, _TopColorGradientHeight, _TopColorGradientWidth;
-            float _ColorVariationNoiseTiling, _Cutoff, _Opacity, _ApproximateSubsurface;
+            float _ColorVariationNoiseTiling, _Cutoff, _Opacity, _ApproximateSubsurface, _TransmissionThicknessScale;
         CBUFFER_END
+
+        // URP 14: Shadows.hlsl supplies _MainLightShadowmapTexture and sampler_PointClamp.
+        // Call after GetMainLight: AuthorTransmissionShadow(input.positionWS,sun.direction,sun.shadowAttenuation).
+        // Approximate UE's closest-blocker thickness using the existing directional shadow atlas; no new RT.
+        half AuthorTransmissionShadow(float3 positionWS, half3 lightDirectionWS, half surfaceShadow)
+        {
+
+            #if defined(_MAIN_LIGHT_SHADOWS_SCREEN)
+                return surfaceShadow; // Screen visibility has no blocker depth; keep its occlusion.
+            #elif !defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+                return 1;
+            #else
+                uint cascade = 0;
+                #if defined(_MAIN_LIGHT_SHADOWS_CASCADE)
+                    cascade = (uint)ComputeCascadeIndex(positionWS);
+                    if (cascade >= MAX_SHADOW_CASCADES) return 1;
+                #endif
+                float4x4 worldToShadow = _MainLightWorldToShadow[cascade];
+                float3 coord = mul(worldToShadow,float4(positionWS,1)).xyz;
+                if (any(coord.xy < 0) || any(coord.xy > 1) || coord.z <= 0 || coord.z >= 1) return 1;
+                float blockerDepth = SAMPLE_TEXTURE2D_LOD(_MainLightShadowmapTexture,sampler_PointClamp,coord.xy,0).r;
+                #if UNITY_REVERSED_Z
+                    float depthDifference = blockerDepth - coord.z;
+                #else
+                    float depthDifference = coord.z - blockerDepth;
+                #endif
+                float depthPerMetre = abs(dot(worldToShadow[2].xyz,lightDirectionWS));
+                if (depthPerMetre < 1e-7) return 1;
+                float thicknessCm = max(depthDifference,0) / depthPerMetre * 100;
+                float densityPerCm = -0.05 * log(1 - clamp(_Opacity,0,0.99));
+                half transmission = exp(-thicknessCm * densityPerCm * _TransmissionThicknessScale);
+                transmission = lerp(1,transmission,_MainLightShadowParams.x);
+                return lerp(transmission,1,GetMainLightShadowFade(positionWS));
+            #endif
+        }
 
         struct Attributes
         {
@@ -144,6 +180,7 @@ Shader "Weather House/Author Foliage Static"
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 
             half4 AuthorForward(Varyings input) : SV_Target
             {
@@ -178,10 +215,8 @@ Shader "Weather House/Author Foliage Static"
                 half through = pow(saturate(dot(sun.direction,-lighting.viewDirectionWS)),12) * lerp(3,.1,_Opacity);
                 // The scene converts UE directional intensity to URP with intensity / PI.
                 // This term already contains UE's 1/(2*PI), so restore PI here to avoid converting it twice.
-                // Thin-leaf approximation: URP has no independent transmission-thickness/shadow buffer.
-                // The author's low Opacity lets scattered light cross a leaf even under an opaque surface shadow;
-                // this opacity blend is a comparison candidate, not UE Subsurface parity.
-                half transmissionShadow = lerp(1,sun.shadowAttenuation,_Opacity);
+                // shortcut: nearest-blocker depth estimates optical thickness; it is not a full UE transmission buffer.
+                half transmissionShadow = AuthorTransmissionShadow(input.positionWS,sun.direction,sun.shadowAttenuation);
                 color += _ApproximateSubsurface * _SubsurfaceColor.rgb * lerp(back,1,through)
                          * sun.color * PI * sun.distanceAttenuation * transmissionShadow;
                 return half4(MixFog(color,input.fog),1);

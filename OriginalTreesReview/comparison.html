@@ -4,17 +4,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>原作者树木 · Unity 移植对照</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#111919;color:#e8e9dc;font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1440px;margin:auto;padding:36px 32px 64px}h1{font-size:30px;line-height:1.3;margin:8px 0 12px}p{max-width:850px;margin:8px 0;color:#bdc7c3}.eyebrow{color:#ddc98f;font-size:13px;letter-spacing:2px}a{color:#ddc98f}figure{margin:0;background:#1c2626}figcaption{padding:12px 18px;color:#d5ddd8}img{display:block;width:100%;height:auto}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 20px}.pair img{aspect-ratio:1;object-fit:contain;background:#253c50}h2{font-size:20px;margin-top:38px}.details{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.note{border-left:3px solid #bda76a;padding:4px 18px;margin:26px 0}.foot{font-size:13px;color:#98aaa3;margin-top:36px}code{font:14px ui-monospace,monospace;background:#27312f;padding:2px 6px;border-radius:4px}@media(max-width:650px){main{padding:24px 16px 40px}h1{font-size:24px}.pair,.details{grid-template-columns:1fr}.pair{gap:22px}}
+*{box-sizing:border-box}body{margin:0;background:#111919;color:#e8e9dc;font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1440px;margin:auto;padding:36px 32px 64px}h1{font-size:30px;line-height:1.3;margin:8px 0 12px}p{max-width:850px;margin:8px 0;color:#bdc7c3}.eyebrow{color:#ddc98f;font-size:13px;letter-spacing:2px}a{color:#ddc98f}figure{margin:0;background:#1c2626}figcaption{padding:12px 18px;color:#d5ddd8}img{display:block;width:100%;height:auto}.pair{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:26px 0 20px}.pair img{aspect-ratio:1;object-fit:contain;background:#253c50}h2{font-size:20px;margin-top:38px}.details{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.note{border-left:3px solid #bda76a;padding:4px 18px;margin:26px 0}.foot{font-size:13px;color:#98aaa3;margin-top:36px}code{font:14px ui-monospace,monospace;background:#27312f;padding:2px 6px;border-radius:4px}@media(max-width:650px){main{padding:24px 16px 40px}h1{font-size:24px}.pair,.details{grid-template-columns:1fr}.pair{gap:22px}}
 </style>
 <main>
-<div class="eyebrow">WEATHER HOUSE / 原项目移植 / 第一批</div>
-<h1>原作者的树，移植到 Unity</h1>
+<div class="eyebrow">WEATHER HOUSE / 原项目移植 / 第二批</div>
+<h1>叶片透光、阴影与曝光校准</h1>
 <p>使用 Anastasia Kasyanik 公开项目中的白桦、山毛榉和冷杉。模型保持原尺寸与法线，材质沿用原叶片贴图、颜色参数与树冠膨胀逻辑。</p>
 <div class="pair">
 <figure><a href="Author_Original.png"><img src="Author_Original.png" alt="原作者公开项目的三树展示图，左为白桦，中为山毛榉，右为冷杉"></a><figcaption>原作者原图 · UE 项目 README</figcaption></figure>
+<figure><a href="Unity_BeforeLighting.png"><img src="Unity_BeforeLighting.png" alt="上一批 Unity 静态移植，校准光照前"></a><figcaption>上一批 Unity · 校准前</figcaption></figure>
 <figure><a href="Unity_ThreeTrees.png"><img src="Unity_ThreeTrees.png" alt="Unity 实际 Play 模式拍摄的三树移植对照"></a><figcaption>Unity 实拍 · URP 14 · 点击查看原尺寸</figcaption></figure>
 </div>
-<div class="note"><p>先看树冠轮廓、叶缘孔隙和亮暗层次。相机按原图估计；Unity 的薄叶透光为近似实现，天空与地面是对照布景。本批保持树木静止，森林场景等待画面确认后继续。</p></div>
+<div class="note"><p>固定同一机位，模型、贴图和作者配色保持原样。本批让透光随树冠遮挡厚度衰减，并校准曝光与阴影；观察树冠内部的橙色层次、山毛榉的分层和地面投影。Unity 仍是透光近似，原图的天空、间接光和叶片柔和感尚有差异。森林布景暂缓。</p></div>
 <h2>单树近景</h2>
 <div class="details">
 <figure><a href="Unity_Birch.png"><img src="Unity_Birch.png" loading="lazy" alt="Unity 白桦近景"></a><figcaption>白桦 · Birch</figcaption></figure>

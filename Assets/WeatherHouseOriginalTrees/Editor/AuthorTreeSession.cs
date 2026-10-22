@@ -27,7 +27,10 @@ namespace WeatherHouse.OriginalTrees.Editor
         [MenuItem("Weather House/Original Trees/重建源参数并验证对照")]
         public static void RebuildAndVerify() => Verify(true);
 
-        static void Verify(bool rebuild)
+        [MenuItem("Weather House/Original Trees/应用光照校准并验证对照")]
+        public static void CalibrateAndVerify() => Verify(false,true);
+
+        static void Verify(bool rebuild,bool calibrate=false)
         {
             AuthorTreeStudy.RequireSaved();
             AuthorTreeStudy.Assert(!SessionState.GetBool(Key+"Running",false) && !SessionState.GetBool(Key+"Restore",false),"Previous comparison still awaits completion or scene restoration");
@@ -38,6 +41,7 @@ namespace WeatherHouse.OriginalTrees.Editor
             try
             {
                 if(rebuild) AuthorTreeStudy.Build(); else AuthorTreeStudy.Open();
+                if(calibrate) AuthorTreeLighting.ApplySaved();
                 Directory.CreateDirectory(AuthorTreeStudy.Output);
                 File.WriteAllText(AuthorTreeStudy.Output+"/result.txt","RUNNING");
                 SessionState.SetFloat(Key+"RequestedAt",(float)EditorApplication.timeSinceStartup);
@@ -72,6 +76,7 @@ namespace WeatherHouse.OriginalTrees.Editor
                     File.WriteAllText(AuthorTreeStudy.Output+"/state.txt","scene="+s.path+"\nplaying="+EditorApplication.isPlaying+"\ndirty="+s.isDirty);
                 }
                 else if(command=="verify") Verify();
+                else if(command=="lighting-verify") CalibrateAndVerify();
                 else if(command=="rebuild-verify") RebuildAndVerify();
                 else if(command=="open") AuthorTreeStudy.Open();
                 else throw new InvalidOperationException("Unsupported original tree request: "+command);

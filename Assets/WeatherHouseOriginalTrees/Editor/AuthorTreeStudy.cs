@@ -133,6 +133,7 @@ namespace WeatherHouse.OriginalTrees.Editor
                 if (asset) AssetDatabase.SaveAssetIfDirty(asset);
             }
             Assert(EditorSceneManager.SaveScene(scene,ScenePath), "Could not save the original tree comparison scene");
+            AuthorTreeLighting.ApplySaved();
         }
 
         public static Material LoadMaterial(string name) => AssetDatabase.LoadAssetAtPath<Material>(Root+"/Materials/"+name+".mat");
@@ -187,6 +188,9 @@ namespace WeatherHouse.OriginalTrees.Editor
             }
             var sh=RenderSettings.ambientProbe;
             report.AppendLine("Ambient SH L0 RGB: "+sh[0,0]+", "+sh[1,0]+", "+sh[2,0]);
+            string lightingReport=AuthorTreeLighting.Verify();
+            report.AppendLine(lightingReport);
+            File.WriteAllText(Output+"/lighting-checks.txt", "UTC "+DateTime.UtcNow.ToString("O")+"\nGPU "+SystemInfo.graphicsDeviceName+" / "+SystemInfo.graphicsDeviceType+"\n"+lightingReport+"\n");
             Capture(camera,"Unity_ThreeTrees",1200,1200);
             var position=camera.transform.position; var rotation=camera.transform.rotation; float fov=camera.fieldOfView;
             try
@@ -229,7 +233,7 @@ namespace WeatherHouse.OriginalTrees.Editor
             File.WriteAllText(Output+"/checks.txt",report.ToString());
         }
 
-        static Texture2D Render(Camera camera,int width,int height)
+        internal static Texture2D Render(Camera camera,int width,int height)
         {
             var target=RenderTexture.GetTemporary(width,height,24,RenderTextureFormat.ARGB32);
             var previous=camera.targetTexture;var active=RenderTexture.active;
@@ -238,7 +242,7 @@ namespace WeatherHouse.OriginalTrees.Editor
             catch { Object.DestroyImmediate(texture);throw; }
             finally { camera.targetTexture=previous;RenderTexture.active=active;RenderTexture.ReleaseTemporary(target); }
         }
-        static void Capture(Camera camera,string name,int width,int height)
+        internal static void Capture(Camera camera,string name,int width,int height)
         {
             Directory.CreateDirectory(Output);var texture=Render(camera,width,height);
             try { SaveCapture(texture,name); }

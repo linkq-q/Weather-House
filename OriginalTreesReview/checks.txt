@@ -1,5 +1,5 @@
 Original trees — static material port
-UTC 2026-10-22T05:09:18.1203517Z
+UTC 2026-10-22T05:39:40.6222009Z
 GPU NVIDIA GeForce RTX 5060 Laptop GPU
 PASS Birch: original FBX vs Unity, 32 leaf triangles / 96 corners; position max 0 m; UV0 max 0; minimum N/T/B dot 0.9999999; unit basis, tangent sign and UE->Unity world axes verified.
 PASS Birch: 15.96560 m local/world height; original position and unit world scale; 7296 triangles; normals/tangents/UV0-2 present; correct material slots.
@@ -20,6 +20,7 @@ PASS FirTree: 6.61013 m local/world height; original position and unit world sca
   vertex 2 pos=(0.91514, 3.29913, 0.30592) normal=(0.29111, 0.95202, 0.09442) tangent=(-0.38650, 0.20508, -0.89920, -1.00000) uv=(0.05698, 0.91528)
   vertex 3 pos=(1.15907, 3.48696, 0.09577) normal=(0.33967, 0.94001, 0.03160) tangent=(-0.19660, 0.10223, -0.97514, -1.00000) uv=(0.10309, 0.98477)
 Ambient SH L0 RGB: 0.1141709, 0.1539346, 0.2198427
-PASS GPU original fluffy displacement: 24270 pixels changed in 512 square capture.
-PASS GPU leaf clipping: 31711 pixels changed with all Birch leaves clipped.
+PASS GPU transmission: 768x768, thickness .5 -> 1 changes 25135 pixels (RGB8 absolute sum > 6); affected-leaf linear luminance sum 5644.180 -> 4934.524 (12.57% lower). Repeated thickness=1 capture is stable. Only runtime leaf material copies were changed. Source materials and renderer bindings preserved; camera, light and profile untouched.
+PASS GPU original fluffy displacement: 26472 pixels changed in 512 square capture.
+PASS GPU leaf clipping: 32370 pixels changed with all Birch leaves clipped.
 PASS actual Play captures. Artistic similarity remains a visual review, not a test assertion.
