@@ -16,7 +16,8 @@ namespace WeatherHouse.MaterialLab.Editor
     [InitializeOnLoad]
     public static class MaterialLabChecks
     {
-        const string Output = "VegetationLabReview/MaterialLab";
+        static string Output => SessionState.GetBool(Key + ".surfaceOnly", false)
+            ? "VegetationLabReview/MaterialLab/SurfaceRevision" : "VegetationLabReview/MaterialLab";
         const string Key = "WeatherHouse.MaterialLab.Checks";
         static IEnumerator steps;
         static double started, nextPoll;
@@ -51,6 +52,8 @@ namespace WeatherHouse.MaterialLab.Editor
             try
             {
                 if (command == "verify") Begin();
+                else if (command == "surface-before") BeginReview(true, true);
+                else if (command == "surface-verify") BeginReview(true, false);
                 else if (command == "brush-verify")
                 {
                     string previousScene = SceneManager.GetActiveScene().path;
@@ -67,7 +70,14 @@ namespace WeatherHouse.MaterialLab.Editor
         [MenuItem("Weather House/Material Lab/验证油画实验并截图")]
         public static void Begin()
         {
+            BeginReview(false, false);
+        }
+
+        static void BeginReview(bool surfaceOnly, bool baseline)
+        {
             Require(!EditorApplication.isPlayingOrWillChangePlaymode && SceneManager.sceneCount == 1 && !SceneManager.GetActiveScene().isDirty, "检查需要已保存的单场景且退出 Play。");
+            SessionState.SetBool(Key + ".surfaceOnly", surfaceOnly);
+            SessionState.SetBool(Key + ".baseline", baseline);
             Directory.CreateDirectory(Output);
             SessionState.SetString(Key + ".scene", SceneManager.GetActiveScene().path);
             SessionState.SetString(Key + ".quality", AssetDatabase.GetAssetPath(QualitySettings.renderPipeline));
@@ -102,6 +112,9 @@ namespace WeatherHouse.MaterialLab.Editor
                 report.Clear(); report.AppendLine("Evidence: real Unity Play frames and camera GPU renders; scripted controller entrypoints, not manual keyboard testing.");
                 errors = ""; started = EditorApplication.timeSinceStartup; previousFrame = Time.frameCount;
                 Application.runInBackground = true; EditorApplication.isPaused = false;
+                // Hide the new controls before the first GUI frame, including old-shader baseline captures.
+                var controls = Object.FindObjectOfType<MaterialLabControls>();
+                if (controls) controls.showPanel = false;
                 Application.logMessageReceived += Log; steps = Verify();
             }
             if (state == PlayModeStateChange.ExitingPlayMode && SessionState.GetBool(Key + ".running", false))
@@ -123,6 +136,23 @@ namespace WeatherHouse.MaterialLab.Editor
                 for (int i = 0; i < 12; i++) yield return null;
                 Require(QualitySettings.renderPipeline == scope.pipeline, "专用管线已在 Play 生效。");
                 Require(controls.SelectedMaterial != controls.paintedSamples[0].sharedMaterial || controls.SelectedMaterial.name.EndsWith("(Play)"), "Play 使用材质实例。");
+                if (SessionState.GetBool(Key + ".surfaceOnly", false))
+                {
+                    MaterialSurfaceChecks.Verify(controls, SessionState.GetBool(Key + ".baseline", false), report);
+                    if (!SessionState.GetBool(Key + ".baseline", false))
+                    {
+                        controls.selected = 5; controls.selectedColor = 1; controls.FocusSelected();
+                        controls.SetPostMode(0); controls.showPanel = true; controls.enabled = true;
+                        string surfaceUiPath = Output + "/Controls.png";
+                        DateTime surfacePreviousStamp = File.Exists(surfaceUiPath) ? File.GetLastWriteTimeUtc(surfaceUiPath) : DateTime.MinValue;
+                        for (int i = 0; i < 4; i++) yield return null;
+                        ScreenCapture.CaptureScreenshot(surfaceUiPath);
+                        int surfaceCaptureFrame = Time.frameCount;
+                        while (Time.frameCount - surfaceCaptureFrame < 2 || !File.Exists(surfaceUiPath) || File.GetLastWriteTimeUtc(surfaceUiPath) <= surfacePreviousStamp || new FileInfo(surfaceUiPath).Length == 0) yield return null;
+                        report.AppendLine("PASS new color/shape controls drawn in actual Play frame=" + Time.frameCount);
+                    }
+                    yield break;
+                }
                 controls.SetPostMode(0); yield return null;
                 baseline = Capture("01_Materials_Original", camera);
                 controls.SetPostMode(1); yield return null;
@@ -229,13 +259,14 @@ namespace WeatherHouse.MaterialLab.Editor
         static float Mean(Texture2D texture) { return texture.GetPixels32().Average(c => (c.r + c.g + c.b) / 765f); }
         static void Finish(Exception error)
         {
+            bool ownsPlay = SessionState.GetBool(Key + ".running", false) || SessionState.GetBool(Key + ".pending", false);
             var pending = steps; steps = null; SessionState.SetBool(Key + ".running", false);
             try { (pending as IDisposable)?.Dispose(); } catch (Exception cleanup) { error = error ?? cleanup; }
             Application.logMessageReceived -= Log;
             if (error == null && !string.IsNullOrEmpty(errors)) error = new Exception(errors);
             Directory.CreateDirectory(Output); File.WriteAllText(Output + "/checks.txt", report.ToString());
             File.WriteAllText(Output + "/result.txt", error == null ? "PASS: GPU comparisons and live material/post controls.\n" : "FAIL: " + error + "\n");
-            if (EditorApplication.isPlaying) EditorApplication.isPlaying = false;
+            if (EditorApplication.isPlaying && ownsPlay) EditorApplication.isPlaying = false;
             else if (SessionState.GetBool(Key + ".pending", false)) Restore();
         }
         static void Restore()

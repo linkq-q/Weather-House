@@ -116,6 +116,62 @@ namespace WeatherHouse.MaterialLab.Editor
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
         }
 
+        [MenuItem("Weather House/Material Lab/补齐笔触颜色与明暗过渡参数")]
+        public static void ApplySurfaceRevision()
+        {
+            Require(!EditorApplication.isPlayingOrWillChangePlaymode, "请先退出 Play，再补齐持久材质参数。");
+            var materials = new List<Material>();
+            for (int row = 0; row < 2; row++)
+            for (int column = 1; column <= 3; column++)
+            {
+                string path = Generated + "/Materials/Oil_" + row + "_" + column + ".mat";
+                Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+                Require(material && material.shader.name == "Weather House/Oil Paint Surface", "需要原实验材质：" + path);
+                foreach (string property in new[] { "_StrokeColor", "_StrokeDensity", "_ShadowEdgeColor", "_ShadowEdgeWidth", "_ShadowEdgeStrength", "_ShadowFill" })
+                    Require(material.HasProperty(property), "请先导入新的油画 shader：" + property);
+                materials.Add(material);
+            }
+            foreach (Material material in materials)
+            {
+                if (!AddMissingSurfaceProperties(material)) continue;
+                EditorUtility.SetDirty(material);
+                AssetDatabase.SaveAssetIfDirty(material);
+            }
+        }
+
+        static bool AddMissingSurfaceProperties(Material material)
+        {
+            Color stroke = Color.Lerp(material.GetColor("_ShadowColor"), material.GetColor("_HighlightColor"), .72f);
+            bool changed = AddColor(material, "_StrokeColor", stroke);
+            changed |= AddFloat(material, "_StrokeDensity", 1.25f);
+            changed |= AddColor(material, "_ShadowEdgeColor", new Color(.18f, .42f, .46f, 1));
+            changed |= AddFloat(material, "_ShadowEdgeWidth", .14f);
+            changed |= AddFloat(material, "_ShadowEdgeStrength", .55f);
+            changed |= AddFloat(material, "_ShadowFill", .22f);
+            return changed;
+        }
+        static bool AddFloat(Material material, string property, float value)
+        {
+            if (!material.HasProperty(property) || HasSavedProperty(material, "m_Floats", property)) return false;
+            material.SetFloat(property, value); return true;
+        }
+        static bool AddColor(Material material, string property, Color value)
+        {
+            if (!material.HasProperty(property) || HasSavedProperty(material, "m_Colors", property)) return false;
+            material.SetColor(property, value); return true;
+        }
+        static bool HasSavedProperty(Material material, string array, string property)
+        {
+            // HasProperty also sees new shader defaults. Inspect serialized values to retain user overrides.
+            using (var serialized = new SerializedObject(material))
+            {
+                SerializedProperty values = serialized.FindProperty("m_SavedProperties." + array);
+                for (int i = 0; i < values.arraySize; i++)
+                    if (values.GetArrayElementAtIndex(i).FindPropertyRelative("first").stringValue == property) return true;
+                return false;
+            }
+        }
+
         static void SetBrushPreset(Material material, int column)
         {
             material.SetFloat("_BrushScale", column == 1 ? 7 : column == 2 ? 9 : 6.5f);
@@ -129,6 +185,7 @@ namespace WeatherHouse.MaterialLab.Editor
             var atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(AtlasPath);
             material.SetTexture("_BrushAtlas", atlas); material.SetFloat("_UseBrushAtlas", atlas ? 1 : 0);
             material.DisableKeyword("_USEBRUSHATLAS_ON");
+            AddMissingSurfaceProperties(material);
         }
 
         static UniversalRenderPipelineAsset MakePipeline(Shader shader)

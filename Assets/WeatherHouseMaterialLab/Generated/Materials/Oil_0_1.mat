@@ -38,8 +38,14 @@ Material:
     - _StrokeAspect: 1.15
     - _StrokeScatter: 70
     - _UseBrushAtlas: 1
+    - _StrokeDensity: 1.25
+    - _ShadowEdgeWidth: 0.14
+    - _ShadowEdgeStrength: 0.55
+    - _ShadowFill: 0.22
     m_Colors:
     - _BaseColor: {r: 0.72, g: 0.6, b: 0.35, a: 1}
     - _HighlightColor: {r: 0.846, g: 0.735, b: 0.48950002, a: 1}
     - _ShadowColor: {r: 0.41750002, g: 0.4295, b: 0.306, a: 1}
+    - _StrokeColor: {r: 0.726020006, g: 0.64946, b: 0.438120014, a: 1}
+    - _ShadowEdgeColor: {r: 0.18, g: 0.42, b: 0.46, a: 1}
   m_BuildTextureStacks: []
