@@ -111,6 +111,7 @@ Original PlayerLoop (native execution order):
     UnityEngine.PlayerLoop.PostLateUpdate+PlayerEmitCanvasGeometry
     UnityEngine.PlayerLoop.PostLateUpdate+PlayerRenderUIEBatchModeOffscreen
     UnityEngine.PlayerLoop.PostLateUpdate+PhysicsSkinnedClothFinishUpdate
+    ForestSpriteCharacter.ForestSpriteCapeContact+SampleMarker
     UnityEngine.PlayerLoop.PostLateUpdate+FinishFrameRendering
     UnityEngine.PlayerLoop.PostLateUpdate+BatchModeUpdate
     UnityEngine.PlayerLoop.PostLateUpdate+PlayerSendFrameComplete
@@ -247,6 +248,7 @@ Instrumented PlayerLoop:
     UnityEngine.PlayerLoop.PostLateUpdate+PlayerRenderUIEBatchModeOffscreen
     UnityEngine.PlayerLoop.PostLateUpdate+PhysicsSkinnedClothFinishUpdate
     ForestSpriteCharacter.Editor.ForestSpriteDemoChecks+ClothSampleAfterFinish
+    ForestSpriteCharacter.ForestSpriteCapeContact+SampleMarker
     UnityEngine.PlayerLoop.PostLateUpdate+FinishFrameRendering
     UnityEngine.PlayerLoop.PostLateUpdate+BatchModeUpdate
     UnityEngine.PlayerLoop.PostLateUpdate+PlayerSendFrameComplete

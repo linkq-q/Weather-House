@@ -29,14 +29,31 @@ namespace ForestSpriteCharacter.Editor
             public string motionPeakDetails;
             public float turnDegrees, earlySettleSpeed, lateSettleSpeed;
             public float runUpperBend, runLowerBend, runUpperBoneRotation, runLowerBoneRotation;
+            public bool usesGuides;
+            public float guideMaximumSegmentError, guideTargetStretchP95, guideTargetStretchMaximum, tunedGuideTangentChange;
+            public float[] runGuideCurvatureAmplitude, runGuideCurvaturePeakPhase, runGuideCurvatureRSquared;
+            public float runGuidePhaseSpread;
+            public int runSShapeSamples, strongWindSamples;
             public float windPreviewUpperBend, tunedUpperBend, tunedBoneRotation, tunedClothShapeDifference;
             public float strongWindUpperBend, strongWindLowerBend;
+            public float strongWindWingMinimum, strongWindWingMaximum;
+            public bool strongWindOpened, strongWindClosed;
             public float windPreviewWingSpread, tunedWingSpread;
             public int rearHemParticles, rearHemSamples;
             public float maximumRearHemLocalZ, minimumRearHemFootRearClearance;
-            public bool legacySettingsMigration;
+            public bool legacySettingsMigration, legacyWingFlapMigration;
             public float idleFootHeight, walkFootHeight, runFootHeight, maximumGroundedFootError, idleCharacterHeight;
+            public List<GaitFootSample> gaitFootSamples = new List<GaitFootSample>();
+            public int walkCompleteFootCycles, runCompleteFootCycles;
             public bool groundedAfterJump, settingsRoundTrip, recommendedSettingsRestored, tuningKeptSimulation;
+        }
+
+        [Serializable]
+        sealed class GaitFootSample
+        {
+            public string state;
+            public int frame;
+            public float normalizedTime, phaseTime, leftWorldHeight, rightWorldHeight;
         }
 
         static ForestSpriteDemoController player;
@@ -55,9 +72,13 @@ namespace ForestSpriteCharacter.Editor
         static string restoreCapeSettings;
         static Quaternion initialUpper, initialLower, windPreviewUpper;
         static Vector3[] windPreviewParticles;
+        static float[] windPreviewGuideTangents;
+        static readonly List<float> guideRunPhases = new List<float>();
+        static readonly List<float[]> guideRunCurvatures = new List<float[]>();
         static int phase, sampledFrame, initialSimulationSteps, frameCaptureIndex;
         static float nextCapture, previousSampleTime, earlySettleSum, lateSettleSum;
         static float motionViolationStreak;
+        static float previousStrongWindWing;
         static int earlySettleSamples, lateSettleSamples;
         static Quaternion turnStart;
         static SkinnedMeshRenderer clothSkin;
@@ -66,6 +87,7 @@ namespace ForestSpriteCharacter.Editor
         static Matrix4x4[] bindposes;
         static int[] clothToMesh;
         static int[] rearHemParticles, footVertices;
+        static int[][] gaitFootVertices;
         static SkinnedMeshRenderer footSkin;
         static Vector3[] footMeshVertices;
         static BoneWeight[] footWeights;
@@ -79,8 +101,11 @@ namespace ForestSpriteCharacter.Editor
         public static void ValidateOpen()
         {
             Require(SceneManager.GetActiveScene().path == ForestSpriteDemoBuilder.ScenePath, "Open the independent forest sprite scene first");
-            Validate(Object.FindObjectOfType<ForestSpriteDemoController>());
+            Validate(ActiveDemoController());
         }
+
+        static ForestSpriteDemoController ActiveDemoController() => SceneManager.GetActiveScene().GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<ForestSpriteDemoController>()).SingleOrDefault();
 
         public static void Validate(ForestSpriteDemoController preview)
         {
@@ -163,7 +188,51 @@ namespace ForestSpriteCharacter.Editor
             }
             Require(cape.flowUpper.Distinct().Count() == 4 && cape.flowLower.Distinct().Count() == 4, "Each cape flow target is unique");
             Require(cape.freedomWeights?.Length == particles.Length && cape.freedomWeights.All(w => w >= 0 && w <= 1.0001f), "Particle freedom masks preserve collar pins");
-            if (!Application.isPlaying) Require(constraints.Max(c => c.maxDistance) < .05f, "Recommended cape physics stays within five centimetres of its flow shape");
+            if (cape.UsesGuides)
+            {
+                int guideCount = cape.guideNodes == null ? 0 : cape.guideNodes.Length / (cape.guideSegments + 1);
+                var pairs = cloth.sphereColliders;
+                var spheres = pairs.SelectMany(p => new[] { p.first, p.second }).Where(s => s != null).Distinct().ToArray();
+                foreach (string side in new[] { "L", "R" })
+                {
+                    var upper = spheres.SingleOrDefault(s => s.name == "Cape arm " + side + " upper");
+                    var middle = spheres.SingleOrDefault(s => s.name == "Cape arm " + side + " middle");
+                    var elbow = spheres.SingleOrDefault(s => s.name == "Cape arm " + side + " elbow");
+                    var wrist = spheres.SingleOrDefault(s => s.name == "Cape arm " + side + " wrist");
+                    Require(upper != null && elbow != null && wrist != null && upper.radius > 0 && elbow.radius > 0 && wrist.radius > 0
+                        && (guideCount == 6 ? middle != null && middle.radius > 0 : middle == null),
+                        "Guide variant has its expected positive arm collision spheres on side " + side);
+                    bool upperConnected = guideCount == 6
+                        ? pairs.Any(p => p.first == upper && p.second == middle || p.first == middle && p.second == upper)
+                            && pairs.Any(p => p.first == middle && p.second == elbow || p.first == elbow && p.second == middle)
+                        : pairs.Any(p => p.first == upper && p.second == elbow || p.first == elbow && p.second == upper);
+                    Require(upperConnected
+                        && pairs.Any(p => p.first == elbow && p.second == wrist || p.first == wrist && p.second == elbow),
+                        "Native Cloth has connected upper-arm and forearm sphere pairs on side " + side);
+                }
+                Require(cape.guideSegments == 6 && cape.guideFrame != null && (guideCount == 4 || guideCount == 6)
+                    && cape.guideNodes.Length == guideCount * 7 && cape.guideRestPoints?.Length == guideCount * 7,
+                    "Four or six six-segment guide paths have a shared metre-space frame and rest positions");
+                Require(cape.guideNodes.All(n => n != null) && cape.guideNodes.Distinct().Count() == guideCount * 7 && cape.guideRestPoints.All(IsFinite),
+                    "Guide nodes are unique and rest positions finite");
+                for (int sideIndex = 1; sideIndex <= 2; sideIndex++)
+                {
+                    float centreX = preview.transform.InverseTransformPoint(cape.guideFrame.position).x;
+                    float originalX = preview.transform.InverseTransformPoint(cape.flowUpper[sideIndex].position).x - centreX;
+                    float guideX = preview.transform.InverseTransformPoint(cape.guideNodes[sideIndex * 7 + 6].position).x - centreX;
+                    Require(originalX * guideX > 0, "Cape guide follows its source bone on the same physical side: " + cape.flowUpper[sideIndex].name);
+                }
+                if (guideCount == 6) ValidateFrontLipBindings(cape, cloth.GetComponent<SkinnedMeshRenderer>());
+                for (int direction = 0; direction < guideCount; direction++)
+                    for (int segment = 0; segment < 6; segment++)
+                        Require(Vector3.Distance(cape.guideRestPoints[direction * 7 + segment], cape.guideRestPoints[direction * 7 + segment + 1]) > .0001f,
+                            "Guide rest segment has positive physical length");
+                if (!Application.isPlaying)
+                    for (int i = 0; i < constraints.Length; i++)
+                        Require(Mathf.Abs(constraints[i].maxDistance - Mathf.Lerp(.025f, .3f, Mathf.Clamp01(cape.settings.clothFreedom)) * cape.freedomWeights[i]) < .0001f,
+                            "Guide native residual freedom matches its explicit per-particle formula: " + i);
+            }
+            else if (!Application.isPlaying) Require(constraints.Max(c => c.maxDistance) < .05f, "Recommended cape physics stays within five centimetres of its flow shape");
             var report = new Report { time = DateTime.UtcNow.ToString("O"), scene = ForestSpriteDemoBuilder.ScenePath, result = "PASS",
                 evidence = "Imported clips, skin weights, required bones and scene wiring. Runtime and visual acceptance are separate.",
                 clips = clips.Keys.ToArray(), renderers = skins.Length, vertices = vertices, weightedVertices = weighted,
@@ -179,7 +248,7 @@ namespace ForestSpriteCharacter.Editor
             Require(EditorApplication.isPlaying, "Play mode is required");
             Require(SceneManager.GetActiveScene().path == ForestSpriteDemoBuilder.ScenePath, "Only exercise the independent demo");
             Require(player == null, "A runtime check is not already active");
-            var candidate = Object.FindObjectOfType<ForestSpriteDemoController>();
+            var candidate = ActiveDemoController();
             Require(candidate != null && candidate.enabled, "Active demo controller exists");
             Validate(candidate);
             player = candidate;
@@ -219,6 +288,8 @@ namespace ForestSpriteCharacter.Editor
             earlySettleSum = lateSettleSum = 0;
             motionViolationStreak = 0;
             earlySettleSamples = lateSettleSamples = 0;
+            runtime.usesGuides = player.capeCloth.UsesGuides;
+            guideRunPhases.Clear(); guideRunCurvatures.Clear();
             try
             {
                 PrepareClothSampling();
@@ -247,11 +318,62 @@ namespace ForestSpriteCharacter.Editor
                 observed.Add(player.CurrentState);
                 runtime.springPeakAngle = Mathf.Max(runtime.springPeakAngle, player.secondaryMotion.MaxCurrentAngle);
                 if (phase < 9) SampleCloth(elapsed);
-                if (phase < 9)
+                if (phase < 9 && player.capeCloth.UsesGuides) SampleGuides();
+                if (phase < 9 && !player.capeCloth.UsesGuides)
                     Require(player.capeCloth.UpperBendDegrees >= 0f && player.capeCloth.UpperBendDegrees <= 75.001f
                         && player.capeCloth.UpperBendDegrees + player.capeCloth.LowerBendDegrees >= -.001f
+                        && player.capeCloth.LowerBendDegrees >= -player.capeCloth.UpperBendDegrees * .8f - .001f
+                        && player.capeCloth.LowerBendDegrees <= player.capeCloth.UpperBendDegrees * .6f + .001f
                         && player.capeCloth.WingSpreadDegrees >= 0f && player.capeCloth.WingSpreadDegrees <= 40.001f,
                         "Cape wave preserves rearward bend and bounded wing opening");
+                if (phase == 2 && elapsed > .2f)
+                {
+                    var cape = player.capeCloth;
+                    if (cape.UsesGuides)
+                    {
+                        var curvature = ActualGuideRearCurvature(cape);
+                        guideRunCurvatures.Add(curvature);
+                        guideRunPhases.Add((float)typeof(ForestSpriteCapeCloth).GetField("wavePhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(cape));
+                        if (curvature.Min() < -2f && curvature.Max() > 2f) runtime.runSShapeSamples++;
+                    }
+                    else
+                    {
+                    float upperRotation = Quaternion.Angle(initialUpper, cape.flowUpper[0].localRotation);
+                    float lowerRotation = Quaternion.Angle(initialLower, cape.flowLower[0].localRotation);
+                    if (cape.UpperBendDegrees > 5 && cape.LowerBendDegrees < -5 && upperRotation > 5 && lowerRotation > 5)
+                    {
+                        runtime.runSShapeSamples++;
+                        runtime.runUpperBend = cape.UpperBendDegrees;
+                        runtime.runLowerBend = cape.LowerBendDegrees;
+                        runtime.runUpperBoneRotation = upperRotation;
+                        runtime.runLowerBoneRotation = lowerRotation;
+                    }
+                    }
+                }
+                if (phase == 8 && elapsed > .4f)
+                {
+                    var cape = player.capeCloth;
+                    bool first = runtime.strongWindSamples++ == 0;
+                    runtime.strongWindUpperBend = Mathf.Max(runtime.strongWindUpperBend, cape.UpperBendDegrees);
+                    runtime.strongWindLowerBend = Mathf.Min(runtime.strongWindLowerBend, cape.LowerBendDegrees);
+                    runtime.strongWindWingMinimum = first ? cape.WingSpreadDegrees : Mathf.Min(runtime.strongWindWingMinimum, cape.WingSpreadDegrees);
+                    runtime.strongWindWingMaximum = first ? cape.WingSpreadDegrees : Mathf.Max(runtime.strongWindWingMaximum, cape.WingSpreadDegrees);
+                    if (!first)
+                    {
+                        runtime.strongWindOpened |= cape.WingSpreadDegrees > previousStrongWindWing + .05f;
+                        runtime.strongWindClosed |= cape.WingSpreadDegrees < previousStrongWindWing - .05f;
+                    }
+                    previousStrongWindWing = cape.WingSpreadDegrees;
+                    if (!cape.UsesGuides)
+                    {
+                    Require(cape.UpperBendDegrees + cape.LowerBendDegrees > 0f, "Strong-wind wave remains swept rearward throughout the cycle");
+                    // The travelling wave now permits lower counter-bend up to 80% of the upper angle:
+                    // 0.8 * 75 = 60 degrees, retaining at least 20% net rearward bend.
+                    Require(Quaternion.Angle(initialUpper, cape.flowUpper[0].localRotation) <= 75.1f
+                        && Quaternion.Angle(initialLower, cape.flowLower[0].localRotation) <= 60.1f,
+                        "Actual cape bones respect the travelling-wave bend limits");
+                    }
+                }
                 float distance = Vector3.ProjectOnPlane(position - previousPosition, Vector3.up).magnitude;
                 if (phase == 1) runtime.walkDistance += distance;
                 if (phase == 2) runtime.runDistance += distance;
@@ -261,6 +383,7 @@ namespace ForestSpriteCharacter.Editor
                     gaitMinimum[phase - 1] = Mathf.Min(gaitMinimum[phase - 1], ankleForward);
                     gaitMaximum[phase - 1] = Mathf.Max(gaitMaximum[phase - 1], ankleForward);
                 }
+                if (phase == 1 || phase == 2) SampleGaitFootContacts(elapsed);
                 if (phase == 3) runtime.jumpRise = Mathf.Max(runtime.jumpRise, position.y - baseY);
                 previousPosition = position;
                 if (Time.time >= nextCapture && phase < 9)
@@ -278,8 +401,10 @@ namespace ForestSpriteCharacter.Editor
                     phaseCaptured = true;
                 }
                 float duration = phase == 0 ? .7f : phase == 3 ? 1.8f : phase == 5 ? 3f : phase == 9 ? .4f : 1.3f;
+                if (phase == 2 && player.capeCloth.UsesGuides) duration = 4f;
+                if (phase == 8 && player.capeCloth.UsesGuides) duration = 3.2f;
                 if (elapsed < duration) return;
-                if (phase <= 2)
+                if (phase == 0)
                 {
                     var body = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body");
                     float foot = ForestSpriteDemoBuilder.BoundsOf(new Renderer[] { body }).min.y;
@@ -289,8 +414,6 @@ namespace ForestSpriteCharacter.Editor
                         Require(runtime.idleCharacterHeight > 1.5f && runtime.idleCharacterHeight < 1.8f, "Actual visible character height: " + runtime.idleCharacterHeight);
                     }
                     if (phase == 0) runtime.idleFootHeight = foot;
-                    if (phase == 1) runtime.walkFootHeight = foot;
-                    if (phase == 2) runtime.runFootHeight = foot;
                     runtime.maximumGroundedFootError = Mathf.Max(runtime.maximumGroundedFootError, Mathf.Abs(foot));
                     Require(Mathf.Abs(foot) <= .05f, "Visible foot contacts the floor in " + ForestSpriteDemoBuilder.ClipNames[phase] + ": " + foot);
                 }
@@ -299,6 +422,7 @@ namespace ForestSpriteCharacter.Editor
                 {
                     string expected = phase == 1 ? "Walk" : "Run";
                     Require(player.CurrentState == expected && player.animator.GetCurrentAnimatorStateInfo(0).IsName(expected), "Animator reached " + expected);
+                    ValidateGaitFootCycles(expected);
                     float span = gaitMaximum[phase - 1] - gaitMinimum[phase - 1];
                     if (phase == 1) runtime.walkFootSpan = span;
                     else runtime.runFootSpan = span;
@@ -307,13 +431,8 @@ namespace ForestSpriteCharacter.Editor
                 if (phase == 2)
                 {
                     Require(runtime.rearHemSamples > 0, "Actual rear hem direction was sampled during steady running");
-                    var cape = player.capeCloth;
-                    runtime.runUpperBend = cape.UpperBendDegrees;
-                    runtime.runLowerBend = cape.LowerBendDegrees;
-                    runtime.runUpperBoneRotation = Quaternion.Angle(initialUpper, cape.flowUpper[0].localRotation);
-                    runtime.runLowerBoneRotation = Quaternion.Angle(initialLower, cape.flowLower[0].localRotation);
-                    Require(runtime.runUpperBend > 5 && runtime.runLowerBend < -5 && runtime.runUpperBoneRotation > 5 && runtime.runLowerBoneRotation > 5,
-                        "Running produces opposing S-shape bends on actual cape bones");
+                    if (player.capeCloth.UsesGuides) CheckGuideWave();
+                    else Require(runtime.runSShapeSamples > 0, "Running wave passes through opposing S-shape bends above five degrees on actual cape bones");
                 }
                 if (phase == 3)
                 {
@@ -337,14 +456,25 @@ namespace ForestSpriteCharacter.Editor
                         "Cape motion does not grow after stopping");
                     // Isolate live tuning response from the continuously travelling wave.
                     player.capeCloth.settings.waveAmplitude = 0;
+                    player.capeCloth.settings.wingFlap = 0;
+                    player.capeCloth.settings.wingSpread = .5f;
+                    // Test a deliberate lift change; 0.8 -> 0.85 only asks for one degree on the guide rig.
+                    player.capeCloth.settings.lift = .4f;
                     player.capeCloth.ApplySettings();
                     player.capeCloth.SetWindPreview(true);
                 }
                 if (phase == 6)
                 {
                     var cape = player.capeCloth;
-                    Require(player.CurrentState == "Idle" && cape.FlowAmount > .5f && cape.UpperBendDegrees > 5 && cape.LowerBendDegrees < -5,
-                        "Standing wind preview drives the cape without moving the character");
+                    if (cape.UsesGuides)
+                    {
+                        Require(player.CurrentState == "Idle" && cape.FlowAmount > .5f && cape.guideNodes.Select((n, i) =>
+                            Vector3.Distance(cape.guideFrame.InverseTransformPoint(n.position), cape.guideRestPoints[i])).Max() > .01f,
+                            "Standing wind preview deforms actual guide paths without moving the character");
+                        windPreviewGuideTangents = (float[])cape.GuideTangentDegrees.Clone();
+                    }
+                    else Require(player.CurrentState == "Idle" && cape.FlowAmount > .5f && cape.UpperBendDegrees > 5 && cape.LowerBendDegrees < -5,
+                            "Standing wind preview drives the cape without moving the character");
                     runtime.windPreviewUpperBend = cape.UpperBendDegrees;
                     runtime.windPreviewWingSpread = cape.WingSpreadDegrees;
                     windPreviewUpper = cape.flowUpper[0].localRotation;
@@ -359,26 +489,39 @@ namespace ForestSpriteCharacter.Editor
                     runtime.tunedBoneRotation = Quaternion.Angle(windPreviewUpper, cape.flowUpper[0].localRotation);
                     var changed = CapeParticlesInPlayerSpace();
                     runtime.tunedClothShapeDifference = changed.Select((p, i) => Vector3.Distance(p, windPreviewParticles[i])).Average();
-                    Require(runtime.tunedUpperBend > runtime.windPreviewUpperBend + 3f && runtime.tunedBoneRotation > 3f && runtime.tunedClothShapeDifference > .005f,
-                        "Live parameter changes alter the cape target and simulated fabric");
-                    Require(runtime.tunedWingSpread > runtime.windPreviewWingSpread + 5f, "Live wing spread tuning opens the cape without restarting simulation");
+                    if (cape.UsesGuides)
+                    {
+                        runtime.tunedGuideTangentChange = cape.GuideTangentDegrees.Select((a, i) => Mathf.Abs(Mathf.DeltaAngle(windPreviewGuideTangents[i], a))).Max();
+                        Require(runtime.tunedGuideTangentChange > 3f && runtime.tunedClothShapeDifference > .005f,
+                            "Live parameters change actual guide tangents by more than three degrees and simulated cloth by five millimetres");
+                        Require(runtime.tunedWingSpread > runtime.windPreviewWingSpread + 2f,
+                            "Live guide wing tuning changes opening by more than two degrees within the forty-degree range");
+                    }
+                    else
+                    {
+                        Require(runtime.tunedUpperBend > runtime.windPreviewUpperBend + 3f && runtime.tunedBoneRotation > 3f && runtime.tunedClothShapeDifference > .005f,
+                            "Live parameter changes alter the cape target and simulated fabric");
+                        Require(runtime.tunedWingSpread > runtime.windPreviewWingSpread + 5f, "Live wing spread tuning opens the cape without restarting simulation");
+                    }
                     cape.settings.windStrength = 2f;
                     cape.settings.lift = 1f;
                     cape.settings.sCurve = 1f;
                     cape.settings.wingSpread = 1f;
+                    cape.settings.wingFlap = 1f;
+                    cape.settings.waveAmplitude = .07f;
                     cape.ApplySettings();
                 }
                 if (phase == 8)
                 {
                     var cape = player.capeCloth;
-                    runtime.strongWindUpperBend = cape.UpperBendDegrees;
-                    runtime.strongWindLowerBend = cape.LowerBendDegrees;
-                    Require(runtime.strongWindUpperBend > 60f && runtime.strongWindLowerBend < -20f
-                        && runtime.strongWindUpperBend + runtime.strongWindLowerBend > 30f && cape.WingSpreadDegrees > 39f,
-                        "Maximum wind and S-curve retain a rearward boundary pose");
-                    Require(Quaternion.Angle(initialUpper, cape.flowUpper[0].localRotation) <= 75.1f
-                        && Quaternion.Angle(initialLower, cape.flowLower[0].localRotation) <= 33.85f,
-                        "Actual cape bones respect the strong-wind bend limits");
+                    if (cape.UsesGuides)
+                        Require(runtime.strongWindSamples > 0 && runtime.strongWindWingMaximum > 8f
+                            && runtime.strongWindWingMaximum - runtime.strongWindWingMinimum > 2f && runtime.strongWindOpened && runtime.strongWindClosed,
+                            "Strong wind guides open beyond eight degrees and close by over two degrees within the forty-degree limit");
+                    else Require(runtime.strongWindSamples > 0 && runtime.strongWindUpperBend > 60f && runtime.strongWindLowerBend < -20f
+                        && runtime.strongWindWingMaximum > 35f && runtime.strongWindWingMaximum - runtime.strongWindWingMinimum > 10f
+                        && runtime.strongWindOpened && runtime.strongWindClosed,
+                        "Maximum wind retains a broad travelling S wave and visibly opens and closes the wings");
                     float flow = cape.FlowAmount;
                     cape.ResetSettings();
                     Require(JsonUtility.ToJson(cape.settings) == JsonUtility.ToJson(new ForestSpriteCapeCloth.Settings()), "Reset restores recommended parameters");
@@ -419,11 +562,187 @@ namespace ForestSpriteCharacter.Editor
             }
         }
 
+        static void SampleGaitFootContacts(float elapsed)
+        {
+            string expected = phase == 1 ? "Walk" : "Run";
+            var state = player.animator.GetCurrentAnimatorStateInfo(0);
+            if (player.animator.IsInTransition(0) || !state.IsName(expected)) return;
+            var matrices = footSkin.bones.Select((b, i) => b.localToWorldMatrix * footBindposes[i]).ToArray();
+            float[] heights = new float[2];
+            for (int side = 0; side < 2; side++)
+            {
+                heights[side] = float.PositiveInfinity;
+                foreach (int i in gaitFootVertices[side])
+                {
+                    BoneWeight w = footWeights[i]; Vector3 v = footMeshVertices[i];
+                    Vector3 world = matrices[w.boneIndex0].MultiplyPoint3x4(v) * w.weight0
+                        + matrices[w.boneIndex1].MultiplyPoint3x4(v) * w.weight1
+                        + matrices[w.boneIndex2].MultiplyPoint3x4(v) * w.weight2
+                        + matrices[w.boneIndex3].MultiplyPoint3x4(v) * w.weight3;
+                    heights[side] = Mathf.Min(heights[side], world.y);
+                }
+            }
+            runtime.gaitFootSamples.Add(new GaitFootSample { state = expected, frame = Time.frameCount,
+                normalizedTime = state.normalizedTime, phaseTime = elapsed, leftWorldHeight = heights[0], rightWorldHeight = heights[1] });
+            Require(!float.IsNaN(heights[0]) && !float.IsInfinity(heights[0]) && !float.IsNaN(heights[1]) && !float.IsInfinity(heights[1]),
+                "Finite actual shoe sole heights in " + expected);
+            // Keep the established gait-capture penetration limit; positive flight height is legitimate in Run.
+            Require(heights[0] >= -.01f && heights[1] >= -.01f,
+                "Actual shoes do not penetrate the floor by more than one centimetre in " + expected
+                + ": phase=" + Mathf.Repeat(state.normalizedTime, 1f) + ", left=" + heights[0] + ", right=" + heights[1]);
+        }
+
+        static void ValidateGaitFootCycles(string expected)
+        {
+            var samples = runtime.gaitFootSamples.Where(s => s.state == expected).ToArray();
+            Require(samples.Length > 0, "Actual foot samples exist in " + expected);
+            int firstComplete = Mathf.CeilToInt(samples.First().normalizedTime);
+            int afterLastComplete = Mathf.FloorToInt(samples.Last().normalizedTime);
+            Require(afterLastComplete > firstComplete, "At least one complete actual gait cycle was sampled in " + expected);
+            float worstContact = 0;
+            for (int cycle = firstComplete; cycle < afterLastComplete; cycle++)
+            {
+                var fullCycle = samples.Where(s => Mathf.FloorToInt(s.normalizedTime) == cycle).ToArray();
+                Require(fullCycle.Length > 0, "Consecutive native samples cover gait cycle " + cycle);
+                float left = fullCycle.Min(s => Mathf.Abs(s.leftWorldHeight));
+                float right = fullCycle.Min(s => Mathf.Abs(s.rightWorldHeight));
+                worstContact = Mathf.Max(worstContact, Mathf.Max(left, right));
+                Require(left <= .05f && right <= .05f,
+                    "Both visible feet contact the floor during each complete " + expected + " cycle " + cycle
+                    + ": left=" + left + ", right=" + right);
+            }
+            runtime.maximumGroundedFootError = Mathf.Max(runtime.maximumGroundedFootError, worstContact);
+            if (expected == "Walk") { runtime.walkFootHeight = worstContact; runtime.walkCompleteFootCycles = afterLastComplete - firstComplete; }
+            else { runtime.runFootHeight = worstContact; runtime.runCompleteFootCycles = afterLastComplete - firstComplete; }
+        }
+
+        static void SampleGuides()
+        {
+            var cape = player.capeCloth;
+            int guideCount = cape.guideNodes.Length / (cape.guideSegments + 1);
+            Require((guideCount == 4 || guideCount == 6) && cape.GuideTangentDegrees?.Length == guideCount * cape.guideSegments
+                && cape.GuideTangentDegrees.All(a => !float.IsNaN(a) && !float.IsInfinity(a)),
+                "Finite actual per-segment guide rotation increments");
+            Require(cape.guideNodes.All(n => n != null && IsFinite(n.position)), "Finite actual guide node positions");
+            Require(cape.WingSpreadDegrees >= 0 && cape.WingSpreadDegrees <= 40.001f, "Guide opening remains within forty degrees");
+            runtime.guideMaximumSegmentError = Mathf.Max(runtime.guideMaximumSegmentError, cape.GuideMaxSegmentError);
+            runtime.guideTargetStretchP95 = Mathf.Max(runtime.guideTargetStretchP95, cape.GuideTargetStretchP95);
+            runtime.guideTargetStretchMaximum = Mathf.Max(runtime.guideTargetStretchMaximum, cape.GuideTargetStretchMaximum);
+            float measuredLengthError = 0;
+            for (int direction = 0; direction < guideCount; direction++)
+                for (int segment = 0; segment < 6; segment++)
+                {
+                    int i = direction * 7 + segment;
+                    float actual = Vector3.Distance(cape.guideFrame.InverseTransformPoint(cape.guideNodes[i].position),
+                        cape.guideFrame.InverseTransformPoint(cape.guideNodes[i + 1].position));
+                    float rest = Vector3.Distance(cape.guideRestPoints[i], cape.guideRestPoints[i + 1]);
+                    measuredLengthError = Mathf.Max(measuredLengthError, Mathf.Abs(actual - rest));
+                }
+            runtime.guideMaximumSegmentError = Mathf.Max(runtime.guideMaximumSegmentError, measuredLengthError);
+            Require(measuredLengthError <= .0001f, "Every guide segment preserves its rest length within 0.1 millimetre: " + measuredLengthError);
+        }
+
+        static void ValidateFrontLipBindings(ForestSpriteCapeCloth cape, SkinnedMeshRenderer skin)
+        {
+            Require(skin != null && skin.bones.Length == 43, "Six guides plus the original Chest bind the open-front cape");
+            for (int side = 0; side < 2; side++)
+            {
+                float sign = side == 0 ? 1f : -1f;
+                string prefix = side == 0 ? "Cape_FrontLipPositiveX_Guide_" : "Cape_FrontLipNegativeX_Guide_";
+                int first = (4 + side) * 7;
+                Require(cape.guideNodes.Skip(first).Take(7).All(n => n.name.StartsWith(prefix, StringComparison.Ordinal))
+                    && cape.guideRestPoints[first + 6].x * sign > 0,
+                    "Independent front-lip rest path is on its named physical side: " + prefix);
+                bool[] lipBones = skin.bones.Select(b => b.name.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
+                bool[] oppositeSideBones = skin.bones.Select(b => {
+                    for (int direction = 1; direction <= 2; direction++)
+                        if (cape.guideNodes.Skip(direction * 7).Take(7).Contains(b))
+                            return cape.guideRestPoints[direction * 7 + 6].x * sign < 0;
+                    return false;
+                }).ToArray();
+                int dominatedVertices = 0;
+                foreach (var weight in skin.sharedMesh.boneWeights)
+                {
+                    float lipWeight = SelectedWeight(weight, lipBones);
+                    if (lipWeight > .5f) dominatedVertices++;
+                    if (lipWeight > .00001f)
+                        Require(SelectedWeight(weight, oppositeSideBones) <= .00001f,
+                            "Front-lip vertices never rotate around the remote opposite-side guide: " + prefix);
+                }
+                Require(dominatedVertices > 0, "The open front really uses its independent lip guides: " + prefix);
+            }
+        }
+
+        static float[] ActualGuideRearCurvature(ForestSpriteCapeCloth cape)
+        {
+            var p = cape.guideNodes.Take(7).Select(n => cape.guideFrame.InverseTransformPoint(n.position)).ToArray();
+            return Enumerable.Range(1, 5).Select(i => {
+                Vector3 a = p[i] - p[i - 1], b = p[i + 1] - p[i];
+                a.x = b.x = 0;
+                return Mathf.Atan2(Vector3.Cross(a, b).x, Vector3.Dot(a, b)) * Mathf.Rad2Deg;
+            }).ToArray();
+        }
+
+        static void CheckGuideWave()
+        {
+            Require(guideRunPhases.Count > 30 && guideRunPhases.Last() - guideRunPhases.First() >= 4f * Mathf.PI,
+                "Guide curvature was sampled across at least two measured wave cycles");
+            runtime.runGuideCurvatureAmplitude = new float[5];
+            runtime.runGuideCurvaturePeakPhase = new float[5];
+            runtime.runGuideCurvatureRSquared = new float[5];
+            var reliable = new List<int>();
+            for (int position = 0; position < 5; position++)
+            {
+                // Fit actual local turning angle = c + a*sin(wavePhase) + b*cos(wavePhase).
+                var normal = new double[3, 4];
+                double mean = guideRunCurvatures.Average(v => v[position]);
+                for (int frame = 0; frame < guideRunPhases.Count; frame++)
+                {
+                    double[] basis = { 1, Math.Sin(guideRunPhases[frame]), Math.Cos(guideRunPhases[frame]) };
+                    for (int r = 0; r < 3; r++)
+                    {
+                        for (int c = 0; c < 3; c++) normal[r, c] += basis[r] * basis[c];
+                        normal[r, 3] += basis[r] * guideRunCurvatures[frame][position];
+                    }
+                }
+                for (int pivot = 0; pivot < 3; pivot++)
+                {
+                    double divisor = normal[pivot, pivot];
+                    Require(Math.Abs(divisor) > 1e-9, "Guide curvature harmonic fit has independent phase samples");
+                    for (int c = pivot; c < 4; c++) normal[pivot, c] /= divisor;
+                    for (int r = 0; r < 3; r++) if (r != pivot)
+                    {
+                        double factor = normal[r, pivot];
+                        for (int c = pivot; c < 4; c++) normal[r, c] -= factor * normal[pivot, c];
+                    }
+                }
+                double residual = 0, variance = 0;
+                for (int frame = 0; frame < guideRunPhases.Count; frame++)
+                {
+                    double y = guideRunCurvatures[frame][position];
+                    double fitted = normal[0, 3] + normal[1, 3] * Math.Sin(guideRunPhases[frame]) + normal[2, 3] * Math.Cos(guideRunPhases[frame]);
+                    residual += (y - fitted) * (y - fitted); variance += (y - mean) * (y - mean);
+                }
+                float amplitude = (float)Math.Sqrt(normal[1, 3] * normal[1, 3] + normal[2, 3] * normal[2, 3]);
+                float rSquared = variance > 1e-9 ? (float)(1 - residual / variance) : 0;
+                runtime.runGuideCurvatureAmplitude[position] = amplitude;
+                runtime.runGuideCurvaturePeakPhase[position] = Mathf.Repeat((float)Math.Atan2(normal[1, 3], normal[2, 3]), 2f * Mathf.PI);
+                runtime.runGuideCurvatureRSquared[position] = rSquared;
+                if (amplitude > 1f && rSquared > .5f) reliable.Add(position);
+            }
+            foreach (int a in reliable) foreach (int b in reliable)
+                runtime.runGuidePhaseSpread = Mathf.Max(runtime.runGuidePhaseSpread, Mathf.Abs(Mathf.DeltaAngle(
+                    runtime.runGuideCurvaturePeakPhase[a] * Mathf.Rad2Deg, runtime.runGuideCurvaturePeakPhase[b] * Mathf.Rad2Deg)) * Mathf.Deg2Rad);
+            Require(runtime.runSShapeSamples > 0, "Actual guide path contains opposing local curvature beyond two degrees");
+            Require(reliable.Count >= 3 && runtime.runGuidePhaseSpread > .2f,
+                "At least three guide curvature locations vary by over one degree with R-squared above 0.5 and spatial peak-phase separation above 0.2 radians");
+        }
+
         static void CheckSettingsRoundTrip(ForestSpriteCapeCloth cape)
         {
             // Never write the user's persistent settings: exercise the same API in Verification~.
             string path = Path.GetFullPath(Path.Combine(ForestSpriteDemoBuilder.Review, "cape-settings-check-" + Guid.NewGuid().ToString("N") + ".json"));
-            float flow = cape.FlowAmount, upperBend = cape.UpperBendDegrees;
+            float flow = cape.FlowAmount, upperBend = cape.UpperBendDegrees, runBlend = cape.RunBlend;
             Quaternion upper = cape.flowUpper[0].localRotation;
             try
             {
@@ -437,30 +756,64 @@ namespace ForestSpriteCharacter.Editor
                 Require(cape.settings.wingSpread == new ForestSpriteCapeCloth.Settings().wingSpread,
                     "Winged preset applies the recommended cape shape");
                 cape.settings = new ForestSpriteCapeCloth.Settings { windStrength = 1.2f, lift = .85f, wingSpread = 1f, sCurve = .7f,
-                    waveAmplitude = .015f, waveSpeed = .9f, settleTime = .7f, clothFreedom = .3f, damping = .3f, bendStiffness = .22f };
+                    waveAmplitude = 0, wingFlap = 0, waveSpeed = .9f, settleTime = .7f, clothFreedom = .3f, damping = .3f,
+                    bendStiffness = .22f, contactRebound = 0, contactResponse = .32f };
                 cape.ApplySettings();
                 string expected = JsonUtility.ToJson(cape.settings);
                 cape.SaveSettings(path);
                 cape.settings = new ForestSpriteCapeCloth.Settings();
                 cape.LoadSettings(path);
                 Require(JsonUtility.ToJson(cape.settings) == expected, "All cape parameters survive save/load round trip");
-                int wingStart = expected.IndexOf("\"wingSpread\":", StringComparison.Ordinal);
-                int wingEnd = expected.IndexOf(',', wingStart);
-                string legacy = expected.Remove(wingStart, wingEnd - wingStart + 1);
-                File.WriteAllText(path, legacy);
-                cape.LoadSettings(path);
+                Require(cape.settings.contactRebound == 0, "Explicit zero rebound is preserved, not replaced by a missing-field default");
+                string legacy = expected;
                 var migrated = JsonUtility.FromJson<ForestSpriteCapeCloth.Settings>(expected);
-                migrated.wingSpread = new ForestSpriteCapeCloth.Settings().wingSpread;
-                Require(JsonUtility.ToJson(cape.settings) == JsonUtility.ToJson(migrated) && File.ReadAllText(path) == legacy,
-                    "Legacy settings preserve all prior values, gain the recommended wing spread, and are not rewritten on load");
-                runtime.legacySettingsMigration = true;
+                // Check yesterday's JSON without wingFlap first, then older JSON missing both wing controls.
+                foreach (string field in new[] { "wingFlap", "wingSpread", "contactRebound", "contactResponse" })
+                {
+                    int start = legacy.IndexOf("\"" + field + "\":", StringComparison.Ordinal);
+                    int end = legacy.IndexOf(',', start);
+                    legacy = legacy.Remove(start, end - start + 1);
+                    File.WriteAllText(path, legacy);
+                    cape.LoadSettings(path);
+                    if (field == "wingFlap") migrated.wingFlap = new ForestSpriteCapeCloth.Settings().wingFlap;
+                    else if (field == "wingSpread") migrated.wingSpread = new ForestSpriteCapeCloth.Settings().wingSpread;
+                    else if (field == "contactRebound") migrated.contactRebound = new ForestSpriteCapeCloth.Settings().contactRebound;
+                    else migrated.contactResponse = new ForestSpriteCapeCloth.Settings().contactResponse;
+                    Require(JsonUtility.ToJson(cape.settings) == JsonUtility.ToJson(migrated) && File.ReadAllText(path) == legacy,
+                        "Legacy settings preserve prior values, supply missing " + field + ", and are not rewritten on load");
+                }
+                runtime.legacySettingsMigration = runtime.legacyWingFlapMigration = true;
+                CheckSettingsFiniteBounds();
                 File.WriteAllText(path, expected);
                 cape.LoadSettings(path);
-                Require(cape.cloth.enabled && cape.FlowAmount == flow && cape.UpperBendDegrees == upperBend && Quaternion.Angle(upper, cape.flowUpper[0].localRotation) < .001f,
+                Require(cape.cloth.enabled && cape.FlowAmount == flow && cape.RunBlend == runBlend && cape.UpperBendDegrees == upperBend && Quaternion.Angle(upper, cape.flowUpper[0].localRotation) < .001f,
                     "Saving, loading and applying settings do not reset flow or bone pose");
                 runtime.settingsRoundTrip = runtime.tuningKeptSimulation = true;
             }
             finally { if (File.Exists(path)) File.Delete(path); }
+        }
+
+        static void CheckSettingsFiniteBounds()
+        {
+            var defaults = new ForestSpriteCapeCloth.Settings();
+            foreach (var field in typeof(ForestSpriteCapeCloth.Settings).GetFields())
+            {
+                if (field.FieldType != typeof(float)) continue;
+                var range = (RangeAttribute)Attribute.GetCustomAttribute(field, typeof(RangeAttribute));
+                Require(range != null, "Every exposed settings float has an explicit range: " + field.Name);
+                foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity })
+                {
+                    var sample = new ForestSpriteCapeCloth.Settings();
+                    field.SetValue(sample, invalid); sample.Clamp();
+                    Require((float)field.GetValue(sample) == (float)field.GetValue(defaults),
+                        "Nonfinite settings fall back to the documented default: " + field.Name);
+                }
+                var extremes = new ForestSpriteCapeCloth.Settings();
+                field.SetValue(extremes, -1000f); extremes.Clamp();
+                Require((float)field.GetValue(extremes) == range.min, "Settings lower bound: " + field.Name);
+                field.SetValue(extremes, 1000f); extremes.Clamp();
+                Require((float)field.GetValue(extremes) == range.max, "Settings upper bound: " + field.Name);
+            }
         }
 
         static Vector3[] CapeParticlesInPlayerSpace() => player.capeCloth.cloth.vertices
@@ -584,7 +937,7 @@ namespace ForestSpriteCharacter.Editor
             runtime.clothParticles = clothToMesh.Length;
             runtime.pinnedParticles = coefficients.Count(c => c.maxDistance <= .00001f);
             runtime.freeParticles = coefficients.Length - runtime.pinnedParticles;
-            bool[] backBones = clothSkin.bones.Select(b => b.name == "Cape_Back_01" || b.name == "Cape_Back_02").ToArray();
+            bool[] backBones = clothSkin.bones.Select(b => cape.UsesGuides ? b.name.StartsWith("Cape_Back_", StringComparison.Ordinal) : b.name == "Cape_Back_01" || b.name == "Cape_Back_02").ToArray();
             float hemY = Mathf.Lerp(cape.restParticles.Min(p => p.y), cape.restParticles.Max(p => p.y), .35f);
             rearHemParticles = Enumerable.Range(0, clothToMesh.Length).Where(i => cape.restParticles[i].y <= hemY
                 && SelectedWeight(meshWeights[clothToMesh[i]], backBones) >= .75f).ToArray();
@@ -597,6 +950,11 @@ namespace ForestSpriteCharacter.Editor
             bool[] footBones = footSkin.bones.Select(b => b.name.StartsWith("Foot.") || b.name.StartsWith("Toe.")).ToArray();
             footVertices = Enumerable.Range(0, footWeights.Length).Where(i => SelectedWeight(footWeights[i], footBones) >= .25f).ToArray();
             Require(footVertices.Length > 0, "Actual foot-weighted body mesh vertices exist");
+            gaitFootVertices = new[] { ".L", ".R" }.Select(suffix => {
+                bool[] sideBones = footSkin.bones.Select(b => (b.name.StartsWith("Foot.") || b.name.StartsWith("Toe.")) && b.name.EndsWith(suffix)).ToArray();
+                return Enumerable.Range(0, footWeights.Length).Where(i => SelectedWeight(footWeights[i], sideBones) >= .25f).ToArray();
+            }).ToArray();
+            Require(gaitFootVertices.All(v => v.Length > 0), "Both actual shoe meshes have independently weighted vertices");
             var matrices = SkinMatrices();
             for (int i = 0; i < clothToMesh.Length; i++)
             {

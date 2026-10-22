@@ -105,10 +105,11 @@ namespace ForestSpriteCharacter
                 bool changed = false;
                 cape.settings.windStrength = Slider("风力", cape.settings.windStrength, 0f, 2f, ref changed);
                 cape.settings.lift = Slider("向后抬起", cape.settings.lift, 0f, 1f, ref changed);
-                cape.settings.wingSpread = Slider("翼展（两侧展开）", cape.settings.wingSpread, 0f, 1f, ref changed, 100f, "%");
+                cape.settings.wingSpread = Slider("最大翼展", cape.settings.wingSpread, 0f, 1f, ref changed, 100f, "%");
+                cape.settings.wingFlap = Slider("翼面开合幅度", cape.settings.wingFlap, 0f, 1f, ref changed, 100f, "%");
                 cape.settings.sCurve = Slider("S 形弯曲", cape.settings.sCurve, 0f, 1f, ref changed);
-                cape.settings.waveAmplitude = Slider("波浪幅度", cape.settings.waveAmplitude, 0f, .12f, ref changed, 120f, "°");
-                cape.settings.waveSpeed = Slider("波浪速度", cape.settings.waveSpeed, .2f, 2f, ref changed, 1f, " 次/秒");
+                cape.settings.waveAmplitude = Slider("波浪幅度", cape.settings.waveAmplitude, 0f, .12f, ref changed, 100f / .12f, "%");
+                cape.settings.waveSpeed = Slider("波浪节奏", cape.settings.waveSpeed, .2f, 2f, ref changed);
                 cape.settings.clothFreedom = Slider("自由摆幅", cape.settings.clothFreedom, 0f, 1f, ref changed, 100f, "%");
                 cape.settings.settleTime = Slider("回落时间", cape.settings.settleTime, .1f, 2f, ref changed, 1f, " 秒");
                 fineTuning = GUILayout.Toggle(fineTuning, "细调", toggle);
@@ -116,6 +117,8 @@ namespace ForestSpriteCharacter
                 {
                     cape.settings.damping = Slider("阻尼", cape.settings.damping, .02f, .5f, ref changed);
                     cape.settings.bendStiffness = Slider("弯曲刚度", cape.settings.bendStiffness, .02f, .8f, ref changed);
+                    cape.settings.contactRebound = Slider("接触回弹", cape.settings.contactRebound, 0f, 1f, ref changed);
+                    cape.settings.contactResponse = Slider("回弹响应时间", cape.settings.contactResponse, .08f, .4f, ref changed, 1f, " 秒");
                 }
                 GUILayout.Space(6f);
                 GUILayout.Label("移动调节", heading);
@@ -134,8 +137,20 @@ namespace ForestSpriteCharacter
                 if (GUILayout.Button("载入", button)) Run(cape.LoadSettings, "已载入保存参数", "载入失败");
                 if (GUILayout.Button("展翼推荐", button)) Run(cape.ApplyWingedPreset, "已应用展翼推荐 · 移动参数保留 · 保存后保留", "恢复失败");
                 GUILayout.EndHorizontal();
+                if (cape.Contact != null)
+                {
+                    var contact = cape.Contact;
+                    GUILayout.Space(5f);
+                    GUILayout.Label("碰撞检查", heading);
+                    contact.ShowMarkers = GUILayout.Toggle(contact.ShowMarkers, "显示接触位置", toggle);
+                    GUILayout.Label("碰撞范围穿入 " + (Mathf.Max(contact.ActualDepth, contact.SurfaceDepth) * 1000f).ToString("0.0")
+                        + " mm · 避让 " + (contact.MaximumCorrection * 1000f).ToString("0.0") + " mm", note);
+                    if (GUILayout.Button("导出最近碰撞记录", button))
+                        Run(() => contact.ExportDiagnostics(System.IO.Path.Combine(Application.persistentDataPath,
+                            "ForestSprite", "cape-contact-last.json")), "已导出最近碰撞记录到角色参数目录", "导出失败");
+                }
                 GUILayout.Label(status, note);
-                GUILayout.Label("波浪幅度控制整片大波浪；自由摆幅控制局部细动。翼展控制两侧展开，回落时间控制停下后收拢速度。", note);
+                GUILayout.Label("走路低垂慢摆，跑步展翼快摆。开合幅度控制翼面收放，波浪幅度控制肩到下摆的起伏；回落时间控制停下后收拢。", note);
             }
             GUILayout.EndScrollView();
             GUILayout.EndArea();
