@@ -33,6 +33,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BrushGradientStrength: 0.65
     - _BrushViewResponse: 0.85
     - _CausticDepth: 1.1
     - _CausticScale: 1.25
@@ -53,6 +54,7 @@ Material:
     - _RefractionStrength: 0.012
     - _RippleSpeed: 0.12
     - _RippleStrength: 0.36
+    - _ShadowPigmentBlend: 0.75
     - _ShoreStrength: 0.68
     - _ShoreWidth: 0.20
     - _SmallStrokeScale: 2.6
@@ -69,4 +71,5 @@ Material:
     - _ReflectionTint: {r: 0.75, g: 0.86, b: 0.82, a: 1}
     - _RippleColor: {r: 0.96, g: 0.94, b: 0.82, a: 1}
     - _ShallowColor: {r: 0.66, g: 0.79, b: 0.75, a: 1}
+    - _ShadowPigmentColor: {r: 0.035, g: 0.40, b: 0.43, a: 1}
   m_BuildTextureStacks: []

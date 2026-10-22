@@ -58,6 +58,9 @@ namespace WeatherHouse.Vegetation.Editor
             water.SetFloat("_BrushViewResponse", .85f);
             water.SetFloat("_SmallStrokeScale", 2.6f);
             water.SetFloat("_SmallStrokeWeight", .45f);
+            water.SetFloat("_BrushGradientStrength", .65f);
+            water.SetColor("_ShadowPigmentColor", new Color(.035f, .40f, .43f, 1));
+            water.SetFloat("_ShadowPigmentBlend", .75f);
             water.SetFloat("_UseWaterBrushAtlas", waterBrushAtlas ? 1 : 0);
             EditorUtility.SetDirty(water);
         }
