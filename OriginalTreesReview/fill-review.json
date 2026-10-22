@@ -1,0 +1,189 @@
+{
+  "note": "Top-left pixel coordinates. Corresponding visual regions, not pixel/leaf registration; means track adjustment direction, not similarity scores.",
+  "images": {
+    "author": {
+      "file": "Author_Original.png",
+      "sha256": "8f2086efd154203697eb5399e47279d5e457fb5d393484081e638e78277bdccf",
+      "samples": {
+        "shadowCore": {
+          "xywh": [
+            155,
+            482,
+            35,
+            18
+          ],
+          "meanRgb": [
+            77.862,
+            81.595,
+            94.863
+          ]
+        },
+        "litGround": {
+          "xywh": [
+            540,
+            460,
+            70,
+            50
+          ],
+          "meanRgb": [
+            191.149,
+            185.238,
+            182.413
+          ]
+        },
+        "birchCrownUnderside": {
+          "xywh": [
+            225,
+            215,
+            40,
+            24
+          ],
+          "meanRgb": [
+            191.364,
+            71.936,
+            24.532
+          ]
+        },
+        "birchMiddleUnderside": {
+          "xywh": [
+            170,
+            286,
+            55,
+            16
+          ],
+          "meanRgb": [
+            234.125,
+            144.622,
+            40.497
+          ]
+        }
+      }
+    },
+    "beforeFill": {
+      "file": "Unity_SoftnessOnly.png",
+      "sha256": "d1e438a5d4ab9fe1e63a67f869f0e3020f8dff7a96022128c10cc95733469a46",
+      "samples": {
+        "shadowCore": {
+          "xywh": [
+            270,
+            880,
+            65,
+            35
+          ],
+          "meanRgb": [
+            81.486,
+            86.967,
+            99.655
+          ]
+        },
+        "litGround": {
+          "xywh": [
+            1010,
+            855,
+            140,
+            90
+          ],
+          "meanRgb": [
+            192.905,
+            190.514,
+            186.951
+          ]
+        },
+        "birchCrownUnderside": {
+          "xywh": [
+            425,
+            405,
+            65,
+            35
+          ],
+          "meanRgb": [
+            169.716,
+            54.674,
+            11.385
+          ]
+        },
+        "birchMiddleUnderside": {
+          "xywh": [
+            290,
+            557,
+            90,
+            25
+          ],
+          "meanRgb": [
+            200.755,
+            101.564,
+            12.005
+          ]
+        }
+      }
+    },
+    "afterFill": {
+      "file": "Unity_FinalLighting.png",
+      "sha256": "458e9a55efb0dc526cd9ccabe2a707a184ec2d71fb453d84b27a025571801c7a",
+      "samples": {
+        "shadowCore": {
+          "xywh": [
+            270,
+            880,
+            65,
+            35
+          ],
+          "meanRgb": [
+            81.067,
+            86.943,
+            99.645
+          ]
+        },
+        "litGround": {
+          "xywh": [
+            1010,
+            855,
+            140,
+            90
+          ],
+          "meanRgb": [
+            192.863,
+            190.504,
+            186.944
+          ]
+        },
+        "birchCrownUnderside": {
+          "xywh": [
+            425,
+            405,
+            65,
+            35
+          ],
+          "meanRgb": [
+            180.438,
+            71.391,
+            13.836
+          ]
+        },
+        "birchMiddleUnderside": {
+          "xywh": [
+            290,
+            557,
+            90,
+            25
+          ],
+          "meanRgb": [
+            209.707,
+            116.707,
+            12.265
+          ]
+        }
+      }
+    }
+  },
+  "groundAmbientBefore": [
+    0.253,
+    0.231,
+    0.2
+  ],
+  "groundAmbientAfter": [
+    1,
+    0.9,
+    0.65
+  ]
+}

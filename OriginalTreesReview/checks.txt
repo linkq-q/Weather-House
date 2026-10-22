@@ -1,5 +1,5 @@
 Original trees — static material port
-UTC 2026-10-22T06:56:41.0066702Z
+UTC 2026-10-22T07:23:39.1391413Z
 GPU NVIDIA GeForce RTX 5060 Laptop GPU
 PASS Birch: original FBX vs Unity, 32 leaf triangles / 96 corners; position max 0 m; UV0 max 0; minimum N/T/B dot 0.9999999; unit basis, tangent sign and UE->Unity world axes verified.
 PASS Birch: 15.96560 m local/world height; original position and unit world scale; 7296 triangles; normals/tangents/UV0-2 present; correct material slots.
@@ -19,13 +19,13 @@ PASS FirTree: 6.61013 m local/world height; original position and unit world sca
   vertex 1 pos=(1.13228, 3.43833, 0.19155) normal=(0.33932, 0.93905, 0.05524) tangent=(-0.29098, 0.15729, -0.94371, -1.00000) uv=(0.08252, 0.97545)
   vertex 2 pos=(0.91514, 3.29913, 0.30592) normal=(0.29111, 0.95202, 0.09442) tangent=(-0.38650, 0.20508, -0.89920, -1.00000) uv=(0.05698, 0.91528)
   vertex 3 pos=(1.15907, 3.48696, 0.09577) normal=(0.33967, 0.94001, 0.03160) tangent=(-0.19660, 0.10223, -0.97514, -1.00000) uv=(0.10309, 0.98477)
-Study ambient sky/equator/ground: RGBA(0.530, 0.600, 0.720, 1.000) / RGBA(0.340, 0.370, 0.430, 1.000) / RGBA(0.253, 0.231, 0.200, 1.000)
-Ambient SH L0 RGB: 0.1122451, 0.1355608, 0.1882658
-PASS GPU transmission: 768x768, thickness .5 -> 1 changes 25754 pixels (RGB8 absolute sum > 6); affected-leaf linear luminance sum 5613.221 -> 4889.607 (12.89% lower). Repeated thickness=1 capture is stable. Only runtime leaf material copies were changed. Source materials and renderer bindings preserved; camera, light and profile untouched.
-PASS GPU bias source: 1200x1200; pipeline=1/1; equal local override changed=0, repeat changed=0 (RGB8 sum > 3). Pipeline vs local .2/.4 changed=61528; pipeline vs .02/.15 changed=164989; middle vs small changed=122744 (RGB8 sum > 6).
+Study ambient sky/equator/ground: RGBA(0.530, 0.600, 0.720, 1.000) / RGBA(0.340, 0.370, 0.430, 1.000) / RGBA(1.000, 0.900, 0.650, 1.000)
+Ambient SH L0 RGB: 0.2702309, 0.2595297, 0.246091
+PASS GPU transmission: 768x768, thickness .5 -> 1 changes 24477 pixels (RGB8 absolute sum > 6); affected-leaf linear luminance sum 6421.582 -> 5725.373 (10.84% lower). Repeated thickness=1 capture is stable. Only runtime leaf material copies were changed. Source materials and renderer bindings preserved; camera, light and profile untouched.
+PASS GPU bias source: 1200x1200; pipeline=1/1; equal local override changed=0, repeat changed=0 (RGB8 sum > 3). Pipeline vs local .2/.4 changed=59280; pipeline vs .02/.15 changed=166274; middle vs small changed=125200 (RGB8 sum > 6).
 Only Light bias fields and usePipelineSettings were changed. Camera, materials, exposure, shadow strength and soft-shadow quality were held fixed.
 Image differences prove the bias source reaches GPU rendering; acne, contact and visual quality still require review of these fixed-camera captures.
-PASS soft-shadow quality GPU: 1200x1200; Medium -> High changed 43700 pixels (RGB8 sum > 6); repeated High changed 0 (sum > 3). Unoccluded foreground changed=0 (600x60, sum > 3). Depth and normal fields were compensated by the 3.5/2.5 kernel ratio to hold effective caster bias fixed.
-PASS GPU original fluffy displacement: 27130 pixels changed in 512 square capture.
-PASS GPU leaf clipping: 32564 pixels changed with all Birch leaves clipped.
+PASS soft-shadow quality GPU: 1200x1200; Medium -> High changed 42365 pixels (RGB8 sum > 6); repeated High changed 0 (sum > 3). Unoccluded foreground changed=0 (600x60, sum > 3). Depth and normal fields were compensated by the 3.5/2.5 kernel ratio to hold effective caster bias fixed.
+PASS GPU original fluffy displacement: 27070 pixels changed in 512 square capture.
+PASS GPU leaf clipping: 32561 pixels changed with all Birch leaves clipped.
 PASS actual Play captures. Artistic similarity remains a visual review, not a test assertion.

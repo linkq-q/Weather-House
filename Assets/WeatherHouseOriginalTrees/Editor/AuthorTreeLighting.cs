@@ -48,7 +48,7 @@ namespace WeatherHouse.OriginalTrees.Editor
             RenderSettings.ambientMode=AmbientMode.Trilight;
             RenderSettings.ambientSkyColor=new Color(.53f,.60f,.72f);
             RenderSettings.ambientEquatorColor=new Color(.34f,.37f,.43f);
-            RenderSettings.ambientGroundColor=new Color(.253f,.231f,.20f);
+            RenderSettings.ambientGroundColor=new Color(1f,.9f,.65f);
             // High PCF needs a small caster margin to prevent ground self-shadow stripes.
             sun.shadowBias=.15f;
             sun.shadowNormalBias=.35f;
