@@ -9,6 +9,11 @@ Shader "Weather House/Painterly Grass"
         _UpNormals("Upward Normals (0 Geometry / 1 Smooth Meadow)", Range(0, 1)) = 1
         _PatchScale("Broad Color Patch Scale", Range(0.02, 3)) = 0.23
         _PatchStrength("Broad Color Patch Strength", Range(0, 0.6)) = 0.17
+        _MeadowBlend("Continuous meadow blend", Range(0, 1)) = 0
+        _MeadowBaseColor("Meadow shared base", Color) = (0.49, 0.55, 0.24, 1)
+        _MeadowPatchColor("Meadow shared warm patch", Color) = (0.81, 0.75, 0.38, 1)
+        _MeadowPatchScale("Meadow shared patch scale", Range(0.02, 2)) = 0.23
+        _BladeContrast("Individual blade contrast", Range(0, 1)) = 1
         _WindStrength("Wind Strength (Metres)", Range(0, 0.8)) = 0.11
         _WindSpeed("Wind Speed", Range(0, 5)) = 1.0
         _WindScale("Wind Wave Scale", Range(0.02, 3)) = 0.32
@@ -23,6 +28,8 @@ Shader "Weather House/Painterly Grass"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor, _TipColor, _ShadowTint;
+            half4 _MeadowBaseColor, _MeadowPatchColor;
+            float _MeadowBlend, _MeadowPatchScale, _BladeContrast;
             float4 _WindDirection;
             float _ShadowStrength, _PatchScale, _PatchStrength, _UpNormals;
             float _WindStrength, _WindSpeed, _WindScale;
@@ -101,6 +108,12 @@ Shader "Weather House/Painterly Grass"
                 half3 grass = lerp(_BaseColor.rgb, _TipColor.rgb, pow(saturate(input.uv.y), 0.68));
                 grass *= 1 + (patch - 0.5) * _PatchStrength * 2;
                 grass *= 0.97 + 0.03 * smoothstep(0.2, 0.55, input.uv.x);
+                // Use the ground's world-space pigment field; geometry remains visible at silhouettes.
+                float meadowPatch = PatchNoise(input.positionWS.xz * _MeadowPatchScale);
+                half3 meadow = lerp(_MeadowBaseColor.rgb, _MeadowPatchColor.rgb,
+                    smoothstep(0.30, 0.75, meadowPatch) * 0.65);
+                meadow *= 1 + (pow(saturate(input.uv.y), 0.68) - 0.5) * _BladeContrast * 0.45;
+                grass = lerp(grass, meadow, _MeadowBlend);
                 half3 surface = lerp(grass, input.color.rgb, input.color.a);
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half diffuse = 0.15 + smoothstep(-0.15, 0.85, dot(SafeNormalize(input.normalWS), light.direction)) * 0.75;
@@ -111,6 +124,12 @@ Shader "Weather House/Painterly Grass"
                 half luminance = dot(surface, half3(0.2126, 0.7152, 0.0722));
                 half3 shade = lerp(surface * 0.38, _ShadowTint.rgb * (0.5 + luminance * 0.9), 0.75);
                 half3 color = lerp(surface * illumination, shade, shadow);
+                half groundDiffuse = smoothstep(-0.2, 0.8, light.direction.y);
+                half3 groundLight = max(SampleSH(half3(0, 1, 0)), half3(.16, .16, .16)) * .65
+                    + light.color * (.28 + groundDiffuse * .52);
+                half3 unified = surface * groundLight * lerp(half3(1, 1, 1), _ShadowTint.rgb,
+                    (1 - light.shadowAttenuation) * .55);
+                color = lerp(color, unified, _MeadowBlend * (1 - input.color.a));
                 return half4(MixFog(color, input.fog), 1);
             }
             ENDHLSL

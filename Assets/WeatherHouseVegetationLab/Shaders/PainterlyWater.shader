@@ -10,6 +10,11 @@ Shader "Weather House/Painterly Water"
         _RefractionStrength ("Refraction strength", Range(0, 0.05)) = 0.012
         [Header(Reflections)]
         _ReflectionTint ("Reflection tint", Color) = (0.75, 0.86, 0.82, 1)
+        _ReflectionNear ("Near / looking-down reflection", Range(0, 1)) = 0.65
+        _ReflectionFar ("Far / grazing reflection", Range(0, 1)) = 1
+        _ReflectionFalloff ("Reflection view transition", Range(0.2, 5)) = 2
+        _ReflectionTintStrength ("Reflection pigment tint", Range(0, 1)) = 0.06
+        _WaterSaturation ("Water pigment saturation", Range(0, 2)) = 1
         _ReflectionStrength ("Reflection strength", Range(0, 1)) = 0.86
         _ReflectionDistortion ("Reflection breakup", Range(0, 0.06)) = .005
         _ReflectionBrushStrength ("Reflection brush strength", Range(0, 1)) = 0.78
@@ -42,6 +47,15 @@ Shader "Weather House/Painterly Water"
         [Header(Shoreline)]
         _ShoreWidth ("Shoreline depth width (m)", Range(0.01, 1)) = 0.20
         _ShoreStrength ("Shoreline stroke strength", Range(0, 1)) = 0.68
+        _FoamColor ("Foam pigment", Color) = (0.93, 0.94, 0.82, 1)
+        _FoamSpeed ("Foam flow speed", Range(0, 2)) = 0
+        _FoamTravel ("Foam advance and retreat", Range(0, 1)) = 0
+        _FoamSoftness ("Foam painted edge softness", Range(0.01, 0.5)) = 0.16
+        _WaveletStrength ("Short S wave paint", Range(0, 1)) = 0
+        _WaveletScale ("Short wave frequency", Range(0.1, 3)) = 0.65
+        _WaveletWidth ("Short wave paint width", Range(0.01, 0.3)) = 0.075
+        _WaveletLength ("Short wave paint length", Range(0.3, 1.5)) = 1.25
+        _WaveletSpeed ("Short wave speed", Range(0, 2)) = 0.35
         [Header(Underwater Caustics)]
         _CausticStrength ("Caustic strength", Range(0, 2)) = 0.22
         _CausticScale ("Caustic cells per meter", Range(0.2, 5)) = 1.25
@@ -79,6 +93,10 @@ Shader "Weather House/Painterly Water"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
+                float _ReflectionNear, _ReflectionFar, _ReflectionFalloff, _ReflectionTintStrength, _WaterSaturation;
+                half4 _FoamColor;
+                float _FoamSpeed, _FoamTravel, _FoamSoftness, _WaveletStrength, _WaveletScale, _WaveletSpeed;
+                float _WaveletWidth, _WaveletLength;
                 half4 _ShallowColor;
                 half4 _DeepColor;
                 half4 _ReflectionTint;
@@ -481,11 +499,15 @@ Shader "Weather House/Painterly Water"
                 float detail = ValueNoise(p * 2.1 + float2(16.2, 3.8));
                 float localWidth = max(0.001, _ShoreWidth * lerp(0.55, 1.65, broad));
                 float aa = clamp(fwidth(waterDepth) * 0.5, 0.001, localWidth * 0.12);
-                float center = localWidth * lerp(0.25, 0.44, detail);
+                float foamTime = _Time.y * _FoamSpeed;
+                float surge = sin(foamTime * 2.1 + broad * 5.0) * 0.5 + 0.5;
+                float center = localWidth * (lerp(0.25, 0.44, detail) + _FoamTravel * surge * 0.65);
+                aa = max(aa, localWidth * _FoamSoftness * _FoamTravel);
                 float halfWidth = localWidth * lerp(0.075, 0.19, detail);
                 float contact = 1.0 - smoothstep(max(0.0, halfWidth - aa), halfWidth + aa,
                                                   abs(waterDepth - center));
-                float contactBreaks = smoothstep(0.31, 0.57, broad);
+                float flowing = ValueNoise(p * 1.8 + float2(foamTime * .33, -foamTime * .18));
+                float contactBreaks = smoothstep(0.27, 0.57, lerp(broad, flowing, _FoamTravel));
                 // A second, thinner impression overlaps in only some segments of the shore.
                 float outerNoise = ValueNoise(p * 1.25 + float2(32.8, 11.7));
                 float outerCenter = localWidth * (0.87 + (outerNoise - 0.5) * 0.22);
@@ -494,7 +516,34 @@ Shader "Weather House/Painterly Water"
                 float outer = 1.0 - smoothstep(max(0.0, outerWidth - aa), outerWidth + aa,
                                                 abs(waterDepth - outerCenter));
                 float outerBreaks = smoothstep(0.53, 0.72, outerNoise);
-                return saturate(contact * contactBreaks + outer * outerBreaks * 0.42);
+                return saturate(contact * contactBreaks * lerp(1.0, .65 + .35 * surge, _FoamTravel)
+                    + outer * outerBreaks * 0.42);
+            }
+
+            float ShortWavePaint(float2 p)
+            {
+                float2 q = p * _WaveletScale;
+                float2 cell = floor(q / float2(3.5, 1.8));
+                float seed = Hash21(cell + 21.7);
+                float phase = frac(_Time.y * _WaveletSpeed * .25 + seed);
+                float2 local = (frac(q / float2(3.5, 1.8)) - .5) * float2(3.5, 1.8);
+                local.y -= (phase - .5) * .65;
+                float curve = sin(local.x * 2.7 + seed * 6.28) * .17;
+                float edge = abs(local.y - curve);
+                float aa = max(fwidth(edge), .008);
+                float mark = 1 - smoothstep(_WaveletWidth * .3, _WaveletWidth + aa, edge);
+                float length = _WaveletLength * lerp(.7, 1, seed);
+                float ends = 1 - smoothstep(length * .55, length, abs(local.x));
+                if (_UseWaterBrushAtlas > .5)
+                {
+                    float2 inkUV = float2(local.x / max(length * 2, .01) + .5, (local.y - curve) / max(_WaveletWidth * 3, .01) + .5);
+                    float2 dx = ddx(inkUV) * _WaterBrushAtlas_TexelSize.zw * .5;
+                    float2 dy = ddy(inkUV) * _WaterBrushAtlas_TexelSize.zw * .5;
+                    float lod = max(0, .5 * log2(max(dot(dx, dx), dot(dy, dy)) + .001));
+                    mark *= lerp(.5, 1, WaterStampInk(saturate(inkUV), min(3, floor(seed * 4)), min(lod, 5)));
+                }
+                float life = sin(phase * 3.14159265);
+                return mark * ends * life * life * smoothstep(.25, .65, seed);
             }
 
             float Caustics(float2 bedXZ, float time)
@@ -612,9 +661,9 @@ Shader "Weather House/Painterly Water"
                 if (_HasPlanarReflection > 0.5)
                     reflectedColor = BrushReflection(input.positionWS, direction, ripples, interactionView * 0.025,
                                                        reflectionLuminance, reflectionDetail);
-                reflectedColor = lerp(reflectedColor, _ReflectionTint.rgb, 0.06);
-                float fresnel = pow(1.0 - saturate(dot(normalWS, viewDirection)), 2.0);
-                float reflectionWeight = _ReflectionStrength * lerp(0.65, 1.0, fresnel);
+                reflectedColor = lerp(reflectedColor, _ReflectionTint.rgb, _ReflectionTintStrength);
+                float fresnel = pow(1.0 - saturate(dot(normalWS, viewDirection)), max(.2, _ReflectionFalloff));
+                float reflectionWeight = _ReflectionStrength * lerp(_ReflectionNear, _ReflectionFar, fresnel);
                 reflectionWeight *= smoothstep(0.015, 0.24, waterDepth);
                 waterColor = lerp(waterColor, reflectedColor, reflectionWeight);
                 Light sun = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
@@ -638,6 +687,13 @@ Shader "Weather House/Painterly Water"
                                                      _SmallStrokeWeight * reflectionDetail, reflectionLuminance);
                     }
                 }
+                float wavePaint = 0;
+                if (_WaveletStrength > .001)
+                    wavePaint = ShortWavePaint(float2(dot(p, direction), dot(p, perpendicular)))
+                        * _WaveletStrength * smoothstep(.08, .4, waterDepth);
+                waterColor = lerp(waterColor, _RippleColor.rgb, wavePaint);
+                half waterLuma = dot(waterColor, half3(.2126, .7152, .0722));
+                waterColor = max(0, lerp(waterLuma.xxx, waterColor, _WaterSaturation));
                 waterColor = MixFog(waterColor, input.fogFactor);
                 // Very shallow pigment gradually enters the visible bed color, avoiding a pale solid rim.
                 // The final water-layer opacity remains the same 70/30 composition, exactly once.
@@ -646,7 +702,7 @@ Shader "Weather House/Painterly Water"
                 half3 color = _HasSceneColor > 0.5 ? lerp(bedColor, waterColor, _Opacity) : waterColor;
 
                 float edgeWeight = _ShoreStrength * ShorePaint(p, waterDepth, time);
-                half3 strokeColor = MixFog(_RippleColor.rgb, input.fogFactor);
+                half3 strokeColor = MixFog(_FoamColor.rgb, input.fogFactor);
                 color = lerp(color, strokeColor, saturate(edgeWeight));
                 float shorelineFade = smoothstep(0.0, 0.025, waterDepth);
                 // SceneView can omit OpaqueTexture in URP 14; fall back without reading stale camera data.
