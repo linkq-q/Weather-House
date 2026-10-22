@@ -152,9 +152,12 @@ namespace WeatherHousePrototype
                     Mathf.Abs(SolidStroke(glyphAfter) / oldStroke - 3f) < .02f,
                     "OnValidate rebuilds next frame; rendered glyph stroke grows from 3 to 9", report);
 
+                hud.SetCameraMode(true);
+                yield return null;
+                Canvas.ForceUpdateCanvases();
                 var closeBefore = Find<ProceduralUiGraphic>(hud, "Close");
                 float closeStroke = SolidStroke(closeBefore), closeWidth = closeBefore.lineWidth;
-                int oldFontSize = Find<Text>(hud, "Reply instruction").fontSize;
+                int oldFontSize = Find<Text>(hud, "Input text").fontSize;
                 Apply(hud, serialized =>
                 {
                     serialized.FindProperty("uiStyle.lineScale").floatValue = 1.8f;
@@ -167,7 +170,7 @@ namespace WeatherHousePrototype
                 Check(Mathf.Abs(closeAfter.lineWidth / closeWidth - 1.8f) < .001f &&
                     Mathf.Abs(SolidStroke(closeAfter) / closeStroke - 1.8f) < .02f,
                     "Overall line scale reaches the actual close-button Canvas mesh", report);
-                Text instruction = Find<Text>(hud, "Reply instruction");
+                Text instruction = Find<Text>(hud, "Input text");
                 Check(instruction.fontStyle == FontStyle.Bold && instruction.fontSize == Mathf.RoundToInt(oldFontSize * 1.25f) &&
                     HasRenderedMesh(instruction),
                     "Font weight 700 and font scale 1.25 reach rendered Chinese text", report);
@@ -179,7 +182,7 @@ namespace WeatherHousePrototype
                 yield return null;
                 Canvas.ForceUpdateCanvases();
                 Check(Find<ProceduralUiGraphic>(hud, "Close").GetInstanceID() == validCloseId &&
-                    Find<InputField>(hud, "Chinese reply").text == draft && HasRenderedMesh(Find<Text>(hud, "Reply instruction")),
+                    Find<InputField>(hud, "Chinese reply").text == draft && HasRenderedMesh(Find<Text>(hud, "Input text")),
                     "An unfinished HEX edit preserves the last valid rendered HUD and draft", report);
                 Check(canvases.SequenceEqual(Ids<Canvas>()) && events.SequenceEqual(Ids<EventSystem>()),
                     "Inspector edits reuse existing Canvas and EventSystem instances", report);
@@ -194,6 +197,7 @@ namespace WeatherHousePrototype
                     Set(session, "<Observed>k__BackingField", observed);
                     if (hud != null)
                     {
+                        hud.SetCameraMode(false);
                         var input = Get<InputField>(hud, "replyInput");
                         if (input != null) input.SetTextWithoutNotify(replyDraft ?? "");
                         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace WeatherHousePrototype
 {
-    public enum UiMark { PlayerBubble, AnimalBubble, Ellipsis, Close, Viewfinder, Shutter, Dot }
+    public enum UiMark { PlayerBubble, AnimalBubble, Ellipsis, Close, Viewfinder, Shutter, Dot, Keyboard, Camera, Notebook }
 
     [AddComponentMenu("Weather House/Procedural UI Graphic")]
     public sealed class ProceduralUiGraphic : MaskableGraphic
@@ -30,6 +30,20 @@ namespace WeatherHousePrototype
             float size = Mathf.Min(rect.width, rect.height);
             switch (mark)
             {
+                case UiMark.Keyboard:
+                    foreach (Vector2 key in new[] { new Vector2(0f, .27f), new Vector2(-.32f, -.27f), new Vector2(0f, -.27f), new Vector2(.32f, -.27f) })
+                        OutlineBox(mesh, new Rect(center + Vector2.Scale(key, rect.size) - new Vector2(rect.width * .145f, rect.height * .23f), new Vector2(rect.width * .29f, rect.height * .46f)));
+                    break;
+                case UiMark.Camera:
+                    OutlineBox(mesh, new Rect(center + new Vector2(-size * .44f, -size * .30f), new Vector2(size * .88f, size * .58f)));
+                    Stroke(mesh, Arc(center + Vector2.down * size * .01f, size * .19f, 0f, 360f, 40), lineWidth, true);
+                    Stroke(mesh, new List<Vector2> { center + new Vector2(-size * .21f, size * .28f), center + new Vector2(-size * .15f, size * .43f), center + new Vector2(size * .12f, size * .43f), center + new Vector2(size * .19f, size * .28f) }, lineWidth);
+                    break;
+                case UiMark.Notebook:
+                    OutlineBox(mesh, new Rect(center - new Vector2(size * .34f, size * .43f), new Vector2(size * .68f, size * .86f)));
+                    Stroke(mesh, new List<Vector2> { center + new Vector2(-size * .16f, -size * .42f), center + new Vector2(-size * .16f, size * .42f) }, lineWidth);
+                    Stroke(mesh, new List<Vector2> { center + new Vector2(0f, size * .15f), center + new Vector2(size * .20f, size * .15f) }, lineWidth);
+                    break;
                 case UiMark.PlayerBubble:
                 case UiMark.AnimalBubble:
                     Bubble(mesh, rect, mark == UiMark.AnimalBubble);
@@ -57,6 +71,12 @@ namespace WeatherHousePrototype
                     Viewfinder(mesh, rect);
                     break;
             }
+        }
+
+        private void OutlineBox(VertexHelper mesh, Rect rect)
+        {
+            Stroke(mesh, new List<Vector2> { new Vector2(rect.xMin, rect.yMin), new Vector2(rect.xMax, rect.yMin),
+                new Vector2(rect.xMax, rect.yMax), new Vector2(rect.xMin, rect.yMax), new Vector2(rect.xMin, rect.yMin) }, lineWidth, true);
         }
 
         private void Bubble(VertexHelper mesh, Rect rect, bool tail)

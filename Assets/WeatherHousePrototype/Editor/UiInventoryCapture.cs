@@ -90,7 +90,7 @@ namespace WeatherHousePrototype.Editor
             var recorder = session.Recorder;
             string[] hudNames = { "<JournalOpen>k__BackingField", "selectedGlyph", "guessGlyphId", "guessDraft", "replyDraft", "lastReply",
                 "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen", "dialogueOpen", "expandedPhoto", "currentFrame", "playingPhoto",
-                "nextFrameAt", "echoUntil", "focusMarkUntil", "dirty", "inspectorDirty", "useAlbumDesignSamples" };
+                "nextFrameAt", "echoUntil", "focusMarkUntil", "dirty", "inspectorDirty", "useAlbumDesignSamples", "displayedStatus", "statusUntil" };
             var hudState = Snapshot(hud, hudNames);
             var sessionState = Snapshot(session, "<Notebook>k__BackingField", "<Status>k__BackingField", "<Judging>k__BackingField", "<Observed>k__BackingField", "nextObservation");
             var recorderState = Snapshot(recorder, "<IsRecording>k__BackingField", "<CaptureProgress>k__BackingField");
@@ -110,7 +110,8 @@ namespace WeatherHousePrototype.Editor
             var originalNotebook = session.Notebook;
             string notebookJson = JsonUtility.ToJson(originalNotebook);
             byte[] save = File.Exists(session.SavePath) ? File.ReadAllBytes(session.SavePath) : null;
-            string selectedName = EventSystem.current?.currentSelectedGameObject?.name;
+            GameObject selectedObject = EventSystem.current == null ? null : EventSystem.current.currentSelectedGameObject;
+            string selectedName = selectedObject == null ? null : selectedObject.name;
             try
             {
                 session.enabled = false;
@@ -153,6 +154,7 @@ namespace WeatherHousePrototype.Editor
                     if (Terrain.activeTerrain != null) point.y = Terrain.activeTerrain.SampleHeight(point) + Terrain.activeTerrain.transform.position.y + .1f;
                     walker.Teleport(point); walker.yaw = 0f; walker.pitch = 20f;
                     Call(walker, "LateUpdate"); Call(hud, "UpdateAnimalBubble"); Call(hud, "PositionAnimalBubble");
+                    Set(hud, "statusUntil", 0f); Call(hud, "UpdateStatus");
                 };
                 Action album = () =>
                 {
@@ -171,11 +173,11 @@ namespace WeatherHousePrototype.Editor
                     Require(Find<RawImage>(hud, "Motion photo frame").texture != null, "Saved photo first frame failed to load.");
                 };
                 var shots = new List<Entry>();
-                Add(shots, 1, "正常HUD与快捷键", "进入游戏", "顶部状态条、左下键位提示", "实际HUD；保留当前会话状态文案", reset);
+                Add(shots, 1, "正常HUD与快捷键", "进入游戏", "底部呼吸提示、左下键位提示", "实际HUD；保留当前会话状态文案", reset);
                 Add(shots, 2, "动物字语与交谈提示", "走近动物", "原始字形气泡、动物名和E交谈", "真实场景动物和字语；临时摆放玩家视角，无观察入档", () => { reset(); observe(); });
-                Add(shots, 3, "中文回应空输入", "E交谈", "回应标题、输入占位、发送、关闭", "真实BuildDialogue；模拟打开状态，无发送", () =>
+                Add(shots, 3, "中文回应空输入", "E交谈", "无白底的大字输入、Enter回应、Esc收起", "真实BuildDialogue；模拟打开状态，无发送", () =>
                 { Set(hud, "replyDraft", ""); Set(hud, "dialogueOpen", true); Call(hud, "RebuildModal"); });
-                Add(shots, 4, "中文回应输入草稿", "在回应框输入", "有文字的输入框和发送按钮", "实际InputField草稿；无发送、无网络", () =>
+                Add(shots, 4, "中文回应输入草稿", "在回应框输入", "直接在绿色气泡内输入中文", "实际InputField草稿；无发送、无网络", () =>
                     Find<InputField>(hud, "Chinese reply").text = "你希望雨停下来，让湿松果晒干，对吗？");
                 Add(shots, 5, "发送后人物回显", "回应提交后", "人物说话气泡", "模拟已发送状态，直接调用BuildReplyEcho；未调用Reply或SubmitReply", () =>
                 {
@@ -198,7 +200,7 @@ namespace WeatherHousePrototype.Editor
                     Set(recorder, "<IsRecording>k__BackingField", true); Set(recorder, "<CaptureProgress>k__BackingField", .6f);
                     CaptureHint(hud, rig, recorder);
                 });
-                Add(shots, 9, "实际相片页空状态", "相片页签且无照片", "空相框、空状态文案、上一页下一页和页码", "仅清空克隆Notebook照片列表；新书页作为未美化控件的上下文", () => { notebook.observations.Clear(); album(); });
+                Add(shots, 9, "实际相片页空状态", "相片页签且无照片", "空相片插画；底部无文案、按钮和页码", "仅清空克隆Notebook照片列表；不修改存档", () => { notebook.observations.Clear(); album(); });
                 Add(shots, 10, "未遇见字符详情", "点击未遇见字符", "遮罩、矩形详情卡、关闭与提示文案", "仅在克隆Notebook移除此字知识，真实BuildGlyphDetail", () =>
                 { notebook.words.RemoveAll(w => w.glyphId == glyph.id); detail(); });
                 Add(shots, 11, "字符猜测与证据按钮", "点击已遇见未确认字符", "我的猜测、输入框、记下来、查看相关照片", "克隆Notebook临时遇见状态，输入草稿不保存", () =>
@@ -217,14 +219,14 @@ namespace WeatherHousePrototype.Editor
                     notebook.observations = new List<ObservationRecord> { new ObservationRecord { id = id, clipFolder = "MotionPhotos/" + id, frameCount = 1, framesPerSecond = 6f, glyphIds = new[] { glyph.id } } };
                     album(); Require(Find<Text>(hud, "Missing frame").text == "照片暂时无法读取", "The missing-photo UI message is absent.");
                 });
-                Add(shots, 16, "回应判断中状态", "动物等待AI判断", "动物在听你说……", "模拟Judging及Status，真实顶部状态控件；无AI请求", () =>
+                Add(shots, 16, "回应判断中状态", "动物等待AI判断", "动物在听你说……", "模拟Judging及Status，真实底部呼吸状态控件；无AI请求", () =>
                 { reset(); observe(); Set(session, "<Judging>k__BackingField", true); Status(session, hud, "动物在听你说……"); });
                 Add(shots, 17, "回应失败状态", "AI请求失败或超时", "可重试错误提示", "使用LanguageJudgementClient现有错误文案模拟Status；无网络请求", () =>
                 { Set(session, "<Judging>k__BackingField", false); Status(session, hud, "AI请求失败或超时，本次未确认任何词义，可以重试。"); });
-                Add(shots, 18, "相关照片为空", "字符详情点击查看相关照片", "还没有这个字的照片、空相框与分页控件", "清空克隆照片列表后点击真实Word evidence按钮；未修改存档", () =>
+                Add(shots, 18, "相关照片为空", "字符详情点击查看相关照片", "相框内部显示空相片插画", "清空克隆照片列表后点击真实Word evidence按钮；未修改存档", () =>
                 {
                     notebook.observations.Clear(); detail(); Find<Button>(hud, "Word evidence").onClick.Invoke();
-                    Require(Find<Text>(hud, "No photos").text == "还没有这个字的照片。", "The empty glyph-evidence message is absent.");
+                    Require(Find<RawImage>(hud, "Empty photo 1").texture == Resources.Load<Texture2D>("AlbumBook/PhotoEmpty"), "The empty glyph-evidence artwork is absent.");
                 });
                 Add(shots, 19, "字符猜测空输入", "点击已遇见未确认字符", "空猜测输入及占位文案、记下来与相关照片按钮", "仅克隆Notebook未确认状态和空草稿；无保存操作", () =>
                 {
@@ -238,6 +240,7 @@ namespace WeatherHousePrototype.Editor
                     manifest.items.Add(shot);
                     if (shot.prepare == null) { shot.filename = ""; continue; }
                     shot.prepare();
+                    Call(hud, "UpdateStatus");
                     Canvas.ForceUpdateCanvases();
                     yield return null;
                     Canvas.ForceUpdateCanvases();
@@ -292,7 +295,7 @@ namespace WeatherHousePrototype.Editor
         private static void Add(List<Entry> entries, int sequence, string title, string trigger, string state, string provenance, Action prepare)
         { entries.Add(new Entry { index = sequence, filename = sequence.ToString("D2") + ".png", title = title, trigger = trigger, state = state, provenance = provenance, prepare = prepare }); }
         private static void Status(GameplaySession session, GameplayHud hud, string text)
-        { Set(session, "<Status>k__BackingField", text); Get<Text>(hud, "statusLabel").text = text ?? ""; }
+        { Set(session, "<Status>k__BackingField", text); Call(hud, "UpdateStatus"); }
         private static void CaptureHint(GameplayHud hud, PhotoCameraRig rig, MotionPhotoRecorder recorder)
         {
             Text label = Get<Text>(hud, "captureLabel");

@@ -71,7 +71,7 @@ namespace WeatherHousePrototype.Editor
             if (latest.frameCount != 18) throw new InvalidOperationException("The first-person photograph did not contain 18 frames.");
             hud.ToggleJournal();
             for (int i = 0; i < previousPhotos / 4; i++)
-                Object.FindObjectsOfType<Button>().First(b => b.name == "Next photos").onClick.Invoke();
+                hud.SendMessage("TurnJournalPage", 1, SendMessageOptions.RequireReceiver);
             yield return null;
             yield return Capture("Gameplay_Journal");
             var photoButton = Object.FindObjectsOfType<Button>().FirstOrDefault(b => b.name == "Photo " + latest.id);

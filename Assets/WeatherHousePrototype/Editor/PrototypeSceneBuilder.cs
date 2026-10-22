@@ -82,6 +82,7 @@ namespace WeatherHousePrototype.Editor
                 }
                 else if (command == "photo-check") PhotoCameraChecks.Run();
                 else if (command == "ui-inspector-check") GameplayUiInspectorChecks.Run();
+                else if (command == "hud-polish-check") HudPolishChecks.Run();
                 else if (command == "save-ui-settings" || command == "import-ui-settings")
                 {
                     if (EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play before saving UI settings.");

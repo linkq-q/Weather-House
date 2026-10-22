@@ -51,7 +51,8 @@ namespace WeatherHousePrototype
         {
             if (slot < 0 || slot >= Photos.Length) throw new ArgumentOutOfRangeException(nameof(slot));
             Art(book, "Photo frame " + (slot + 1), "Frame", Frames[slot]);
-            if (texture == null && click == null) return null;
+            if (texture == null)
+                texture = Resources.Load<Texture2D>("AlbumBook/" + (click == null ? "PhotoEmpty" : "PhotoMissing"));
             RawImage photo = Place(book, name, Photos[slot]).gameObject.AddComponent<RawImage>();
             photo.texture = texture;
             photo.raycastTarget = click != null;
