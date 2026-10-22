@@ -105,18 +105,20 @@ Play 中使用独立的草种和材质副本，退出后试调恢复。要永久
 
 ## 水草画风默认值与运行时调节
 
-直接打开 `Assets/Scenes/Experimental/VegetationLab.unity` 即使用用户截图中的水草画风，不再需要临时应用预设。参数保存在 `Generated/ShortGrass.mat`、`TallGrass.mat`、`PainterlyGround.mat`、`PainterlyWater.mat`；颜色按截图中的 8 位 RGB 色块写入。
+直接打开 `Assets/Scenes/Experimental/VegetationLab.unity` 即使用用户截图中的水草画风，不再需要临时应用预设。画风参数保存在 `Generated/ShortGrass.mat`、`TallGrass.mat`、`PainterlyGround.mat`、`PainterlyWater.mat`；区域比例、草形、颜色和风保存在 `Generated/MeadowDefaults/Region0.asset` 至 `Region4.asset`。颜色按截图中的 8 位 RGB 色块写入。
 
 Play 中按 **F6** 切回草地浏览，在左侧面板选择 **水草画风**，再切换 **水体 / 草地 / 地面 / 天空**。Tab 可隐藏或显示面板。颜色按钮展开 RGB 滑条，所有调节即时生效；原有草形、数量、根尖色和风仍在原页签调节。
 
-- **保存当前区域画风为默认值**：在 Unity 编辑器的 Play 中即可保存到对应材质，支持 Undo；退出 Play 或重新打开场景后保留。保存画风不会覆盖原有草种的根尖色、风和法线设置。
+- **保存草地与画风为默认值**：按钮固定在主面板页签下方。Unity 编辑器的 Play 中可一次保存当前区域的总量、权重、种子、全部草种形状/颜色、风、法线及对应画风材质，支持 Undo；退出 Play 或重新打开场景后保留。每次启动会读取区域默认配置，已有实时更新器会自动完成草地网格更新。
 - **恢复已保存的画风**：丢弃当前区域未保存的试调。未保存的调节在退出 Play 后恢复；独立播放器支持实时调节，默认值写回需使用 Unity 编辑器。
 - 短草、高草、地面的颜色和色块频率分别保留。只有 **边界硬度 / 边缘起伏强度 / 起伏分组尺度** 在当前区域草与地面间同步。
+
+草地形状默认值为总量 **40000**、权重 **78 / 6 / 0.8**、分布种子 **431**；短草高度/宽度 **0.30 / 0.094**、13 叶；高草 **0.51 / 0.053**、11 叶；二者弯曲为 **0**。风力/风速/朝上法线为 **0.20 / 0.80 / 0.82**。其余叶尖、根束、随机高度、外围叶片与高低层次按本轮截图记录在原始区域的默认配置中。权重按总量归一化，显示的小数和实际数量分别计算。
 
 截图默认值包括水体不透明度 **0.73**、俯视/掠视倒影 **0.845 / 0.345**；短草混合/逐叶对比/频率 **0.94 / 0.325 / 0.17**；高草 **0.73 / 0 / 0.19**；地面频率 **0.15**；共用边界参数 **0.71 / 0.121 / 1.48 米**。未出现在截图中的参数沿用材质原值。
 
 编辑模式仍可使用 **Weather House > Vegetation Lab > 水草画风 · 实时调节**：开始试调、读取已保存默认画风，调整后保存试调到原材质。关闭窗口会恢复材质引用。Play 中该窗口提供直接打开 Game 内画风面板的按钮。
 
-`VegetationLabReview/DefaultsRevision/checks.txt` 记录截图数值与颜色、真实 Play GPU 变化、运行中写回、退出 Play 后重开场景的检查；`runtime_panel.png` 是 Game 内实际面板截图。原先的 `WaterGrassRevision/` 保存之前几轮对比，旧截图不代表最新默认值。视觉效果仍需用户确认，未测试移动端性能。
+`VegetationLabReview/DefaultsRevision/checks.txt` 记录截图数值与颜色、真实 Play GPU 变化、运行中写回、退出 Play 后重开场景的检查；`runtime_panel.png` 是 Game 内实际面板截图。`GrassDefaultsRevision/checks.txt` 另外验证完整草地区域保存、40000 草丛实时生成、区域互不覆盖、退出并重开后的再次 Play。原先的 `WaterGrassRevision/` 保存之前几轮对比，旧截图不代表最新默认值。视觉效果仍需用户确认，未测试移动端性能。
 
 本轮参考：[Chiasera 的 Unity 2022.3 / URP 吉卜力草地项目](https://github.com/Chiasera/Stylized-grass)，以及 [Daniel Shervheim 的风格水体 Shader](https://github.com/danielshervheim/unity-stylized-water/blob/main/Assets/Stylized%20Water/Shaders/Stylized%20Water.shader) 中将底色、Fresnel 倒影、流动泡沫和接触泡沫分开的结构。没有导入第三方包或复制其源码。B 站已通过本机浏览器检索到 [草地渲染学习记录](https://www.bilibili.com/video/BV1eH4y177YA/) 等视频；视频详情页连接超时，未观看或据此推断实现。

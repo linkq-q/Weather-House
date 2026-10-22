@@ -103,12 +103,6 @@ namespace WeatherHouse.Vegetation
                 index = lookGrass;
             }
             var m = choices[index];
-#if UNITY_EDITOR
-            if (GUILayout.Button("保存当前区域画风为默认值", button))
-            {
-                try { SaveWaterGrassDefaults(); } catch (Exception error) { lookMessage = error.Message; }
-            }
-#endif
             if (GUILayout.Button("恢复已保存的画风", button))
                 foreach (var material in all) CopyLook(LookSource(material), material);
             if (!string.IsNullOrEmpty(lookMessage)) GUILayout.Label(lookMessage, label);

@@ -17,7 +17,7 @@ namespace WeatherHouse.Vegetation.Editor
             while (property.NextVisible(enterChildren))
             {
                 enterChildren = false;
-                using (new EditorGUI.DisabledScope(property.name == "m_Script" || (Application.isPlaying && (property.name == "species" || property.name == "materials"))))
+                using (new EditorGUI.DisabledScope(property.name == "m_Script" || (Application.isPlaying && (property.name == "species" || property.name == "materials" || property.name == "defaults"))))
                     EditorGUILayout.PropertyField(property, true);
             }
             serializedObject.ApplyModifiedProperties();
@@ -76,7 +76,7 @@ namespace WeatherHouse.Vegetation.Editor
             EditorGUILayout.LabelField("目标数量", string.Join(" / ", desired), EditorStyles.wordWrappedLabel);
             if (Application.isPlaying)
             {
-                EditorGUILayout.HelpBox("运行中拖动参数会自动更新草地，无需点击应用。退出 Play 后恢复保存的配置。", MessageType.Info);
+                EditorGUILayout.HelpBox("运行中拖动参数会自动更新草地；在 Game 草地面板上方点击“保存草地与画风为默认值”可保留比例、形状、颜色和风。", MessageType.Info);
                 return;
             }
             if (GUILayout.Button("应用草种与比例 · 重新生成", GUILayout.Height(32)))

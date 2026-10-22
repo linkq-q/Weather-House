@@ -18,6 +18,7 @@ namespace WeatherHouse.Vegetation
         GrassLabCamera navigation;
         Vector2 scroll;
         int page, selectedSpecies;
+        string parameterSaveMessage;
         Rect PanelRect { get { return new Rect(14, 14, Mathf.Min(370, Screen.width - 28), Mathf.Max(180, Screen.height - 28)); } }
 
         public GrassLabCamera Navigation
@@ -86,6 +87,14 @@ namespace WeatherHouse.Vegetation
                 if (chosen != selected) SelectRegion(chosen);
             }
             page = GUILayout.Toolbar(page, new[] { "比例", "形状", "颜色/风", "相机", "水草画风" }, tabs, GUILayout.Height(30));
+#if UNITY_EDITOR
+            if (GUILayout.Button("保存草地与画风为默认值", button, GUILayout.Height(30)))
+            {
+                try { SaveRegionDefaults(); parameterSaveMessage = "已保存。退出 Play、重新打开场景后仍保留。"; }
+                catch (System.Exception error) { parameterSaveMessage = error.Message; }
+            }
+            if (!string.IsNullOrEmpty(parameterSaveMessage)) GUILayout.Label(parameterSaveMessage, label);
+#endif
             scroll = GUILayout.BeginScrollView(scroll);
             GUILayout.Space(8);
             if (meadow.ConfigurationError != null && page != 3) GUILayout.Label(meadow.ConfigurationError, label);
@@ -99,9 +108,15 @@ namespace WeatherHouse.Vegetation
             if (!string.IsNullOrEmpty(meadow.LiveError)) GUILayout.Label("更新失败：" + meadow.LiveError, label);
             else GUILayout.Label(meadow.IsLiveUpdating ? "正在更新草地 · " + (meadow.LiveProgress * 100).ToString("F0") + "%" : "草地已同步", label);
             if (page == 4) GUILayout.Label("拖动立即改变画风；点击保存可在重开场景后保留。\nTab 隐藏面板 · 4 行走 · 5 飞行", label);
-            else GUILayout.Label("拖动即更新，松开后自动完成整片草地。\nTab 隐藏面板 · 4 行走 · 5 飞行\nPlay 试调退出后恢复，永久保存请在 Inspector 中编辑。", label);
+            else GUILayout.Label("拖动即更新，松开后自动完成整片草地。\nTab 隐藏面板 · 4 行走 · 5 飞行\n点击上方保存按钮，可保留比例、形状、颜色和风。", label);
             if (Navigation.libraryLayout) GUILayout.Label("参数作用于右侧混合草地；左侧展示台保留已保存的资源样本。", label);
             GUILayout.EndArea();
+        }
+        public void SaveRegionDefaults()
+        {
+            if (!meadow.defaults) throw new System.InvalidOperationException("当前区域尚未配置默认值资产。");
+            SaveWaterGrassDefaults();
+            meadow.SaveParameterDefaults();
         }
         void DrawMeadow()
         {

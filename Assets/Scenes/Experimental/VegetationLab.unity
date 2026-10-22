@@ -2018,6 +2018,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6b79092ee780d946a88e3867e5d21d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaults: {fileID: 11400000, guid: 3754f6490d074c2439c64c7923d20991, type: 2}
   species:
   - {fileID: 11400000, guid: 2978eea6355009e4cba2de4b0c02d67d, type: 2}
   - {fileID: 11400000, guid: 21f48605e2b43c6408024e74bd04682d, type: 2}
@@ -26048,6 +26049,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6b79092ee780d946a88e3867e5d21d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaults: {fileID: 11400000, guid: c467289a1bbe6f9488751dbf32125d75, type: 2}
   species:
   - {fileID: 11400000, guid: 44cd95a762113134e92c5438911a1a69, type: 2}
   - {fileID: 11400000, guid: b74f8ef9bf77c5048b05fbba1cb4d67e, type: 2}
@@ -32548,6 +32550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6b79092ee780d946a88e3867e5d21d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaults: {fileID: 11400000, guid: 14f933995bb15d14094939f62f4f2b41, type: 2}
   species:
   - {fileID: 11400000, guid: a8533b76f1af6fd4d8e62865b60c370e, type: 2}
   - {fileID: 11400000, guid: 9a9931e9034e4564a9c0bdb5a9f3db83, type: 2}
@@ -53967,6 +53970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6b79092ee780d946a88e3867e5d21d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaults: {fileID: 11400000, guid: 48efe3781cef5874f8ab9015925fb14f, type: 2}
   species:
   - {fileID: 11400000, guid: febcd7cda08aa20439893ccccf047185, type: 2}
   - {fileID: 11400000, guid: e6821c8468cfb4f4cb87f325b345ca23, type: 2}
@@ -53977,18 +53981,18 @@ MonoBehaviour:
   - {fileID: 2100000, guid: a0467acb8dcadc8419fd58e98de432fc, type: 2}
   weights:
   - 78
-  - 20
-  - 2
-  totalClumps: 28000
+  - 6
+  - 0.8
+  totalClumps: 40000
   seed: 431
   size: {x: 42, y: 34}
   groundOffset: {x: 0, y: 0}
   pondCenter: {x: 6, y: 4}
   pondRadius: 9
   waterLevel: 0
-  windStrength: 0.12
+  windStrength: 0.2
   windSpeed: 0.8
-  upNormals: 1
+  upNormals: 0.82
   counts: 50550000e015000030020000
 --- !u!4 &1595740868
 Transform:
@@ -55031,6 +55035,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6b79092ee780d946a88e3867e5d21d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaults: {fileID: 11400000, guid: e20e4c9b58f154c4bbc88350cd6c77a1, type: 2}
   species:
   - {fileID: 11400000, guid: f0ddc564a530a2f499dbeb75e320ac50, type: 2}
   - {fileID: 11400000, guid: eb5521d08cf0c0941bed5dfa89b8424a, type: 2}

@@ -11,6 +11,8 @@ namespace WeatherHouse.Vegetation
     public partial class GrassMeadow : MonoBehaviour
     {
         public const int MaxSpecies = 32;
+        [Tooltip("运行时加载此区域已保存的比例、草形、颜色和风；各区域独立保存。")]
+        public GrassMeadowDefaults defaults;
         public GrassSpecies[] species = new GrassSpecies[3];
         public Material[] materials = new Material[3];
         [Tooltip("与 Species 槽位一一对应，按草丛数量归一化，不是覆盖面积。全部为零时清空。")]
@@ -115,6 +117,22 @@ namespace WeatherHouse.Vegetation
             }
             ApplyMaterials();
             ResetLiveTracking();
+            // Compare saved defaults against the baked field through the existing incremental updater.
+            if (defaults) defaults.Apply(this);
+        }
+
+        public void SaveParameterDefaults()
+        {
+#if UNITY_EDITOR
+            if (!defaults || !EditorUtility.IsPersistent(defaults))
+                throw new InvalidOperationException("此区域尚未接入默认配置，请先在编辑模式安装区域默认值。");
+            Undo.RecordObject(defaults, "保存草地区域默认参数");
+            defaults.Capture(this);
+            EditorUtility.SetDirty(defaults);
+            AssetDatabase.SaveAssetIfDirty(defaults);
+#else
+            throw new InvalidOperationException("默认参数写回需要在 Unity 编辑器中运行。");
+#endif
         }
 
         public float PondDistance(Vector2 p)
