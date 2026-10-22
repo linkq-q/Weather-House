@@ -75,7 +75,8 @@ namespace WeatherHousePrototype
             ApplyInspectorStyle();
             session = GetComponent<GameplaySession>();
             if (session == null) { Debug.LogError("GameplayHud needs GameplaySession on the same object.", this); enabled = false; return; }
-            font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "微软雅黑", "Arial" }, 22);
+            font = Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular");
+            if (font == null) throw new InvalidOperationException("Missing UI font: Resources/Fonts/ZCOOLXiaoWei-Regular.ttf");
             albumCountFont = Font.CreateDynamicFontFromOSFont(new[] { "Comic Sans MS", "Segoe Print", "Arial" }, 72);
             var root = new GameObject("Weather House HUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             root.transform.SetParent(transform, false);
@@ -791,7 +792,6 @@ namespace WeatherHousePrototype
         {
             if (session != null) session.Changed -= OnChanged;
             ReleasePhotoTextures();
-            if (font != null) Destroy(font);
             if (albumCountFont != null) Destroy(albumCountFont);
         }
     }

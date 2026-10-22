@@ -235,6 +235,8 @@ namespace WeatherHousePrototype.Editor
                 });
 
                 File.WriteAllText(Output + "/capture.txt", "Actual Play Canvas inventory. No TakePhoto, Reply, SubmitReply or SaveGuess call.\n");
+                Font uiFont = Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular");
+                Require(uiFont != null, "The packaged ZCOOL XiaoWei font is missing.");
                 foreach (Entry shot in shots)
                 {
                     manifest.items.Add(shot);
@@ -245,6 +247,14 @@ namespace WeatherHousePrototype.Editor
                     yield return null;
                     Canvas.ForceUpdateCanvases();
                     yield return new WaitForEndOfFrame();
+                    foreach (Text label in hud.GetComponentsInChildren<Text>())
+                    {
+                        bool counter = label.name == "Collected count" || label.name == "Total count";
+                        Require(label.font == (counter ? Get<Font>(hud, "albumCountFont") : uiFont), "UI text uses a different font: " + label.name);
+                        string missing = new string(label.text.Where(c => !char.IsWhiteSpace(c) && !label.font.HasCharacter(c)).Distinct().ToArray());
+                        Require(missing.Length == 0, "Missing font glyphs in " + label.name + ": " + missing);
+                    }
+                    File.AppendAllText(Output + "/capture.txt", "FONT PASS: " + shot.title + " uses ZCOOL XiaoWei without missing glyphs; album counter font preserved.\n");
                     Texture2D image = ScreenCapture.CaptureScreenshotAsTexture();
                     try { shot.width = image.width; shot.height = image.height; File.WriteAllBytes(Output + "/" + shot.filename, image.EncodeToPNG()); }
                     finally { Object.Destroy(image); }
