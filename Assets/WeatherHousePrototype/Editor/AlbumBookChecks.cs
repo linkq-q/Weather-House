@@ -445,20 +445,32 @@ namespace WeatherHousePrototype.Editor
             Canvas.ForceUpdateCanvases();
             float reverseTime = Get<float>(opening, "elapsed");
             Vector2 reversePosition = root.anchoredPosition;
-            var reverseAlpha = root.GetComponentsInChildren<CanvasGroup>().ToDictionary(g => g, g => g.alpha);
-            var reverseGeometry = root.GetComponentsInChildren<Graphic>().Where(g => g.name.StartsWith("Opening "))
-                .ToDictionary(g => g, g => g.name == "Opening magic stars"
-                    ? VisibleParticleVertices(g.canvasRenderer.GetMesh()) : g.canvasRenderer.GetMesh().vertices);
-            Check(reverseGeometry.Any(pair => pair.Key.name == "Opening magic stars" && pair.Value.Length > 0),
-                "The reverse-pose comparison contains visible star geometry", report);
-            opening.Sample(reverseTime);
-            Canvas.ForceUpdateCanvases();
-            Check(Vector2.Distance(root.anchoredPosition, reversePosition) < .02f &&
-                reverseAlpha.All(pair => Mathf.Abs(pair.Key.alpha - pair.Value) < .001f) &&
-                reverseGeometry.Count > 0 && reverseGeometry.All(pair => SameVertices(pair.Value,
-                    pair.Key.name == "Opening magic stars" ? VisibleParticleVertices(pair.Key.canvasRenderer.GetMesh())
-                        : pair.Key.canvasRenderer.GetMesh().vertices)),
-                "Reverse playback matches forward sampling at the exact same time for position, content fade, paper and visible star geometry", report);
+            float motionBlur = settings.motionBlurStrength;
+            try
+            {
+                settings.motionBlurStrength = 0f;
+                typeof(AlbumBookOpening).GetMethod("ApplySample", Fields).Invoke(opening, new object[] { reverseTime });
+                Canvas.ForceUpdateCanvases();
+                var reverseAlpha = root.GetComponentsInChildren<CanvasGroup>().ToDictionary(g => g, g => g.alpha);
+                var reverseGeometry = root.GetComponentsInChildren<Graphic>().Where(g => g.name.StartsWith("Opening "))
+                    .ToDictionary(g => g, g => g.name == "Opening magic stars"
+                        ? VisibleParticleVertices(g.canvasRenderer.GetMesh()) : g.canvasRenderer.GetMesh().vertices);
+                Check(reverseGeometry.Any(pair => pair.Key.name == "Opening magic stars" && pair.Value.Length > 0),
+                    "The reverse-pose comparison contains visible star geometry", report);
+                opening.Sample(reverseTime);
+                Canvas.ForceUpdateCanvases();
+                Check(Vector2.Distance(root.anchoredPosition, reversePosition) < .02f &&
+                    reverseAlpha.All(pair => Mathf.Abs(pair.Key.alpha - pair.Value) < .001f) &&
+                    reverseGeometry.Count > 0 && reverseGeometry.All(pair => SameVertices(pair.Value,
+                        pair.Key.name == "Opening magic stars" ? VisibleParticleVertices(pair.Key.canvasRenderer.GetMesh())
+                            : pair.Key.canvasRenderer.GetMesh().vertices)),
+                    "Reverse playback matches forward sampling at the exact same time for position, content fade, paper and visible star geometry", report);
+            }
+            finally
+            {
+                settings.motionBlurStrength = motionBlur;
+                opening.Sample(reverseTime);
+            }
             hud.ToggleJournal();
             hud.ToggleJournal();
             Check(Find<AlbumBookOpening>(hud, "Notebook") == opening && !opening.IsClosing && opening.IsPlaying &&
@@ -534,6 +546,7 @@ namespace WeatherHousePrototype.Editor
             {
                 settings.playbackSpeed = 1f;
                 settings.playbackCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+                settings.motionBlurStrength = 0f;
                 settings.enableNoiseDissolve = true;
                 Shader revealShader = Resources.Load<Shader>("AlbumBook/AlbumMagicReveal");
                 Check(revealShader != null && revealShader.isSupported && !ShaderUtil.ShaderHasError(revealShader),
@@ -760,6 +773,7 @@ namespace WeatherHousePrototype.Editor
                     originalGraphics.All(g => g.material == originalMaterials[g]) &&
                     !openingRoot.GetComponentsInChildren<Transform>().Any(t => t.name == "Opening magic stars" || t.name == "Opening magic aura"),
                     "The global-curve endpoint restores full content, original materials and removes temporary light layers", report);
+                CheckMotionBlur(opening, report);
             }
             finally
             {
@@ -768,6 +782,91 @@ namespace WeatherHousePrototype.Editor
             }
             Check(EditorJsonUtility.ToJson(settings) == initialSettings && File.ReadAllBytes(settingsPath).SequenceEqual(settingsBytes),
                 "Synchronous mode and curve checks preserve all user Inspector values and the settings asset bytes", report);
+        }
+
+        private static void CheckMotionBlur(AlbumBookOpening opening, List<string> report)
+        {
+            var settings = AlbumMagicRevealSettings.Load();
+            string saved = EditorJsonUtility.ToJson(settings);
+            try
+            {
+                settings.playbackSpeed = 1f;
+                settings.playbackCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+                settings.motionBlurStrength = 0f;
+                opening.Sample(.4f);
+                Canvas.ForceUpdateCanvases();
+                Graphic cover = opening.GetComponentsInChildren<Graphic>().First(g => g.name == "Opening cover");
+                Graphic stars = opening.GetComponentsInChildren<Graphic>().First(g => g.name == "Opening magic stars");
+                UIVertex[] clear = TriangleVertices(cover), clearStars = TriangleVertices(stars);
+                settings.motionBlurStrength = .65f;
+                opening.Sample(.4f);
+                Canvas.ForceUpdateCanvases();
+                UIVertex[] forward = TriangleVertices(cover);
+                Check(forward.Length == clear.Length * 7 && clear.Length > 0,
+                    "Moving book cover has six short motion-blur copies plus the original image", report);
+                Check(SameUiVertices(clear, forward.Skip(clear.Length * 6).ToArray()),
+                    "Motion blur draws the exact original geometry, UVs and opacity last", report);
+                float maximum = 0f;
+                for (int vertex = 0; vertex < clear.Length; vertex++)
+                {
+                    int alpha = 0;
+                    for (int tap = 0; tap < 6; tap++)
+                    {
+                        UIVertex ghost = forward[tap * clear.Length + vertex];
+                        maximum = Mathf.Max(maximum, Vector3.Distance(ghost.position, clear[vertex].position));
+                        alpha += ghost.color.a;
+                    }
+                    Require(alpha < clear[vertex].color.a * .1f, "Combined motion trail opacity must remain below ten percent.");
+                }
+                Check(maximum > .15f && maximum <= 6f * settings.motionBlurStrength + .0001f,
+                    "The visible motion trail stays within six UI pixels times the selected strength", report);
+                string[] intended = { "Opening right page", "Opening page stack", "Opening cover", "Opening cover edge", "Opening loose left leaf" };
+                Check(new HashSet<string>(opening.GetComponentsInChildren<Graphic>()
+                        .Where(g => g.GetComponent("AlbumOpeningMotionBlur") != null).Select(g => g.name)).SetEquals(intended) &&
+                    SameUiVertices(clearStars, TriangleVertices(stars)),
+                    "Only the five solid book layers receive blur; shadows, content, aura and stars retain their geometry", report);
+                opening.PlayReverse(null);
+                Canvas.ForceUpdateCanvases();
+                UIVertex[] reverse = TriangleVertices(cover);
+                int tip = Enumerable.Range(0, clear.Length).OrderByDescending(i =>
+                    Vector3.Distance(forward[i].position, clear[i].position)).First();
+                Check(reverse.Length == forward.Length &&
+                    Vector3.Dot(forward[tip].position - clear[tip].position, reverse[tip].position - clear[tip].position) < 0f &&
+                    SameUiVertices(clearStars, TriangleVertices(stars)),
+                    "Reverse playback changes the trail direction while leaving the same-time stars unchanged", report);
+                settings.motionBlurStrength = 0f;
+                opening.Sample(.4f);
+                Canvas.ForceUpdateCanvases();
+                Check(SameUiVertices(clear, TriangleVertices(cover)), "Zero blur strength restores the original moving mesh", report);
+                opening.Sample(0f);
+                Canvas.ForceUpdateCanvases();
+                UIVertex[] stationary = TriangleVertices(cover);
+                settings.motionBlurStrength = .65f;
+                opening.Sample(0f);
+                Canvas.ForceUpdateCanvases();
+                Check(SameUiVertices(stationary, TriangleVertices(cover)), "A stationary endpoint has no motion trail", report);
+                opening.FinishImmediately();
+                Check(!opening.GetComponentsInChildren<Graphic>().Any(g => g.GetComponent("AlbumOpeningMotionBlur") != null),
+                    "Finishing removes every temporary motion-blur component", report);
+            }
+            finally
+            {
+                EditorJsonUtility.FromJsonOverwrite(saved, settings);
+                opening.FinishImmediately();
+            }
+        }
+
+        private static UIVertex[] TriangleVertices(Graphic graphic)
+        {
+            var vertices = new List<UIVertex>();
+            using (var mesh = new VertexHelper(graphic.canvasRenderer.GetMesh())) mesh.GetUIVertexStream(vertices);
+            return vertices.ToArray();
+        }
+
+        private static bool SameUiVertices(UIVertex[] first, UIVertex[] second)
+        {
+            return first.Length == second.Length && first.Zip(second, (a, b) =>
+                a.position.Equals(b.position) && a.uv0.Equals(b.uv0) && a.color.Equals(b.color)).All(equal => equal);
         }
 
         private static bool SameVertices(Vector3[] first, Vector3[] second)

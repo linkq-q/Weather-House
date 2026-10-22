@@ -30,6 +30,7 @@ namespace WeatherHousePrototype.Editor
 
             DrawField("playbackSpeed");
             DrawField("playbackCurve");
+            DrawField("motionBlurStrength");
             DrawField("revealStart", "内容开始时间（秒）");
             DrawField("revealDuration", "内容淡入时长（秒）");
             EditorGUILayout.HelpBox("内容与星尘共用整段动画进度。关闭时沿用相同速度与曲线反向播放。", MessageType.None);

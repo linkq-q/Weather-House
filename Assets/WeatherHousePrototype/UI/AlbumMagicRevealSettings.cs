@@ -10,6 +10,8 @@ namespace WeatherHousePrototype
         public float playbackSpeed = 1f;
         [InspectorName("整段动画进度曲线"), Tooltip("横轴为归一化播放时间，纵轴为整个开书、内容出现和星尘的统一进度。")]
         public AnimationCurve playbackCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+        [InspectorName("动态模糊强度"), Range(0f, 1f), Tooltip("仅在书本移动与翻页时柔化边缘；0为关闭，停稳后恢复清晰。")]
+        public float motionBlurStrength = .65f;
 
         [Header("统一噪波")]
         [InspectorName("启用噪波溶解与光晕"), Tooltip("关闭时内容仅轻微淡入，保留现有星尘和全部参数。")]

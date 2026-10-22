@@ -218,6 +218,33 @@ namespace WeatherHousePrototype
                 leafShadow.transform.SetAsLastSibling();
                 leaf.transform.SetAsLastSibling();
             }
+            float priorSeconds = revealSettings.MapPlaybackTime(Mathf.Clamp(
+                playbackSeconds + (IsClosing ? 1f : -1f) / 120f, 0f, Duration));
+            float priorAngle = OpeningAngle(priorSeconds);
+            float priorCenter = -301.5f * (1f + Mathf.Min(0f, Mathf.Cos(priorAngle * Mathf.Deg2Rad)));
+            Vector2 travel = new Vector2(priorCenter - centerOffset, VerticalOffset(priorSeconds) - VerticalOffset(seconds));
+            float coverTravel = CoverTip(priorAngle) - CoverTip(angle);
+            float priorLeafAngle = 180f * Ease((priorSeconds - .04f) / .74f);
+            float priorCurl = Mathf.Sin(Mathf.PI * Mathf.Clamp01((priorSeconds - .20f) / .58f));
+            float leafTravel = 592f * (Mathf.Cos(priorLeafAngle * Mathf.Deg2Rad) - Mathf.Cos(leafAngle * Mathf.Deg2Rad));
+            float leafLift = 24f * (priorCurl * Mathf.Sin(priorLeafAngle * Mathf.Deg2Rad) - curl * Mathf.Sin(leafAngle * Mathf.Deg2Rad));
+            SetBlur(rightPage, travel, 0f, 0f, 0, revealSettings.motionBlurStrength);
+            SetBlur(pageStack, travel, 0f, 0f, 0, revealSettings.motionBlurStrength);
+            SetBlur(cover, travel, coverTravel, 0f, 20, revealSettings.motionBlurStrength);
+            SetBlur(coverEdge, travel, coverTravel, 0f, 0, revealSettings.motionBlurStrength);
+            SetBlur(leaf, travel, leafTravel, leafLift, 28, revealSettings.motionBlurStrength);
+        }
+
+        private static float CoverTip(float angle)
+        {
+            return Mathf.Lerp(603f, 625f, angle / 180f) * Mathf.Cos(angle * Mathf.Deg2Rad);
+        }
+
+        private static void SetBlur(Graphic graphic, Vector2 travel, float turn, float lift, int columns, float strength)
+        {
+            var blur = graphic.GetComponent<AlbumOpeningMotionBlur>();
+            if (blur == null) blur = graphic.gameObject.AddComponent<AlbumOpeningMotionBlur>();
+            blur.SetMotion(travel, turn, lift, columns, strength);
         }
 
         private void CreateVisual()
@@ -316,6 +343,73 @@ namespace WeatherHousePrototype
         {
             value = Mathf.Clamp01(value);
             return value * value * (3f - 2f * value);
+        }
+    }
+
+    // A short shutter trail on the opaque paper only; the original stays crisp and fully opaque.
+    internal sealed class AlbumOpeningMotionBlur : BaseMeshEffect
+    {
+        private readonly List<UIVertex> vertices = new List<UIVertex>();
+        private readonly List<UIVertex> original = new List<UIVertex>();
+        private readonly List<UIVertex> tap = new List<UIVertex>();
+        private readonly List<UIVertex> blurred = new List<UIVertex>();
+        private Vector2 travel;
+        private float turn, lift, strength;
+        private int columns;
+
+        internal void SetMotion(Vector2 translation, float horizontal, float vertical, int meshColumns, float amount)
+        {
+            travel = translation;
+            turn = horizontal;
+            lift = vertical;
+            columns = meshColumns;
+            strength = Mathf.Clamp01(amount);
+            graphic.SetVerticesDirty();
+        }
+
+        public override void ModifyMesh(VertexHelper mesh)
+        {
+            if (!IsActive() || strength <= 0f || mesh.currentVertCount == 0) return;
+            vertices.Clear();
+            float maximumTravel = 0f;
+            for (int i = 0; i < mesh.currentVertCount; i++)
+            {
+                UIVertex vertex = default;
+                mesh.PopulateUIVertex(ref vertex, i);
+                vertices.Add(vertex);
+                maximumTravel = Mathf.Max(maximumTravel, Offset(i).magnitude);
+            }
+            if (maximumTravel < .15f) return;
+            original.Clear();
+            mesh.GetUIVertexStream(original);
+            blurred.Clear();
+            for (int sample = 6; sample >= 1; sample--)
+            {
+                float fraction = sample / 6f;
+                float opacity = .025f * (7 - sample) / 6f * Mathf.Clamp01(maximumTravel);
+                for (int i = 0; i < vertices.Count; i++)
+                {
+                    UIVertex vertex = vertices[i];
+                    vertex.position += (Vector3)(Offset(i) * fraction);
+                    Color tint = vertex.color;
+                    tint.a *= opacity;
+                    vertex.color = tint;
+                    mesh.SetUIVertex(vertex, i);
+                }
+                tap.Clear();
+                mesh.GetUIVertexStream(tap);
+                blurred.AddRange(tap);
+            }
+            blurred.AddRange(original);
+            mesh.Clear();
+            mesh.AddUIVertexTriangleStream(blurred);
+        }
+
+        private Vector2 Offset(int vertex)
+        {
+            float across = columns > 0 ? Mathf.Clamp01((vertex / 2) / (float)columns) : 1f;
+            Vector2 offset = travel + new Vector2(turn * across, lift * Mathf.Pow(across, 1.4f));
+            return Vector2.ClampMagnitude(offset * strength, 6f * strength);
         }
     }
 
