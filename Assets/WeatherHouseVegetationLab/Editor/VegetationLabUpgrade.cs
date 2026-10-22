@@ -39,10 +39,10 @@ namespace WeatherHouse.Vegetation.Editor
             water.SetFloat("_CausticDepth", 1.1f);
             water.SetFloat("_ShoreStrength", .68f);
             water.SetFloat("_ShoreWidth", .20f);
-            water.SetFloat("_SurfaceStrokeStrength", .68f);
+            water.SetFloat("_SurfaceStrokeStrength", .84f);
             water.SetFloat("_SurfaceStrokeDensity", .54f);
             water.SetFloat("_ReflectionBrushStrength", .78f);
-            water.SetFloat("_ReflectionBrushSize", .92f);
+            water.SetFloat("_ReflectionBrushSize", 1.35f);
             water.SetFloat("_ReflectionColorSteps", 8);
             water.SetFloat("_ReflectionPosterize", .48f);
             water.SetFloat("_ReflectionStrength", .82f);
@@ -56,8 +56,8 @@ namespace WeatherHouse.Vegetation.Editor
             var waterBrushAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/WeatherHouseMaterialLab/Textures/OilBrushStamps.png");
             water.SetTexture("_WaterBrushAtlas", waterBrushAtlas);
             water.SetFloat("_BrushViewResponse", .85f);
-            water.SetFloat("_SmallStrokeScale", 2.6f);
-            water.SetFloat("_SmallStrokeWeight", .45f);
+            water.SetFloat("_SmallStrokeScale", 3.8f);
+            water.SetFloat("_SmallStrokeWeight", .75f);
             water.SetFloat("_BrushGradientStrength", .65f);
             water.SetColor("_ShadowPigmentColor", new Color(.035f, .40f, .43f, 1));
             water.SetFloat("_ShadowPigmentBlend", .75f);

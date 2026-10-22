@@ -38,6 +38,8 @@ namespace WeatherHouse.Vegetation.Editor
                 Compare(test, camera, "_BrushViewResponse", 0, 1, "22_ViewResponse", report);
                 Compare(test, camera, "_BrushGradientStrength", 0, 1, "23_BrushGradient", report);
                 Compare(test, camera, "_ShadowPigmentBlend", 0, .8f, "24_ShadowPigment", report);
+                Compare(test, camera, "_ReflectionBrushSize", .25f, 1.4f, "25_BroadBrushSize", report);
+                Compare(test, camera, "_SmallStrokeScale", 1.5f, 5, "26_BrushSizeRatio", report);
                 File.WriteAllText("VegetationLabReview/water-style-checks.txt", report.ToString());
             }
             finally { renderer.sharedMaterial = saved; Object.DestroyImmediate(test); }

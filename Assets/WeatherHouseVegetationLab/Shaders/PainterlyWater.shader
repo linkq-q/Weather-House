@@ -13,7 +13,7 @@ Shader "Weather House/Painterly Water"
         _ReflectionStrength ("Reflection strength", Range(0, 1)) = 0.86
         _ReflectionDistortion ("Reflection breakup", Range(0, 0.06)) = .005
         _ReflectionBrushStrength ("Reflection brush strength", Range(0, 1)) = 0.78
-        _ReflectionBrushSize ("Reflection brush length (m)", Range(0.1, 3)) = 0.92
+        _ReflectionBrushSize ("Reflection brush length (m)", Range(0.1, 3)) = 1.35
         _ReflectionColorSteps ("Reflection lightness steps", Range(3, 24)) = 8
         _ReflectionPosterize ("Reflection color simplification", Range(0, 1)) = 0.48
         [HideInInspector] _PlanarReflectionTex ("Planar reflection", 2D) = "black" {}
@@ -28,11 +28,11 @@ Shader "Weather House/Painterly Water"
         _StrokeScale ("Brush stroke frequency", Range(0.1, 4)) = 0.8
         _BrushDirection ("Brush direction XZ", Vector) = (0.819, 0.574, 0, 0)
         [ToggleUI] _ViewAlignedStrokes ("Keep strokes horizontal in view", Float) = 0
-        _SurfaceStrokeStrength ("Surface stroke strength", Range(0, 1)) = .68
+        _SurfaceStrokeStrength ("Surface stroke strength", Range(0, 1)) = .84
         _SurfaceStrokeDensity ("Surface stroke density", Range(0, 1)) = .54
         _BrushViewResponse ("Brush view response", Range(0, 1)) = 0.85
-        _SmallStrokeScale ("Small brush frequency multiplier", Range(1.5, 5)) = 2.6
-        _SmallStrokeWeight ("Small brush layer weight", Range(0, 1)) = 0.45
+        _SmallStrokeScale ("Small brush frequency multiplier", Range(1.5, 5)) = 3.8
+        _SmallStrokeWeight ("Small brush layer weight", Range(0, 1)) = 0.75
         _BrushGradientStrength ("Along-brush pigment gradient", Range(0, 1)) = 0.65
         _ShadowPigmentColor ("Saturated shadow pigment", Color) = (0.035, 0.40, 0.43, 1)
         _ShadowPigmentBlend ("Shadow pigment blend", Range(0, 1)) = 0.75
@@ -245,7 +245,7 @@ Shader "Weather House/Painterly Water"
                         float sn, cs;
                         sincos((Hash21(id + 71.9) - 0.5) * 1.25, sn, cs);
                         float2 along = float2(cs, sn), across = float2(-sn, cs);
-                        float size = lerp(0.85, 1.18, Hash21(id + 36.2));
+                        float size = lerp(0.60, 1.40, Hash21(id + 36.2));
                         float2 delta = local - center;
                         float2 uv = float2(dot(delta, along), dot(delta, across)) / size + 0.5;
                         float2 centered = abs(uv - 0.5);
@@ -297,46 +297,64 @@ Shader "Weather House/Painterly Water"
                 return lerp(graded, shadowPigment, saturate(shadowBlend));
             }
 
+            half3 PaintReflectionPigment(half3 source, float seed, float2 pigmentCoordinate, float footprint)
+            {
+                float luminance = max(dot(source, float3(0.2126, 0.7152, 0.0722)), 0.0001);
+                float levels = max(_ReflectionColorSteps, 3.0);
+                float lightness = floor(sqrt(luminance) * levels + 0.5) / levels;
+                float ratio = clamp(lightness * lightness / luminance, 0.6, 1.4);
+                half3 color = source * lerp(1.0, ratio, _ReflectionPosterize);
+                float pigment = (seed * 2.0 - 1.0) * _ReflectionBrushStrength * footprint;
+                half3 painted = max(0, color * (1.0 + pigment * 0.09) + pigment * half3(0.016, 0.003, -0.013));
+                half3 graded = GradeBrushPigment(painted, pigmentCoordinate.x, pigmentCoordinate.y, seed, luminance);
+                half3 basePigment = GradeBrushPigment(painted, 0.5, 1.0, 0.0, luminance);
+                return lerp(basePigment, graded, saturate(_ReflectionBrushStrength * footprint));
+            }
+
             half3 BrushReflection(float3 positionWS, float2 direction, float2 ripples, float2 interactionOffset,
-                                  out float reflectionLuminance)
+                                  out float reflectionLuminance, out float detailNeed)
             {
                 float2 perpendicular = float2(-direction.y, direction.x);
                 float2 worldBrush = float2(dot(positionWS.xz, direction), dot(positionWS.xz, perpendicular));
                 float2 patchSize = max(_ReflectionBrushSize, 0.01) * float2(1.40, 0.78);
-                float2 deltaA, deltaB, pigmentA, pigmentB;
-                float seedA, seedB;
-                float maskA = ReflectionImpression(worldBrush, patchSize, float2(0, 0), deltaA, seedA, pigmentA);
-                float maskB = ReflectionImpression(worldBrush, patchSize * float2(0.73, 0.81),
-                                                   float2(19.37, 8.61), deltaB, seedB, pigmentB) * 0.78;
-                // Use the stronger overlapping daub and keep the original two reflection reads.
-                float chooseB = step(maskA, maskB);
-                float2 toCenter = lerp(deltaA, deltaB, chooseB);
-                float footprint = max(maskA, maskB);
-                float3 anchor = positionWS + float3(direction.x * toCenter.x + perpendicular.x * toCenter.y,
-                                                    0, direction.y * toCenter.x + perpendicular.y * toCenter.y);
+                float2 coarseDelta, coarsePigment;
+                float coarseSeed;
+                float coarseMask = ReflectionImpression(worldBrush, patchSize, float2(0, 0),
+                                                        coarseDelta, coarseSeed, coarsePigment);
+                float3 coarseCenter = positionWS + float3(direction.x * coarseDelta.x + perpendicular.x * coarseDelta.y,
+                                                          0, direction.y * coarseDelta.x + perpendicular.y * coarseDelta.y);
                 float2 distortion = ripples * float2(1.0, 0.22) * _ReflectionDistortion * _RippleStrength + interactionOffset;
-                float2 uv = ReflectionUV(positionWS) + distortion;
-                float2 anchorUV = ReflectionUV(anchor) + distortion;
-                half3 original = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex, saturate(uv), 0).rgb;
-                half3 patch = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex, saturate(anchorUV), 0).rgb;
-                half3 color = lerp(original, patch, _ReflectionBrushStrength * footprint);
-                // Quantize perceptual lightness, retaining the actual warm/cool reflected hue.
-                float luminance = max(dot(color, float3(0.2126, 0.7152, 0.0722)), 0.0001);
-                reflectionLuminance = luminance;
-                float levels = max(_ReflectionColorSteps, 3.0);
-                float lightness = floor(sqrt(luminance) * levels + 0.5) / levels;
-                float ratio = clamp(lightness * lightness / luminance, 0.6, 1.4);
-                color *= lerp(1.0, ratio, _ReflectionPosterize);
-                // A whole impression shares one pigment value, including in uniform cloud reflections.
-                float pigment = (lerp(seedA, seedB, chooseB) * 2.0 - 1.0) * _ReflectionBrushStrength * footprint;
-                half3 painted = max(0, color * (1.0 + pigment * 0.09) + pigment * half3(0.016, 0.003, -0.013));
-                float2 pigmentCoordinate = lerp(pigmentA, pigmentB, chooseB);
-                half3 graded = GradeBrushPigment(painted, pigmentCoordinate.x, pigmentCoordinate.y,
-                                                 lerp(seedA, seedB, chooseB), reflectionLuminance);
-                // Establish blue-green throughout the dark reflected form before the local brush gradient.
-                // Bright reflections keep the original pigment through GradeBrushPigment's lightness mask.
-                half3 basePigment = GradeBrushPigment(painted, 0.5, 1.0, 0.0, reflectionLuminance);
-                return lerp(basePigment, graded, saturate(_ReflectionBrushStrength * footprint));
+                half3 original = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex,
+                                                       saturate(ReflectionUV(positionWS) + distortion), 0).rgb;
+                // One center color holds the broad impression together; the controlled pigment gradient remains.
+                half3 coarseSample = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex,
+                                                           saturate(ReflectionUV(coarseCenter) + distortion), 0).rgb;
+                float coarseWeight = saturate(_ReflectionBrushStrength * coarseMask);
+                half3 coarseSource = lerp(original, coarseSample, coarseWeight);
+                half3 color = PaintReflectionPigment(coarseSource, coarseSeed, coarsePigment, coarseMask);
+                reflectionLuminance = dot(coarseSource, half3(0.2126, 0.7152, 0.0722));
+                detailNeed = 0.0;
+                if (_SmallStrokeWeight > 0.001)
+                {
+                    float2 fineDelta, finePigment;
+                    float fineSeed;
+                    float fineMask = ReflectionImpression(worldBrush, patchSize / max(_SmallStrokeScale, 1.5),
+                                                          float2(19.37, 8.61), fineDelta, fineSeed, finePigment);
+                    float3 fineCenter = positionWS + float3(direction.x * fineDelta.x + perpendicular.x * fineDelta.y,
+                                                            0, direction.y * fineDelta.x + perpendicular.y * fineDelta.y);
+                    half3 fineSample = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex,
+                                                             saturate(ReflectionUV(fineCenter) + distortion), 0).rgb;
+                    // Coarse-to-fine approximation: add small paint only where the two center colors disagree.
+                    // This is a local single-pass proxy for painting error, not a full multi-pass canvas solver.
+                    float colorError = length(fineSample - coarseSample);
+                    detailNeed = smoothstep(0.045, 0.18, colorError);
+                    float fineWeight = saturate(fineMask * detailNeed * _SmallStrokeWeight * _ReflectionBrushStrength);
+                    half3 fineColor = PaintReflectionPigment(fineSample, fineSeed, finePigment, 1.0);
+                    color = lerp(color, fineColor, fineWeight);
+                    reflectionLuminance = lerp(reflectionLuminance,
+                                              dot(fineSample, half3(0.2126, 0.7152, 0.0722)), fineWeight);
+                }
+                return color;
             }
 
             struct WaterBrush
@@ -359,7 +377,7 @@ Shader "Weather House/Painterly Water"
                 result.normalWS = half3(0, 1, 0);
                 result.alongWS = direction;
                 // World-anchored, short wide impressions. Only the reflected image moves with the view.
-                q *= 0.72;
+                q *= 0.52;
                 float2 cell = floor(q), local = frac(q);
                 float2 dpdx = ddx(q), dpdy = ddy(q);
                 float nearest = 100.0;
@@ -378,8 +396,8 @@ Shader "Weather House/Painterly Water"
                         float sn, cs;
                         sincos(angle, sn, cs);
                         float2 along = float2(cs, sn), across = float2(-sn, cs);
-                        float length = lerp(0.70, 1.05, Hash21(id + 36.2));
-                        float aspect = lerp(1.5, 3.0, Hash21(id + 52.4));
+                        float length = lerp(0.60, 1.40, Hash21(id + 36.2));
+                        float aspect = lerp(1.35, 2.25, Hash21(id + 52.4));
                         float2 stampSize = float2(length, length / aspect);
                         float2 delta = local - center;
                         float2 uv = float2(dot(delta, along), dot(delta, across)) / stampSize + 0.5;
@@ -589,8 +607,11 @@ Shader "Weather House/Painterly Water"
                 half3 reflectedColor = GlossyEnvironmentReflection(reflectionDirection, input.positionWS,
                                                                    0.22h, 1.0h, screenUV);
                 float reflectionLuminance = dot(reflectedColor, half3(0.2126, 0.7152, 0.0722));
+                // Probe fallback has no stroke-center samples; screen contrast is only a detail-placement fallback.
+                float reflectionDetail = smoothstep(0.015, 0.08, length(fwidth(reflectedColor)));
                 if (_HasPlanarReflection > 0.5)
-                    reflectedColor = BrushReflection(input.positionWS, direction, ripples, interactionView * 0.025, reflectionLuminance);
+                    reflectedColor = BrushReflection(input.positionWS, direction, ripples, interactionView * 0.025,
+                                                       reflectionLuminance, reflectionDetail);
                 reflectedColor = lerp(reflectedColor, _ReflectionTint.rgb, 0.06);
                 float fresnel = pow(1.0 - saturate(dot(normalWS, viewDirection)), 2.0);
                 float reflectionWeight = _ReflectionStrength * lerp(0.65, 1.0, fresnel);
@@ -610,10 +631,11 @@ Shader "Weather House/Painterly Water"
                     waterColor = GlazeWaterBrush(waterColor, broadBrush, viewDirection, sun, waterDepth, 1.0, reflectionLuminance);
                     if (_SmallStrokeWeight > 0.001)
                     {
-                        // Separate small marks use another seeded layout, not a narrow random-size range.
+                        // Sparse small daubs repair reflection detail; quiet water keeps the broad underpainting.
                         WaterBrush smallBrush = SurfaceStrokes(q * _SmallStrokeScale + float2(17.3, 53.9),
-                                                               direction, _SurfaceStrokeDensity * 0.60);
-                        waterColor = GlazeWaterBrush(waterColor, smallBrush, viewDirection, sun, waterDepth, _SmallStrokeWeight, reflectionLuminance);
+                                                               direction, _SurfaceStrokeDensity * 0.45);
+                        waterColor = GlazeWaterBrush(waterColor, smallBrush, viewDirection, sun, waterDepth,
+                                                     _SmallStrokeWeight * reflectionDetail, reflectionLuminance);
                     }
                 }
                 waterColor = MixFog(waterColor, input.fogFactor);
