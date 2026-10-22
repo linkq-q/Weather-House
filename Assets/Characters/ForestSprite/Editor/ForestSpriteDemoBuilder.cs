@@ -208,7 +208,7 @@ namespace ForestSpriteCharacter.Editor
                     state.speedParameter = "RunCadence";
                     state.speedParameterActive = true;
                 }
-                if (name == "Jump") state.speed = clips[name].length / (2f * Mathf.Sqrt(2f * .42f / 12f));
+                if (name == "Jump") state.speed = clips[name].length / (2f * Mathf.Sqrt(2f * .48f / 8f));
                 if (name == "Idle") machine.defaultState = state;
             }
             EditorUtility.SetDirty(controller);
@@ -232,13 +232,16 @@ namespace ForestSpriteCharacter.Editor
             var bones = visual.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
             var legs = new[] { "L", "R" }.SelectMany(side => new[]
                 { bones["UpperLeg." + side], bones["LowerLeg." + side], bones["Foot." + side] })
-                .Concat(new[] { bones["Hips"] }).ToArray();
+                .Concat(new[] { bones["Hips"], bones["Head"] }).ToArray();
+            var head = bones["Head"];
+            Quaternion headRestRotation = head.localRotation;
             var body = visual.GetComponentsInChildren<Renderer>().Single(r => r.name == "Body");
             Vector3 forward = visual.transform.parent.forward;
+            Vector3 headRight = visual.transform.parent.right, headUp = visual.transform.parent.up;
             const int sampleCount = 120;
-            const float plantedTravel = .32f;
-            float stanceFraction = running ? .36f : .5f;
-            float pelvisDrop = running ? .04f : .03f;
+            float plantedTravel = running ? .32f : .36f;
+            float stanceFraction = running ? .26f : .5f;
+            const float pelvisDrop = .045f;
             float[] hipCenters = new float[2], ankleFloor = { float.MaxValue, float.MaxValue };
             var original = Measure(source, out float oldGroundError, out float[] centers);
             originalCycleDistance = original.Average() / .5f;
@@ -265,6 +268,8 @@ namespace ForestSpriteCharacter.Editor
             for (int frame = 0; frame <= bakeFrames; frame++)
             {
                 float time = source.length * frame / bakeFrames;
+                // Reset unkeyed head channels too, so each frame starts from the source pose.
+                head.localRotation = headRestRotation;
                 source.SampleAnimation(visual, time);
                 var targets = new Vector3[2];
                 var rotations = new Quaternion[2];
@@ -287,7 +292,9 @@ namespace ForestSpriteCharacter.Editor
                             forwardOffset = -.5f * plantedTravel + tangent * u +
                                 (3f * plantedTravel - 3f * tangent) * u * u +
                                 (-2f * plantedTravel + 2f * tangent) * u * u * u;
-                            target.y = ankleFloor[side] + .095f * Mathf.Pow(Mathf.Sin(Mathf.PI * u), 1.25f);
+                            float sine = Mathf.Sin(Mathf.PI * u), cosine = Mathf.Cos(Mathf.PI * u);
+                            // Broaden early clearance while keeping one arch and zero vertical endpoint velocity.
+                            target.y = ankleFloor[side] + .13f * Mathf.Pow(sine, 1.25f) * (1f + .6f * cosine * cosine);
                         }
                         if (phase <= stanceFraction) target.y = ankleFloor[side];
                     }
@@ -317,6 +324,11 @@ namespace ForestSpriteCharacter.Editor
                     foot.rotation = rotations[side];
                     maximumTargetError = Mathf.Max(maximumTargetError, Vector3.Distance(foot.position, target));
                 }
+                float headPhase = 2f * Mathf.PI * frame / bakeFrames;
+                float nod = Mathf.Sin(2f * headPhase) * (running ? 2.2f : 1.6f);
+                float sway = Mathf.Sin(headPhase + .35f) * (running ? 1.4f : 1f);
+                // World axes follow the character root; preserve the source head animation underneath.
+                head.rotation = Quaternion.AngleAxis(sway, headUp) * Quaternion.AngleAxis(nod, headRight) * head.rotation;
                 for (int bone = 0; bone < legs.Length; bone++)
                 {
                     Vector3 p = legs[bone].localPosition;
@@ -340,7 +352,7 @@ namespace ForestSpriteCharacter.Editor
             result.EnsureQuaternionContinuity();
             var generated = Measure(result, out float newGroundError, out _);
             var ratios = generated.Select((span, i) => span / original[i]).ToArray();
-            Require(generated.All(span => span >= (running ? .37f : .31f)),
+            Require(generated.All(span => span >= (running ? .43f : .35f)),
                 result.name + " has a genuinely wider step: " + string.Join(", ", generated));
             Require(minimumReachMargin >= .005f, result.name + " keeps knee extension reserve: " + minimumReachMargin);
             Require(newGroundError <= .05f && maximumTargetError < .002f,
@@ -357,6 +369,7 @@ namespace ForestSpriteCharacter.Editor
                 minimumReachMargin = minimumReachMargin,
                 maximumIKTargetError = maximumTargetError, sampledFrames = sampleCount + 1
             }, true));
+            head.localRotation = headRestRotation;
             return result;
 
             float[] Measure(AnimationClip clip, out float groundError, out float[] midpoints)
@@ -377,7 +390,13 @@ namespace ForestSpriteCharacter.Editor
                             ankleFloor[side] = Mathf.Min(ankleFloor[side], legs[side * 3 + 2].position.y);
                         }
                     }
-                    groundError = Mathf.Max(groundError, Mathf.Abs(BoundsOf(new[] { body }).min.y));
+                    float footHeight = BoundsOf(new[] { body }).min.y;
+                    float phase = Mathf.Repeat((float)frame / sampleCount, 1f);
+                    bool supporting = !running || clip == source || phase <= stanceFraction ||
+                        (phase >= .5f && phase <= .5f + stanceFraction);
+                    // Running has a flight interval: absence of floor contact is expected there,
+                    // while penetration remains invalid in every frame.
+                    groundError = Mathf.Max(groundError, supporting ? Mathf.Abs(footHeight) : Mathf.Max(0, -footHeight));
                 }
                 midpoints = minimum.Select((value, i) => (value + maximum[i]) * .5f).ToArray();
                 return minimum.Select((value, i) => maximum[i] - value).ToArray();

@@ -11,34 +11,34 @@ namespace ForestSpriteCharacter
         public sealed class Settings
         {
             [Range(0, 2)] public float windStrength = 1f;
-            [Range(0, 1)] public float lift = .65f;
-            [Range(0, 1)] public float wingSpread = .75f;
-            [Range(0, 1)] public float sCurve = .6f;
-            [Range(0, .12f)] public float waveAmplitude = .045f;
-            [Range(.2f, 2)] public float waveSpeed = .65f;
-            [Range(.1f, 2)] public float settleTime = .8f;
-            [Range(0, 1)] public float clothFreedom = .25f;
-            [Range(.02f, .5f)] public float damping = .22f;
-            [Range(.02f, .8f)] public float bendStiffness = .18f;
-            [Range(.3f, 1.2f)] public float walkSpeed = .78f;
+            [Range(0, 1)] public float lift = .8f;
+            [Range(0, 1)] public float wingSpread = .85f;
+            [Range(0, 1)] public float sCurve = .7f;
+            [Range(0, .12f)] public float waveAmplitude = .07f;
+            [Range(.2f, 2)] public float waveSpeed = .42f;
+            [Range(.1f, 2)] public float settleTime = 1.1f;
+            [Range(0, 1)] public float clothFreedom = .2f;
+            [Range(.02f, .5f)] public float damping = .28f;
+            [Range(.02f, .8f)] public float bendStiffness = .3f;
+            [Range(.3f, 2f)] public float walkSpeed = 1.5f;
             [Range(0, 1)] public float walkStride = 1f;
-            [Range(1, 2)] public float runSpeed = 1.35f;
+            [Range(1, 4)] public float runSpeed = 3f;
 
             public void Clamp()
             {
                 windStrength = Safe(windStrength, 0, 2, 1);
-                lift = Safe(lift, 0, 1, .65f);
-                wingSpread = Safe(wingSpread, 0, 1, .75f);
-                sCurve = Safe(sCurve, 0, 1, .6f);
-                waveAmplitude = Safe(waveAmplitude, 0, .12f, .045f);
-                waveSpeed = Safe(waveSpeed, .2f, 2, .65f);
-                settleTime = Safe(settleTime, .1f, 2, .8f);
-                clothFreedom = Safe(clothFreedom, 0, 1, .25f);
-                damping = Safe(damping, .02f, .5f, .22f);
-                bendStiffness = Safe(bendStiffness, .02f, .8f, .18f);
-                walkSpeed = Safe(walkSpeed, .3f, 1.2f, .78f);
+                lift = Safe(lift, 0, 1, .8f);
+                wingSpread = Safe(wingSpread, 0, 1, .85f);
+                sCurve = Safe(sCurve, 0, 1, .7f);
+                waveAmplitude = Safe(waveAmplitude, 0, .12f, .07f);
+                waveSpeed = Safe(waveSpeed, .2f, 2, .42f);
+                settleTime = Safe(settleTime, .1f, 2, 1.1f);
+                clothFreedom = Safe(clothFreedom, 0, 1, .2f);
+                damping = Safe(damping, .02f, .5f, .28f);
+                bendStiffness = Safe(bendStiffness, .02f, .8f, .3f);
+                walkSpeed = Safe(walkSpeed, .3f, 2f, 1.5f);
                 walkStride = Safe(walkStride, 0, 1, 1);
-                runSpeed = Safe(runSpeed, 1, 2, 1.35f);
+                runSpeed = Safe(runSpeed, 1, 4, 3f);
             }
             static float Safe(float value, float low, float high, float fallback) =>
                 float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Clamp(value, low, high);
@@ -108,7 +108,7 @@ namespace ForestSpriteCharacter
             UpdateClothSettings();
             filteredVelocity = Vector3.Lerp(filteredVelocity, delta / dt, 1f - Mathf.Exp(-7f * dt));
             Vector3 horizontal = Vector3.ProjectOnPlane(filteredVelocity, Vector3.up);
-            float speed = windPreview ? 1f : Mathf.Clamp01(horizontal.magnitude);
+            float speed = windPreview ? 1f : Mathf.Clamp01(horizontal.magnitude / 1.6f);
             float target = motionEnabled ? speed * smooth.windStrength : 0;
             float response = target > flowAmount ? .22f : smooth.settleTime / 3f;
             flowAmount = Mathf.Lerp(flowAmount, target, 1f - Mathf.Exp(-dt / response));
@@ -129,7 +129,7 @@ namespace ForestSpriteCharacter
             // Keep a rearward carrier shape; the delayed wave bends that sheet without folding it forward.
             float ripple = smooth.waveAmplitude * 120f;
             UpperBendDegrees = Mathf.Clamp(flowAmount * (25f + smooth.lift * 35f + Mathf.Sin(wavePhase) * ripple), 0f, 75f);
-            LowerBendDegrees = Mathf.Clamp(flowAmount * (-smooth.sCurve * 20f + Mathf.Sin(wavePhase - 1.2f) * ripple * .5f),
+            LowerBendDegrees = Mathf.Clamp(flowAmount * (-smooth.sCurve * 20f + Mathf.Sin(wavePhase - 1.8f) * ripple * .8f),
                 -UpperBendDegrees * .45f, UpperBendDegrees * .2f);
             WingSpreadDegrees = Mathf.Clamp01(flowAmount) * smooth.wingSpread * 40f;
             for (int i = 0; i < flowUpper.Length; i++)
@@ -139,8 +139,16 @@ namespace ForestSpriteCharacter
                 // Side/back panels stream rearward. The small front closure stays clear of the torso.
                 Quaternion spread = Quaternion.AngleAxis(WingSpreadDegrees * flowAxes[i].z, simulationRoot.forward);
                 Vector3 rearwardAxis = flowAxes[i].x < -.5f ? -simulationRoot.right : simulationRoot.right;
-                flowUpper[i].rotation = Quaternion.AngleAxis(UpperBendDegrees * flowInfluence[i], rearwardAxis) * spread * flowUpper[i].rotation;
-                flowLower[i].rotation = Quaternion.AngleAxis(LowerBendDegrees * flowInfluence[i], rearwardAxis) * flowLower[i].rotation;
+                // A broad wave travels from shoulder to hem. Both wings share the same phase
+                // to keep one sheet, with a small delay relative to the centre panel.
+                float sideDelay = Mathf.Abs(flowAxes[i].z) * .35f;
+                float delayedUpper = Mathf.Clamp(flowAmount * (25f + smooth.lift * 35f +
+                    Mathf.Sin(wavePhase - sideDelay) * ripple), 0, 75f);
+                float delayedLower = Mathf.Clamp(flowAmount * (-smooth.sCurve * 20f +
+                    Mathf.Sin(wavePhase - 1.8f - sideDelay) * ripple * .8f),
+                    -delayedUpper * .45f, delayedUpper * .2f);
+                flowUpper[i].rotation = Quaternion.AngleAxis(delayedUpper * flowInfluence[i], rearwardAxis) * spread * flowUpper[i].rotation;
+                flowLower[i].rotation = Quaternion.AngleAxis(delayedLower * flowInfluence[i], rearwardAxis) * flowLower[i].rotation;
             }
             posed = true;
         }
@@ -187,6 +195,11 @@ namespace ForestSpriteCharacter
         {
             if (cloth == null || smooth == null) return;
             cloth.damping = smooth.damping;
+            // Soft bending and resistance to stretching are separate: preserve the fabric area.
+            cloth.stretchingStiffness = .4f;
+            cloth.clothSolverFrequency = 480;
+            cloth.worldVelocityScale = .12f;
+            cloth.worldAccelerationScale = .08f;
             // Broad waves come from the cape bones; local fabric should not break that silhouette into tiny folds.
             cloth.bendingStiffness = smooth.bendStiffness * .1f;
             if (freedomWeights == null || freedomWeights.Length == 0) return;
@@ -216,10 +229,16 @@ namespace ForestSpriteCharacter
         {
             var loaded = JsonUtility.FromJson<Settings>(json);
             // Existing saved files keep every prior value and gain the new wing control in memory only.
-            if (loaded != null && json.IndexOf("\"wingSpread\"", StringComparison.Ordinal) < 0) loaded.wingSpread = .75f;
+            if (loaded != null && json.IndexOf("\"wingSpread\"", StringComparison.Ordinal) < 0) loaded.wingSpread = new Settings().wingSpread;
             return loaded;
         }
         public void ResetSettings() { settings = new Settings(); ApplySettings(); }
+        public void ApplyWingedPreset()
+        {
+            var previous = settings ?? new Settings();
+            settings = new Settings { walkSpeed = previous.walkSpeed, walkStride = previous.walkStride, runSpeed = previous.runSpeed };
+            ApplySettings();
+        }
         public void SetWindPreview(bool value) { windPreview = value; }
         public void SetMotionEnabled(bool value)
         {

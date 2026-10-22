@@ -120,8 +120,8 @@ namespace ForestSpriteCharacter
                 GUILayout.Space(6f);
                 GUILayout.Label("移动调节", heading);
                 cape.settings.walkStride = Slider("走路步幅（原步幅 → 大步）", cape.settings.walkStride, 0f, 1f, ref changed, 100f, "%");
-                cape.settings.walkSpeed = Slider("走路速度", cape.settings.walkSpeed, .3f, 1.2f, ref changed, 1f, " m/s");
-                cape.settings.runSpeed = Slider("跑步速度", cape.settings.runSpeed, 1f, 2f, ref changed, 1f, " m/s");
+                cape.settings.walkSpeed = Slider("走路速度", cape.settings.walkSpeed, .3f, 2f, ref changed, 1f, " m/s");
+                cape.settings.runSpeed = Slider("跑步速度", cape.settings.runSpeed, 1f, 4f, ref changed, 1f, " m/s");
                 if (changed)
                 {
                     cape.ApplySettings();
@@ -132,7 +132,7 @@ namespace ForestSpriteCharacter
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("保存参数", button)) Run(cape.SaveSettings, "已保存 · 停止 Play 后仍保留", "保存失败");
                 if (GUILayout.Button("载入", button)) Run(cape.LoadSettings, "已载入保存参数", "载入失败");
-                if (GUILayout.Button("恢复推荐", button)) Run(cape.ResetSettings, "已恢复推荐 · 点击保存可保留", "恢复失败");
+                if (GUILayout.Button("展翼推荐", button)) Run(cape.ApplyWingedPreset, "已应用展翼推荐 · 移动参数保留 · 保存后保留", "恢复失败");
                 GUILayout.EndHorizontal();
                 GUILayout.Label(status, note);
                 GUILayout.Label("波浪幅度控制整片大波浪；自由摆幅控制局部细动。翼展控制两侧展开，回落时间控制停下后收拢速度。", note);

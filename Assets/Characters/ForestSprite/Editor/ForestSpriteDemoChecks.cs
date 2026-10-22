@@ -24,6 +24,9 @@ namespace ForestSpriteCharacter.Editor
             public float walkDistance, runDistance, jumpRise, springPeakAngle;
             public float walkFootSpan, runFootSpan;
             public float maximumClothDisplacement, maximumPinnedError, maximumCollisionPenetration, initialPinnedPenetration;
+            public int motionConstraintViolations, motionViolationFrames, motionPeakPhase = -1, motionPeakParticle = -1;
+            public float motionMaxExcess, motionViolationTime, motionLongestViolationTime, motionPeakPhaseTime;
+            public string motionPeakDetails;
             public float turnDegrees, earlySettleSpeed, lateSettleSpeed;
             public float runUpperBend, runLowerBend, runUpperBoneRotation, runLowerBoneRotation;
             public float windPreviewUpperBend, tunedUpperBend, tunedBoneRotation, tunedClothShapeDifference;
@@ -54,6 +57,7 @@ namespace ForestSpriteCharacter.Editor
         static Vector3[] windPreviewParticles;
         static int phase, sampledFrame, initialSimulationSteps, frameCaptureIndex;
         static float nextCapture, previousSampleTime, earlySettleSum, lateSettleSum;
+        static float motionViolationStreak;
         static int earlySettleSamples, lateSettleSamples;
         static Quaternion turnStart;
         static SkinnedMeshRenderer clothSkin;
@@ -104,6 +108,9 @@ namespace ForestSpriteCharacter.Editor
             Require(ForestSpriteDemoBuilder.StateName("ForestSpriteRig|Walk") == "Walk", "FBX action naming");
             Require(ForestSpriteDemoController.IsGait("Walk") && ForestSpriteDemoController.IsGait("Run") &&
                 !ForestSpriteDemoController.IsGait("Jump"), "Only locomotion states share gait phase");
+            Require(Mathf.Abs(preview.walkCycleDistance - .72f) < .0001f &&
+                Mathf.Abs(preview.runCycleDistance - .32f / .26f) < .0001f,
+                "Baked gait cycle distances match the longer planted-foot paths");
             var transforms = preview.visual.GetComponentsInChildren<Transform>();
             foreach (string bone in new[] { "Root", "Hips", "Spine", "Chest", "Neck", "Head", "UpperLeg.L", "LowerLeg.L", "Foot.L", "UpperLeg.R", "LowerLeg.R", "Foot.R" })
                 Require(transforms.Any(t => t.name == bone), "Body bone " + bone);
@@ -210,6 +217,7 @@ namespace ForestSpriteCharacter.Editor
             nextCapture = Time.time;
             previousSampleTime = Time.time;
             earlySettleSum = lateSettleSum = 0;
+            motionViolationStreak = 0;
             earlySettleSamples = lateSettleSamples = 0;
             try
             {
@@ -294,7 +302,7 @@ namespace ForestSpriteCharacter.Editor
                     float span = gaitMaximum[phase - 1] - gaitMinimum[phase - 1];
                     if (phase == 1) runtime.walkFootSpan = span;
                     else runtime.runFootSpan = span;
-                    Require(span >= (phase == 1 ? .30f : .36f), "Live " + expected + " really moves the ankle through its wider stride: " + span);
+                    Require(span >= (phase == 1 ? .34f : .42f), "Live " + expected + " really moves the ankle through its wider stride: " + span);
                 }
                 if (phase == 2)
                 {
@@ -327,6 +335,9 @@ namespace ForestSpriteCharacter.Editor
                     Require(runtime.maximumClothDisplacement > .01f, "Native cloth deforms independently of the animated mesh");
                     Require(earlySettleSamples > 0 && lateSettleSamples > 0 && runtime.lateSettleSpeed <= runtime.earlySettleSpeed + .03f,
                         "Cape motion does not grow after stopping");
+                    // Isolate live tuning response from the continuously travelling wave.
+                    player.capeCloth.settings.waveAmplitude = 0;
+                    player.capeCloth.ApplySettings();
                     player.capeCloth.SetWindPreview(true);
                 }
                 if (phase == 6)
@@ -382,6 +393,10 @@ namespace ForestSpriteCharacter.Editor
                 {
                     Require(player.secondaryMotion.MaxCurrentAngle < .01f, "Physics toggle restores the animated pose");
                     Require(!player.capeCloth.cloth.enabled, "Physics toggle disables cape Cloth");
+                    Require(runtime.motionConstraintViolations == 0, "Cloth motion constraints failed in " + runtime.motionViolationFrames
+                        + " frames / " + runtime.motionConstraintViolations + " particle samples; maximum excess above maxDistance + .025m="
+                        + runtime.motionMaxExcess + "; violationTime=" + runtime.motionViolationTime
+                        + "; longestContinuousTime=" + runtime.motionLongestViolationTime + "; peak: " + runtime.motionPeakDetails);
                     runtime.result = "PASS";
                     FinishRuntime();
                     return;
@@ -412,6 +427,15 @@ namespace ForestSpriteCharacter.Editor
             Quaternion upper = cape.flowUpper[0].localRotation;
             try
             {
+                cape.settings.walkSpeed = 1.7f;
+                cape.settings.runSpeed = 3.4f;
+                cape.settings.walkStride = .6f;
+                cape.ApplyWingedPreset();
+                Require(Mathf.Abs(player.walkSpeed - 1.7f) < .0001f && Mathf.Abs(player.runSpeed - 3.4f) < .0001f
+                    && Mathf.Abs(player.walkStride - .6f) < .0001f && cape.cloth.enabled && cape.FlowAmount == flow,
+                    "Winged preset preserves live movement tuning and continuous simulation");
+                Require(cape.settings.wingSpread == new ForestSpriteCapeCloth.Settings().wingSpread,
+                    "Winged preset applies the recommended cape shape");
                 cape.settings = new ForestSpriteCapeCloth.Settings { windStrength = 1.2f, lift = .85f, wingSpread = 1f, sCurve = .7f,
                     waveAmplitude = .015f, waveSpeed = .9f, settleTime = .7f, clothFreedom = .3f, damping = .3f, bendStiffness = .22f };
                 cape.ApplySettings();
@@ -594,6 +618,7 @@ namespace ForestSpriteCharacter.Editor
             float sampleTime = Time.time - previousSampleTime;
             float squaredSpeed = 0;
             int moving = 0;
+            bool motionViolation = false;
             for (int i = 0; i < particles.Length; i++)
             {
                 Require(IsFinite(particles[i]), "Finite cloth particle " + i);
@@ -602,13 +627,39 @@ namespace ForestSpriteCharacter.Editor
                 Vector3 rebasedPreviousAnchor = player.transform.TransformPoint(previousAnchorsLocal[i]);
                 Vector3 offset = world - anchor;
                 float displacement = offset.magnitude;
-                Require(displacement < coefficients[i].maxDistance + .025f, "Cloth remains within skin constraint at particle " + i + ": " + displacement
-                    + "; max=" + coefficients[i].maxDistance + "; point=" + world.ToString("F5") + "; anchor=" + anchor.ToString("F5")
-                    + "; distanceToPreviousWorldAnchor=" + Vector3.Distance(world, previousAnchorsWorld[i])
-                    + "; distanceToRebasedPreviousAnchor=" + Vector3.Distance(world, rebasedPreviousAnchor)
-                    + "; previousWorldAnchor=" + previousAnchorsWorld[i].ToString("F5") + "; rebasedPreviousAnchor=" + rebasedPreviousAnchor.ToString("F5")
-                    + "; sampleDt=" + sampleTime
-                    + "; previousOffset=" + previousOffsets[i].ToString("F5") + "; phase=" + phase + "; phaseTime=" + phaseElapsed);
+                Require(IsFinite(world) && IsFinite(anchor) && !float.IsNaN(displacement) && !float.IsInfinity(displacement),
+                    "Finite cloth world position, skin anchor and displacement at particle " + i);
+                // Keep the original strict bound, but collect its full excursion before failing the run.
+                // motionMaxExcess is measured above maxDistance + .025m, not above maxDistance alone.
+                if (!(displacement < coefficients[i].maxDistance + .025f))
+                {
+                    runtime.motionConstraintViolations++;
+                    if (!motionViolation)
+                    {
+                        motionViolation = true;
+                        runtime.motionViolationFrames++;
+                        runtime.motionViolationTime += sampleTime;
+                        motionViolationStreak += sampleTime;
+                        runtime.motionLongestViolationTime = Mathf.Max(runtime.motionLongestViolationTime, motionViolationStreak);
+                    }
+                    float excess = displacement - (coefficients[i].maxDistance + .025f);
+                    if (runtime.motionPeakParticle < 0 || excess > runtime.motionMaxExcess)
+                    {
+                        runtime.motionMaxExcess = excess;
+                        runtime.motionPeakPhase = phase;
+                        runtime.motionPeakParticle = i;
+                        runtime.motionPeakPhaseTime = phaseElapsed;
+                        runtime.motionPeakDetails = "Cloth skin constraint violation at particle " + i + ": " + displacement
+                            + "; max=" + coefficients[i].maxDistance + "; point=" + world.ToString("F5") + "; anchor=" + anchor.ToString("F5")
+                            + "; distanceToPreviousWorldAnchor=" + Vector3.Distance(world, previousAnchorsWorld[i])
+                            + "; distanceToRebasedPreviousAnchor=" + Vector3.Distance(world, rebasedPreviousAnchor)
+                            + "; previousWorldAnchor=" + previousAnchorsWorld[i].ToString("F5") + "; rebasedPreviousAnchor=" + rebasedPreviousAnchor.ToString("F5")
+                            + "; root=" + player.transform.position.ToString("F5")
+                            + "; anchorPenetration=" + BodyPenetration(anchor) + "; particlePenetration=" + BodyPenetration(world)
+                            + "; sampleDt=" + sampleTime
+                            + "; previousOffset=" + previousOffsets[i].ToString("F5") + "; phase=" + phase + "; phaseTime=" + phaseElapsed;
+                    }
+                }
                 if (coefficients[i].maxDistance <= .00001f)
                 {
                     runtime.maximumPinnedError = Mathf.Max(runtime.maximumPinnedError, displacement);
@@ -631,6 +682,7 @@ namespace ForestSpriteCharacter.Editor
                 previousAnchorsWorld[i] = anchor;
                 previousAnchorsLocal[i] = player.transform.InverseTransformPoint(anchor);
             }
+            if (!motionViolation) motionViolationStreak = 0;
             if ((phase == 2 || phase == 8) && phaseElapsed >= .4f) SampleRearHemDirection(particles);
             if (phase == 5 && moving > 0)
             {
