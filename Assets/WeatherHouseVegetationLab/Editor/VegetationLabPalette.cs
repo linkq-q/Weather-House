@@ -36,15 +36,22 @@ namespace WeatherHouse.Vegetation.Editor
             ground.SetColor("_ShoreColor", new Color(.71f,.67f,.55f));
             EditorUtility.SetDirty(ground);
             var water = AssetDatabase.LoadAssetAtPath<Material>(VegetationLabBuilder.Generated + "/PainterlyWater.mat");
-            water.SetColor("_ShallowColor", Hex("#B5CFC0"));
-            water.SetColor("_DeepColor", Hex("#9AC7C0"));
-            water.SetColor("_ReflectionTint", Hex("#B8D8CB"));
-            water.SetColor("_RippleColor", Hex("#D4DFD3"));
-            water.SetFloat("_ReflectionStrength", .86f);
-            water.SetFloat("_ReflectionDistortion", .009f);
+            water.SetColor("_ShallowColor", new Color(.66f,.79f,.75f));
+            water.SetColor("_DeepColor", new Color(.55f,.75f,.74f));
+            water.SetColor("_ReflectionTint", new Color(.75f,.86f,.82f));
+            water.SetColor("_RippleColor", new Color(.96f,.94f,.82f));
+            water.SetFloat("_ReflectionStrength", .82f);
+            water.SetFloat("_ReflectionDistortion", .005f);
             water.SetVector("_BrushDirection", new Vector4(.829f,-.559f,0,0));
             water.SetFloat("_DepthDistance", 1.2f);
-            water.SetFloat("_RippleStrength", .65f);
+            water.SetFloat("_RippleStrength", .36f);
+            water.SetFloat("_ViewAlignedStrokes", 0);
+            var waterBrushAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/WeatherHouseMaterialLab/Textures/OilBrushStamps.png");
+            water.SetTexture("_WaterBrushAtlas", waterBrushAtlas);
+            water.SetFloat("_BrushViewResponse", .85f);
+            water.SetFloat("_SmallStrokeScale", 2.6f);
+            water.SetFloat("_SmallStrokeWeight", .45f);
+            water.SetFloat("_UseWaterBrushAtlas", waterBrushAtlas ? 1 : 0);
             EditorUtility.SetDirty(water);
             foreach (var renderer in Object.FindObjectsOfType<MeshRenderer>())
                 if (renderer.sharedMaterial == water && !renderer.GetComponent<PainterlyWaterReflection>())

@@ -12,8 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords:
-  - _VIEWALIGNEDSTROKES_ON
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -28,8 +27,13 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WaterBrushAtlas:
+        m_Texture: {fileID: 2800000, guid: ca6e4b39bd3225543829ce0911613d9a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BrushViewResponse: 0.85
     - _CausticDepth: 1.1
     - _CausticScale: 1.25
     - _CausticSpeed: 0.28
@@ -38,26 +42,31 @@ Material:
     - _DepthDistance: 1.2
     - _HasPlanarReflection: 0
     - _HasSceneColor: 0
+    - _InteractionStrength: 0
     - _Opacity: 0.7
-    - _ReflectionBrushSize: 0.75
-    - _ReflectionBrushStrength: 0.5
-    - _ReflectionColorSteps: 9
-    - _ReflectionDistortion: 0.009
-    - _ReflectionPosterize: 0.35
+    - _ReflectionBrushSize: 0.92
+    - _ReflectionBrushStrength: 0.78
+    - _ReflectionColorSteps: 8
+    - _ReflectionDistortion: 0.005
+    - _ReflectionPosterize: 0.48
     - _ReflectionStrength: 0.82
     - _RefractionStrength: 0.012
-    - _RippleSpeed: 0.16
-    - _RippleStrength: 0.55
-    - _ShoreStrength: 0.72
-    - _ShoreWidth: 0.16
+    - _RippleSpeed: 0.12
+    - _RippleStrength: 0.36
+    - _ShoreStrength: 0.68
+    - _ShoreWidth: 0.20
+    - _SmallStrokeScale: 2.6
+    - _SmallStrokeWeight: 0.45
     - _StrokeScale: 0.8
-    - _SurfaceStrokeDensity: 0.24
-    - _SurfaceStrokeStrength: 0.58
-    - _ViewAlignedStrokes: 1
+    - _SurfaceStrokeDensity: 0.54
+    - _SurfaceStrokeStrength: 0.68
+    - _UseWaterBrushAtlas: 1
+    - _ViewAlignedStrokes: 0.0
     m_Colors:
+    - _InteractionWorldRect: {r: 0, g: 0, b: 0, a: 0}
     - _BrushDirection: {r: 0.829, g: -0.559, b: 0, a: 0}
-    - _DeepColor: {r: 0.6039216, g: 0.78039217, b: 0.7529412, a: 1}
-    - _ReflectionTint: {r: 0.72156864, g: 0.84705883, b: 0.79607844, a: 1}
-    - _RippleColor: {r: 0.933, g: 0.941, b: 0.824, a: 1}
-    - _ShallowColor: {r: 0.70980394, g: 0.8117647, b: 0.7529412, a: 1}
+    - _DeepColor: {r: 0.55, g: 0.75, b: 0.74, a: 1}
+    - _ReflectionTint: {r: 0.75, g: 0.86, b: 0.82, a: 1}
+    - _RippleColor: {r: 0.96, g: 0.94, b: 0.82, a: 1}
+    - _ShallowColor: {r: 0.66, g: 0.79, b: 0.75, a: 1}
   m_BuildTextureStacks: []

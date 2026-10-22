@@ -3,34 +3,42 @@ Shader "Weather House/Painterly Water"
     Properties
     {
         [Header(Pond Palette)]
-        _ShallowColor ("Shallow bank color", Color) = (0.710, 0.812, 0.753, 1)
-        _DeepColor ("Deep turquoise color", Color) = (0.604, 0.780, 0.753, 1)
+        _ShallowColor ("Shallow bank color", Color) = (0.66, 0.79, 0.75, 1)
+        _DeepColor ("Deep turquoise color", Color) = (0.55, 0.75, 0.74, 1)
         _DepthDistance ("Depth color distance (m)", Range(0.1, 8)) = 1.2
         _Opacity ("Water opacity", Range(0, 1)) = 0.70
         _RefractionStrength ("Refraction strength", Range(0, 0.05)) = 0.012
         [Header(Reflections)]
-        _ReflectionTint ("Reflection tint", Color) = (0.722, 0.847, 0.796, 1)
+        _ReflectionTint ("Reflection tint", Color) = (0.75, 0.86, 0.82, 1)
         _ReflectionStrength ("Reflection strength", Range(0, 1)) = 0.86
-        _ReflectionDistortion ("Reflection breakup", Range(0, 0.06)) = 0.012
-        _ReflectionBrushStrength ("Reflection brush strength", Range(0, 1)) = 0.50
-        _ReflectionBrushSize ("Reflection brush length (m)", Range(0.1, 3)) = 0.75
-        _ReflectionColorSteps ("Reflection lightness steps", Range(3, 24)) = 9
-        _ReflectionPosterize ("Reflection color simplification", Range(0, 1)) = 0.35
+        _ReflectionDistortion ("Reflection breakup", Range(0, 0.06)) = .005
+        _ReflectionBrushStrength ("Reflection brush strength", Range(0, 1)) = 0.78
+        _ReflectionBrushSize ("Reflection brush length (m)", Range(0.1, 3)) = 0.92
+        _ReflectionColorSteps ("Reflection lightness steps", Range(3, 24)) = 8
+        _ReflectionPosterize ("Reflection color simplification", Range(0, 1)) = 0.48
         [HideInInspector] _PlanarReflectionTex ("Planar reflection", 2D) = "black" {}
         [HideInInspector] _HasPlanarReflection ("Has planar reflection", Float) = 0
         [HideInInspector] _HasSceneColor ("Has current camera opaque color", Float) = 0
         [Header(Painted Ripples)]
-        _RippleColor ("Cream brush stroke color", Color) = (0.933, 0.937, 0.824, 1)
-        _RippleStrength ("Ripple strength", Range(0, 1)) = 0.55
-        _RippleSpeed ("Ripple speed", Range(0, 1)) = 0.16
+        _WaterBrushAtlas ("Four water paint stamps (2x2)", 2D) = "black" {}
+        [ToggleUI] _UseWaterBrushAtlas ("Use water brush stamp atlas", Float) = 0
+        _RippleColor ("Cream brush stroke color", Color) = (0.96, 0.94, 0.82, 1)
+        _RippleStrength ("Ripple strength", Range(0, 1)) = .36
+        _RippleSpeed ("Ripple speed", Range(0, 1)) = 0.12
         _StrokeScale ("Brush stroke frequency", Range(0.1, 4)) = 0.8
         _BrushDirection ("Brush direction XZ", Vector) = (0.819, 0.574, 0, 0)
-        [Toggle] _ViewAlignedStrokes ("Keep strokes horizontal in view", Float) = 1
-        _SurfaceStrokeStrength ("Surface stroke strength", Range(0, 1)) = 0.58
-        _SurfaceStrokeDensity ("Surface stroke density", Range(0, 1)) = 0.24
+        [ToggleUI] _ViewAlignedStrokes ("Keep strokes horizontal in view", Float) = 0
+        _SurfaceStrokeStrength ("Surface stroke strength", Range(0, 1)) = .68
+        _SurfaceStrokeDensity ("Surface stroke density", Range(0, 1)) = .54
+        _BrushViewResponse ("Brush view response", Range(0, 1)) = 0.85
+        _SmallStrokeScale ("Small brush frequency multiplier", Range(1.5, 5)) = 2.6
+        _SmallStrokeWeight ("Small brush layer weight", Range(0, 1)) = 0.45
+        [HideInInspector] _InteractionNormalTex ("Character water normal field", 2D) = "bump" {}
+        [HideInInspector] _InteractionWorldRect ("Interaction world rectangle", Vector) = (0, 0, 0, 0)
+        [HideInInspector] _InteractionStrength ("Character water normal strength", Float) = 0
         [Header(Shoreline)]
-        _ShoreWidth ("Shoreline depth width (m)", Range(0.01, 1)) = 0.16
-        _ShoreStrength ("Shoreline stroke strength", Range(0, 1)) = 0.72
+        _ShoreWidth ("Shoreline depth width (m)", Range(0.01, 1)) = 0.20
+        _ShoreStrength ("Shoreline stroke strength", Range(0, 1)) = 0.68
         [Header(Underwater Caustics)]
         _CausticStrength ("Caustic strength", Range(0, 2)) = 0.22
         _CausticScale ("Caustic cells per meter", Range(0.2, 5)) = 1.25
@@ -97,8 +105,19 @@ Shader "Weather House/Painterly Water"
                 float _HasSceneColor;
                 float4 _BrushDirection;
                 float _DebugDepth;
+                float _UseWaterBrushAtlas;
+                float _BrushViewResponse;
+                float _SmallStrokeScale;
+                float _SmallStrokeWeight;
+                float _InteractionStrength;
+                float4 _InteractionWorldRect;
+                float4 _WaterBrushAtlas_TexelSize;
             CBUFFER_END
 
+            TEXTURE2D(_InteractionNormalTex);
+            SAMPLER(sampler_InteractionNormalTex);
+            TEXTURE2D(_WaterBrushAtlas);
+            SAMPLER(sampler_WaterBrushAtlas);
             TEXTURE2D(_PlanarReflectionTex);
             SAMPLER(sampler_PlanarReflectionTex);
             float4x4 _PlanarReflectionVP;
@@ -145,12 +164,13 @@ Shader "Weather House/Painterly Water"
             // Two gentle moving scales deform reflected forms without covering them in surface noise.
             float2 PaintedRipples(float2 q, float time)
             {
-                float warp = ValueNoise(q * 0.85 + float2(time * 0.12, -time * 0.18)) - 0.5;
-                float broad = ValueNoise(q * float2(0.62, 6.5) + float2(time * 0.22, -time * 0.45) + warp * 0.35);
-                float detail = ValueNoise(q * float2(1.8, 14.0) + float2(-time * 0.31, time * 0.32) + warp * 0.6);
-                broad = lerp(broad, smoothstep(0.28, 0.72, broad), 0.7);
-                detail = lerp(detail, smoothstep(0.3, 0.7, detail), 0.45);
-                return float2(broad * 0.75 + detail * 0.25, detail) * 2.0 - 1.0;
+                float warp = ValueNoise(q * 0.38 + float2(time * 0.12, -time * 0.18)) - 0.5;
+                float broad = ValueNoise(q * float2(0.62, 1.35) + float2(time * 0.22, -time * 0.45) + warp * 0.35);
+                float2 detailQ = float2(q.x * 0.86 + q.y * 0.30, q.y * 3.1 - q.x * 0.25);
+                float detail = ValueNoise(detailQ + float2(-time * 0.31, time * 0.32) + warp * 0.35);
+                // Slow, broad displacement preserves the reflected silhouette instead of combing it into lines.
+                broad = lerp(broad, smoothstep(0.22, 0.78, broad), 0.20);
+                return float2(broad * 0.94 + detail * 0.06, lerp(broad, detail, 0.18)) * 2.0 - 1.0;
             }
 
             float3 ScenePosition(float2 uv)
@@ -168,57 +188,256 @@ Shader "Weather House/Painterly Water"
                 return projected.xy / max(projected.w, 0.0001);
             }
 
-            half3 BrushReflection(float3 positionWS, float2 direction, float2 ripples)
+            // A finite horizontal daub. Variation changes its contour, never the whole water color.
+            float BrushFootprint(float2 local, float seed)
+            {
+                float halfLength = lerp(0.36, 0.49, Hash21(float2(seed, 3.7)));
+                float centerX = 0.5 + (seed - 0.5) * 0.04;
+                float x = abs(local.x - centerX) / halfLength;
+                float edgeShape = ValueNoise(float2(local.x * 5.0, seed * 23.0));
+                float centerY = 0.49 + (seed - 0.5) * 0.12 + (edgeShape - 0.5) * 0.09;
+                float width = lerp(0.20, 0.34, Hash21(float2(seed, 17.9)));
+                width *= (1.0 - 0.34 * saturate(x * x)) * lerp(0.76, 1.12, edgeShape);
+                float2 aa = max(fwidth(local), float2(0.002, 0.002));
+                float ends = 1.0 - smoothstep(0.85, 1.0 + aa.x, x);
+                float sides = 1.0 - smoothstep(width, width + aa.y, abs(local.y - centerY));
+                // A few broad bristle gaps occur only near the edge of the paint impression.
+                float dryEdge = ValueNoise(float2(local.x * 7.0, local.y * 11.0) + seed * 19.0);
+                float edgeOnly = smoothstep(width * 0.55, width, abs(local.y - centerY));
+                return ends * sides * (1.0 - edgeOnly * smoothstep(0.58, 0.78, dryEdge) * 0.65);
+            }
+
+            float WaterStampInk(float2 uv, float tile, float lod)
+            {
+                // Mip-aware padding keeps every filtered tap inside its own atlas quadrant.
+                float2 inset = (exp2(ceil(lod)) + 1.0) * _WaterBrushAtlas_TexelSize.xy;
+                float2 origin = float2(fmod(tile, 2.0), floor(tile * 0.5)) * 0.5;
+                float2 atlasUV = origin + clamp(uv, inset, 1.0 - inset) * 0.5;
+                float ink = SAMPLE_TEXTURE2D_LOD(_WaterBrushAtlas, sampler_WaterBrushAtlas, atlasUV, lod).r;
+                float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
+                return saturate((ink - 0.02) / 0.98) * inside;
+            }
+
+            float ReflectionImpression(float2 worldBrush, float2 patchSize, float2 offset,
+                                       out float2 anchorDelta, out float pigmentSeed)
+            {
+                float2 q = worldBrush / patchSize + offset;
+                float2 cell = floor(q), local = frac(q);
+                float2 dpdx = ddx(q), dpdy = ddy(q);
+                float nearest = 100.0;
+                float2 chosenUV = 0.5, chosenAlong = float2(1, 0), chosenDelta = 0;
+                float chosenSize = 1.0;
+                pigmentSeed = 0.5;
+                // Jittered centers and individual angles avoid shared horizontal rows or cut tile edges.
+                [unroll] for (int y = -1; y <= 1; y++)
+                {
+                    [unroll] for (int x = -1; x <= 1; x++)
+                    {
+                        float2 neighbor = float2(x, y), id = cell + neighbor;
+                        float seed = Hash21(id + offset + 13.3);
+                        float2 center = neighbor + 0.5 + (float2(Hash21(id + 5.2), Hash21(id + 31.7)) - 0.5) * 0.52;
+                        float sn, cs;
+                        sincos((Hash21(id + 71.9) - 0.5) * 1.25, sn, cs);
+                        float2 along = float2(cs, sn), across = float2(-sn, cs);
+                        float size = lerp(0.85, 1.18, Hash21(id + 36.2));
+                        float2 delta = local - center;
+                        float2 uv = float2(dot(delta, along), dot(delta, across)) / size + 0.5;
+                        float2 centered = abs(uv - 0.5);
+                        float metric = max(centered.x, centered.y);
+                        if (metric < nearest)
+                        {
+                            nearest = metric;
+                            chosenUV = uv;
+                            chosenAlong = along;
+                            chosenDelta = -delta;
+                            chosenSize = size;
+                            pigmentSeed = seed;
+                        }
+                    }
+                }
+                anchorDelta = chosenDelta * patchSize;
+                float ink;
+                if (_UseWaterBrushAtlas > 0.5)
+                {
+                    float2 across = float2(-chosenAlong.y, chosenAlong.x);
+                    float2 texSize = max(_WaterBrushAtlas_TexelSize.zw, 4.0);
+                    float2 gx = float2(dot(dpdx, chosenAlong), dot(dpdx, across)) / chosenSize * texSize * 0.5;
+                    float2 gy = float2(dot(dpdy, chosenAlong), dot(dpdy, across)) / chosenSize * texSize * 0.5;
+                    float maxLod = max(0.0, log2(min(texSize.x, texSize.y) * 0.5) - 4.0);
+                    float lod = clamp(0.5 * log2(max(max(dot(gx, gx), dot(gy, gy)), 1e-6)), 0.0, maxLod);
+                    ink = WaterStampInk(chosenUV, min(3.0, floor(pigmentSeed * 4.0)), lod);
+                }
+                else ink = BrushFootprint(chosenUV, pigmentSeed);
+                // Keep the stamp's broken edge and uneven paint load when dividing reflected color.
+                return smoothstep(0.12, 0.56, ink) * lerp(0.45, 1.0, ink) * (1.0 - step(0.5, nearest));
+            }
+
+            half3 BrushReflection(float3 positionWS, float2 direction, float2 ripples, float2 interactionOffset)
             {
                 float2 perpendicular = float2(-direction.y, direction.x);
-                float2 patchSize = max(_ReflectionBrushSize, 0.01) * float2(1.0, 0.16);
-                float2 q = float2(dot(positionWS.xz, direction), dot(positionWS.xz, perpendicular)) / patchSize;
-                // Stagger and slightly bend the rows so patch boundaries never make a rectangular grid.
-                q.y += ValueNoise(float2(q.x * 0.27, q.y * 0.08)) * 0.22;
-                float rowOffset = Hash21(float2(floor(q.y), 7.4));
-                q.x += rowOffset;
-                float2 cell = floor(q);
-                float2 local = frac(q);
-                float2 center = 0.5 + float2(Hash21(cell), Hash21(cell + 31.7)) * 0.16 - 0.08;
-                float2 toCenter = (center - local) * patchSize;
+                float2 worldBrush = float2(dot(positionWS.xz, direction), dot(positionWS.xz, perpendicular));
+                float2 patchSize = max(_ReflectionBrushSize, 0.01) * float2(1.40, 0.78);
+                float2 deltaA, deltaB;
+                float seedA, seedB;
+                float maskA = ReflectionImpression(worldBrush, patchSize, float2(0, 0), deltaA, seedA);
+                float maskB = ReflectionImpression(worldBrush, patchSize * float2(0.73, 0.81),
+                                                   float2(19.37, 8.61), deltaB, seedB) * 0.78;
+                // Use the stronger overlapping daub and keep the original two reflection reads.
+                float chooseB = step(maskA, maskB);
+                float2 toCenter = lerp(deltaA, deltaB, chooseB);
+                float footprint = max(maskA, maskB);
                 float3 anchor = positionWS + float3(direction.x * toCenter.x + perpendicular.x * toCenter.y,
                                                     0, direction.y * toCenter.x + perpendicular.y * toCenter.y);
-                float2 distortion = ripples * float2(1.0, 0.22) * _ReflectionDistortion * _RippleStrength;
+                float2 distortion = ripples * float2(1.0, 0.22) * _ReflectionDistortion * _RippleStrength + interactionOffset;
                 float2 uv = ReflectionUV(positionWS) + distortion;
                 float2 anchorUV = ReflectionUV(anchor) + distortion;
                 half3 original = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex, saturate(uv), 0).rgb;
                 half3 patch = SAMPLE_TEXTURE2D_LOD(_PlanarReflectionTex, sampler_PlanarReflectionTex, saturate(anchorUV), 0).rgb;
-                float2 margin = min(local, 1.0 - local);
-                float feather = smoothstep(0.0, 0.10, margin.x) * smoothstep(0.0, 0.12, margin.y);
-                half3 color = lerp(original, patch, _ReflectionBrushStrength * feather);
+                half3 color = lerp(original, patch, _ReflectionBrushStrength * footprint);
                 // Quantize perceptual lightness, retaining the actual warm/cool reflected hue.
                 float luminance = max(dot(color, float3(0.2126, 0.7152, 0.0722)), 0.0001);
                 float levels = max(_ReflectionColorSteps, 3.0);
                 float lightness = floor(sqrt(luminance) * levels + 0.5) / levels;
                 float ratio = clamp(lightness * lightness / luminance, 0.6, 1.4);
-                return color * lerp(1.0, ratio, _ReflectionPosterize);
+                color *= lerp(1.0, ratio, _ReflectionPosterize);
+                // A whole impression shares one pigment value, including in uniform cloud reflections.
+                float pigment = (lerp(seedA, seedB, chooseB) * 2.0 - 1.0) * _ReflectionBrushStrength * footprint;
+                return max(0, color * (1.0 + pigment * 0.09) + pigment * half3(0.016, 0.003, -0.013));
             }
 
-            float SurfaceStrokes(float2 q, float time)
+            struct WaterBrush
             {
-                // One finite, tapered line per sparse staggered cell; no repeating full-width stripes.
-                q *= float2(0.30, 1.45);
-                q.y += time * 0.025;
-                q.x += Hash21(float2(floor(q.y), 18.1));
-                float2 cell = floor(q);
-                float2 f = frac(q);
-                float seed = Hash21(cell + 13.3);
-                float length = lerp(0.16, 0.40, Hash21(cell + 6.2));
-                float x = abs(f.x - 0.5) / length;
-                float taper = saturate(1.0 - x * x);
-                float center = 0.32 + Hash21(cell + 81.4) * 0.36;
-                center += sin(f.x * 5.0 + seed * 6.28 + time * 0.3) * 0.004;
-                float width = lerp(0.018, 0.030, seed) * taper;
-                float aa = max(fwidth(q.y), 0.0001);
-                float lineMask = 1.0 - smoothstep(width, width + aa, abs(f.y - center));
-                float ends = 1.0 - smoothstep(0.8, 1.0, x);
-                float presence = step(seed, _SurfaceStrokeDensity) * step(0.001, _SurfaceStrokeDensity);
-                return lineMask * ends * presence;
+                float mask;
+                float seed;
+                float paintLoad;
+                half3 normalWS;
+                float2 alongWS;
+            };
+
+            WaterBrush SurfaceStrokes(float2 q, float2 direction, float density)
+            {
+                WaterBrush result;
+                result.mask = 0;
+                result.seed = 0.5;
+                result.paintLoad = 0;
+                result.normalWS = half3(0, 1, 0);
+                result.alongWS = direction;
+                // World-anchored, short wide impressions. Only the reflected image moves with the view.
+                q *= 0.72;
+                float2 cell = floor(q), local = frac(q);
+                float2 dpdx = ddx(q), dpdy = ddy(q);
+                float nearest = 100.0;
+                float2 chosenUV = float2(0.5, 0.5), chosenAlong = float2(1, 0), chosenSize = float2(1, 1);
+                float chosenSeed = 0.5;
+                // Find the nearest eligible impression, including neighboring cells, before sampling once.
+                [unroll] for (int y = -1; y <= 1; y++)
+                {
+                    [unroll] for (int x = -1; x <= 1; x++)
+                    {
+                        float2 offset = float2(x, y), id = cell + offset;
+                        float seed = Hash21(id + 13.3);
+                        float enabled = step(seed, density) * step(0.001, density);
+                        float2 center = offset + 0.5 + (float2(Hash21(id + 4.7), Hash21(id + 27.1)) - 0.5) * 0.34;
+                        float angle = (Hash21(id + 71.9) - 0.5) * 1.12;
+                        float sn, cs;
+                        sincos(angle, sn, cs);
+                        float2 along = float2(cs, sn), across = float2(-sn, cs);
+                        float length = lerp(0.70, 1.05, Hash21(id + 36.2));
+                        float aspect = lerp(1.5, 3.0, Hash21(id + 52.4));
+                        float2 stampSize = float2(length, length / aspect);
+                        float2 delta = local - center;
+                        float2 uv = float2(dot(delta, along), dot(delta, across)) / stampSize + 0.5;
+                        float2 centered = abs(uv - 0.5);
+                        float metric = max(centered.x, centered.y);
+                        if (enabled > 0.5 && metric < nearest)
+                        {
+                            nearest = metric;
+                            chosenUV = uv;
+                            chosenAlong = along;
+                            chosenSize = stampSize;
+                            chosenSeed = Hash21(id + 93.7);
+                        }
+                    }
+                }
+                float2 chosenAcross = float2(-chosenAlong.y, chosenAlong.x);
+                float2 uvDx = float2(dot(dpdx, chosenAlong), dot(dpdx, chosenAcross)) / chosenSize;
+                float2 uvDy = float2(dot(dpdy, chosenAlong), dot(dpdy, chosenAcross)) / chosenSize;
+                float2 perpendicular = float2(-direction.y, direction.x);
+                float2 alongWS = direction * chosenAlong.x + perpendicular * chosenAlong.y;
+                float2 acrossWS = direction * chosenAcross.x + perpendicular * chosenAcross.y;
+                float ink;
+                float2 gradient = 0;
+                if (_UseWaterBrushAtlas > 0.5)
+                {
+                    float2 size = max(_WaterBrushAtlas_TexelSize.zw, 4.0);
+                    float2 gx = uvDx * size * 0.5, gy = uvDy * size * 0.5;
+                    float maxLod = max(0.0, log2(min(size.x, size.y) * 0.5) - 4.0);
+                    float lod = clamp(0.5 * log2(max(max(dot(gx, gx), dot(gy, gy)), 1e-6)), 0.0, maxLod);
+                    float tile = min(3.0, floor(chosenSeed * 4.0));
+                    ink = WaterStampInk(chosenUV, tile, lod);
+                    // Coarse, bounded relief avoids glitter from individual high-frequency bristles.
+                    float2 stepUV = max(float2(0.012, 0.012), (exp2(lod) * 2.0) / size);
+                    float inkU = WaterStampInk(chosenUV + float2(stepUV.x, 0), tile, lod);
+                    float inkV = WaterStampInk(chosenUV + float2(0, stepUV.y), tile, lod);
+                    gradient = clamp(float2(inkU - ink, inkV - ink) * 1.3, -0.28, 0.28);
+                    gradient *= 1.0 - smoothstep(maxLod - 1.0, maxLod + 0.1, lod);
+                }
+                else ink = BrushFootprint(chosenUV, chosenSeed);
+                float eligible = 1.0 - step(0.5, nearest);
+                // The atlas supplies broken shape and paint relief, never white diffuse color.
+                result.mask = smoothstep(0.14, 0.48, ink) * lerp(0.25, 1.0, ink) * eligible;
+                result.seed = chosenSeed;
+                result.paintLoad = ink;
+                float2 tilt = alongWS * gradient.x + acrossWS * gradient.y;
+                result.normalWS = normalize(half3(-tilt.x, 1.0, -tilt.y));
+                result.alongWS = alongWS;
+                return result;
+            }
+
+            half3 GlazeWaterBrush(half3 localColor, WaterBrush brush, half3 viewDirection, Light sun, float waterDepth, float layerWeight)
+            {
+                float seedValue = brush.seed * 2.0 - 1.0;
+                float signedPigment = (seedValue < 0.0 ? -1.0 : 1.0) * lerp(0.35, 1.0, abs(seedValue));
+                // Hue and value belong to one paint impression; atlas gray levels retain its interior brushwork.
+                half3 pigment = localColor * (1.0 + signedPigment * 0.22 + (brush.paintLoad - 0.65) * 0.10);
+                pigment += signedPigment * half3(0.055, 0.012, -0.040);
+                // A restrained warm tint keeps the actual water and reflected colors visible.
+                pigment = lerp(pigment, _RippleColor.rgb, saturate(signedPigment) * 0.045);
+                half3 halfDirection = SafeNormalize(viewDirection + sun.direction);
+                float raised = pow(saturate(dot(brush.normalWS, halfDirection)), 18.0);
+                float flat = pow(saturate(halfDirection.y), 18.0);
+                float relief = clamp((raised - flat) * 0.20, -0.065, 0.065) * _BrushViewResponse;
+                pigment += relief * min(sun.color, half3(1.25, 1.25, 1.25)) * lerp(localColor, _RippleColor.rgb, 0.35);
+                float2 viewXZ = normalize(viewDirection.xz + float2(0.0001, 0));
+                float acrossView = 1.0 - abs(dot(viewXZ, brush.alongWS));
+                float directionalWeight = lerp(0.55, 1.0, smoothstep(0.0, 0.9, acrossView));
+                float viewWeight = lerp(0.8, directionalWeight, _BrushViewResponse);
+                float weight = brush.mask * _SurfaceStrokeStrength * viewWeight * layerWeight;
+                weight *= smoothstep(_ShoreWidth * 0.6, _ShoreWidth * 2.0, waterDepth);
+                return lerp(localColor, max(0, pigment), saturate(weight));
+            }
+
+            float ShorePaint(float2 p, float waterDepth, float time)
+            {
+                // Depth ties every mark to the actual bank and intersecting geometry.
+                float broad = ValueNoise(p * 0.85 + float2(7.4, 19.2));
+                float detail = ValueNoise(p * 2.1 + float2(16.2, 3.8));
+                float localWidth = max(0.001, _ShoreWidth * lerp(0.55, 1.65, broad));
+                float aa = clamp(fwidth(waterDepth) * 0.5, 0.001, localWidth * 0.12);
+                float center = localWidth * lerp(0.25, 0.44, detail);
+                float halfWidth = localWidth * lerp(0.075, 0.19, detail);
+                float contact = 1.0 - smoothstep(max(0.0, halfWidth - aa), halfWidth + aa,
+                                                  abs(waterDepth - center));
+                float contactBreaks = smoothstep(0.31, 0.57, broad);
+                // A second, thinner impression overlaps in only some segments of the shore.
+                float outerNoise = ValueNoise(p * 1.25 + float2(32.8, 11.7));
+                float outerCenter = localWidth * (0.87 + (outerNoise - 0.5) * 0.22);
+                outerCenter += localWidth * sin(time * 0.6 + broad * 4.0) * 0.035;
+                float outerWidth = localWidth * lerp(0.028, 0.075, outerNoise);
+                float outer = 1.0 - smoothstep(max(0.0, outerWidth - aa), outerWidth + aa,
+                                                abs(waterDepth - outerCenter));
+                float outerBreaks = smoothstep(0.53, 0.72, outerNoise);
+                return saturate(contact * contactBreaks + outer * outerBreaks * 0.42);
             }
 
             float Caustics(float2 bedXZ, float time)
@@ -243,6 +462,20 @@ Shader "Weather House/Painterly Water"
                 float edge = sqrt(second) - sqrt(nearest);
                 float aa = max(fwidth(edge), 0.002);
                 return 1.0 - smoothstep(0.025, 0.070 + aa, edge);
+            }
+
+            float2 InteractionSlope(float2 worldXZ, float waterDepth)
+            {
+                // Zero strength and an unbound rectangle are strict neutral paths.
+                if (_InteractionStrength <= 0.0 || _InteractionWorldRect.z <= 0.0 || _InteractionWorldRect.w <= 0.0)
+                    return 0;
+                float2 uv = (worldXZ - _InteractionWorldRect.xy) * _InteractionWorldRect.zw;
+                float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
+                // Field RGB encodes world X / world Z / up Y. Neutral is (0.5, 0.5, 1).
+                float3 tangentNormal = SAMPLE_TEXTURE2D_LOD(_InteractionNormalTex, sampler_InteractionNormalTex, saturate(uv), 0).rgb * 2.0 - 1.0;
+                float2 slope = tangentNormal.xy / max(tangentNormal.z, 0.35);
+                slope = clamp(slope * clamp(_InteractionStrength, 0.0, 3.0), -0.65, 0.65);
+                return slope * inside * smoothstep(0.015, 0.14, waterDepth);
             }
 
             Varyings Vert(Attributes input)
@@ -277,10 +510,13 @@ Shader "Weather House/Painterly Water"
                 float2 q = float2(dot(p, direction), dot(p, perpendicular)) * _StrokeScale;
                 float2 ripples = PaintedRipples(q, time);
                 float2 slope = (direction * ripples.x * 0.11 + perpendicular * ripples.y * 0.075) * _RippleStrength;
-                half3 normalWS = normalize(half3(slope.x, 1.0, slope.y));
+                half3 calmNormalWS = normalize(half3(slope.x, 1.0, slope.y));
+                float2 interactionSlope = InteractionSlope(p, waterDepth);
+                half3 normalWS = normalize(half3(slope.x + interactionSlope.x, 1.0, slope.y + interactionSlope.y));
+                float2 interactionView = mul((float3x3)UNITY_MATRIX_V, float3(interactionSlope.x, 0, interactionSlope.y)).xy;
 
                 float2 refractedUV = screenUV + ripples * float2(1.0, 0.35) * _RefractionStrength * _RippleStrength
-                                               * smoothstep(0.02, 0.5, waterDepth);
+                                               * smoothstep(0.02, 0.5, waterDepth) + interactionView * 0.018;
                 float2 halfPixel = 0.5 / _ScaledScreenParams.xy;
                 refractedUV = clamp(refractedUV, halfPixel, 1.0 - halfPixel);
                 float3 refractedBed = ScenePosition(refractedUV);
@@ -313,7 +549,7 @@ Shader "Weather House/Painterly Water"
                 half3 reflectionDirection = reflect(-viewDirection, normalWS);
                 half3 reflectedColor = GlossyEnvironmentReflection(reflectionDirection, input.positionWS,
                                                                    0.22h, 1.0h, screenUV);
-                if (_HasPlanarReflection > 0.5) reflectedColor = BrushReflection(input.positionWS, direction, ripples);
+                if (_HasPlanarReflection > 0.5) reflectedColor = BrushReflection(input.positionWS, direction, ripples, interactionView * 0.025);
                 reflectedColor = lerp(reflectedColor, _ReflectionTint.rgb, 0.06);
                 float fresnel = pow(1.0 - saturate(dot(normalWS, viewDirection)), 2.0);
                 float reflectionWeight = _ReflectionStrength * lerp(0.65, 1.0, fresnel);
@@ -321,24 +557,34 @@ Shader "Weather House/Painterly Water"
                 waterColor = lerp(waterColor, reflectedColor, reflectionWeight);
                 Light sun = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 waterColor *= lerp(0.90, 1.0, sun.shadowAttenuation);
+                // A small local highlight follows the same dynamic normal as refraction and reflection.
+                half3 waterHalfDirection = SafeNormalize(viewDirection + sun.direction);
+                float displacedLight = pow(saturate(dot(normalWS, waterHalfDirection)), 16.0);
+                float calmLight = pow(saturate(dot(calmNormalWS, waterHalfDirection)), 16.0);
+                float interactionLight = clamp((displacedLight - calmLight) * 0.16, -0.06, 0.06);
+                waterColor += interactionLight * min(sun.color, half3(1.25, 1.25, 1.25)) * lerp(waterColor, _RippleColor.rgb, 0.35);
+                if (_SurfaceStrokeStrength > 0.001)
+                {
+                    WaterBrush broadBrush = SurfaceStrokes(q, direction, _SurfaceStrokeDensity);
+                    waterColor = GlazeWaterBrush(waterColor, broadBrush, viewDirection, sun, waterDepth, 1.0);
+                    if (_SmallStrokeWeight > 0.001)
+                    {
+                        // Separate small marks use another seeded layout, not a narrow random-size range.
+                        WaterBrush smallBrush = SurfaceStrokes(q * _SmallStrokeScale + float2(17.3, 53.9),
+                                                               direction, _SurfaceStrokeDensity * 0.60);
+                        waterColor = GlazeWaterBrush(waterColor, smallBrush, viewDirection, sun, waterDepth, _SmallStrokeWeight);
+                    }
+                }
                 waterColor = MixFog(waterColor, input.fogFactor);
-                // SceneColor already contains the bed (and its fog): composite exactly once.
+                // Very shallow pigment gradually enters the visible bed color, avoiding a pale solid rim.
+                // The final water-layer opacity remains the same 70/30 composition, exactly once.
+                float shallowPigment = smoothstep(0.015, 0.32, waterDepth);
+                if (_HasSceneColor > 0.5) waterColor = lerp(bedColor, waterColor, shallowPigment);
                 half3 color = _HasSceneColor > 0.5 ? lerp(bedColor, waterColor, _Opacity) : waterColor;
 
-                // Reconstructed vertical depth follows both the bank and intersecting rocks.
-                float shoreNoise = ValueNoise(p * 2.8 + ripples * 0.15);
-                float shoreDepth = waterDepth + (shoreNoise - 0.5) * _ShoreWidth * 0.16;
-                float shoreAA = clamp(fwidth(waterDepth) * 0.5, 0.001, _ShoreWidth * 0.10);
-                float shoreline = 1.0 - smoothstep(max(0.0, _ShoreWidth * 0.055 - shoreAA), _ShoreWidth * 0.055 + shoreAA,
-                                                   abs(shoreDepth - _ShoreWidth * 0.32));
-                float ringCenter = _ShoreWidth * (0.95 + sin(time * 0.65 + shoreNoise) * 0.09);
-                float ring = 1.0 - smoothstep(max(0.0, _ShoreWidth * 0.025 - shoreAA), _ShoreWidth * 0.025 + shoreAA, abs(shoreDepth - ringCenter));
-                float arcNoise = ValueNoise(p * 0.95 + float2(7.4, 19.2));
-                float brokenEdge = smoothstep(0.40, 0.62, arcNoise);
-                float edgeWeight = _ShoreStrength * (shoreline * brokenEdge + ring * smoothstep(0.56, 0.72, arcNoise) * 0.20);
-                float stroke = SurfaceStrokes(q, time) * _SurfaceStrokeStrength * smoothstep(_ShoreWidth, _ShoreWidth * 2.0, waterDepth);
+                float edgeWeight = _ShoreStrength * ShorePaint(p, waterDepth, time);
                 half3 strokeColor = MixFog(_RippleColor.rgb, input.fogFactor);
-                color = lerp(color, strokeColor, saturate(max(edgeWeight, stroke)));
+                color = lerp(color, strokeColor, saturate(edgeWeight));
                 float shorelineFade = smoothstep(0.0, 0.025, waterDepth);
                 // SceneView can omit OpaqueTexture in URP 14; fall back without reading stale camera data.
                 float alpha = _HasSceneColor > 0.5 ? shorelineFade : shorelineFade * max(_Opacity, saturate(edgeWeight));
