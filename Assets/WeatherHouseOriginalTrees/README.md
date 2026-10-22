@@ -58,3 +58,9 @@ URP 没有原 UE Subsurface 的独立透射阴影和厚度数据。第二批从�
 作者模型、九张纹理及原材质设计 © 2025 Anastasia Kasyanik，MIT 许可原文保留于 `Source/AUTHOR_LICENSE.txt`。
 
 `Textures/TilingNoise05.png` 是原材质依赖的 Epic 引擎纹理，本地从 `/Engine/MapTemplates/TilingNoise05` 导出，单独标记来源，不纳入作者 MIT 资产的署名范围。URP 材质、测试与对照布景为本项目移植代码。
+
+## 阴影偏移修复
+
+URP 14 默认 `UniversalAdditionalLightData.usePipelineSettings=true`，会忽略灯光自己的 Bias/Normal Bias，使用管线资产的 1/1。独立对照太阳现在显式关闭此选项，并保存深度偏移 0.02、法线偏移 0.15。软阴影仍沿用管线 Medium；URP 会在渲染时自动创建附加灯光数据，缺少序列化组件并不意味着原来使用 Low。
+
+修复前在实际 Play 复现覆盖断言失败。`AuthorTreeBiasProbe` 固定相机，验证全局 1/1 与同值局部设置图像一致、重复帧稳定，并拍摄两组较小偏移。结束后恢复所有临时灯光参数；原树模型、贴图、曝光和材质颜色不变。固定原图/修复前/修复后见 `OriginalTreesReview/shadow-bias.html`，GPU 记录见同目录 `shadow-bias-checks.txt`。

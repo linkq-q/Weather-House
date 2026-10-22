@@ -189,6 +189,7 @@ namespace WeatherHouse.OriginalTrees.Editor
             var sh=RenderSettings.ambientProbe;
             report.AppendLine("Ambient SH L0 RGB: "+sh[0,0]+", "+sh[1,0]+", "+sh[2,0]);
             string lightingReport=AuthorTreeLighting.Verify();
+            lightingReport+="\n"+AuthorTreeBiasProbe.Run();
             report.AppendLine(lightingReport);
             File.WriteAllText(Output+"/lighting-checks.txt", "UTC "+DateTime.UtcNow.ToString("O")+"\nGPU "+SystemInfo.graphicsDeviceName+" / "+SystemInfo.graphicsDeviceType+"\n"+lightingReport+"\n");
             Capture(camera,"Unity_ThreeTrees",1200,1200);

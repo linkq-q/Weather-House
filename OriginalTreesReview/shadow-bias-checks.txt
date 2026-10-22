@@ -1,0 +1,6 @@
+UTC 2026-10-22T06:22:24.9518180Z
+GPU NVIDIA GeForce RTX 5060 Laptop GPU / Direct3D11
+PASS GPU bias source: 1200x1200; pipeline=1/1; equal local override changed=0, repeat changed=0 (RGB8 sum > 3). Pipeline vs local .2/.4 changed=45589; pipeline vs .02/.15 changed=54441; middle vs small changed=25220 (RGB8 sum > 6).
+Only Light bias fields and usePipelineSettings were changed. Camera, materials, exposure, shadow strength and soft-shadow quality were held fixed.
+Image differences prove the bias source reaches GPU rendering; acne, contact and visual quality still require review of these fixed-camera captures.
+Temporary light state restored.

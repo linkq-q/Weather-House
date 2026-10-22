@@ -42,6 +42,11 @@ namespace WeatherHouse.OriginalTrees.Editor
             data.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
             data.antialiasingQuality = AntialiasingQuality.High;
             sun.shadowStrength = .9f;
+            var shadowData=sun.GetUniversalAdditionalLightData();
+            shadowData.usePipelineSettings=false;
+            sun.shadowBias=.02f;
+            sun.shadowNormalBias=.15f;
+            EditorUtility.SetDirty(shadowData);
             if (!profile.TryGet<ColorAdjustments>(out var exposure))
             {
                 exposure = profile.Add<ColorAdjustments>(false);
@@ -83,6 +88,12 @@ namespace WeatherHouse.OriginalTrees.Editor
         {
             AuthorTreeStudy.Assert(Application.isPlaying, "Transmission verification requires actual Play");
             var scene = ComparisonScene();
+            var sun = RenderSettings.sun;
+            AuthorTreeStudy.Assert(sun && sun.gameObject.scene == scene, "Comparison sun required");
+            AuthorTreeStudy.Assert(sun.TryGetComponent<UniversalAdditionalLightData>(out var lightData),
+                "Warm up Play first so URP has initialized the light data");
+            AuthorTreeStudy.Assert(!lightData.usePipelineSettings,
+                "Comparison sun must use its explicit shadow bias; pipeline settings currently override it");
             var camera = Camera.main;
             AuthorTreeStudy.Assert(camera && camera.gameObject.scene == scene, "Comparison camera required");
             var renderers = LeafRenderers(scene);

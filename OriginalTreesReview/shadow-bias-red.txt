@@ -1,0 +1,4 @@
+FAIL System.InvalidOperationException: Comparison sun must use its explicit shadow bias; pipeline settings currently override it
+  at WeatherHouse.OriginalTrees.Editor.AuthorTreeLighting.Verify () [0x0042d] in C:\unity project\Weather House\Assets\WeatherHouseOriginalTrees\Editor\AuthorTreeLighting.cs:153 
+  at WeatherHouse.OriginalTrees.Editor.AuthorTreeStudy.VerifyAndCapture () [0x00680] in C:\unity project\Weather House\Assets\WeatherHouseOriginalTrees\Editor\AuthorTreeStudy.cs:191 
+  at WeatherHouse.OriginalTrees.Editor.AuthorTreeSession.Tick () [0x0003d] in C:\unity project\Weather House\Assets\WeatherHouseOriginalTrees\Editor\AuthorTreeSession.cs:112 
