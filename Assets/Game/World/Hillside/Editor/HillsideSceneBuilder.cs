@@ -192,25 +192,33 @@ namespace WeatherHouse.Hillside.Editor
 
         static void Prop(string id, string label, float x, float y, float height, float yaw, Transform parent)
         {
-            string path = Source + "/" + id + "/" + id + ".fbx";
+            bool usePack = id == "fence" || id == "stone";
+            string path = usePack
+                ? Output + "/Hillside_Pack" + (id == "fence" ? "Fence" : "Stone") + ".prefab"
+                : Source + "/" + id + "/" + id + ".fbx";
             var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (!asset) throw new FileNotFoundException(path);
             var go = (GameObject)PrefabUtility.InstantiatePrefab(asset);
             go.name = label; go.transform.SetParent(parent, false);
             // FBX roots carry their source-axis correction; yaw is additional world rotation.
             go.transform.rotation = Quaternion.Euler(0, yaw, 0) * go.transform.rotation;
-            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(Source + "/" + id + "/" + id + ".jpg");
-            Material material = Material(id, Color.white);
-            material.SetTexture("_BaseMap", texture);
-            foreach (var renderer in go.GetComponentsInChildren<Renderer>())
-                renderer.sharedMaterials = Enumerable.Repeat(material, renderer.sharedMaterials.Length).ToArray();
+            if (!usePack)
+            {
+                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(Source + "/" + id + "/" + id + "_ConceptFlat_v1.png")
+                    ?? AssetDatabase.LoadAssetAtPath<Texture2D>(Source + "/" + id + "/" + id + ".jpg");
+                Material material = Material(id, Color.white);
+                material.SetTexture("_BaseMap", texture);
+                material.SetTexture("_MainTex", texture);
+                foreach (var renderer in go.GetComponentsInChildren<Renderer>())
+                    renderer.sharedMaterials = Enumerable.Repeat(material, renderer.sharedMaterials.Length).ToArray();
+            }
             Bounds b = Bounds(go);
             go.transform.localScale *= height / Mathf.Max(.01f, b.size.y);
             b = Bounds(go);
             Vector3 p = At(x, y);
             go.transform.position += new Vector3(p.x - b.center.x, p.y - b.min.y, p.z - b.center.z);
             // Static source props have no gameplay scripts; use their actual mesh for collision.
-            foreach (var filter in go.GetComponentsInChildren<MeshFilter>())
+            if (!usePack) foreach (var filter in go.GetComponentsInChildren<MeshFilter>())
                 if (!filter.GetComponent<Collider>() && filter.sharedMesh)
                     filter.gameObject.AddComponent<MeshCollider>().sharedMesh = filter.sharedMesh;
         }

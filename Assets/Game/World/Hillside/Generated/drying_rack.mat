@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   version: 7
 --- !u!21 &2100000
 Material:
@@ -33,12 +33,12 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
-  m_LockedProperties: 
+  m_LockedProperties:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 959ef188fc0966d4d91bb9de7c51b73c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 336999cfcf0f4e6bbf89e9f711df4220, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -62,7 +62,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 959ef188fc0966d4d91bb9de7c51b73c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 336999cfcf0f4e6bbf89e9f711df4220, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
