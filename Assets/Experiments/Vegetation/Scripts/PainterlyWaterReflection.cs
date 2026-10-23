@@ -8,6 +8,9 @@ namespace WeatherHouse.Vegetation
     public sealed class PainterlyWaterReflection : MonoBehaviour
     {
         [Range(256, 1536)] public int resolution = 1024;
+        [Range(0.25f, 1f)] public float resolutionScale = 0.5f;
+        [Min(1f)] public float maxReflectionDistance = 120f;
+        [Range(1f, 60f)] public float updateRate = 15f;
         [Min(0.001f)] public float clipOffset = 0.04f;
         public LayerMask reflectionLayers = ~(1 << 4);
 
@@ -16,6 +19,12 @@ namespace WeatherHouse.Vegetation
         RenderTexture reflectionTexture;
         Renderer waterRenderer;
         MaterialPropertyBlock properties;
+        Camera capturedSource;
+        Vector3 capturedPosition;
+        Quaternion capturedRotation;
+        Matrix4x4 capturedProjection, capturedViewProjection;
+        double nextCaptureTime;
+        bool hasCapture;
         readonly Plane[] cameraFrustum = new Plane[6];
         static readonly int ReflectionTextureId = Shader.PropertyToID("_PlanarReflectionTex");
         static readonly int HasReflectionId = Shader.PropertyToID("_HasPlanarReflection");
@@ -44,6 +53,8 @@ namespace WeatherHouse.Vegetation
             if (reflectionCamera) Dispose(reflectionCamera.gameObject);
             reflectionTexture = null;
             reflectionCamera = null;
+            capturedSource = null;
+            hasCapture = false;
         }
 
         void RenderReflection(ScriptableRenderContext context, Camera source)
@@ -81,11 +92,12 @@ namespace WeatherHouse.Vegetation
                 reflectionCamera.enabled = false;
             }
             float aspect = Mathf.Max(0.1f, source.aspect);
-            int longest = Mathf.Clamp(resolution, 256, 1536);
-            int width = aspect >= 1 ? longest : Mathf.RoundToInt(longest * aspect);
-            int height = aspect >= 1 ? Mathf.RoundToInt(longest / aspect) : longest;
-            if (!reflectionTexture || reflectionTexture.width != width || reflectionTexture.height != height)
+            int longest = Mathf.RoundToInt(Mathf.Clamp(resolution, 256, 1536) * Mathf.Clamp(resolutionScale, 0.25f, 1f));
+            int width = Mathf.Max(1, aspect >= 1 ? longest : Mathf.RoundToInt(longest * aspect));
+            int height = Mathf.Max(1, aspect >= 1 ? Mathf.RoundToInt(longest / aspect) : longest);
+            if (!reflectionTexture || !reflectionTexture.IsCreated() || reflectionTexture.width != width || reflectionTexture.height != height)
             {
+                hasCapture = false;
                 if (reflectionTexture) { reflectionTexture.Release(); Dispose(reflectionTexture); }
                 reflectionTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGBHalf)
                 {
@@ -99,6 +111,25 @@ namespace WeatherHouse.Vegetation
                 reflectionTexture.Create();
             }
 
+            double now = Time.realtimeSinceStartupAsDouble;
+            bool throttled = Application.isPlaying && source.cameraType == CameraType.Game && source == Camera.main;
+            bool cameraChanged = capturedSource != source || (source.transform.position - capturedPosition).sqrMagnitude > 1f ||
+                Quaternion.Angle(source.transform.rotation, capturedRotation) > 8f || source.projectionMatrix != capturedProjection;
+            // One texture is shared by views: switching cameras must capture before binding it.
+            if (!hasCapture || !throttled || cameraChanged || now >= nextCaptureTime)
+                CaptureReflection(context, source, now);
+
+            waterRenderer.GetPropertyBlock(properties);
+            properties.SetTexture(ReflectionTextureId, reflectionTexture);
+            properties.SetFloat(HasReflectionId, hasCapture ? 1 : 0);
+            properties.SetFloat(HasSceneColorId, hasSceneColor ? 1 : 0);
+            properties.SetMatrix(ReflectionMatrixId, capturedViewProjection);
+            waterRenderer.SetPropertyBlock(properties);
+        }
+
+        void CaptureReflection(ScriptableRenderContext context, Camera source, double now)
+        {
+            hasCapture = false;
             reflectionCamera.CopyFrom(source);
             reflectionCamera.enabled = false;
             // URP 14 only reads UniversalAdditionalCameraData for Game/VR camera types.
@@ -108,10 +139,13 @@ namespace WeatherHouse.Vegetation
             reflectionCamera.cullingMask = source.cullingMask & reflectionLayers.value & ~(1 << 4);
             reflectionCamera.useOcclusionCulling = false;
             reflectionCamera.allowMSAA = false;
+            reflectionCamera.farClipPlane = Mathf.Min(source.farClipPlane, Mathf.Max(source.nearClipPlane + 0.01f, maxReflectionDistance));
+            reflectionCamera.ResetProjectionMatrix();
+            Matrix4x4 distanceProjection = reflectionCamera.projectionMatrix;
             var data = reflectionCamera.GetUniversalAdditionalCameraData();
             data.renderType = CameraRenderType.Base;
             data.renderPostProcessing = false;
-            data.renderShadows = true;
+            data.renderShadows = false;
             data.requiresColorOption = CameraOverrideOption.Off;
             data.requiresDepthOption = CameraOverrideOption.Off;
 
@@ -127,7 +161,9 @@ namespace WeatherHouse.Vegetation
             Vector3 clipPosition = reflectionCamera.worldToCameraMatrix.MultiplyPoint(position + normal * clipOffset);
             Vector3 clipNormal = reflectionCamera.worldToCameraMatrix.MultiplyVector(normal).normalized;
             var clipPlane = new Vector4(clipNormal.x, clipNormal.y, clipNormal.z, -Vector3.Dot(clipPosition, clipNormal));
-            reflectionCamera.projectionMatrix = source.CalculateObliqueMatrix(clipPlane);
+            reflectionCamera.projectionMatrix = reflectionCamera.CalculateObliqueMatrix(clipPlane);
+            // Oblique clipping tilts the far plane; keep distance culling on the capped base frustum.
+            reflectionCamera.cullingMatrix = distanceProjection * reflectionCamera.worldToCameraMatrix;
 
             bool oldInvertCulling = GL.invertCulling;
             bool oldFog = RenderSettings.fog;
@@ -146,18 +182,19 @@ namespace WeatherHouse.Vegetation
                 RenderSettings.fog = oldFog;
                 renderingReflection = false;
             }
-            waterRenderer.GetPropertyBlock(properties);
-            properties.SetTexture(ReflectionTextureId, reflectionTexture);
-            properties.SetFloat(HasReflectionId, 1);
-            properties.SetFloat(HasSceneColorId, hasSceneColor ? 1 : 0);
             Matrix4x4 textureBias = Matrix4x4.identity;
             textureBias.m00 = 0.5f;
             textureBias.m03 = 0.5f;
             textureBias.m11 = SystemInfo.graphicsUVStartsAtTop ? -0.5f : 0.5f;
             textureBias.m13 = 0.5f;
-            properties.SetMatrix(ReflectionMatrixId, textureBias * GL.GetGPUProjectionMatrix(reflectionCamera.projectionMatrix, true)
-                * reflectionCamera.worldToCameraMatrix);
-            waterRenderer.SetPropertyBlock(properties);
+            capturedViewProjection = textureBias * GL.GetGPUProjectionMatrix(reflectionCamera.projectionMatrix, true)
+                * reflectionCamera.worldToCameraMatrix;
+            capturedSource = source;
+            capturedPosition = source.transform.position;
+            capturedRotation = source.transform.rotation;
+            capturedProjection = source.projectionMatrix;
+            nextCaptureTime = now + 1.0 / Mathf.Max(1f, updateRate);
+            hasCapture = true;
         }
 
         static Matrix4x4 ReflectionMatrix(Vector4 plane)

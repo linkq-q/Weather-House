@@ -122,7 +122,7 @@ namespace WeatherHouse.Hillside
                     Material material = materials[batch.variant / 4];
                     if (!mesh || !material) continue;
                     Graphics.DrawMeshInstanced(mesh, 0, material, batch.matrices, batch.matrices.Length,
-                        null, ShadowCastingMode.Off, true, gameObject.layer, null, LightProbeUsage.Off);
+                        null, ShadowCastingMode.Off, true, gameObject.layer, camera, LightProbeUsage.Off);
                     VisibleClumpCount += batch.matrices.Length;
                 }
             }
