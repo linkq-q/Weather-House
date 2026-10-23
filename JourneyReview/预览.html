@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>羊群水岸生活 · 实机审查</title>
+<style>
+body{max-width:1120px;margin:48px auto;padding:0 24px;background:#f5f1e6;color:#25382c;font:17px/1.7 system-ui,"Microsoft YaHei",sans-serif}h1{font-size:36px;line-height:1.25}h2{font-size:23px;margin:40px 0 12px}p{max-width:920px}img{width:100%;display:block;border-radius:12px}figure{margin:0}figcaption{font-size:14px;color:#536252;margin:8px 0 24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}a{color:#376746}code{background:#e9e5d9;padding:2px 5px}aside{border-left:3px solid #839867;padding:10px 18px;background:#eeecdf}summary{cursor:pointer;font-weight:600}table{border-collapse:collapse;width:100%;font-size:15px}td,th{text-align:left;border-bottom:1px solid #d6dccc;padding:10px}small{color:#536252}@media(max-width:720px){.grid{grid-template-columns:1fr}body{margin:24px auto}h1{font-size:28px}}
+</style>
+<p>天气屋 / 2026-10-24 / Unity 实机画面</p>
+<h1>一起出发，各自判断，重新会合</h1>
+<p>10 只羊共享活动区域，保留独立步速、启停节奏和动画相位。它们会判断水深、岸坡与桥面，在窄处排队，在开阔地绕开同伴；落脚点被占据时，在同一片草地另找空位。</p>
+<aside>主地图：十只羊自然过桥并全员会合，原有 70 只动物继续活动。独立样板：验证 4 只游泳、6 只绕桥的分队与往返。两种场景分别记录，主地图本轮没有实际游泳。</aside>
+<h2>主地图里的自然会合</h2>
+<figure><a href="../WatersideV2Review/herd-04_十只原速会合.png"><img src="../WatersideV2Review/herd-04_十只原速会合.png" alt="十只羊在老树旁草地分散会合，与松鼠之间保留空隙"></a><figcaption>282.500 秒模拟后全员会合。先到者吃草、靠近和交流；原先羊与松鼠挤在一起的问题已在最终画面中消除。</figcaption></figure>
+<figure><a href="../WatersideV2Review/herd-02_实际桥外队列.png"><img src="../WatersideV2Review/herd-02_实际桥外队列.png" alt="羊群沿弯曲泥路来到东汊踏石，依次等待过桥"></a><figcaption>通过真实踏石桥面，8 个成员被记录到桥外等待。全程只运行正常 Update，没有改目标、速度或时间倍率。</figcaption></figure>
+<p>1280 次约 0.2 秒间隔的采样未发现初始或新进入的混合动物重叠。最小身体代理净空为 0.1204 米，最终为 0.9128 米；另审查了身体和尾巴的实际画面，避免仅凭简化半径判定视觉效果。</p>
+<h2>水面游泳与分队</h2>
+<figure><img src="Play_20261024_035428/游泳完整周期.gif" alt="同一只羊连续1.2秒的实际游泳循环"><figcaption>同一只羊连续 1.2 秒、12 帧，四腿在水下划动；该周期头部最低高于水面 0.184 米。使用接入的循环泳姿素材，未拼接不同动物的画面。</figcaption></figure>
+<div class="grid">
+<figure><img src="Play_20261024_035428/05_bridge_queue.png" alt="独立样板中不会游过的成员在桥上依次通行"><figcaption>不同能力的成员分别选择水路与桥路，最终到同一区域会合。</figcaption></figure>
+<figure><img src="Play_20261024_035428/09_return_reunion.png" alt="独立样板返程后全员会合"><figcaption>最终冻结版本在 171.294 秒、5139 帧内完成两程，返程于第 168.294 秒全员会合；共记录 6 轮可观察交流。</figcaption></figure>
+</div>
+<h2>少量交流，明确对象</h2>
+<div class="grid">
+<figure><img src="Play_20261024_035428/02_greeting_closeup.png" alt="相互朝向的两只羊进行问候"><figcaption>交流前先靠近和朝向对方；参与者与组合都有冷却，头顶仅保留一个动物语气泡。</figcaption></figure>
+<figure><img src="Play_20261024_035428/07_you_listener_closeup.png" alt="提供你字语线索的交流，听者明确"><figcaption>生活交流之外，部分表达提供明确的听者线索。每次轮换说话者，使用现有 hello、you 字语。</figcaption></figure>
+</div>
+<figure><img src="Play_20261024_035428/10_yielding_companion.png" alt="先到的成员小步挪开，让后来者经过"><figcaption>安全绕路仍行不通时，已抵达的成员会挪开一小步。移动仍逐段检查地面和身体间距。</figcaption></figure>
+<h2>验证与当前边界</h2>
+<table><tr><th>项目</th><th>证据</th></tr>
+<tr><td>独立代码审查、完整 Unity 回归</td><td>通过；包括 18 组导航、9 组混合动物、转向、接岸、封路、会合与交流检查。</td></tr>
+<tr><td>混合动物真实控制器</td><td>静止动物绕行 9.30 秒；初始落脚点被占 9.35 秒；途中被占 11.20 秒，均在原活动区内正常抵达。</td></tr>
+<tr><td>真实 Play 生命周期</td><td>禁用立即释放登记，恢复只登记一次，销毁后释放；不把编辑模式调用当作 Play 回调证据。</td></tr>
+<tr><td>导航调用耗时</td><td>固定输入下 Walk 降低约 79%、Bridge 约 87%；真实碰撞体测试两组各 1200 次成功。</td></tr>
+<tr><td>主地图整场性能</td><td>332.4 秒墙钟、5468 帧，约 16.45 帧/墙钟秒，包含 Editor 观察与截图；未证明整场 FPS 改善。</td></tr>
+</table>
+<details><summary>保留的限制与复用方式</summary>
+<p>主地图本轮 10 只均走桥。四座桥附近的有限水路候选没有通过安全入口检查，不能据此推断全地图没有其他泳路。新地图仍需要提供地形、水域、桥面以及候选路线；系统会检查其实际通行条件。</p>
+<p>新旧动物避让增加了通行代价：最后一只羊在会合区入口附近绕行较久，本轮全群完成时间由早先 230.420 秒增至 282.500 秒。完整原始轨迹保留了这一过程。</p>
+<p>嗅闻、轻蹭和招呼目前通过靠近、朝向及轻量头部动作表达，尚未全部制作成独立全身动画。全图多个群落、更多字语和跨物种动作仍可沿现有接口扩展。</p>
+<p>可分别配置物种体型、步速、游泳能力、泳程、涉水深度、厌水程度和活动区域。群体目标、导航、身体避让、交流调度分别承担各自职责，已有动物继续使用原行为。</p>
+</details>
+<h2>打开与操作</h2>
+<p>主地图 <code>Assets/Scenes/WeatherHouse_WatersideV2.unity</code>。独立样板 <code>Assets/Scenes/Experimental/WildlifeJourneyLab.unity</code>：右键转动，滚轮缩放，WASD 平移；Space 暂停，R 换区，B 改变桥口，Tab 查看判断并调节交流节奏，C 记录交流。</p>
+<p><a href="../Docs/WildlifeJourney/设计与验证.md">设计与接入说明</a> · <a href="batch-checks.txt">全量回归</a> · <a href="Play_20261024_035428/summary.json">最终 Play 指标</a> · <a href="Play_20261024_035428/trajectory.csv">样板轨迹</a> · <a href="../WatersideV2Review/herd-runtime.txt">主图原速运行</a> · <a href="NavigationPerf/comparison.txt">导航耗时对照</a></p>
+<p><small>图片均来自真实 Unity 运行。代码、自动检查、画面判断和用户最终美术验收分别记录。点击主地图图片可查看原尺寸。</small></p>
+</html>

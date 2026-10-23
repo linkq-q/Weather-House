@@ -1,0 +1,613 @@
+{
+    "status": "PASS",
+    "error": "",
+    "output": "C:\\Users\\31483\\AppData\\Local\\Temp\\WeatherHouseJourney-20261024-001221\\WildlifeJourneyReview\\Play_20261023_195428_674",
+    "startedUtc": "2026-10-23T19:54:28.6889284Z",
+    "finishedUtc": "2026-10-23T19:55:57.3816067Z",
+    "renderPipeline": "Assets/Settings/URP-HighFidelity.asset",
+    "mixedBodyLifecycle": "PASS real Play lifecycle: disable unregisters immediately, enable restores once, destruction releases the herd body",
+    "initialized": true,
+    "journeyStarted": true,
+    "reunited": true,
+    "returnStarted": true,
+    "returnReunited": true,
+    "journeyStartedAt": 15.020087242126465,
+    "reunionAt": 81.08577728271485,
+    "returnStartedAt": 93.68558502197266,
+    "returnReunionAt": 168.29367065429688,
+    "lastTraceAt": 171.22763061523438,
+    "simulationTime": 171.2943115234375,
+    "frames": 5139,
+    "animatedBonesChanged": 205,
+    "completedJourneys": 2,
+    "recordedTurns": 6,
+    "swimmers": [
+        4,
+        3,
+        2,
+        1
+    ],
+    "bridgeWalkers": [
+        10,
+        6,
+        7,
+        5,
+        8,
+        9
+    ],
+    "queued": [
+        10,
+        7,
+        6,
+        5,
+        9,
+        8
+    ],
+    "shots": [
+        {
+            "file": "01_overview.png",
+            "subject": "01_overview",
+            "glyphs": "",
+            "simulationTime": 1.0866669416427613,
+            "frame": 33,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -22.0,
+                "y": 26.0,
+                "z": -31.0
+            },
+            "cameraRotation": {
+                "x": 0.2705552577972412,
+                "y": 0.27796468138694765,
+                "z": -0.08191753923892975,
+                "w": 0.91805499792099
+            }
+        },
+        {
+            "file": "03_swimming_front.png",
+            "subject": "03_swimming_front",
+            "glyphs": "",
+            "simulationTime": 26.653270721435548,
+            "frame": 800,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": 3.3052868843078615,
+                "y": 1.2426714897155762,
+                "z": -5.722045557376987e-7
+            },
+            "cameraRotation": {
+                "x": 0.07947906851768494,
+                "y": -0.7026258111000061,
+                "z": 0.07947906106710434,
+                "w": 0.7026259303092957
+            }
+        },
+        {
+            "file": "04_swimming_side.png",
+            "subject": "04_swimming_side",
+            "glyphs": "",
+            "simulationTime": 26.75326919555664,
+            "frame": 803,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -1.4149447679519654,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_00.png",
+            "subject": "08_swim_cycle_00",
+            "glyphs": "",
+            "simulationTime": 26.886600494384767,
+            "frame": 807,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -1.2554062604904175,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_01.png",
+            "subject": "08_swim_cycle_01",
+            "glyphs": "",
+            "simulationTime": 26.98659896850586,
+            "frame": 810,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -1.1756370067596436,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_02.png",
+            "subject": "08_swim_cycle_02",
+            "glyphs": "",
+            "simulationTime": 27.086597442626954,
+            "frame": 813,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -1.0958677530288697,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_03.png",
+            "subject": "08_swim_cycle_03",
+            "glyphs": "",
+            "simulationTime": 27.186595916748048,
+            "frame": 816,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -1.0160984992980958,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_04.png",
+            "subject": "08_swim_cycle_04",
+            "glyphs": "",
+            "simulationTime": 27.28659439086914,
+            "frame": 819,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.9363292455673218,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_05.png",
+            "subject": "08_swim_cycle_05",
+            "glyphs": "",
+            "simulationTime": 27.386592864990236,
+            "frame": 822,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.8565599918365479,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_06.png",
+            "subject": "08_swim_cycle_06",
+            "glyphs": "",
+            "simulationTime": 27.486591339111329,
+            "frame": 825,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.7767907381057739,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_07.png",
+            "subject": "08_swim_cycle_07",
+            "glyphs": "",
+            "simulationTime": 27.586589813232423,
+            "frame": 828,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.697021484375,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_08.png",
+            "subject": "08_swim_cycle_08",
+            "glyphs": "",
+            "simulationTime": 27.686588287353517,
+            "frame": 831,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.6172522306442261,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_09.png",
+            "subject": "08_swim_cycle_09",
+            "glyphs": "",
+            "simulationTime": 27.78658676147461,
+            "frame": 834,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.5374829769134522,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 6.169472044348368e-8,
+                "z": -6.978733591012087e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_10.png",
+            "subject": "08_swim_cycle_10",
+            "glyphs": "",
+            "simulationTime": 27.886585235595704,
+            "frame": 837,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.45771369338035586,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 5.860998442130949e-8,
+                "z": -6.629797155710548e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "SwimAttempt_01\\08_swim_cycle_11.png",
+            "subject": "08_swim_cycle_11",
+            "glyphs": "",
+            "simulationTime": 27.986583709716798,
+            "frame": 840,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -0.3779444396495819,
+                "y": 1.2426714897155762,
+                "z": -4.800000190734863
+            },
+            "cameraRotation": {
+                "x": 0.11240037530660629,
+                "y": 5.860998442130949e-8,
+                "z": -6.629797155710548e-9,
+                "w": 0.9936630129814148
+            }
+        },
+        {
+            "file": "05_bridge_queue.png",
+            "subject": "05_bridge_queue",
+            "glyphs": "",
+            "simulationTime": 28.786571502685548,
+            "frame": 864,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -8.0,
+                "y": 5.0,
+                "z": 1.0
+            },
+            "cameraRotation": {
+                "x": 0.17267917096614839,
+                "y": 0.3520825207233429,
+                "z": -0.06626320630311966,
+                "w": 0.9175124168395996
+            }
+        },
+        {
+            "file": "02_greeting_closeup.png",
+            "subject": "02_greeting_closeup",
+            "glyphs": "hello",
+            "simulationTime": 51.31956100463867,
+            "frame": 1540,
+            "speakerId": 2,
+            "listenerId": 3,
+            "visibleBubbles": 1,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": 11.858312606811524,
+                "y": 3.049759864807129,
+                "z": 5.3493733406066898
+            },
+            "cameraRotation": {
+                "x": -0.004085719585418701,
+                "y": 0.98973548412323,
+                "z": -0.13989824056625367,
+                "w": -0.02890516258776188
+            }
+        },
+        {
+            "file": "10_yielding_companion.png",
+            "subject": "10_yielding_companion",
+            "glyphs": "",
+            "simulationTime": 56.85280990600586,
+            "frame": 1706,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": 6,
+            "travellerId": 7,
+            "cameraPosition": {
+                "x": 5.266862869262695,
+                "y": 3.0584652423858644,
+                "z": 3.387032985687256
+            },
+            "cameraRotation": {
+                "x": 0.0854499489068985,
+                "y": 0.7841899394989014,
+                "z": -0.11084454506635666,
+                "w": 0.6045311689376831
+            }
+        },
+        {
+            "file": "06_reunion.png",
+            "subject": "06_reunion",
+            "glyphs": "",
+            "simulationTime": 81.1524429321289,
+            "frame": 2435,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": 3.0,
+                "y": 8.649999618530274,
+                "z": -10.0
+            },
+            "cameraRotation": {
+                "x": 0.24705499410629273,
+                "y": 0.3194608688354492,
+                "z": -0.08666221797466278,
+                "w": 0.9107130169868469
+            }
+        },
+        {
+            "file": "07_you_listener_closeup.png",
+            "subject": "07_you_listener_closeup",
+            "glyphs": "you",
+            "simulationTime": 143.4550323486328,
+            "frame": 4304,
+            "speakerId": 8,
+            "listenerId": 1,
+            "visibleBubbles": 1,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -16.583171844482423,
+                "y": 3.0350136756896974,
+                "z": -5.025363445281982
+            },
+            "cameraRotation": {
+                "x": 0.12406104058027268,
+                "y": 0.4583316445350647,
+                "z": -0.06478477269411087,
+                "w": 0.8776924014091492
+            }
+        },
+        {
+            "file": "09_return_reunion.png",
+            "subject": "09_return_reunion",
+            "glyphs": "",
+            "simulationTime": 168.3603515625,
+            "frame": 5051,
+            "speakerId": -1,
+            "listenerId": -1,
+            "visibleBubbles": 0,
+            "yieldingId": -1,
+            "travellerId": -1,
+            "cameraPosition": {
+                "x": -3.0,
+                "y": 8.649999618530274,
+                "z": -10.0
+            },
+            "cameraRotation": {
+                "x": 0.24705499410629273,
+                "y": -0.3194608688354492,
+                "z": 0.08666221797466278,
+                "w": 0.9107130169868469
+            }
+        }
+    ],
+    "swimCycles": [
+        {
+            "attempt": 1,
+            "animalId": 4,
+            "journey": 1,
+            "journeyAttempt": 1,
+            "frames": 12,
+            "movingLegBones": 4,
+            "status": "PASS",
+            "reason": "",
+            "folder": "SwimAttempt_01",
+            "clipName": "Swim",
+            "clipLength": 1.2000000476837159,
+            "startedAt": 26.786602020263673,
+            "endedAt": 27.986583709716798,
+            "rootMinWaterClearance": -0.5073285698890686,
+            "headMinWaterClearance": 0.183929443359375,
+            "minimumLegMotionDegrees": 3.0,
+            "minimumMovingLegs": 2,
+            "boneMotion": [
+                {
+                    "name": "UpperArm.L",
+                    "head": false,
+                    "maxLocalRotationDegrees": 49.55878448486328,
+                    "maxLocalDisplacement": 0.0
+                },
+                {
+                    "name": "UpperArm.R",
+                    "head": false,
+                    "maxLocalRotationDegrees": 50.77750015258789,
+                    "maxLocalDisplacement": 0.0
+                },
+                {
+                    "name": "Thigh.L",
+                    "head": false,
+                    "maxLocalRotationDegrees": 39.7093620300293,
+                    "maxLocalDisplacement": 0.0
+                },
+                {
+                    "name": "Thigh.R",
+                    "head": false,
+                    "maxLocalRotationDegrees": 28.668975830078126,
+                    "maxLocalDisplacement": 0.0
+                },
+                {
+                    "name": "Head",
+                    "head": true,
+                    "maxLocalRotationDegrees": 5.3950958251953129,
+                    "maxLocalDisplacement": 0.0
+                }
+            ],
+            "sampleTimes": [
+                26.886600494384767,
+                26.98659896850586,
+                27.086597442626954,
+                27.186595916748048,
+                27.28659439086914,
+                27.386592864990236,
+                27.486591339111329,
+                27.586589813232423,
+                27.686588287353517,
+                27.78658676147461,
+                27.886585235595704,
+                27.986583709716798
+            ],
+            "files": [
+                "SwimAttempt_01\\08_swim_cycle_00.png",
+                "SwimAttempt_01\\08_swim_cycle_01.png",
+                "SwimAttempt_01\\08_swim_cycle_02.png",
+                "SwimAttempt_01\\08_swim_cycle_03.png",
+                "SwimAttempt_01\\08_swim_cycle_04.png",
+                "SwimAttempt_01\\08_swim_cycle_05.png",
+                "SwimAttempt_01\\08_swim_cycle_06.png",
+                "SwimAttempt_01\\08_swim_cycle_07.png",
+                "SwimAttempt_01\\08_swim_cycle_08.png",
+                "SwimAttempt_01\\08_swim_cycle_09.png",
+                "SwimAttempt_01\\08_swim_cycle_10.png",
+                "SwimAttempt_01\\08_swim_cycle_11.png"
+            ]
+        }
+    ],
+    "missingShots": []
+}
