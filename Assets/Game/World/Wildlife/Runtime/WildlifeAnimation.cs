@@ -15,12 +15,12 @@ namespace WeatherHouse.Hillside
         private int target = -1;
         private bool cycle;
 
-        public void Initialize(Animator animator, WildlifeClips source, float phase)
+        public void Initialize(Animator animator, WildlifeClips source, float phase, AnimationClip additionalClip = null)
         {
             Dispose();
             if (animator == null || source == null || source.FirstAvailable == null) return;
             foreach (AnimationClip clip in new[] { source.idle, source.forage, source.walk, source.run,
-                source.greet, source.alert, source.takeoff, source.fly, source.land })
+                source.greet, source.alert, source.takeoff, source.fly, source.land, additionalClip })
                 if (clip != null && !clips.Contains(clip)) clips.Add(clip);
             animator.applyRootMotion = false;
             graph = PlayableGraph.Create("Wildlife " + animator.name);
@@ -71,6 +71,12 @@ namespace WeatherHouse.Hillside
             float length = clips[target].length;
             if (length > 0f && time >= length)
                 playables[target].SetTime(cycle ? time % length : Mathf.Max(0f, length - .001f));
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (!graph.IsValid()) return;
+            if (paused) graph.Stop(); else graph.Play();
         }
 
         public void Dispose()
