@@ -50,7 +50,13 @@ namespace ForestSpriteCharacter
             public int anomalyCount;
             public ContactFrame[] frames;
         }
-        struct Volume { public Vector3 a, b; public float ra, rb; public string name; }
+        struct Volume
+        {
+            public Vector3 a, b, axis, direction;
+            public float ra, rb, length, difference, coneDenominator;
+            public bool singleSphere;
+            public string name, firstName, secondName;
+        }
         struct SampleMarker { }
         static readonly HashSet<ForestSpriteCapeContact> samplers = new HashSet<ForestSpriteCapeContact>();
         readonly List<Volume> volumes = new List<Volume>();
@@ -62,6 +68,8 @@ namespace ForestSpriteCharacter
         Quaternion[] baseRotations, segmentRotations;
         BoneWeight[] weights;
         Matrix4x4[] bindposes, matrices;
+        Transform[] targetBones;
+        int targetsFrame = -1;
         int[] vertexParticles, particleVertices, triangles, correctionCounts;
         float[] lengths;
         GUIStyle markerLabel;
@@ -128,6 +136,8 @@ namespace ForestSpriteCharacter
             if (skin == null) skin = cape.GetComponent<SkinnedMeshRenderer>();
             if (skin == null || skin.sharedMesh == null) return false;
             if (sourceMesh == skin.sharedMesh && offsets != null && offsets.Length == cape.guideNodes.Length) return true;
+            targetsFrame = -1;
+            targetBones = null;
             sourceMesh = skin.sharedMesh;
             restVertices = sourceMesh.vertices; weights = sourceMesh.boneWeights; bindposes = sourceMesh.bindposes;
             triangles = sourceMesh.triangles; targets = new Vector3[restVertices.Length];
@@ -156,9 +166,9 @@ namespace ForestSpriteCharacter
                 if (i % (cape.guideSegments + 1) != 0) lengths[i] = Vector3.Distance(cape.guideRestPoints[i - 1], cape.guideRestPoints[i]);
             return true;
         }
-        void ReadTargets()
+        void ReadTargets(Transform[] bones)
         {
-            var bones = skin.bones;
+            if (matrices.Length != bones.Length) matrices = new Matrix4x4[bones.Length];
             for (int i = 0; i < matrices.Length; i++) matrices[i] = bones[i].localToWorldMatrix * bindposes[i];
             for (int i = 0; i < restVertices.Length; i++)
             {
@@ -166,13 +176,27 @@ namespace ForestSpriteCharacter
                 targets[i] = matrices[w.boneIndex0].MultiplyPoint3x4(v) * w.weight0 + matrices[w.boneIndex1].MultiplyPoint3x4(v) * w.weight1
                     + matrices[w.boneIndex2].MultiplyPoint3x4(v) * w.weight2 + matrices[w.boneIndex3].MultiplyPoint3x4(v) * w.weight3;
             }
+            targetBones = bones;
+            targetsFrame = Time.frameCount;
+        }
+        internal bool TryGetGuideTargets(SkinnedMeshRenderer renderer, out Vector3[] result)
+        {
+            result = null;
+            if (renderer != skin || renderer == null || sourceMesh != renderer.sharedMesh || targetsFrame != Time.frameCount) return false;
+            var bones = renderer.bones;
+            if (targetBones == null || bones.Length != targetBones.Length) return false;
+            for (int i = 0; i < bones.Length; i++)
+                if (bones[i] != targetBones[i] || !(bones[i].localToWorldMatrix * bindposes[i]).Equals(matrices[i])) return false;
+            result = targets;
+            return true;
         }
 
         // Called once after the driver's fresh guide pose, before native cloth begins this frame.
         public void ApplyGuideResponse(float dt)
         {
             if (!Prepare()) return;
-            RefreshVolumes(); ReadTargets(); TargetDepth = MaximumTargetDepth();
+            var bones = skin.bones;
+            RefreshVolumes(); ReadTargets(bones); TargetDepth = MaximumTargetDepth();
             Array.Copy(targets, originalTargets, targets.Length);
             if (!isActiveAndEnabled || !responseEnabled) { ResetResponse(); UnresolvedTargetDepth = TargetDepth; return; }
             for (int i = 0; i < offsets.Length; i++)
@@ -196,7 +220,7 @@ namespace ForestSpriteCharacter
             // A few projection passes handle overlapping body proxies; residuals remain visible if the cap prevents correction.
             for (int pass = 0; pass < 3; pass++)
             {
-                ReadTargets(); Array.Clear(corrections, 0, corrections.Length); Array.Clear(correctionCounts, 0, correctionCounts.Length);
+                ReadTargets(bones); Array.Clear(corrections, 0, corrections.Length); Array.Clear(correctionCounts, 0, correctionCounts.Length);
                 for (int particle = 0; particle < particleVertices.Length; particle++)
                 {
                     int vertex = particleVertices[particle];
@@ -221,7 +245,7 @@ namespace ForestSpriteCharacter
                 }
                 ApplyArcPreservingOffsets();
             }
-            ReadTargets(); UnresolvedTargetDepth = MaximumTargetDepth();
+            ReadTargets(bones); UnresolvedTargetDepth = MaximumTargetDepth();
             MaximumCorrection = MaximumTargetCorrection = MaximumResponseSpeed = GuideArcError = 0;
             foreach (int vertex in particleVertices) MaximumTargetCorrection = Mathf.Max(MaximumTargetCorrection,
                 Vector3.Distance(originalTargets[vertex], targets[vertex]));
@@ -334,14 +358,13 @@ namespace ForestSpriteCharacter
         }
         void RefreshVolumes()
         {
-            volumes.Clear();
+            int index = 0;
             foreach (var pair in cape.cloth.sphereColliders)
             {
                 if (!pair.first) continue;
                 Vector3 a = pair.first.transform.TransformPoint(pair.first.center); float ra = SphereRadius(pair.first);
-                volumes.Add(new Volume { a = a, b = pair.second ? pair.second.transform.TransformPoint(pair.second.center) : a,
-                    ra = ra, rb = pair.second ? SphereRadius(pair.second) : ra,
-                    name = pair.first.name + (pair.second ? " -> " + pair.second.name : "") });
+                SetVolume(index++, a, pair.second ? pair.second.transform.TransformPoint(pair.second.center) : a,
+                    ra, pair.second ? SphereRadius(pair.second) : ra, pair.first.name, pair.second ? pair.second.name : null);
             }
             foreach (var capsule in cape.cloth.capsuleColliders)
             {
@@ -353,8 +376,23 @@ namespace ForestSpriteCharacter
                 Vector3 localAxis = Vector3.zero; localAxis[capsule.direction] = 1;
                 Vector3 axis = capsule.transform.TransformDirection(localAxis).normalized;
                 Vector3 centre = capsule.transform.TransformPoint(capsule.center);
-                volumes.Add(new Volume { a = centre - axis * half, b = centre + axis * half, ra = radius, rb = radius, name = capsule.name });
+                SetVolume(index++, centre - axis * half, centre + axis * half, radius, radius, capsule.name, null);
             }
+            if (index < volumes.Count) volumes.RemoveRange(index, volumes.Count - index);
+        }
+        void SetVolume(int index, Vector3 a, Vector3 b, float ra, float rb, string firstName, string secondName)
+        {
+            string name = index < volumes.Count && volumes[index].firstName == firstName && volumes[index].secondName == secondName
+                ? volumes[index].name : firstName + (secondName == null ? "" : " -> " + secondName);
+            Vector3 axis = b - a;
+            float length = axis.magnitude, difference = rb - ra;
+            bool singleSphere = length <= Mathf.Abs(difference) + .00001f;
+            var volume = new Volume { a = a, b = b, ra = ra, rb = rb, axis = axis, length = length, difference = difference,
+                singleSphere = singleSphere, direction = singleSphere ? Vector3.zero : axis / length,
+                coneDenominator = singleSphere ? 0 : Mathf.Sqrt(length * length - difference * difference),
+                name = name, firstName = firstName, secondName = secondName };
+            if (index < volumes.Count) volumes[index] = volume;
+            else volumes.Add(volume);
         }
         static float SphereRadius(SphereCollider sphere)
         {
@@ -366,19 +404,18 @@ namespace ForestSpriteCharacter
             float maximum = 0; normal = Vector3.zero; colliderName = "";
             foreach (Volume volume in volumes)
             {
-                Vector3 axis = volume.b - volume.a; float length = axis.magnitude, difference = volume.rb - volume.ra;
                 Vector3 centre; float radius;
-                if (length <= Mathf.Abs(difference) + .00001f)
+                if (volume.singleSphere)
                 {
                     bool useB = volume.rb - Vector3.Distance(point, volume.b) > volume.ra - Vector3.Distance(point, volume.a);
                     centre = useB ? volume.b : volume.a; radius = useB ? volume.rb : volume.ra;
                 }
                 else
                 {
-                    float z = Vector3.Dot(point - volume.a, axis / length);
-                    float radial = (point - volume.a - axis * (z / length)).magnitude;
-                    float t = Mathf.Clamp01((z + difference * radial / Mathf.Sqrt(length * length - difference * difference)) / length);
-                    centre = volume.a + axis * t; radius = Mathf.Lerp(volume.ra, volume.rb, t);
+                    float z = Vector3.Dot(point - volume.a, volume.direction);
+                    float radial = (point - volume.a - volume.axis * (z / volume.length)).magnitude;
+                    float t = Mathf.Clamp01((z + volume.difference * radial / volume.coneDenominator) / volume.length);
+                    centre = volume.a + volume.axis * t; radius = Mathf.Lerp(volume.ra, volume.rb, t);
                 }
                 Vector3 delta = point - centre; float distance = delta.magnitude, depth = radius + Mathf.Max(0, margin) - distance;
                 if (depth <= maximum) continue;

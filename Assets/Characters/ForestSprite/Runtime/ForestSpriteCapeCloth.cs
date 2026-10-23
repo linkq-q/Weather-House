@@ -94,6 +94,7 @@ namespace ForestSpriteCharacter
         ForestSpriteDemoController locomotion;
         bool guidePosed;
         SkinnedMeshRenderer guideSkin;
+        Mesh guideSourceMesh;
         Vector3[] guideVertices, guideSkinned;
         BoneWeight[] guideWeights;
         Matrix4x4[] guideBindposes, guideMatrices;
@@ -312,29 +313,39 @@ namespace ForestSpriteCharacter
         void MeasureGuideTargetStretch()
         {
             if (guideEdgeRestLengths == null || guideEdgeRestLengths.Length == 0) return;
-            if (guideSkin == null)
+            if (guideSkin == null) guideSkin = GetComponent<SkinnedMeshRenderer>();
+            if (guideSkin == null || guideSkin.sharedMesh == null) return;
+            Vector3[] skinned;
+            // Contact already skins this exact final guide pose; keep its solver passes unchanged.
+            if (Contact == null || !Contact.TryGetGuideTargets(guideSkin, out skinned))
             {
-                guideSkin = GetComponent<SkinnedMeshRenderer>();
-                guideVertices = guideSkin.sharedMesh.vertices;
-                guideWeights = guideSkin.sharedMesh.boneWeights;
-                guideBindposes = guideSkin.sharedMesh.bindposes;
-                guideMatrices = new Matrix4x4[guideSkin.bones.Length];
-                guideSkinned = new Vector3[guideVertices.Length];
+                if (guideSourceMesh != guideSkin.sharedMesh)
+                {
+                    guideSourceMesh = guideSkin.sharedMesh;
+                    guideVertices = guideSourceMesh.vertices;
+                    guideWeights = guideSourceMesh.boneWeights;
+                    guideBindposes = guideSourceMesh.bindposes;
+                    guideSkinned = new Vector3[guideVertices.Length];
+                }
+                var bones = guideSkin.bones;
+                if (guideMatrices == null || guideMatrices.Length != bones.Length) guideMatrices = new Matrix4x4[bones.Length];
+                for (int i = 0; i < guideMatrices.Length; i++)
+                    guideMatrices[i] = bones[i].localToWorldMatrix * guideBindposes[i];
+                for (int i = 0; i < guideVertices.Length; i++)
+                {
+                    var w = guideWeights[i]; var v = guideVertices[i];
+                    guideSkinned[i] = guideMatrices[w.boneIndex0].MultiplyPoint3x4(v) * w.weight0
+                        + guideMatrices[w.boneIndex1].MultiplyPoint3x4(v) * w.weight1
+                        + guideMatrices[w.boneIndex2].MultiplyPoint3x4(v) * w.weight2
+                        + guideMatrices[w.boneIndex3].MultiplyPoint3x4(v) * w.weight3;
+                }
+                skinned = guideSkinned;
+            }
+            if (guideEdgeRatios == null || guideEdgeRatios.Length != guideEdgeRestLengths.Length)
                 guideEdgeRatios = new float[guideEdgeRestLengths.Length];
-            }
-            for (int i = 0; i < guideMatrices.Length; i++)
-                guideMatrices[i] = guideSkin.bones[i].localToWorldMatrix * guideBindposes[i];
-            for (int i = 0; i < guideVertices.Length; i++)
-            {
-                var w = guideWeights[i]; var v = guideVertices[i];
-                guideSkinned[i] = guideMatrices[w.boneIndex0].MultiplyPoint3x4(v) * w.weight0
-                    + guideMatrices[w.boneIndex1].MultiplyPoint3x4(v) * w.weight1
-                    + guideMatrices[w.boneIndex2].MultiplyPoint3x4(v) * w.weight2
-                    + guideMatrices[w.boneIndex3].MultiplyPoint3x4(v) * w.weight3;
-            }
             for (int i = 0; i < guideEdgeRatios.Length; i++)
-                guideEdgeRatios[i] = Vector3.Distance(guideSkinned[guideEdgeVertices[i * 2]],
-                    guideSkinned[guideEdgeVertices[i * 2 + 1]]) / guideEdgeRestLengths[i];
+                guideEdgeRatios[i] = Vector3.Distance(skinned[guideEdgeVertices[i * 2]],
+                    skinned[guideEdgeVertices[i * 2 + 1]]) / guideEdgeRestLengths[i];
             Array.Sort(guideEdgeRatios);
             GuideTargetStretchP95 = guideEdgeRatios[Mathf.FloorToInt((guideEdgeRatios.Length - 1) * .95f)];
             GuideTargetStretchMaximum = guideEdgeRatios[guideEdgeRatios.Length - 1];
