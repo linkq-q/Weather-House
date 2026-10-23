@@ -197,6 +197,15 @@ namespace WeatherHouse.WildlifeJourney
             public Edge edge;
         }
 
+        // Validate this exact surface-sampled line without requiring or searching the connectivity graph.
+        public JourneyRoute TraceDirectRoute(Vector3 start, Vector3 goal, JourneyProfile profile, float initialSwimDistance = 0f)
+        {
+            if (!Finite(start) || !Finite(goal) || !Finite(initialSwimDistance) || initialSwimDistance < 0 ||
+                profile == null || profile.walkSpeed <= 0) return null;
+            Edge edge = Trace(start, goal, profile, -1, 0, initialSwimDistance);
+            return edge == null ? null : new JourneyRoute { segments = edge.segments, totalCost = edge.cost, navigationVersion = Version };
+        }
+
         // Graph links describe candidate connectivity. Their actual geometry is checked on every search.
         public JourneyRoute FindRoute(Vector3 start, Vector3 goal, JourneyProfile profile, ISet<int> blockedLinks = null, float initialSwimDistance = 0f)
         {

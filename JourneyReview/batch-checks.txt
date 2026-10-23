@@ -1,4 +1,4 @@
-PASS 2026-10-23T18:18:58.5332000Z
+PASS 2026-10-23T18:27:53.1726702Z
 PASS deterministic scatter, varying seeds and independent global random stream
 PASS requested counts, plane, outer boundary and minimum pair spacing
 PASS filled, uneven herd outline
@@ -17,6 +17,7 @@ PASS replanning preserves spent swimming distance until a safe shallow or dry su
 PASS individual body waterlines, shallow-bottom support and inherited default
 PASS obstacle-corner start and goal connectors retain both verified legs
 PASS bent start and goal connectors preserve the entire continuous swimming budget
+PASS graph-independent direct surface validation shares geometry, costs and swimming limits without detours
 PASS authoritative world-water boundary and height with standalone and injected fallbacks
 PASS adjacent body circles have a deterministic short exterior path without penetration
 PASS occupied goals and terrain-blocked paths are rejected

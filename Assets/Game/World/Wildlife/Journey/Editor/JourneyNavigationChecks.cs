@@ -186,6 +186,48 @@ namespace WeatherHouse.WildlifeJourney.Editor
                     "The reversed bent goal connector lost swimming distance accumulated before reaching the exit.");
                 results.Add("PASS bent start and goal connectors preserve the entire continuous swimming budget");
 
+                nav.surfaceSampler = River;
+                nav.nodes = null; nav.links = null;
+                swimmer.maxSwimDistance = 4; swimmer.waterAversion = 0;
+                JourneyRoute direct = nav.TraceDirectRoute(start, goal, swimmer);
+                Require(direct != null && Has(direct, JourneyTravelMode.Swim) && direct.segments.Count > 8 &&
+                    direct.totalCost > 0 && direct.navigationVersion == nav.Version &&
+                    direct.segments.TrueForAll(s => s.linkIndex == -1 && Mathf.Abs(s.from.z) < .001f && Mathf.Abs(s.to.z) < .001f),
+                    "Direct surface validation requires a graph, loses its metadata, or bends away from the requested line.");
+                Require(nav.TraceDirectRoute(start, goal, dry) == null, "Direct validation let a non-swimmer cross deep water.");
+                swimmer.maxSwimDistance = 1.6f;
+                Require(nav.TraceDirectRoute(start, goal, swimmer) == null, "Direct validation exceeded the continuous swimming budget.");
+                swimmer.maxSwimDistance = 4;
+                nav.surfaceSampler = p => { JourneySurface s = River(p); if (p.x >= 2f) s.groundY = 2f; return s; };
+                Require(nav.TraceDirectRoute(start, goal, swimmer) == null, "Direct validation climbed an unsafe high bank.");
+                nav.surfaceSampler = River;
+                nav.nodes = new[] { Node(-4, 0), Node(4, 0) }; nav.links = new[] { Link(0, 1) };
+                JourneyRoute graphLine = nav.FindRoute(start, goal, swimmer);
+                Require(graphLine != null && graphLine.segments.Count == direct.segments.Count &&
+                    Mathf.Abs(graphLine.totalCost - direct.totalCost) < .0001f, "Direct and graph validation disagree on the same straight crossing.");
+                for (int i = 0; i < direct.segments.Count; i++)
+                {
+                    JourneySegment a = direct.segments[i], b = graphLine.segments[i];
+                    Require(a.mode == b.mode && a.bridgeId == b.bridgeId && Vector3.Distance(a.from, b.from) < .0001f &&
+                        Vector3.Distance(a.to, b.to) < .0001f, "Direct validation changed a projected surface segment.");
+                }
+                nav.nodes = new[] { Node(-4, 0), Node(4, 0), Node(-4, 4), Node(4, 4) };
+                nav.links = new[] { Link(0, 2), Link(2, 3, 7), Link(3, 1) };
+                Require(nav.FindRoute(start, goal, dry) != null && nav.TraceDirectRoute(start, goal, dry) == null,
+                    "Direct validation silently took an available graph bridge detour.");
+                swimmer.maxSwimDistance = 2;
+                Require(nav.TraceDirectRoute(midstream, goal, swimmer, .4f) != null &&
+                    nav.TraceDirectRoute(midstream, goal, swimmer, 1.2f) == null &&
+                    nav.TraceDirectRoute(goal, goal + new Vector3(1, 0, 0), swimmer, 100f) != null,
+                    "Direct validation lost spent swimming distance or retained it after reaching dry land.");
+                Require(nav.TraceDirectRoute(new Vector3(float.NaN, 0, 0), goal, swimmer) == null &&
+                    nav.TraceDirectRoute(start, goal, swimmer, -1f) == null &&
+                    nav.TraceDirectRoute(start, goal, swimmer, float.PositiveInfinity) == null &&
+                    nav.TraceDirectRoute(start, goal, null) == null &&
+                    nav.TraceDirectRoute(start, goal, new JourneyProfile { walkSpeed = 0 }) == null,
+                    "Direct validation accepts inputs rejected by route search.");
+                results.Add("PASS graph-independent direct surface validation shares geometry, costs and swimming limits without detours");
+
                 nav.surfaceSampler = null;
                 nav.waterAreas = new[] { new JourneyWaterArea { surfaceHeight = 9,
                     bounds = new Bounds(Vector3.zero, new Vector3(20, 20, 20)) } };
