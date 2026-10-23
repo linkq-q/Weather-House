@@ -10,7 +10,6 @@ namespace WeatherHouse.Vegetation
         [Range(256, 1536)] public int resolution = 1024;
         [Range(0.25f, 1f)] public float resolutionScale = 0.5f;
         [Min(1f)] public float maxReflectionDistance = 120f;
-        [Range(1f, 60f)] public float updateRate = 15f;
         [Min(0.001f)] public float clipOffset = 0.04f;
         public LayerMask reflectionLayers = ~(1 << 4);
 
@@ -19,11 +18,7 @@ namespace WeatherHouse.Vegetation
         RenderTexture reflectionTexture;
         Renderer waterRenderer;
         MaterialPropertyBlock properties;
-        Camera capturedSource;
-        Vector3 capturedPosition;
-        Quaternion capturedRotation;
-        Matrix4x4 capturedProjection, capturedViewProjection;
-        double nextCaptureTime;
+        Matrix4x4 capturedViewProjection;
         bool hasCapture;
         readonly Plane[] cameraFrustum = new Plane[6];
         static readonly int ReflectionTextureId = Shader.PropertyToID("_PlanarReflectionTex");
@@ -53,7 +48,6 @@ namespace WeatherHouse.Vegetation
             if (reflectionCamera) Dispose(reflectionCamera.gameObject);
             reflectionTexture = null;
             reflectionCamera = null;
-            capturedSource = null;
             hasCapture = false;
         }
 
@@ -111,13 +105,8 @@ namespace WeatherHouse.Vegetation
                 reflectionTexture.Create();
             }
 
-            double now = Time.realtimeSinceStartupAsDouble;
-            bool throttled = Application.isPlaying && source.cameraType == CameraType.Game && source == Camera.main;
-            bool cameraChanged = capturedSource != source || (source.transform.position - capturedPosition).sqrMagnitude > 1f ||
-                Quaternion.Angle(source.transform.rotation, capturedRotation) > 8f || source.projectionMatrix != capturedProjection;
-            // One texture is shared by views: switching cameras must capture before binding it.
-            if (!hasCapture || !throttled || cameraChanged || now >= nextCaptureTime)
-                CaptureReflection(context, source, now);
+            // Camera motion alone cannot detect moving characters or animation in the reflection.
+            CaptureReflection(context, source);
 
             waterRenderer.GetPropertyBlock(properties);
             properties.SetTexture(ReflectionTextureId, reflectionTexture);
@@ -127,7 +116,7 @@ namespace WeatherHouse.Vegetation
             waterRenderer.SetPropertyBlock(properties);
         }
 
-        void CaptureReflection(ScriptableRenderContext context, Camera source, double now)
+        void CaptureReflection(ScriptableRenderContext context, Camera source)
         {
             hasCapture = false;
             reflectionCamera.CopyFrom(source);
@@ -189,11 +178,6 @@ namespace WeatherHouse.Vegetation
             textureBias.m13 = 0.5f;
             capturedViewProjection = textureBias * GL.GetGPUProjectionMatrix(reflectionCamera.projectionMatrix, true)
                 * reflectionCamera.worldToCameraMatrix;
-            capturedSource = source;
-            capturedPosition = source.transform.position;
-            capturedRotation = source.transform.rotation;
-            capturedProjection = source.projectionMatrix;
-            nextCaptureTime = now + 1.0 / Mathf.Max(1f, updateRate);
             hasCapture = true;
         }
 
