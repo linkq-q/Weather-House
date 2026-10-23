@@ -1,0 +1,270 @@
+{
+    "utc": "2026-10-23T11:19:47.0955434Z",
+    "status": "aborted_domain_reload",
+    "error": "Script domain reloaded during measurement; partial run retained.",
+    "runPath": "HillsidePerformanceReview/20261023T111915254Z",
+    "currentStage": "wildlife_off",
+    "leftFootPath": "ForestSpriteVisual/ForestSpriteRig/Root/Hips/UpperLeg.L/LowerLeg.L/Foot.L",
+    "rightFootPath": "ForestSpriteVisual/ForestSpriteRig/Root/Hips/UpperLeg.R/LowerLeg.R/Foot.R",
+    "leftLegPath": "ForestSpriteVisual/ForestSpriteRig/Root/Hips/UpperLeg.L",
+    "rightLegPath": "ForestSpriteVisual/ForestSpriteRig/Root/Hips/UpperLeg.R",
+    "evidence": "Unity Editor Play, foreground Game view required; CPU/GC recorder unavailable values are -1. Frame time and Main Thread include Editor overhead/waits; no player build or GPU timing. Editor update observes distinct Time.frameCount values and may miss frames; frameGap/sampleCoverage expose this. Cold start begins at EnteredPlayMode and excludes domain reload/asset import. Grass uses manualCaptureOnly to preserve caches: grassCells counts cached cells; grassClumps is zero while suppressed. Gait run moves the player and is separate from stationary comparisons. AI progresses between stages; baseline_repeat checks drift.",
+    "stages": [
+        {
+            "stage": "cold_start",
+            "samples": 41,
+            "firstFrame": 1,
+            "lastFrame": 41,
+            "observedFrameSpan": 41,
+            "focusedSamples": 41,
+            "sampleCoverage": 1.0,
+            "focusedFraction": 1.0,
+            "frameMs": {
+                "median": 152.15210616588593,
+                "p95": 549.4716167449951,
+                "max": 3348.968982696533,
+                "validSamples": 41
+            },
+            "mainThreadMs": {
+                "median": 132.3433,
+                "p95": 533.2902,
+                "max": 648.8165,
+                "validSamples": 41
+            },
+            "renderThreadMs": {
+                "median": -1.0,
+                "p95": -1.0,
+                "max": -1.0,
+                "validSamples": 0
+            },
+            "gcBytes": {
+                "median": 636285.0,
+                "p95": 2729004.0,
+                "max": 4718741.0,
+                "validSamples": 41
+            },
+            "drawCalls": {
+                "median": 4118.0,
+                "p95": 4118.0,
+                "max": 4327.0,
+                "validSamples": 41
+            },
+            "batches": {
+                "median": 4118.0,
+                "p95": 4118.0,
+                "max": 4327.0,
+                "validSamples": 41
+            },
+            "triangles": {
+                "median": 91252271.0,
+                "p95": 91252271.0,
+                "max": 91256983.0,
+                "validSamples": 41
+            },
+            "grassCells": {
+                "median": 42.0,
+                "p95": 78.0,
+                "max": 82.0,
+                "validSamples": 41
+            },
+            "grassClumps": {
+                "median": 110336.0,
+                "p95": 110336.0,
+                "max": 110336.0,
+                "validSamples": 41
+            }
+        },
+        {
+            "stage": "baseline",
+            "samples": 110,
+            "firstFrame": 70,
+            "lastFrame": 179,
+            "observedFrameSpan": 110,
+            "focusedSamples": 110,
+            "sampleCoverage": 1.0,
+            "focusedFraction": 1.0,
+            "frameMs": {
+                "median": 36.354249343276027,
+                "p95": 44.035886228084567,
+                "max": 52.988000214099887,
+                "validSamples": 110
+            },
+            "mainThreadMs": {
+                "median": 36.30985,
+                "p95": 44.23280999999999,
+                "max": 53.3949,
+                "validSamples": 110
+            },
+            "renderThreadMs": {
+                "median": -1.0,
+                "p95": -1.0,
+                "max": -1.0,
+                "validSamples": 0
+            },
+            "gcBytes": {
+                "median": 42807.5,
+                "p95": 98404.74999999999,
+                "max": 121221.0,
+                "validSamples": 110
+            },
+            "drawCalls": {
+                "median": 4123.0,
+                "p95": 4126.55,
+                "max": 4128.0,
+                "validSamples": 110
+            },
+            "batches": {
+                "median": 4123.0,
+                "p95": 4126.55,
+                "max": 4128.0,
+                "validSamples": 110
+            },
+            "triangles": {
+                "median": 91325429.0,
+                "p95": 91344277.55,
+                "max": 91344279.0,
+                "validSamples": 110
+            },
+            "grassCells": {
+                "median": 170.0,
+                "p95": 170.0,
+                "max": 170.0,
+                "validSamples": 110
+            },
+            "grassClumps": {
+                "median": 110336.0,
+                "p95": 110336.0,
+                "max": 110336.0,
+                "validSamples": 110
+            }
+        },
+        {
+            "stage": "grass_off",
+            "samples": 194,
+            "firstFrame": 282,
+            "lastFrame": 475,
+            "observedFrameSpan": 194,
+            "focusedSamples": 194,
+            "sampleCoverage": 1.0,
+            "focusedFraction": 1.0,
+            "frameMs": {
+                "median": 20.6173500046134,
+                "p95": 23.22712978348136,
+                "max": 24.123800918459894,
+                "validSamples": 194
+            },
+            "mainThreadMs": {
+                "median": 20.64665,
+                "p95": 23.049335,
+                "max": 25.0216,
+                "validSamples": 194
+            },
+            "renderThreadMs": {
+                "median": -1.0,
+                "p95": -1.0,
+                "max": -1.0,
+                "validSamples": 0
+            },
+            "gcBytes": {
+                "median": 40615.0,
+                "p95": 59477.0,
+                "max": 69702.0,
+                "validSamples": 194
+            },
+            "drawCalls": {
+                "median": 2089.0,
+                "p95": 2089.0,
+                "max": 2089.0,
+                "validSamples": 194
+            },
+            "batches": {
+                "median": 2089.0,
+                "p95": 2089.0,
+                "max": 2089.0,
+                "validSamples": 194
+            },
+            "triangles": {
+                "median": 3030202.0,
+                "p95": 3030202.0,
+                "max": 3030202.0,
+                "validSamples": 194
+            },
+            "grassCells": {
+                "median": 170.0,
+                "p95": 170.0,
+                "max": 170.0,
+                "validSamples": 194
+            },
+            "grassClumps": {
+                "median": 0.0,
+                "p95": 0.0,
+                "max": 0.0,
+                "validSamples": 194
+            }
+        },
+        {
+            "stage": "wildlife_off",
+            "samples": 79,
+            "firstFrame": 508,
+            "lastFrame": 586,
+            "observedFrameSpan": 79,
+            "focusedSamples": 79,
+            "sampleCoverage": 1.0,
+            "focusedFraction": 1.0,
+            "frameMs": {
+                "median": 37.323299795389178,
+                "p95": 48.509260267019268,
+                "max": 54.715000092983249,
+                "validSamples": 79
+            },
+            "mainThreadMs": {
+                "median": 37.4063,
+                "p95": 48.564519999999998,
+                "max": 54.701699999999998,
+                "validSamples": 79
+            },
+            "renderThreadMs": {
+                "median": -1.0,
+                "p95": -1.0,
+                "max": -1.0,
+                "validSamples": 0
+            },
+            "gcBytes": {
+                "median": 43968.0,
+                "p95": 61992.4999999998,
+                "max": 653258.0,
+                "validSamples": 79
+            },
+            "drawCalls": {
+                "median": 3831.0,
+                "p95": 3833.0,
+                "max": 3833.0,
+                "validSamples": 79
+            },
+            "batches": {
+                "median": 3831.0,
+                "p95": 3833.0,
+                "max": 3833.0,
+                "validSamples": 79
+            },
+            "triangles": {
+                "median": 89720871.0,
+                "p95": 89720873.0,
+                "max": 89720873.0,
+                "validSamples": 79
+            },
+            "grassCells": {
+                "median": 170.0,
+                "p95": 170.0,
+                "max": 170.0,
+                "validSamples": 79
+            },
+            "grassClumps": {
+                "median": 110336.0,
+                "p95": 110336.0,
+                "max": 110336.0,
+                "validSamples": 79
+            }
+        }
+    ]
+}
