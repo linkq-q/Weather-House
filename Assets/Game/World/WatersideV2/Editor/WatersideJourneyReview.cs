@@ -30,6 +30,10 @@ namespace WeatherHouse.WatersideV2.Editor
         static float departureTime;
         static readonly HashSet<int> bridgeUsers = new HashSet<int>(), queuedMembers = new HashSet<int>();
         static readonly HashSet<int> observedBridges = new HashSet<int>();
+        static readonly Dictionary<string, float> mixedMargins = new Dictionary<string, float>();
+        static int mixedSamples, initialMixedOverlaps, newMixedOverlaps;
+        static float minimumMixedMargin, finalMixedMargin;
+        static string minimumMixedPair, finalMixedPair;
         static bool Running => SessionState.GetBool(Key + "running", false);
 
         static WatersideJourneyReview()
@@ -207,6 +211,9 @@ namespace WeatherHouse.WatersideV2.Editor
                 started = EditorApplication.timeSinceStartup; nextTrace = 0;
                 herd = null; initialized = departed = travelShot = bridgeShot = queueShot = false;
                 departureSite = -1; bridgeUsers.Clear(); queuedMembers.Clear(); observedBridges.Clear();
+                mixedMargins.Clear(); mixedSamples = initialMixedOverlaps = newMixedOverlaps = 0;
+                minimumMixedMargin = finalMixedMargin = float.PositiveInfinity;
+                minimumMixedPair = finalMixedPair = "none";
                 Application.runInBackground = true; EditorApplication.isPaused = false;
             }
             if (state == PlayModeStateChange.ExitingPlayMode && SessionState.GetBool(Key + "settings", false))
@@ -249,6 +256,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 throw new InvalidOperationException("All ten original herd members must remain active with their animators throughout the journey.");
             if (wall > 390 || herd.SimulationTime > SimulationLimit)
                 throw new TimeoutException("Natural rendezvous did not finish within 360 simulation seconds / 390 wall seconds. " + Summary());
+            ObserveMixedBodies();
             if (!departed && herd.Travelling)
             {
                 departed = true; departureSite = herd.TargetSite; departureTime = herd.SimulationTime;
@@ -287,10 +295,43 @@ namespace WeatherHouse.WatersideV2.Editor
                 if (herd.members.Any(m => !(Flat(m.root.position, destination.center) <= destination.radius + .25f)))
                     throw new InvalidOperationException("Arrived flags do not match all ten actual positions inside the destination clearing. " + Summary());
                 Trace(wall); Capture("herd-04_十只原速会合", MemberBounds());
+                string spacing = "Mixed body footprint samples=" + mixedSamples + "; initial overlaps=" + initialMixedOverlaps +
+                    "; new overlap entries=" + newMixedOverlaps + "; minimum physical gap=" + minimumMixedMargin.ToString("F4") +
+                    "m pair=" + minimumMixedPair + "; final minimum physical gap=" + finalMixedMargin.ToString("F4") + "m pair=" + finalMixedPair +
+                    ". Samples are every editor observation (~0.2s), not every rendered frame; radii are controller footprints, not exact animated mesh outlines.";
+                Append(spacing + "\n");
+                if (newMixedOverlaps > 0) throw new InvalidOperationException("New mixed-controller body overlap was observed. " + spacing);
                 Finish("PASS", "A natural journey completed through real Update; all 10 active members arrived. " + Summary() +
                     "\nBridge users=" + string.Join(",", bridgeUsers.OrderBy(x => x)) + "; queued members=" + string.Join(",", queuedMembers.OrderBy(x => x)) +
-                    "; actual map bridges=" + string.Join(",", observedBridges.OrderBy(x => x).Select(id => WatersideLayout.Crossings[id - 1].Name)));
+                    "; actual map bridges=" + string.Join(",", observedBridges.OrderBy(x => x).Select(id => WatersideLayout.Crossings[id - 1].Name)) + "\n" + spacing);
             }
+        }
+
+        static void ObserveMixedBodies()
+        {
+            var population = herd.surroundingPopulation;
+            if (!population || !population.isActiveAndEnabled || population.agents == null)
+                throw new InvalidOperationException("The Journey herd is not linked to the active original animal population.");
+            finalMixedMargin = float.PositiveInfinity; finalMixedPair = "none";
+            foreach (var member in herd.members)
+                foreach (var other in population.agents)
+                {
+                    if (!other || !other.isActiveAndEnabled || other.transform == member.root || member.Mode == JourneyTravelMode.Swim ||
+                        Mathf.Abs(other.transform.position.y - member.root.position.y) > .65f ||
+                        !(other.locomotion == WildlifeLocomotion.Ground || other.locomotion == WildlifeLocomotion.Flying && other.AirHeight < .01f)) continue;
+                    string pair = "sheep " + member.id + "/" + other.speciesId + " " + other.spawnId + "#" + other.GetInstanceID();
+                    float gap = Flat(member.root.position, other.transform.position) - Mathf.Max(member.profile.bodyRadius, member.bodyLength * .5f) - other.Radius;
+                    bool known = mixedMargins.TryGetValue(pair, out float previous);
+                    if (gap < -.0001f && (!known || previous >= -.0001f))
+                    {
+                        if (mixedSamples == 0) initialMixedOverlaps++;
+                        else { newMixedOverlaps++; Append("NEW MIXED OVERLAP " + pair + " gap=" + gap.ToString("F6") + " simulation=" + herd.SimulationTime + "\n"); }
+                    }
+                    mixedMargins[pair] = gap;
+                    if (gap < minimumMixedMargin) { minimumMixedMargin = gap; minimumMixedPair = pair; }
+                    if (gap < finalMixedMargin) { finalMixedMargin = gap; finalMixedPair = pair; }
+                }
+            mixedSamples++;
         }
 
         static void ValidateMap()
