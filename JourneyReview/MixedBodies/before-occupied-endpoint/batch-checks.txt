@@ -1,0 +1,6 @@
+FAIL 2026-10-23T19:37:43.1558384Z
+System.InvalidOperationException: BeginJourney selected a destination already occupied by a resting legacy animal: goal=(5.62, 0.00, -0.50); old=(5.62, 0.00, -0.50)
+  at WeatherHouse.WildlifeJourney.Editor.JourneyExternalBodiesChecks.CheckOccupiedDestination (System.Boolean afterDeparture) [0x000fb] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\World\Wildlife\Journey\Editor\JourneyExternalBodiesChecks.cs:223
+  at WeatherHouse.WildlifeJourney.Editor.JourneyExternalBodiesChecks.RunLogicChecks () [0x00012] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\World\Wildlife\Journey\Editor\JourneyExternalBodiesChecks.cs:23
+  at WeatherHouse.WildlifeJourney.Editor.JourneyLabBuilder.RunBatchChecks (System.String reportPath) [0x000af] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\World\Wildlife\Journey\Editor\JourneyLabBuilder.cs:357
+  at WeatherHouse.WildlifeJourney.Editor.JourneyLabBuilder.BatchBuildAndCheck () [0x0007c] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\World\Wildlife\Journey\Editor\JourneyLabBuilder.cs:327

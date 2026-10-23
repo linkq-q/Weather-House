@@ -52,7 +52,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
         [Serializable]
         private sealed class ReviewState
         {
-            public string status = "RUNNING", error = "", output, startedUtc, finishedUtc, renderPipeline;
+            public string status = "RUNNING", error = "", output, startedUtc, finishedUtc, renderPipeline, mixedBodyLifecycle;
             public bool initialized, journeyStarted, reunited, returnStarted, returnReunited;
             public float journeyStartedAt, reunionAt, returnStartedAt, returnReunionAt, lastTraceAt = -1f, simulationTime;
             public int frames, animatedBonesChanged, completedJourneys, recordedTurns;
@@ -188,6 +188,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
         private static void SetupRuntime()
         {
             RequireIsolatedProject();
+            state.mixedBodyLifecycle = JourneyExternalBodiesChecks.RunPlayLifecycleCheck();
             herd = Object.FindObjectOfType<JourneyHerd>();
             social = Object.FindObjectOfType<JourneySocial>();
             camera = social && social.viewCamera ? social.viewCamera : Camera.main;

@@ -31,10 +31,72 @@ namespace WeatherHouse.Hillside
         private readonly List<WildlifeAgent> neighbours = new List<WildlifeAgent>(MaxNeighbours);
         private readonly RaycastHit[] obstacleHits = new RaycastHit[24];
         private readonly Collider[] overlapHits = new Collider[24];
+        private readonly List<ExternalBody> externalBodies = new List<ExternalBody>();
         private float decisionClock, nextAmbientAlarm;
         private Vector3 previousPlayerPosition;
 
         private sealed class Group { public Vector3 center; public int count; }
+        private struct ExternalBody { public UnityEngine.Object owner; public Transform root; public float radius; public bool grounded; }
+
+        // Bodies driven by another controller share physical space without joining this population's decisions or animation.
+        public void RegisterExternalBody(UnityEngine.Object owner, Transform bodyRoot, float radius, bool grounded = true)
+        {
+            if (!owner || !bodyRoot) return;
+            if (float.IsNaN(radius) || float.IsInfinity(radius)) throw new ArgumentOutOfRangeException(nameof(radius));
+            var body = new ExternalBody { owner = owner, root = bodyRoot, radius = Mathf.Max(.05f, radius), grounded = grounded };
+            for (int i = 0; i < externalBodies.Count; i++)
+                if (externalBodies[i].root == bodyRoot) { externalBodies[i] = body; return; }
+            externalBodies.Add(body);
+        }
+
+        public void UnregisterExternalBodies(UnityEngine.Object owner)
+        {
+            for (int i = externalBodies.Count - 1; i >= 0; i--)
+                if (!externalBodies[i].owner || !externalBodies[i].root || externalBodies[i].owner == owner) externalBodies.RemoveAt(i);
+        }
+
+        public Vector3 ExternalSeparation(WildlifeAgent agent)
+        {
+            if (!agent) return Vector3.zero;
+            Vector3 result = Vector3.zero, position = agent.transform.position;
+            for (int i = externalBodies.Count - 1; i >= 0; i--)
+            {
+                if (!TryExternalBody(i, agent, position, out ExternalBody body)) continue;
+                Vector3 away = position - body.root.position; away.y = 0;
+                float distance = away.magnitude, spacing = agent.Radius + body.radius + .45f;
+                if (distance >= spacing) continue;
+                // A coincident placement still needs a stable direction in which to separate.
+                Vector3 direction = distance > .001f ? away / distance :
+                    new Vector3(Mathf.Cos(agent.spawnId * 2.399963f), 0, Mathf.Sin(agent.spawnId * 2.399963f));
+                result += direction * (1 - distance / spacing);
+            }
+            return result;
+        }
+
+        private bool ExternalBodiesAllowMove(WildlifeAgent agent, Vector3 from, Vector3 to)
+        {
+            for (int i = externalBodies.Count - 1; i >= 0; i--)
+            {
+                if (!TryExternalBody(i, agent, to, out ExternalBody body)) continue;
+                Vector3 before = from - body.root.position, after = to - body.root.position;
+                before.y = after.y = 0;
+                float distance = after.magnitude, room = agent.Radius + body.radius + .12f;
+                // Preserve the same escape rule as the other controller: an existing overlap may separate, never deepen.
+                if (distance < room && distance < before.magnitude + .00001f) return false;
+            }
+            return true;
+        }
+
+        private bool TryExternalBody(int index, WildlifeAgent agent, Vector3 position, out ExternalBody body)
+        {
+            body = externalBodies[index];
+            if (!body.owner || !body.root) { externalBodies.RemoveAt(index); return false; }
+            if (body.owner is Behaviour behaviour && !behaviour.isActiveAndEnabled) return false;
+            bool groundedAgent = agent.locomotion == WildlifeLocomotion.Ground ||
+                (agent.locomotion == WildlifeLocomotion.Flying && agent.AirHeight < .01f);
+            return body.grounded && groundedAgent && body.root != agent.transform && body.root.gameObject.activeInHierarchy &&
+                Mathf.Abs(body.root.position.y - position.y) <= .65f;
+        }
 
         private void Start() { Initialize(); }
 
@@ -239,6 +301,7 @@ namespace WeatherHouse.Hillside
             {
                 if (!TryProjectPosition(agent, Vector3.Lerp(origin, requested, (float)i / steps), out Vector3 sample)) return false;
                 if (agent.locomotion == WildlifeLocomotion.Ground && Mathf.Abs(sample.y - previous.y) > .45f) return false;
+                if (!ExternalBodiesAllowMove(agent, previous, sample)) return false;
                 previous = sample;
             }
             projected = previous;

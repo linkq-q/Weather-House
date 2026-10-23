@@ -1,4 +1,4 @@
-PASS 2026-10-23T19:06:36.6117829Z
+PASS 2026-10-23T19:41:18.3619993Z
 PASS deterministic scatter, varying seeds and independent global random stream
 PASS requested counts, plane, outer boundary and minimum pair spacing
 PASS filled, uneven herd outline
@@ -19,6 +19,7 @@ PASS obstacle-corner start and goal connectors retain both verified legs
 PASS bent start and goal connectors preserve the entire continuous swimming budget
 PASS graph-independent direct surface validation shares geometry, costs and swimming limits without detours
 PASS optional step constraints validate every surface mode and bridge identity including the start
+PASS lazy real-collider bridge mapping, replacement, rebuild edits and disabled/destroyed decks
 PASS real TerrainCollider thin-triangle rejection and safe-line movement agree with route planning
 PASS authoritative world-water boundary and height with standalone and injected fallbacks
 PASS adjacent body circles have a deterministic short exterior path without penetration
@@ -50,6 +51,15 @@ PASS a nearby corner remains active until the next leg is reachable, then the me
 PASS a newly blocked next leg enters replanning after reaching its corner and arrives after reopening; time=4.960s, distance=1.647m, longestStop=0.480s, largestStep=0.012m, routeChanges=1
 PASS real traced Swim-to-bank-to-Swim transitions physically rest, reset and resume before arrival; time=2.620s, maximumContinuousSwim=0.954m, routeChanges=0
 PASS .10 m final Swim-to-Walk and Bridge-to-Walk segments physically land before arrival; Swim=0.280s, Bridge=0.280s
+PASS legacy Simulate applies soft avoidance; full-segment hard spacing and outward-only contact escape hold
+PASS journey routes around a stationary legacy animal: arrives in 9.30s, walks 8.73m, lateral deviation 1.14m
+PASS both controllers ignore another altitude: arrives in 8.10s, walks 7.85m, lateral deviation 0.00m
+PASS parent discovery, idempotent registration, disabled-owner filtering, resumed simulation, member activity and stale-owner/unregister cleanup
+PASS journey contact escapes by real simulation; legacy inactive/reactivated/destroyed bodies update immediately
+PASS grounded updates, airborne/landed birds and both swimming controllers respect movement medium
+PASS occupied arrival candidate is replaced with a free destination in the same site; arrives in 9.35s after 7.07m
+PASS destination occupied after departure is replaced with a free destination in the same site; arrives in 11.20s after 8.83m
+PASS real Swim-to-Walk landing respects occupied ground, resumes after clearance and tests the prospective support height
 PASS 6 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners.
 PASS saved scene: ten independent sheep, real rig bindings, real deck and river colliders, unsafe-bank rejection and 300-second whole-herd reunion
 INFO sheep 01 rendered metres width=0.609 height=0.894 length=1.051 footOffset=0.000; configured bodyLength=1.176 width=0.483 waterline=0.462

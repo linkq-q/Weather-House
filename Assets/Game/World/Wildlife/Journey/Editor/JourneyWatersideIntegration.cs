@@ -47,7 +47,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 Physics.SyncTransforms();
 
                 var herd = root.AddComponent<JourneyHerd>();
-                herd.navigation = navigation; herd.seed = population.worldSeed;
+                herd.navigation = navigation; herd.seed = population.worldSeed; herd.surroundingPopulation = population;
                 // This corridor spans the real map, so its travel deadline is longer than the compact lab's.
                 herd.rendezvousTimeout = 360; herd.minimumStay = 24; herd.autoAdvance = true;
                 herd.sites = new[] {

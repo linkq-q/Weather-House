@@ -73,7 +73,7 @@ namespace WeatherHouse.Hillside
 
         internal void Think(float now, List<WildlifeAgent> neighbours)
         {
-            separation = Vector3.zero;
+            separation = population.ExternalSeparation(this);
             foreach (WildlifeAgent other in neighbours)
             {
                 Vector3 away = transform.position - other.transform.position;

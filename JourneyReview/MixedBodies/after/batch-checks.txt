@@ -1,0 +1,75 @@
+PASS 2026-10-23T19:41:18.3619993Z
+PASS deterministic scatter, varying seeds and independent global random stream
+PASS requested counts, plane, outer boundary and minimum pair spacing
+PASS filled, uneven herd outline
+PASS optional site filter and bounded, atomic failure in blocked or tiny regions
+PASS empty requests and invalid-input rejection
+PASS surface floating and non-swimmer deep-water rejection
+PASS swimmer short crossing and dry sheep bridge detour
+PASS weighted preference, bridge closure replanning and unreachable route
+PASS dynamic surface obstruction and unsafe bank exit rejection
+PASS continuous swimming distance across graph-link boundaries
+PASS real bridge verification, deterministic routing and version invalidation
+PASS bridge supporting width respects the animal footprint
+PASS safe local steps reject overhead snapping and high banks while following gentle slopes
+PASS alternate local endpoint attachments with explicit graph-node identity preserved
+PASS replanning preserves spent swimming distance until a safe shallow or dry surface
+PASS individual body waterlines, shallow-bottom support and inherited default
+PASS obstacle-corner start and goal connectors retain both verified legs
+PASS bent start and goal connectors preserve the entire continuous swimming budget
+PASS graph-independent direct surface validation shares geometry, costs and swimming limits without detours
+PASS optional step constraints validate every surface mode and bridge identity including the start
+PASS lazy real-collider bridge mapping, replacement, rebuild edits and disabled/destroyed decks
+PASS real TerrainCollider thin-triangle rejection and safe-line movement agree with route planning
+PASS authoritative world-water boundary and height with standalone and injected fallbacks
+PASS adjacent body circles have a deterministic short exterior path without penetration
+PASS occupied goals and terrain-blocked paths are rejected
+PASS exact clearance and outward-only escape from every existing social contact
+PASS unobstructed paths retain the direct checked segment
+PASS the ten-obstacle node cap never permits crossing another supplied body
+PASS fixed three-sheep arrival gap: traveller arrives in 9.05s, walks 7.77m and retains 1.220m clearance
+PASS observed three-neighbour pocket: an arrived neighbour yields; traveller arrives in 8.90s after 6.84m
+PASS arrived wandering: held detour executes and clears in 12.60s, 5.60m; next activity remains available
+PASS .04m social gap opens to normal walking clearance: held detour executes and clears in 11.40s, 5.06m; next activity remains available
+PASS the entire bridge approach keeps its center line while open ground retains individual route offsets
+PASS route variation rejects hidden mid-segment swimming beyond endurance while preserving a safe land offset
+PASS lateral bridge entrances admit the same crossing direction and reject opposing crossings
+PASS independent stable individual animation phases
+PASS mixed-ability split, staggered departure, surface swimming, bridge queue and full east-bank reunion
+PASS bidirectional crossing and second whole-herd reunion
+PASS faster swimmers do not persistently overlap slower companions; both reunite after two round trips
+PASS unreachable-group rejection, safe on-deck waiting without reversal, and reunion after reopening
+PASS a dynamic land obstruction causes replanning and reunion through an available detour while still blocked
+PASS pause freezes simulation and positions; resume continues the same journey
+PASS restarting restores the original visual pose without accumulating a swimming offset
+PASS bridge crossing rejects a mid-crossing destination reversal and still reunites
+PASS a faster bridge follower waits behind a slow leader and all queued companions eventually reunite
+PASS deactivating a queued sheep releases its reservation and lets active companions reunite
+PASS an on-shore reservation holder can deactivate, clear for 0.4 seconds, re-enable and cross before full reunion
+PASS same-link curved corridor rejects an unsafe lookahead chord and arrives without replanning; time=4.180s, distance=2.341m, longestStop=0.000s, largestStep=0.012m, routeChanges=0
+PASS a nearby corner remains active until the next leg is reachable, then the member arrives without replanning; time=2.360s, distance=1.311m, longestStop=0.000s, largestStep=0.012m, routeChanges=0
+PASS a newly blocked next leg enters replanning after reaching its corner and arrives after reopening; time=4.960s, distance=1.647m, longestStop=0.480s, largestStep=0.012m, routeChanges=1
+PASS real traced Swim-to-bank-to-Swim transitions physically rest, reset and resume before arrival; time=2.620s, maximumContinuousSwim=0.954m, routeChanges=0
+PASS .10 m final Swim-to-Walk and Bridge-to-Walk segments physically land before arrival; Swim=0.280s, Bridge=0.280s
+PASS legacy Simulate applies soft avoidance; full-segment hard spacing and outward-only contact escape hold
+PASS journey routes around a stationary legacy animal: arrives in 9.30s, walks 8.73m, lateral deviation 1.14m
+PASS both controllers ignore another altitude: arrives in 8.10s, walks 7.85m, lateral deviation 0.00m
+PASS parent discovery, idempotent registration, disabled-owner filtering, resumed simulation, member activity and stale-owner/unregister cleanup
+PASS journey contact escapes by real simulation; legacy inactive/reactivated/destroyed bodies update immediately
+PASS grounded updates, airborne/landed birds and both swimming controllers respect movement medium
+PASS occupied arrival candidate is replaced with a free destination in the same site; arrives in 9.35s after 7.07m
+PASS destination occupied after departure is replaced with a free destination in the same site; arrives in 11.20s after 8.83m
+PASS real Swim-to-Walk landing respects occupied ground, resumes after clearance and tests the prospective support height
+PASS 6 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners.
+PASS saved scene: ten independent sheep, real rig bindings, real deck and river colliders, unsafe-bank rejection and 300-second whole-herd reunion
+INFO sheep 01 rendered metres width=0.609 height=0.894 length=1.051 footOffset=0.000; configured bodyLength=1.176 width=0.483 waterline=0.462
+INFO sheep 02 rendered metres width=0.649 height=0.951 length=1.119 footOffset=0.000; configured bodyLength=1.252 width=0.514 waterline=0.492
+INFO sheep 03 rendered metres width=0.633 height=0.929 length=1.092 footOffset=0.000; configured bodyLength=1.222 width=0.501 waterline=0.480
+INFO sheep 04 rendered metres width=0.669 height=0.981 length=1.154 footOffset=0.000; configured bodyLength=1.291 width=0.530 waterline=0.507
+INFO sheep 05 rendered metres width=0.674 height=0.988 length=1.162 footOffset=0.000; configured bodyLength=1.300 width=0.533 waterline=0.511
+INFO sheep 06 rendered metres width=0.659 height=0.966 length=1.136 footOffset=0.000; configured bodyLength=1.271 width=0.521 waterline=0.499
+INFO sheep 07 rendered metres width=0.595 height=0.873 length=1.027 footOffset=0.000; configured bodyLength=1.149 width=0.471 waterline=0.451
+INFO sheep 08 rendered metres width=0.619 height=0.907 length=1.067 footOffset=0.000; configured bodyLength=1.194 width=0.490 waterline=0.469
+INFO sheep 09 rendered metres width=0.630 height=0.924 length=1.087 footOffset=0.000; configured bodyLength=1.216 width=0.499 waterline=0.478
+INFO sheep 10 rendered metres width=0.702 height=1.030 length=1.211 footOffset=0.000; configured bodyLength=1.355 width=0.556 waterline=0.532
+INFO minimum measured swimming head clearance=0.159 m (saved rig pose; animated pose also needs Play review)
