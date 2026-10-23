@@ -1,0 +1,15 @@
+{
+  "method": "Built-in image_gen, followed by native Blender emission baking for the cape UV atlas",
+  "reference": "User concept sheet codex-clipboard-1d76ba05-422b-456a-96b9-05b4f2f0ef80.png",
+  "hat": {
+    "output": "../Textures/Hat_ConceptIvory.png",
+    "editInput": "Original Hat_BaseColor.jpg resized to 2048 square for model input",
+    "prompt": "Edit image 1, an unfolded square UV diffuse texture atlas for a game wizard hat. Image 2 is color reference only. Return the texture atlas ONLY. Keep EXACTLY all UV island boundaries, positions, padding and shapes. Every teal/cyan cloth area becomes warm pale ivory (#E9DDC4), every gold/brown ribbon area becomes dark neutral charcoal (#4C4D4A), matching reference hat. Mild cloth texture, subtle seams, softly even albedo, remove strong cyan highlights and black stains. No extra designs, no crescent, no hat rendering, no text or layout change. Produce 2048x2048 square texture preserving image 1 UV layout."
+  },
+  "cape": {
+    "emblemSource": "MoonEmblem.png",
+    "output": "../Textures/Cape_ConceptMoon.png",
+    "bakeScript": "bake_concept_cape.py",
+    "prompt": "Game character clothing emblem texture, a single simple warm golden crescent moon (#EAB571) centered on fully transparent background. A clean elegant crescent silhouette like a round disk with a large circle cut out on its upper-right side; its open side faces right and slightly upward. Outer moon circular, tips gently taper, broad left and bottom arc. Flat matte golden cloth applique / printed emblem, very subtle warm watercolor texture within the gold, no strong lighting, no drop shadow, no bevel, no glow, no stars, no text, no border, no extra shapes. The moon fills 70% of the square canvas with transparent padding. This will be baked onto the back of a charcoal grey cape. 1024 by 1024."
+  }
+}

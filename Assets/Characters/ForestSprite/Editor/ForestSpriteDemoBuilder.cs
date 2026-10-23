@@ -246,8 +246,9 @@ namespace ForestSpriteCharacter.Editor
             var materials = new Dictionary<string, Material>();
             foreach (string region in new[] { "Body", "Hair", "Hat", "Cape" })
             {
-                string texturePath = AssetDatabase.FindAssets(region + "_BaseColor t:Texture2D", new[] { Root + "/Textures" })
-                    .Select(AssetDatabase.GUIDToAssetPath).FirstOrDefault(p => Path.GetFileNameWithoutExtension(p) == region + "_BaseColor");
+                string textureName = region == "Hat" ? "Hat_ConceptIvory" : region == "Cape" ? "Cape_ConceptMoon" : region + "_BaseColor";
+                string texturePath = AssetDatabase.FindAssets(textureName + " t:Texture2D", new[] { Root + "/Textures" })
+                    .Select(AssetDatabase.GUIDToAssetPath).FirstOrDefault(p => Path.GetFileNameWithoutExtension(p) == textureName);
                 Require(texturePath != null, "BaseColor texture " + region);
                 materials[region] = Material(region, new Color(1f, 1f, 1f), AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath));
             }

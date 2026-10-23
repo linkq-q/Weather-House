@@ -6,6 +6,10 @@
 
 进入 Play 默认从池塘前方开始，使用拆分裙摆、修正鞋子绑定后的轻盈动作角色。镜头跟随角色位置，保持朝向；右键拖动或 Q / E 可向左右各转动 45°，滚轮调整远近。WASD 走动、Shift 跑步、Space 跳跃、R 回到出生点。
 
+普通 Play 会运行编辑器中所有已加载的场景。试玩时单独打开池塘场景，不要同时加载 `ForestSprite_Demo`；否则两个角色都会响应同一套按键。使用上方 **Open or Create Grass and Water Scene** 菜单会单独打开池塘场景。验收现检查所有已加载场景的角色、游戏相机与音频监听器各为一个。
+
+当前角色采用新概念图配色：米白帽、深灰帽带与披风、米白滚边、背部金色月牙。`Hat_ConceptIvory.png` 和 `Cape_ConceptMoon.png` 绑定到原有共享材质；原色图保留。月牙烘焙进披风原 UV，随原布料变形；`Assets/Characters/ForestSprite/Source~/` 保留生成图与 Blender 烘焙脚本。
+
 F7 显示或隐藏调节面板，F6 切换角色与原有草地浏览。浏览模式的相机操作见下方。俯视镜头参数位于角色相机的 `VegetationTopDownCamera` 组件，Play 中可试调，退出后恢复已保存值。角色继续读取已有披风参数文件；本轮不覆盖用户保存的调节。
 
 `VegetationLabReview/TopDown20261022/` 保存本轮多角度及走跑跳实机截图和检查结果。披风快速运动时仍可能与身体穿插，本次接入不表示这项已修复。

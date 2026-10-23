@@ -15,6 +15,7 @@ namespace WeatherHouse.Vegetation.Editor
     {
         const string Root = "VegetationLabReview/TopDown20261022";
         const string ScenePath = "Assets/Scenes/Experimental/VegetationLab.unity";
+        const string OldDemoPath = "Assets/Scenes/Experimental/ForestSprite_Demo.unity";
         const string Key = "VegetationTopDownChecks";
         [Serializable] class Request
         {
@@ -29,6 +30,38 @@ namespace WeatherHouse.Vegetation.Editor
             public Vector3 player, camera, viewport;
             public float yaw, pitch, distance, lookAhead, fov, capeDepth;
             public string[] checks;
+            public string playModeStartScene;
+            public int enabledPlayers, enabledCameras, enabledListeners;
+            public SceneInfo[] scenes;
+        }
+        [Serializable] class SceneInfo
+        {
+            public string name, path;
+            public bool loaded, dirty;
+            public PlayerInfo[] players;
+            public CameraInfo[] cameras;
+            public ListenerInfo[] listeners;
+        }
+        [Serializable] class PlayerInfo
+        {
+            public string name, cameraName, cameraScene;
+            public int instanceId;
+            public Vector3 position, cameraPosition;
+            public float yaw, cameraYaw, configuredCameraYaw;
+            public bool scriptedInput, externalCameraControl;
+        }
+        [Serializable] class CameraInfo
+        {
+            public string name, type;
+            public int instanceId;
+            public Vector3 position;
+            public float yaw, depth;
+        }
+        [Serializable] class ListenerInfo
+        {
+            public string name;
+            public int instanceId;
+            public Vector3 position;
         }
         static double nextPoll;
         static string testId;
@@ -64,6 +97,35 @@ namespace WeatherHouse.Vegetation.Editor
         }
         static T[] Components<T>(Scene scene) where T : Component =>
             scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<T>(true)).ToArray();
+        static T[] LoadedComponents<T>() where T : Component =>
+            Enumerable.Range(0, SceneManager.sceneCount).Select(SceneManager.GetSceneAt)
+                .Where(s => s.isLoaded).SelectMany(s => Components<T>(s)).ToArray();
+        static SceneInfo[] InspectScenes() => Enumerable.Range(0, SceneManager.sceneCount).Select(index =>
+        {
+            var scene = SceneManager.GetSceneAt(index);
+            return new SceneInfo
+            {
+                name = scene.name, path = scene.path, loaded = scene.isLoaded, dirty = scene.isDirty,
+                players = scene.isLoaded ? Components<ForestSpriteDemoController>(scene).Where(p => p.isActiveAndEnabled)
+                    .Select(p => new PlayerInfo
+                    {
+                        name = p.name, instanceId = p.GetInstanceID(), position = p.transform.position,
+                        yaw = p.transform.eulerAngles.y, configuredCameraYaw = p.cameraYaw,
+                        scriptedInput = p.ScriptedInput, externalCameraControl = p.externalCameraControl,
+                        cameraName = p.demoCamera ? p.demoCamera.name : "",
+                        cameraScene = p.demoCamera ? p.demoCamera.gameObject.scene.path : "",
+                        cameraPosition = p.demoCamera ? p.demoCamera.transform.position : Vector3.zero,
+                        cameraYaw = p.demoCamera ? p.demoCamera.transform.eulerAngles.y : 0
+                    }).ToArray() : new PlayerInfo[0],
+                cameras = scene.isLoaded ? Components<Camera>(scene).Where(c => c.isActiveAndEnabled)
+                    .Select(c => new CameraInfo { name = c.name, instanceId = c.GetInstanceID(),
+                        type = c.cameraType.ToString(), position = c.transform.position,
+                        yaw = c.transform.eulerAngles.y, depth = c.depth }).ToArray() : new CameraInfo[0],
+                listeners = scene.isLoaded ? Components<AudioListener>(scene).Where(l => l.isActiveAndEnabled)
+                    .Select(l => new ListenerInfo { name = l.name, instanceId = l.GetInstanceID(),
+                        position = l.transform.position }).ToArray() : new ListenerInfo[0]
+            };
+        }).ToArray();
         static VegetationCharacterPreview Adapter()
         {
             var scene = SceneManager.GetSceneByPath(ScenePath);
@@ -135,6 +197,30 @@ namespace WeatherHouse.Vegetation.Editor
                 EditorSceneManager.playModeStartScene=AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
                 EditorApplication.isPlaying=true; Write(r,"ACCEPTED","Entering pond scene.");
             }
+            else if(r.command=="PlayCurrentSetup")
+            {
+                Require(!EditorApplication.isPlayingOrWillChangePlaymode,"Already playing.");
+                Require(!EditorSceneManager.playModeStartScene,"Ordinary Play reproduction requires an empty playModeStartScene.");
+                var pond=SceneManager.GetSceneByPath(ScenePath);
+                Require(pond.IsValid() && pond.isLoaded,"Load the pond scene before reproducing ordinary Play.");
+                EditorApplication.isPlaying=true;
+                Write(r,"ACCEPTED","Entering ordinary Play with the current loaded scenes; no start scene override.");
+            }
+            else if(r.command=="AuditSceneOwnership")
+                Write(r,"PASS","Recorded enabled characters, cameras and listeners across all loaded scenes.");
+            else if(r.command=="CloseOldDemo")
+            {
+                Require(!EditorApplication.isPlayingOrWillChangePlaymode,"Close the old demo only in Edit mode.");
+                var pond=SceneManager.GetSceneByPath(ScenePath);
+                Require(pond.IsValid() && pond.isLoaded,"Keep the pond scene loaded while closing the old demo.");
+                var oldDemo=SceneManager.GetSceneByPath(OldDemoPath);
+                if(oldDemo.IsValid() && oldDemo.isLoaded)
+                {
+                    Require(!oldDemo.isDirty,"The old demo has unsaved edits; leave it open.");
+                    Require(EditorSceneManager.CloseScene(oldDemo,true),"Could not close the old demo scene.");
+                }
+                Write(r,"PASS","The clean old demo is unloaded; its asset and all other scenes are retained.");
+            }
             else if(r.command=="Stop")
             {
                 Require(EditorApplication.isPlaying && SceneManager.GetActiveScene().path==ScenePath,"Only stop pond Play.");
@@ -151,6 +237,24 @@ namespace WeatherHouse.Vegetation.Editor
             else if(r.command=="Capture")
             {
                 Capture(r.name);Write(r,"PASS","Native Unity camera frame captured.");
+            }
+            else if(r.command=="ApplyConceptLook")
+            {
+                ForestSpriteCharacter.Editor.ForestSpriteConceptLook.Apply();
+                Write(r,"PASS","Saved concept textures on the existing shared character materials.");
+            }
+            else if(r.command=="CaptureConceptViews")
+            {
+                var a=Adapter();
+                ForestSpriteCharacter.Editor.ForestSpriteConceptLook.CaptureViews(a.player,a.playerCamera);
+                Write(r,"PASS","Captured actual front, side and back character materials.");
+            }
+            else if(r.command=="CaptureGame")
+            {
+                Require(EditorApplication.isPlaying,"Capture the actual Game view in Play.");
+                Require(!string.IsNullOrEmpty(r.name) && Path.GetFileName(r.name)==r.name,"Capture filename only.");
+                ScreenCapture.CaptureScreenshot(Root+"/"+r.name+".png");
+                Write(r,"ACCEPTED","Capturing the actual Game view at end of frame.");
             }
             else if(r.command=="Test") BeginTest(r);
             else if(r.command=="Status") Write(r,"PASS","Current state.");
@@ -186,17 +290,16 @@ namespace WeatherHouse.Vegetation.Editor
             var rt=new RenderTexture(1560,1000,24);
             var tex=new Texture2D(1560,1000,TextureFormat.RGB24,false);
             var old=camera.targetTexture;var active=RenderTexture.active;float aspect=camera.aspect;
-            var oldScene=camera.scene;
             try
             {
-                camera.scene=SceneManager.GetSceneByPath(ScenePath);camera.targetTexture=rt;camera.aspect=1.56f;
+                camera.targetTexture=rt;camera.aspect=1.56f;
                 camera.Render();RenderTexture.active=rt;
                 tex.ReadPixels(new Rect(0,0,1560,1000),0,0);tex.Apply();
                 Directory.CreateDirectory(Root);File.WriteAllBytes(Root+"/"+name+".png",tex.EncodeToPNG());
             }
             finally
             {
-                camera.targetTexture=old;camera.aspect=aspect;camera.scene=oldScene;RenderTexture.active=active;
+                camera.targetTexture=old;camera.aspect=aspect;RenderTexture.active=active;
                 rt.Release();UnityEngine.Object.DestroyImmediate(rt);UnityEngine.Object.DestroyImmediate(tex);
             }
         }
@@ -204,6 +307,11 @@ namespace WeatherHouse.Vegetation.Editor
         {
             var answer=new Result{id=r.id,command=r.command,result=result,message=message,utc=DateTime.UtcNow.ToString("O"),
                 scene=SceneManager.GetActiveScene().path,playing=EditorApplication.isPlaying,checks=checks.ToArray()};
+            answer.playModeStartScene=EditorSceneManager.playModeStartScene ? AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene) : "";
+            answer.scenes=InspectScenes();
+            answer.enabledPlayers=answer.scenes.Sum(s=>s.players.Length);
+            answer.enabledCameras=answer.scenes.Sum(s=>s.cameras.Length);
+            answer.enabledListeners=answer.scenes.Sum(s=>s.listeners.Length);
             var scene=SceneManager.GetSceneByPath(ScenePath);
             if(scene.IsValid() && scene.isLoaded)
             {
@@ -221,12 +329,17 @@ namespace WeatherHouse.Vegetation.Editor
             }
             Directory.CreateDirectory(Root);File.WriteAllText(Root+"/response.json",JsonUtility.ToJson(answer,true));
             if(r.command=="Test")File.WriteAllText(Root+"/runtime-checks.json",JsonUtility.ToJson(answer,true));
+            if(r.command=="AuditSceneOwnership")File.WriteAllText(Root+"/scene-ownership.json",JsonUtility.ToJson(answer,true));
         }
         static void BeginTest(Request r)
         {
-            Require(EditorApplication.isPlaying && SceneManager.GetActiveScene().path==ScenePath,"Test the actual pond Play session.");
-            checks.Clear();var a=Adapter();var c=a.playerCamera.GetComponent<VegetationTopDownCamera>();
+            Require(EditorApplication.isPlaying,"Test the actual Play session.");
+            checks.Clear();
             previousBackground=Application.runInBackground;testId=r.id;Application.runInBackground=true;
+            int playerCount=LoadedComponents<ForestSpriteDemoController>().Count(p=>p.isActiveAndEnabled);
+            Require(playerCount==1,"Exactly one enabled ForestSpriteDemoController across all loaded scenes; found "+playerCount+".");
+            Require(SceneManager.GetActiveScene().path==ScenePath,"Test the actual pond Play session.");
+            var a=Adapter();var c=a.playerCamera.GetComponent<VegetationTopDownCamera>();
             Require(a.player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Any(s=>s.name=="Body_Boots"),"Updated separate boots imported.");
             Require(a.player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Any(s=>s.name=="Body_Skirt"),"Updated separate skirt imported.");
             float yaw=c.yawOffset,pitch=c.pitch,distance=c.distance;
@@ -235,11 +348,10 @@ namespace WeatherHouse.Vegetation.Editor
             c.pitch=c.pitchRange.y;c.distance=c.distanceRange.x;c.SnapToPlayer();
             Require(a.playerCamera.WorldToViewportPoint(a.player.transform.position).y>.1f,"Near/steep orbit keeps feet above bottom margin.");
             c.yawOffset=yaw;c.pitch=pitch;c.distance=distance;c.SnapToPlayer();checks.Add("Orbit, pitch and zoom clamps PASS");
-            var scene=SceneManager.GetActiveScene();
             a.SetCharacterMode(false);Require(!a.player.enabled && !c.enabled && a.labView.Navigation.enabled,"Browse mode ownership.");
             a.SetCharacterMode(true);Require(a.player.enabled && c.enabled && !a.labView.Navigation.enabled,"Character mode ownership.");
-            Require(Components<Camera>(scene).Count(x=>x.isActiveAndEnabled)==1,"Exactly one active camera.");
-            Require(Components<AudioListener>(scene).Count(x=>x.isActiveAndEnabled)==1,"Exactly one active listener.");
+            Require(LoadedComponents<Camera>().Count(x=>x.isActiveAndEnabled)==1,"Exactly one active camera across all loaded scenes.");
+            Require(LoadedComponents<AudioListener>().Count(x=>x.isActiveAndEnabled)==1,"Exactly one active listener across all loaded scenes.");
             a.SetDebugPanels(true);Require(a.player.showControls && a.DebugPanelsVisible,"F7 panels open.");
             a.SetDebugPanels(false);Require(!a.player.showControls && !a.DebugPanelsVisible,"F7 panels close.");
             checks.Add("F6/F7 mode methods and camera/listener ownership PASS");
