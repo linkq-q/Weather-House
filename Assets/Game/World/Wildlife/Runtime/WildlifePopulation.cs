@@ -12,6 +12,7 @@ namespace WeatherHouse.Hillside
         public Transform player;
         public Bounds worldBounds = new Bounds(Vector3.zero, new Vector3(300f, 100f, 300f));
         public HabitatVolume[] waterAreas = new HabitatVolume[0];
+        public WorldWaterSurface waterSurface;
         public WildlifeAgent[] agents = new WildlifeAgent[0];
         [Range(.1f, 1f)] public float decisionInterval = .2f;
         public float maxSlope = 29f;
@@ -182,16 +183,18 @@ namespace WeatherHouse.Hillside
             {
                 if (agent.waterAreaIndex < 0 || agent.waterAreaIndex >= waterAreas.Length) return false;
                 HabitatVolume water = waterAreas[agent.waterAreaIndex];
+                float waterHeight = waterSurface ? waterSurface.Height(requested) : water.center.y;
                 float bodyClearance = Mathf.Max(.12f, radius * 2.5f);
-                if (!water.Contains(requested, radius) || ground + radius >= water.center.y - bodyClearance) return false;
-                projected.y = Mathf.Clamp(water.center.y - agent.swimDepth, ground + radius, water.center.y - bodyClearance);
+                if (!water.Contains(requested, radius) || (waterSurface && !waterSurface.Contains(requested, -radius)) || ground + radius >= waterHeight - bodyClearance) return false;
+                projected.y = Mathf.Clamp(waterHeight - agent.swimDepth, ground + radius, waterHeight - bodyClearance);
                 return true;
             }
             if (agent.locomotion == WildlifeLocomotion.Flying)
             {
                 if (agent.AirHeight < .01f) return TryLandingPosition(agent, requested, out projected);
                 float surface = ground;
-                foreach (HabitatVolume water in waterAreas)
+                if (waterSurface) { if (waterSurface.Contains(requested)) surface = Mathf.Max(surface, waterSurface.Height(requested)); }
+                else foreach (HabitatVolume water in waterAreas)
                     if (water.Contains(requested)) surface = Mathf.Max(surface, water.center.y);
                 projected.y = surface + agent.AirHeight;
                 return true;
@@ -212,7 +215,8 @@ namespace WeatherHouse.Hillside
                 if (local.x < 0f || local.x > size.x || local.z < 0f || local.z > size.z) return false;
                 if (terrain.terrainData.GetSteepness(local.x / size.x, local.z / size.z) > maxSlope) return false;
             }
-            foreach (HabitatVolume water in waterAreas)
+            if (waterSurface) { if (waterSurface.Contains(requested, radius)) return false; }
+            else foreach (HabitatVolume water in waterAreas)
                 if (water.Contains(requested, -radius)) return false;
             projected.y = GroundHeight(requested);
             return true;

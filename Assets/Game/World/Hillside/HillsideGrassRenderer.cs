@@ -23,6 +23,8 @@ namespace WeatherHouse.Hillside
         public float meshLodHysteresis = 5;
         public float maximumSlope = 36;
         public Camera viewCamera;
+        [Tooltip("可选独立地图覆盖图：R 为草地覆盖率，G 为水深 / 8，B 为短草踩踏程度。空值保留山林地图规则。")]
+        public Texture2D placementMap;
         [NonSerialized] public bool manualCaptureOnly;
 
         sealed class Cell
@@ -81,6 +83,7 @@ namespace WeatherHouse.Hillside
         Vector4 cachedSettings;
         Vector3 cachedWeights;
         int cachedSeed, budgetFrame = -1;
+        Texture2D cachedPlacementMap;
         long frameDeadline;
         public int CachedCellCount => cells.Count;
         public int VisibleClumpCount { get; private set; }
@@ -114,11 +117,12 @@ namespace WeatherHouse.Hillside
             var weights = new Vector3(speciesWeights[0], speciesWeights[1], speciesWeights[2]);
             if (cachedTerrainData == terrain.terrainData && cachedOrigin.Equals(terrain.transform.position) &&
                 cachedTerrainSize.Equals(terrain.terrainData.size) && cachedSeed == seed &&
-                cachedSettings.Equals(settings) && cachedWeights.Equals(weights)) return;
+                cachedSettings.Equals(settings) && cachedWeights.Equals(weights) && cachedPlacementMap == placementMap) return;
             cells.Clear();
             cachedTerrainData = terrain.terrainData; cachedOrigin = terrain.transform.position;
             cachedTerrainSize = terrain.terrainData.size; cachedSeed = seed;
             cachedSettings = settings; cachedWeights = weights;
+            cachedPlacementMap = placementMap;
         }
         void TerrainHeightChanged(Terrain changed, RectInt region, bool synced)
         {
@@ -297,7 +301,7 @@ namespace WeatherHouse.Hillside
             // Width is at most 1.6m and the coverage transition is 1.8m; farther segments cannot affect coverage.
             float minX = key.x * edge - 3.401f, maxX = (key.x + 1) * edge + 3.401f;
             float minZ = key.y * edge - 3.401f, maxZ = (key.y + 1) * edge + 3.401f;
-            foreach (Vector3[] route in HillsideLayout.Routes)
+            foreach (Vector3[] route in placementMap ? Array.Empty<Vector3[]>() : HillsideLayout.Routes)
                 for (int i = 1; i < route.Length; i++)
                 {
                     Vector3 a = route[i - 1], b = route[i];
@@ -362,8 +366,9 @@ namespace WeatherHouse.Hillside
             if (u <= .004f || u >= .996f || v <= .004f || v >= .996f) return;
             staticCandidateQueries++;
             float height = terrain.SampleHeight(new Vector3(x, 0, z)) + cell.origin.y - .025f;
-            float depth = WaterDepth(x, z, height + .025f);
-            float coverage = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, 1.8f, LocalPathDistance(cell, x, z) - HillsideLayout.PathHalfWidth(x, z))) *
+            Color map = placementMap ? placementMap.GetPixelBilinear(u, v) : Color.white;
+            float depth = placementMap ? map.g * 8 : WaterDepth(x, z, height + .025f);
+            float coverage = (placementMap ? map.r : Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, 1.8f, LocalPathDistance(cell, x, z) - HillsideLayout.PathHalfWidth(x, z)))) *
                 (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(maximumSlope - 8, maximumSlope, terrain.terrainData.GetSteepness(u, v))));
             if (depth > 0)
             {
@@ -373,6 +378,12 @@ namespace WeatherHouse.Hillside
                 float tallWeight = speciesWeights[1] * (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, .45f, depth)));
                 species = pick >= speciesWeights[0] && pick < speciesWeights[0] + tallWeight ? 1 : 0;
                 variant = species * 4 + variant % 4;
+            }
+            if (placementMap && map.b > 0)
+            {
+                // Worn paths still grow grass, but only short blades instead of tall flowers.
+                variant %= 4;
+                scale *= Mathf.Lerp(1, .42f, map.b);
             }
             if (coverage <= 0) return;
             cell.candidates.Add(new Candidate { position = new Vector3(x, height, z), variant = variant, yaw = yaw,

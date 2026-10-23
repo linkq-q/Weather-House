@@ -11,6 +11,7 @@ namespace WeatherHouse.Hillside
     {
         public Renderer waterRenderer;
         public Terrain terrain;
+        public WorldWaterSurface surface;
         public ForestSpriteDemoController player;
         public Shader simulationShader;
         [Range(64, 512)] public int resolution = 256;
@@ -68,6 +69,7 @@ namespace WeatherHouse.Hillside
         public bool IsWet(Vector3 worldPosition)
         {
             if (!terrain || !terrain.terrainData || !waterRenderer) return false;
+            if (surface && !surface.Contains(worldPosition)) return false;
             Bounds bounds = waterRenderer.bounds;
             if (worldPosition.x < bounds.min.x || worldPosition.x > bounds.max.x ||
                 worldPosition.z < bounds.min.z || worldPosition.z > bounds.max.z) return false;
@@ -76,7 +78,7 @@ namespace WeatherHouse.Hillside
             if (worldPosition.x < origin.x || worldPosition.x > origin.x + size.x ||
                 worldPosition.z < origin.z || worldPosition.z > origin.z + size.z) return false;
             float groundY = terrain.SampleHeight(worldPosition) + origin.y;
-            return groundY < bounds.center.y - .015f;
+            return groundY < (surface ? surface.Height(worldPosition) : bounds.center.y) - .015f;
         }
 
         void LateUpdate()
@@ -138,7 +140,7 @@ namespace WeatherHouse.Hillside
             }
             Bounds body = controller.bounds;
             Vector2 point = new Vector2(body.center.x, body.center.z);
-            float waterY = waterRenderer.bounds.center.y;
+            float waterY = surface ? surface.Height(body.center) : waterRenderer.bounds.center.y;
             bool wet = IsWet(body.center) && body.min.y <= waterY + .03f && body.max.y >= waterY - .03f;
             IsInWater = wet;
             if (hasPrevious)
