@@ -41,7 +41,7 @@ namespace WeatherHouse.Hillside.Editor
             Color[] colors =
             {
                 new Color(.48f, .54f, .26f), new Color(.72f, .66f, .44f),
-                new Color(.48f, .49f, .43f), new Color(.42f, .39f, .27f)
+                new Color(.48f, .49f, .43f), new Color(.48f, .54f, .26f)
             };
             string[] names = { "Meadow Ground", "Pale Earth Path", "Rock Shoulder", "Pond Bank" };
             var layers = new TerrainLayer[names.Length];
@@ -65,14 +65,15 @@ namespace WeatherHouse.Hillside.Editor
                     float u = x / (float)(SurfaceResolution - 1), v = z / (float)(SurfaceResolution - 1);
                     float wx = (u - .5f) * HillsideLayout.Size, wz = (v - .5f) * HillsideLayout.Size;
                     float path = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.15f, .6f, HillsideLayout.PathEdgeDistance(wx, wz)));
-                    float bank = 0f;
+                    float waterMeadow = 0f;
                     foreach (HillsideLayout.WaterBody water in HillsideLayout.Waters)
-                        bank = Mathf.Max(bank, 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.5f, 3.1f, water.SignedDistance(wx, wz))));
-                    float rock = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(26f, 46f, data.GetSteepness(u, v))) * (1f - path) * (1f - bank);
-                    alpha[z, x, 1] = path * (1f - bank);
+                        waterMeadow = Mathf.Max(waterMeadow, 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.5f, 3.1f, water.SignedDistance(wx, wz))));
+                    // Continue the meadow through the shore and bed; the water shader supplies the depth color.
+                    float rock = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(26f, 46f, data.GetSteepness(u, v))) * (1f - path) * (1f - waterMeadow);
+                    alpha[z, x, 1] = path;
                     alpha[z, x, 2] = rock;
-                    alpha[z, x, 3] = bank;
-                    alpha[z, x, 0] = Mathf.Max(0f, 1f - alpha[z, x, 1] - rock - bank);
+                    alpha[z, x, 3] = 0;
+                    alpha[z, x, 0] = Mathf.Max(0f, 1f - path - rock);
                 }
             data.SetAlphamaps(0, 0, alpha);
             if (createData) AssetDatabase.CreateAsset(data, dataPath);

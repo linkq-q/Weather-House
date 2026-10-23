@@ -1,0 +1,9 @@
+PASS seeded replay, distinct animals and global Random isolation
+PASS stable individual sizes and idempotent initialization
+PASS land/water/air constraints, shallow water, world edge and whole-segment pond rejection
+PASS finite local startle, deduplication, expiry and calm recovery
+PASS mutual greeting reservation, completion and cooldown
+PASS semantic clip fallback for every state
+PASS Unity missing-object clip filtering
+PASS bird flight / dry landing / perch or sing / takeoff cycle
+PASS 80-animal dense neighbour work cap (not a frame-rate benchmark)

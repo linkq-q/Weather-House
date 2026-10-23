@@ -1,0 +1,118 @@
+动物动画素材来源与许可
+核验日期：2026-10-22
+
+本文记录小羊、小鹿、狗、狐狸、兔子、鱼、知更鸟和乌龟使用的外部动作素材及改编关系。具体导出动作以对应 outputs 目录的 report / manifest 为准；本文件不表示动画已经通过最终视觉验收。
+以下相对路径均以本文件所在目录为起点。
+
+一、用户模型与外部动作的许可范围
+
+动物外观网格、贴图和原有绑定来自用户提供的模型包及此前项目资产。这里记录的 CC0 / CC BY 4.0 适用于各外部作者发布的来源素材，不自动改变或证明用户模型与贴图本身的授权，也不把最终组合文件整体声明为 CC0。
+本次在副本上进行骨架适配、重定向、蒙皮调整、幅度限制、采样和格式导出。原作者不为改编结果背书。
+
+二、Quaternius 动物与鱼类素材：CC0
+
+作者：Quaternius
+许可：CC0 1.0 Universal
+许可链接：https://creativecommons.org/publicdomain/zero/1.0/
+各模型发布页面均明确标注 Public Domain (CC0)。以下保留来源，便于追溯。
+
+1. Deer：用于小羊、小鹿，以及乌龟的头颈动作
+模型页面：https://poly.pizza/m/T6Cs7tmMHJ
+原作者动物包：https://quaternius.com/packs/ultimateanimatedanimals.html
+本地文件：C:\Users\31483\Desktop\天气屋\3d资产\动物六动作_20261022\参考动画重定向_20261022\sources\quaternius_deer.glb
+SHA-256：fabf360b22eaccccd056ee99d698a9562d15aa245821f96e4fbad6db3751604e
+改编：鹿的动作重定向至小羊、小鹿的现有骨架；乌龟仅采用 Idle、Eating、Idle_HitReact_Left 的头颈曲线并限制角度，龟壳与相应肢体保持刚性。这部分乌龟动作是跨物种改编，不能称为源作者提供的乌龟待机、进食或受惊动作。
+记录：outputs\existing_quadrupeds_manifest.json；outputs\turtle\manifest.json
+
+2. Husky：用于狗
+模型页面：https://poly.pizza/m/wcWiuEqwzq
+本地文件：sources\fox_rabbit\quaternius_husky.glb
+SHA-256：a1e107ec4c2c62ce8cad86f750a7f6f9f2065c691dc6f88fce39667d3f4877eb
+改编：哈士奇动作重定向至用户 Tripo 狗模型的骨架，按目标腿长、足部与身体比例适配。
+记录：sources\fox_rabbit\source_manifest.json；outputs\existing_quadrupeds_manifest.json
+
+3. Fox：用于狐狸
+模型页面：https://poly.pizza/m/Bc97C66HKi
+本地文件：sources\fox_rabbit\quaternius_fox.glb
+SHA-256：9917771e1414c46557b011cbaaee6de82a827605008227a364c3862f0be62ddc
+改编：源狐狸动作重定向至用户狐狸骨架，适配身体与四肢比例并烘焙导出。
+记录：sources\fox_rabbit\source_manifest.json；outputs\fox\*_report.json
+
+4. Clownfish / Cute Fish Pack：用于鱼
+模型页面：https://poly.pizza/m/769fHo3eEB
+原作者鱼类包：https://quaternius.com/packs/cutefish.html
+本地文件：sources\aquatic_bird\Quaternius_Clownfish.glb
+SHA-256：d1d0b1f83848337299ef163b7ec5b207b5c34e3933da1367000e1dcd6d856bf1
+改编：为用户静态鱼网格创建骨架与平滑蒙皮，将源鱼的身体、尾部骨链动画按比例映射；源素材没有独立的左右侧鳍动画轨道，侧鳍跟随身体。保留来源动作的原生时间采样。
+记录：outputs\fish\report.json；sources\aquatic_bird\fish_glb_inspection.json
+
+三、mess110 的 Bird：CC0
+
+作者：mess110
+标题：Bird
+页面：https://opengameart.org/content/bird-1
+下载：https://opengameart.org/sites/default/files/bird.tar.gz
+许可：CC0 1.0 Universal
+许可链接：https://creativecommons.org/publicdomain/zero/1.0/
+本地文件：sources\aquatic_bird\mess110_bird\bird.blend
+本地许可：sources\aquatic_bird\mess110_bird\LICENSE
+来源压缩包：sources\aquatic_bird\mess110_bird.tar.gz
+压缩包 SHA-256：be008ae2dab3c25d2f61632e2e77060afd4caa8ab699fdfb0df6054824eea567
+bird.blend SHA-256：7485680a01fdb7f4f294e59859d5231a69e2709b1e1870f8572e347e877b2b57
+改编：将原素材的 idle、flap、attack、sing1 骨骼关键帧映射到用户知更鸟的适配骨架，补齐双翼蒙皮并适配嘴部。拍翼状态含目标折叠翅膀与源展开姿势的静态姿态校正。目标翅膀几何较短，状态名称采用“拍翼”，不将其描述为完整展翼飞行。原素材未提供本次可用的鸟类步行动作。
+记录：outputs\robin\report.json；sources\aquatic_bird\bird_source_inspection.json
+
+四、Heathal 的 Turtle：CC0
+
+作者：Heathal
+标题：Turtle
+页面：https://opengameart.org/content/turtle-0
+下载：https://opengameart.org/sites/default/files/Turtle.blend
+许可：CC0 1.0 Universal
+许可链接：https://creativecommons.org/publicdomain/zero/1.0/
+本地文件：sources\aquatic_bird\Heathal_Turtle.blend
+SHA-256：fd0b423698c141a42170fef5172a8c4e695562b7ebb1c6364604904e4d8c94e7
+改编：将实际 Walking-loop 动作适配到用户乌龟新建的腿部与头颈骨架，龟壳保持刚性。其余头颈动作来自上文 Quaternius Deer，分别记录来源。
+记录：outputs\turtle\manifest.json；sources\aquatic_bird\turtle_source_inspection.json
+
+五、heyheythere 的 PSX Animals Free：CC BY 4.0，用于兔子
+
+作者：heyheythere
+标题：PSX Animals Free - Wild Animals Sampler
+版本：1.1.3
+页面：https://heyheythere.itch.io/psx-animals-free
+许可：Creative Commons Attribution 4.0 International（CC BY 4.0）
+许可链接：https://creativecommons.org/licenses/by/4.0/
+本地文件：sources\fox_rabbit\psx_animals_free\glb\rabbit.glb
+本地许可全文：sources\fox_rabbit\psx_animals_free\LICENSE.txt
+rabbit.glb SHA-256：b5e4cf3dd944f94d5dbe3d50eddf91c062d36e7774cc1fe0a630ec9f5bf0a154
+原包 SHA-256：eff0a92de99173883fc0fd9883e007b940cbcdae13d8b8fd8e43fd92cd5ca2ac
+
+后续交付、游戏署名页或随附许可文件应保留下列署名，并附改编说明：
+PSX Animals Free by heyheythere - https://heyheythere.itch.io/psx-animals-free - CC BY 4.0
+License: https://creativecommons.org/licenses/by/4.0/
+Modified: Rabbit animation curves retargeted to the user's rabbit mesh and skeleton; body proportions, limb mapping and skinning adapted; animations sampled, baked and exported to FBX/GLB for this project. Original model and textures replaced by user-provided assets.
+
+中文改编说明：使用来源兔子的动作曲线，重定向到用户兔子的网格与骨架；适配身体比例、四肢对应关系及蒙皮，采样、烘焙并导出 FBX/GLB。最终外观网格和贴图来自用户提供的资产。
+作者在发布页披露该包使用 AI 辅助，模型、贴图和动画等通过代码制作。本项目将其作为已发布、已许可的素材动画使用，不称为动作捕捉，也不宣称其为纯手工动画。
+记录：sources\fox_rabbit\psx_source_manifest.json；outputs\rabbit\*_report.json
+
+六、追溯说明
+
+这里只列实际采用的外部来源。下载过但未采用的候选，不因此成为输出动画的来源。各 report / manifest 中保留了源 clip 名称、时间与骨架映射，可对应到具体导出文件。
+授权信息依据上述原作者发布页与随包许可记录。用户模型自身的授权文件及账号对应条款需与本说明分别保留。
+七、幅度增强版改编
+
+expressive 目录在以上重定向素材基础上增加局部动作幅度。头颈旋转以原动作姿势为参考放大动态变化，并对已大幅动作限制额外转角；鱼身体尾波约放大1.5倍，鸟翅膀动态约放大1.6倍。知更鸟新增 Head 骨和平滑权重，点头由原喙张合、呼吸及拍翼曲线的节奏派生，属于本项目的规则增强，不是原作者现成的头部动画轨道。
+上述基础增强版保留源动作节奏与时长；后续展翼飞行版的节奏重编排见下一节。具体幅度、保护限幅、骨骼变化和回读检查以 expressive 中各 report / manifest 为准。原作者来源、许可和兔子的署名要求继续适用；outputs 保留基础版。
+
+八、知更鸟展翼飞行版：用户两份模型结合及规则改编
+
+目录：expressive\robin_flight_v2
+新增用户模型：C:\Users\31483\Desktop\bird 3d model.zip
+压缩包 SHA-256：485975de64957aae8a2886ed12c0ddd0907f7885faba61e5266f7e95a5fe3856
+新包只含静态展开翼模型及颜色贴图，没有骨架或动画。本次保留原知更鸟的头、身体、尾和脚，移除旧贴身翼几何，接入新模型展开翼，并修补翼根。graft_provenance.json 记录保留部分的原顶点及位置一致性。两套纹理与翼根取样颜色合为单张图集。
+
+动作来源继续使用上文 mess110 Bird（CC0）的 idle、flap、sing1 曲线。起飞、飞行、降落所用拍翼节奏经过重定时及幅度映射，并加入本项目编排的根骨高度、展翅与收翅、收腿与伸腿、头部动作。起飞与降落是派生过渡，不能称为原作者提供的现成 takeoff / landing 动作，也不是此次由 UniMate 推理生成。完整来源与每条实际时长见本目录 manifest.json。
+
+展翼飞行版替换最终清单中的旧知更鸟状态，旧 outputs\robin 和 expressive\robin 仍保留作对照。用户模型和贴图自身的授权范围不因引入 CC0 动作而改变。

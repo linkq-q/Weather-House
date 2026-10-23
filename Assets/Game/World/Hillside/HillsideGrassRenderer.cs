@@ -148,6 +148,14 @@ namespace WeatherHouse.Hillside
             return Mathf.Lerp(.018f, .006f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(near * 5, near * 11, distance)));
         }
 
+        static float WaterDepth(float x, float z, float ground)
+        {
+            float depth = 0;
+            foreach (HillsideLayout.WaterBody water in HillsideLayout.Waters)
+                if (water.SignedDistance(x, z) <= 0) depth = Mathf.Max(depth, water.SurfaceY - ground);
+            return depth;
+        }
+
         Cell BuildCell(Vector2Int key, float edge, Vector3 cameraPosition)
         {
             var result = new Cell();
@@ -174,12 +182,19 @@ namespace WeatherHouse.Hillside
                 if (u <= .004f || u >= .996f || v <= .004f || v >= .996f) continue;
                 float height = terrain.SampleHeight(new Vector3(x, 0, z)) + origin.y - .025f;
                 float distance = Vector3.Distance(cameraPosition, new Vector3(x, height, z));
-                float shore = float.PositiveInfinity;
-                foreach (HillsideLayout.WaterBody water in HillsideLayout.Waters)
-                    shore = Mathf.Min(shore, water.SignedDistance(x, z));
-                float coverage = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.6f, 2, shore)) *
-                    Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, 1.8f, HillsideLayout.PathEdgeDistance(x, z))) *
+                float depth = WaterDepth(x, z, height + .025f);
+                float coverage = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, 1.8f, HillsideLayout.PathEdgeDistance(x, z))) *
                     (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(maximumSlope - 8, maximumSlope, terrain.terrainData.GetSteepness(u, v))));
+                if (depth > 0)
+                {
+                    float patch = Mathf.PerlinNoise((x + seed * .13f) * .12f, (z - seed * .17f) * .12f);
+                    float bedDensity = Mathf.Lerp(.06f, .55f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.3f, .7f, patch)));
+                    coverage *= Mathf.Lerp(1, bedDensity, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.15f, 1.2f, depth)));
+                    // Keep the same meadow seed, with short grass on the bed and a few tall blades in shallows.
+                    float tallWeight = speciesWeights[1] * (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, .45f, depth)));
+                    species = pick >= speciesWeights[0] && pick < speciesWeights[0] + tallWeight ? 1 : 0;
+                    variant = species * 4 + variant % 4;
+                }
                 if (rank >= DensityFraction(distance) * coverage) continue;
                 scale *= Mathf.Lerp(1, .65f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(75, 260, distance)));
                 groups[variant].Add(Matrix4x4.TRS(new Vector3(x, height, z), Quaternion.Euler(0, yaw, 0), Vector3.one * scale));
@@ -219,8 +234,8 @@ namespace WeatherHouse.Hillside
                     {
                         if (a[j] != b[j]) throw new InvalidOperationException("Grass placement must repeat for the same cell and seed.");
                         Vector3 p = a[j].GetColumn(3);
-                        if (HillsideLayout.IsWater(p.x, p.z, .59f) || HillsideLayout.PathEdgeDistance(p.x, p.z) < -.001f)
-                            throw new InvalidOperationException("Grass entered a water body or the clear walking path.");
+                        if (HillsideLayout.PathEdgeDistance(p.x, p.z) < -.001f)
+                            throw new InvalidOperationException("Grass entered the clear walking path.");
                         float ground = terrain.SampleHeight(p) + terrain.transform.position.y;
                         if (Mathf.Abs(p.y + .025f - ground) > .001f) throw new InvalidOperationException("Grass does not meet the generated terrain.");
                         checkedClumps++;
@@ -240,7 +255,32 @@ namespace WeatherHouse.Hillside
                 distantClumps++;
             }
             if (distantClumps == 0 || distantClumps >= nearPoints.Count) throw new InvalidOperationException("Distant grass needs sparse coverage without a hard distance cutoff.");
-            return "PASS: " + checkedClumps + " deterministic, grounded grass placements; clear water / paths; " + distantClumps + " distant clumps retain near-field positions.";
+            int submergedClumps = 0;
+            foreach (HillsideLayout.WaterBody water in HillsideLayout.Waters)
+            {
+                int shallow = 0, bed = 0;
+                Vector3 view = new Vector3(water.Center.x, water.SurfaceY + 14, water.Center.y);
+                for (int z = Mathf.FloorToInt((water.Center.y - water.Radii.y * 1.1f) / cellSize); z <= Mathf.FloorToInt((water.Center.y + water.Radii.y * 1.1f) / cellSize); z++)
+                    for (int x = Mathf.FloorToInt((water.Center.x - water.Radii.x * 1.1f) / cellSize); x <= Mathf.FloorToInt((water.Center.x + water.Radii.x * 1.1f) / cellSize); x++)
+                        foreach (Batch batch in BuildCell(new Vector2Int(x, z), cellSize, view).batches)
+                            foreach (Matrix4x4 matrix in batch.matrices)
+                            {
+                                Vector3 p = matrix.GetColumn(3);
+                                if (water.SignedDistance(p.x, p.z) > 0) continue;
+                                float ground = terrain.SampleHeight(p) + terrain.transform.position.y;
+                                float depth = water.SurfaceY - ground;
+                                if (depth <= 0) continue;
+                                if (Mathf.Abs(p.y + .025f - ground) > .001f) throw new InvalidOperationException("Submerged grass must meet the actual terrain bed.");
+                                if (batch.variant >= 8 || (depth >= .45f && batch.variant >= 4)) throw new InvalidOperationException("Deep water needs short grass without submerged daisies.");
+                                if (HillsideLayout.PathEdgeDistance(p.x, p.z) < -.001f) throw new InvalidOperationException("Submerged grass entered the clear walking path.");
+                                if (depth < .3f) shallow++;
+                                if (depth >= water.Depth * .65f) bed++;
+                                submergedClumps++;
+                            }
+                if (shallow == 0 || bed == 0) throw new InvalidOperationException(water.Name + " needs grass in both shallows and the deeper bed.");
+            }
+            return "PASS: " + checkedClumps + " deterministic, grounded grass placements; clear paths; " + distantClumps +
+                " distant clumps retain near-field positions; " + submergedClumps + " bed-grounded clumps across all three waters, with shallow and deep coverage.";
         }
 #endif
     }
