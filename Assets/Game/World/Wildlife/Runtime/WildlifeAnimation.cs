@@ -11,6 +11,7 @@ namespace WeatherHouse.Hillside
         private AnimationMixerPlayable mixer;
         private readonly List<AnimationClip> clips = new List<AnimationClip>();
         private readonly List<AnimationClipPlayable> playables = new List<AnimationClipPlayable>();
+        private readonly List<float> weights = new List<float>();
         private int target = -1;
         private bool cycle;
 
@@ -34,6 +35,7 @@ namespace WeatherHouse.Hillside
                 playable.SetTime(phase * clips[i].length);
                 graph.Connect(playable, 0, mixer, i);
                 playables.Add(playable);
+                weights.Add(0f);
             }
             graph.Play();
         }
@@ -41,12 +43,12 @@ namespace WeatherHouse.Hillside
         public void Play(AnimationClip clip, bool repeat, float speed)
         {
             if (!graph.IsValid() || clip == null) return;
-            int index = clips.IndexOf(clip);
+            int index = target >= 0 && clips[target] == clip ? target : clips.IndexOf(clip);
             if (index < 0) return;
             if (target != index)
             {
                 if (!repeat) playables[index].SetTime(0d);
-                if (target < 0) mixer.SetInputWeight(index, 1f);
+                if (target < 0) { mixer.SetInputWeight(index, 1f); weights[index] = 1f; }
                 target = index;
             }
             cycle = repeat;
@@ -60,8 +62,8 @@ namespace WeatherHouse.Hillside
             float weightSum = 0f;
             for (int i = 0; i < clips.Count; i++)
             {
-                float weight = Mathf.Lerp(mixer.GetInputWeight(i), i == target ? 1f : 0f, blend);
-                mixer.SetInputWeight(i, weight);
+                float weight = Mathf.Lerp(weights[i], i == target ? 1f : 0f, blend);
+                if (weight != weights[i]) { mixer.SetInputWeight(i, weight); weights[i] = weight; }
                 weightSum += weight;
             }
             Debug.Assert(Mathf.Abs(weightSum - 1f) < .001f, "Wildlife animation blend weights must sum to one.");
@@ -74,7 +76,7 @@ namespace WeatherHouse.Hillside
         public void Dispose()
         {
             if (graph.IsValid()) graph.Destroy();
-            clips.Clear(); playables.Clear(); target = -1;
+            clips.Clear(); playables.Clear(); weights.Clear(); target = -1;
         }
     }
 }

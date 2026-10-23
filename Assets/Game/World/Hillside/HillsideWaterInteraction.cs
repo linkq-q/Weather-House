@@ -44,7 +44,7 @@ namespace WeatherHouse.Hillside
         Renderer boundRenderer;
         ForestSpriteDemoController trackedPlayer;
         CharacterController controller;
-        bool hasPrevious, previousWet;
+        bool hasPrevious, previousWet, hasDisturbance;
         Vector3 previousCenter;
         Vector2 previousPoint;
         int allocatedResolution;
@@ -88,6 +88,9 @@ namespace WeatherHouse.Hillside
 
             Vector4 wake = Vector4.zero, direction = Vector4.zero, ring = Vector4.zero;
             ReadMovement(elapsed, ref wake, ref direction, ref ring);
+            if (LastStampCount > 0) hasDisturbance = true;
+            // The cleared field stays exactly flat until its first stamp; never discard residual waves.
+            if (!hasDisturbance) { Bind(); return; }
 
             float cellX = 1f / (WorldRect.z * allocatedResolution);
             float cellZ = 1f / (WorldRect.w * allocatedResolution);
@@ -203,6 +206,7 @@ namespace WeatherHouse.Hillside
 
         public void ClearField()
         {
+            hasDisturbance = false;
             hasPrevious = false;
             previousWet = false;
             IsInWater = false;
