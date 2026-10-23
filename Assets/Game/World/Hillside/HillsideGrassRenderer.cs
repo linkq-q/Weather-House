@@ -17,6 +17,10 @@ namespace WeatherHouse.Hillside
         public float cellSize = 16;
         [Tooltip("此距离内保持原草地完整密度；远处连续降低密度，不截断为方形草块。")]
         public float visibleRadius = 42;
+        [Tooltip("此距离内始终使用原草网格；0 关闭网格 LOD。只简化远处草叶，不改变草丛位置和密度。"), Min(0)]
+        public float meshLodDistance = 60;
+        [Tooltip("远离时超过上述距离加此余量才切换，靠近时到达上述距离立即恢复原网格。"), Min(0)]
+        public float meshLodHysteresis = 5;
         public float maximumSlope = 36;
         public Camera viewCamera;
         [NonSerialized] public bool manualCaptureOnly;
@@ -37,6 +41,7 @@ namespace WeatherHouse.Hillside
             public float edge, totalWeight, low, high;
             public int maximum, generated, attempts, filterIndex, lastUsed;
             public bool ready, building;
+            public readonly Dictionary<Camera, bool> lowDetailByCamera = new Dictionary<Camera, bool>();
         }
         struct Candidate
         {
@@ -64,6 +69,11 @@ namespace WeatherHouse.Hillside
         readonly List<CellRequest> requests = new List<CellRequest>();
         readonly HashSet<Vector2Int> requestedKeys = new HashSet<Vector2Int>();
         readonly Plane[] frustum = new Plane[6];
+        readonly HillsideGrassMeshLod meshLods = new HillsideGrassMeshLod();
+        readonly Mesh[] drawMeshes = new Mesh[HillsideGrassInstanceBatcher.GroupCount];
+        readonly Material[] drawMaterials = new Material[HillsideGrassInstanceBatcher.GroupCount];
+        HillsideGrassInstanceBatcher instanceBatcher;
+        Camera drawCamera;
         long staticCandidateQueries;
         int requestFrame;
         TerrainData cachedTerrainData;
@@ -74,6 +84,7 @@ namespace WeatherHouse.Hillside
         long frameDeadline;
         public int CachedCellCount => cells.Count;
         public int VisibleClumpCount { get; private set; }
+        public int SubmittedDrawCount { get; private set; }
 
         void OnEnable()
         {
@@ -85,12 +96,17 @@ namespace WeatherHouse.Hillside
         void OnDisable()
         {
             cells.Clear();
+            meshLods.Dispose();
+            instanceBatcher = null; drawCamera = null;
+            Array.Clear(drawMeshes, 0, drawMeshes.Length);
+            Array.Clear(drawMaterials, 0, drawMaterials.Length);
             TerrainCallbacks.heightmapChanged -= TerrainHeightChanged;
 #if UNITY_EDITOR
             UnityEditor.SceneView.duringSceneGui -= DrawSceneView;
 #endif
         }
-        void OnValidate() { cells.Clear(); }
+        void OnValidate() { meshLods.Invalidate(); }
+        void OnDestroy() { meshLods.Dispose(); }
 
         void ValidateCache()
         {
@@ -134,8 +150,12 @@ namespace WeatherHouse.Hillside
             // Trees, characters and additive-scene colliders must not move the grass streaming focus.
             if (groundCollider && groundCollider.Raycast(ray, out RaycastHit hit, Mathf.Max(300, camera.farClipPlane))) focus = hit.point;
             GeometryUtility.CalculateFrustumPlanes(camera, frustum);
-            VisibleClumpCount = 0;
+            VisibleClumpCount = SubmittedDrawCount = 0;
+            if (instanceBatcher == null) instanceBatcher = new HillsideGrassInstanceBatcher(SubmitInstances);
+            instanceBatcher.Begin(); drawCamera = camera;
             ValidateCache();
+            Camera lodObserver = Application.isPlaying ? (viewCamera ? viewCamera : Camera.main) : camera;
+            if (!lodObserver) lodObserver = camera;
             bool immediate = populateImmediately && !Application.isPlaying;
             bool mayPopulate = camera.cameraType != CameraType.Reflection &&
                 (!Application.isPlaying || camera == (viewCamera ? viewCamera : Camera.main));
@@ -189,19 +209,41 @@ namespace WeatherHouse.Hillside
                     AdvanceBuild(cell, deadline);
                 }
                 if (!request.visible || !cell.ready || !GeometryUtility.TestPlanesAABB(frustum, cell.bounds)) continue;
+                bool lowDetail = UseLowDetail(cell, lodObserver);
                 foreach (Batch batch in cell.batches)
                 {
                     if (batch.count == 0) continue;
-                    Mesh mesh = variants[batch.variant];
+                    Mesh mesh = SelectMesh(batch.variant, lowDetail);
                     Material material = materials[batch.variant / 4];
                     if (!mesh || !material) continue;
-                    Graphics.DrawMeshInstanced(mesh, 0, material, batch.matrices, batch.count,
-                        null, ShadowCastingMode.Off, true, gameObject.layer, camera, LightProbeUsage.Off);
+                    int group = batch.variant + (mesh == variants[batch.variant] ? 0 : 12);
+                    drawMeshes[group] = mesh; drawMaterials[group] = material;
+                    instanceBatcher.Append(group, batch.matrices, batch.count);
                     VisibleClumpCount += batch.count;
                 }
             }
+            instanceBatcher.Flush(); drawCamera = null;
             if (mayPopulate) RetireCells();
         }
+
+        void SubmitInstances(int group, Matrix4x4[] matrices, int count)
+        {
+            Graphics.DrawMeshInstanced(drawMeshes[group], 0, drawMaterials[group], matrices, count,
+                null, ShadowCastingMode.Off, true, gameObject.layer, drawCamera, LightProbeUsage.Off);
+            SubmittedDrawCount++;
+        }
+
+        bool UseLowDetail(Cell cell, Camera observer)
+        {
+            cell.lowDetailByCamera.TryGetValue(observer, out bool previous);
+            bool result = HillsideGrassMeshLod.UseLowDetail(cell.bounds, observer.transform.position,
+                previous, meshLodDistance, meshLodHysteresis);
+            if (result) cell.lowDetailByCamera[observer] = true;
+            else cell.lowDetailByCamera.Remove(observer);
+            return result;
+        }
+
+        Mesh SelectMesh(int variant, bool lowDetail) => meshLods.Get(variants[variant], variant, lowDetail);
 
         void RetireCells()
         {

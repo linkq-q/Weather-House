@@ -1,0 +1,9 @@
+Grass instance batching checks
+Boundary 0 x 24 groups: 0 submissions.
+Boundary 1 x 24 groups: 24 submissions.
+Boundary 1022 x 24 groups: 24 submissions.
+Boundary 1023 x 24 groups: 24 submissions.
+Boundary 1024 x 24 groups: 48 submissions.
+Synthetic 16-cell fixture: old submissions=384, combined=48, matrices=34176.
+Actual renderer view: old cell submissions=364, merged=106, matrices=94299; second view repeated no static queries.
+PASS: 107880 exact matrices in original per-group order; 24 variant/LOD groups isolated; 1023 boundaries; repeated Flush; frame reset; all buffers reused.
