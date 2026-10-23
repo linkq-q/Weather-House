@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using WeatherHouse.WildlifeJourney;
+using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
+
+/// <summary>Isolated CPU microbenchmark; this does not measure or predict the game's frame rate.</summary>
+public static class JourneyNavigationPerfProbe
+{
+    private const int BridgeCount = 164, WarmupCalls = 20, CallsPerRound = 400, Rounds = 3;
+    private const float Cell = .3515625f, Span = 1.3f;
+    private const string NavigationSource = "Assets/Game/World/Wildlife/Journey/Runtime/JourneyNavigation.cs";
+    private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
+
+    public static void Run()
+    {
+        string project = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        if (!Application.isBatchMode || !File.Exists(Path.Combine(project, ".wildlife-journey-validation")) ||
+            string.Equals(project.TrimEnd(Path.DirectorySeparatorChar), @"C:\unity project\Weather House", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Only run this benchmark in the marked isolated batch project.");
+        string label = Argument("-journeyPerfLabel", "unlabelled");
+        if (label != "before" && label != "after" && label != "unlabelled")
+            throw new InvalidOperationException("Use -journeyPerfLabel before or after.");
+        string output = Path.Combine(project, "NavigationPerf", label + "_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff"));
+        Directory.CreateDirectory(output);
+        var report = new StringBuilder();
+        var csv = new StringBuilder("case,round,calls,successes,elapsed_ms,ms_per_call\n");
+        GameObject owner = null;
+        TerrainData terrainData = null;
+        try
+        {
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            owner = new GameObject("Isolated navigation performance fixture");
+            terrainData = new TerrainData { heightmapResolution = 33, size = new Vector3(32 * Cell, 2, 32 * Cell) };
+            terrainData.SetHeights(0, 0, new float[33, 33]);
+            GameObject ground = Terrain.CreateTerrainGameObject(terrainData);
+            ground.transform.SetParent(owner.transform, false);
+            ground.layer = 8;
+            var navigation = owner.AddComponent<JourneyNavigation>();
+            navigation.terrain = ground.GetComponent<Terrain>();
+            navigation.groundMask = 1 << 8; navigation.obstacleMask = 1 << 8;
+            navigation.maxSlope = 29; navigation.maxStepHeight = .45f; navigation.surfaceProbeHeight = 65;
+            navigation.sampleSpacing = .35f;
+            navigation.bridges = new JourneyBridgeSurface[BridgeCount];
+            for (int i = 0; i < BridgeCount - 1; i++)
+            {
+                BoxCollider distant = Box(owner.transform, "Distant registered deck " + i,
+                    new Vector3(100 + i * 4, .5f, 100), new Vector3(3, .2f, 1.25f));
+                navigation.bridges[i] = new JourneyBridgeSurface { id = 1 + i % 3, surface = distant };
+            }
+            float startX = 10 * Cell + .1f;
+            Vector3 walkStart = new Vector3(startX, 0, 8 * Cell), walkEnd = walkStart + Vector3.right * Span;
+            Vector3 bridgeStart = new Vector3(startX, .6f, 20 * Cell), bridgeEnd = bridgeStart + Vector3.right * Span;
+            BoxCollider deck = Box(owner.transform, "Actual narrow deck - final registered collider",
+                new Vector3(startX + Span * .5f, .5f, bridgeStart.z), new Vector3(4, .2f, 1.25f));
+            navigation.bridges[BridgeCount - 1] = new JourneyBridgeSurface { id = 4, surface = deck };
+            navigation.terrain.Flush(); navigation.Rebuild(); Physics.SyncTransforms();
+            var profile = new JourneyProfile { bodyRadius = .28566015f, canSwim = true, maxSwimDistance = 8,
+                wadeDepth = .28f, walkSpeed = .65f, swimSpeed = .78f, waterlineHeight = .547016f };
+            ValidateSurface(navigation, profile, walkStart, walkEnd, JourneyTravelMode.Walk, 0);
+            ValidateSurface(navigation, profile, bridgeStart, bridgeEnd, JourneyTravelMode.Bridge, 4);
+            report.AppendLine("Navigation TryStep microbenchmark " + label + " UTC " + DateTime.UtcNow.ToString("O"));
+            report.AppendLine("Unity=" + Application.unityVersion + "; platform=" + Application.platform + "; StopwatchFrequency=" + Stopwatch.Frequency);
+            report.AppendLine("Terrain=real 33x33 TerrainCollider; cell=" + Number(Cell) + "m; registered distinct colliders=" + BridgeCount + "; actual deck index=" + (BridgeCount - 1));
+            report.AppendLine("Bridge dimensions=4 x .2 x 1.25m; actual bridgeId=4; all other deck colliders are >=100m away.");
+            report.AppendLine("Span=" + Number(Span) + "m; Walk=" + walkStart.ToString("F6") + " -> " + walkEnd.ToString("F6") +
+                "; Bridge=" + bridgeStart.ToString("F6") + " -> " + bridgeEnd.ToString("F6"));
+            report.AppendLine("Each case uses requiredMode; Bridge also requires bridgeId=4. No water provider or synthetic surface sampler is installed.");
+            report.AppendLine("Warmup=" + WarmupCalls + " calls per case; measured rounds=" + Rounds + "; calls per round=" + CallsPerRound);
+            report.AppendLine("NavigationSHA256=" + Hash(Path.Combine(project, NavigationSource)));
+            File.Copy(Path.Combine(project, NavigationSource), Path.Combine(output, "JourneyNavigation.cs.txt"));
+            for (int i = 0; i < WarmupCalls; i++)
+            {
+                Require(navigation.TryStep(profile, walkStart, walkEnd, out _, out _, JourneyTravelMode.Walk), "Walk warmup failed.");
+                Require(navigation.TryStep(profile, bridgeStart, bridgeEnd, out _, out _, JourneyTravelMode.Bridge, 4), "Bridge warmup failed.");
+            }
+            var walkTimes = new List<double>(); var bridgeTimes = new List<double>();
+            for (int round = 1; round <= Rounds; round++)
+            {
+                if (round % 2 == 1)
+                {
+                    walkTimes.Add(Measure("Walk", round, navigation, profile, walkStart, walkEnd, JourneyTravelMode.Walk, 0, report, csv));
+                    bridgeTimes.Add(Measure("Bridge", round, navigation, profile, bridgeStart, bridgeEnd, JourneyTravelMode.Bridge, 4, report, csv));
+                }
+                else
+                {
+                    bridgeTimes.Add(Measure("Bridge", round, navigation, profile, bridgeStart, bridgeEnd, JourneyTravelMode.Bridge, 4, report, csv));
+                    walkTimes.Add(Measure("Walk", round, navigation, profile, walkStart, walkEnd, JourneyTravelMode.Walk, 0, report, csv));
+                }
+            }
+            report.AppendLine("TOTAL Walk calls=" + (Rounds * CallsPerRound) + " successes=" + (Rounds * CallsPerRound) +
+                " ms=" + Number(walkTimes.Sum()) + " ms/call=" + Number(walkTimes.Sum() / (Rounds * CallsPerRound)));
+            report.AppendLine("TOTAL Bridge calls=" + (Rounds * CallsPerRound) + " successes=" + (Rounds * CallsPerRound) +
+                " ms=" + Number(bridgeTimes.Sum()) + " ms/call=" + Number(bridgeTimes.Sum() / (Rounds * CallsPerRound)));
+            report.AppendLine("PASS fixed-input CPU path only. This is not a whole-game FPS measurement; the real map has additional rendering, water and crowd work.");
+            Debug.Log(report.ToString());
+        }
+        catch (Exception error) { report.AppendLine("FAIL " + error); throw; }
+        finally
+        {
+            File.WriteAllText(Path.Combine(output, "report.txt"), report.ToString());
+            File.WriteAllText(Path.Combine(output, "calls.csv"), csv.ToString());
+            File.WriteAllText(Path.Combine(project, "NavigationPerf", "latest-" + label + ".txt"), output);
+            if (owner) Object.DestroyImmediate(owner);
+            if (terrainData) Object.DestroyImmediate(terrainData);
+        }
+    }
+
+    private static double Measure(string label, int round, JourneyNavigation navigation, JourneyProfile profile,
+        Vector3 start, Vector3 end, JourneyTravelMode mode, int bridge, StringBuilder report, StringBuilder csv)
+    {
+        int successes = 0;
+        Stopwatch timer = Stopwatch.StartNew();
+        for (int i = 0; i < CallsPerRound; i++)
+            if (navigation.TryStep(profile, start, end, out _, out JourneyTravelMode actual, mode, bridge) && actual == mode) successes++;
+        timer.Stop();
+        double elapsed = timer.Elapsed.TotalMilliseconds;
+        string values = label + "," + round + "," + CallsPerRound + "," + successes + "," + Number(elapsed) + "," + Number(elapsed / CallsPerRound);
+        csv.AppendLine(values);
+        report.AppendLine(label + " round=" + round + " calls=" + CallsPerRound + " successes=" + successes +
+            " ms=" + Number(elapsed) + " ms/call=" + Number(elapsed / CallsPerRound));
+        Require(successes == CallsPerRound, label + " benchmark input stopped being valid.");
+        return elapsed;
+    }
+
+    private static void ValidateSurface(JourneyNavigation navigation, JourneyProfile profile, Vector3 start, Vector3 end, JourneyTravelMode expected, int bridge)
+    {
+        Require(navigation.TryProject(profile, start, out Vector3 projected, out JourneyTravelMode mode) && mode == expected &&
+            Vector3.Distance(projected, start) < .001f, "Fixture start is not on its required real support surface.");
+        Require(navigation.TryStep(profile, start, end, out projected, out mode, expected, bridge) && mode == expected &&
+            Vector3.Distance(projected, end) < .001f, "Fixture 1.3m chord is not completely traversable.");
+        if (bridge != 0) Require(navigation.SampleSurface(start).supportingCollider == navigation.bridges[BridgeCount - 1].surface,
+            "The tested deck is not the last registered collider.");
+    }
+    private static BoxCollider Box(Transform parent, string name, Vector3 center, Vector3 size)
+    {
+        var go = new GameObject(name); go.layer = 8; go.transform.SetParent(parent, false); go.transform.position = center;
+        var box = go.AddComponent<BoxCollider>(); box.size = size; return box;
+    }
+    private static string Argument(string key, string fallback)
+    {
+        string[] args = Environment.GetCommandLineArgs(); int index = Array.IndexOf(args, key);
+        return index >= 0 && index + 1 < args.Length ? args[index + 1] : fallback;
+    }
+    private static string Hash(string path)
+    { using (var sha = SHA256.Create()) using (var input = File.OpenRead(path)) return BitConverter.ToString(sha.ComputeHash(input)).Replace("-", ""); }
+    private static string Number(double value) { return value.ToString("F6", Invariant); }
+    private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
+}

@@ -1,0 +1,17 @@
+Navigation TryStep microbenchmark after UTC 2026-10-23T19:24:41.7648362Z
+Unity=2022.3.62f3c1; platform=WindowsEditor; StopwatchFrequency=10000000
+Terrain=real 33x33 TerrainCollider; cell=0.351563m; registered distinct colliders=164; actual deck index=163
+Bridge dimensions=4 x .2 x 1.25m; actual bridgeId=4; all other deck colliders are >=100m away.
+Span=1.300000m; Walk=(3.615625, 0.000000, 2.812500) -> (4.915625, 0.000000, 2.812500); Bridge=(3.615625, 0.600000, 7.031250) -> (4.915625, 0.600000, 7.031250)
+Each case uses requiredMode; Bridge also requires bridgeId=4. No water provider or synthetic surface sampler is installed.
+Warmup=20 calls per case; measured rounds=3; calls per round=400
+NavigationSHA256=E82FC8AB37B3B28E26D213D58FB769DEAA5187BAF2FE87720147998BCB6FFCFD
+Walk round=1 calls=400 successes=400 ms=18.523900 ms/call=0.046310
+Bridge round=1 calls=400 successes=400 ms=163.403900 ms/call=0.408510
+Bridge round=2 calls=400 successes=400 ms=128.935900 ms/call=0.322340
+Walk round=2 calls=400 successes=400 ms=15.630400 ms/call=0.039076
+Walk round=3 calls=400 successes=400 ms=15.844400 ms/call=0.039611
+Bridge round=3 calls=400 successes=400 ms=149.794400 ms/call=0.374486
+TOTAL Walk calls=1200 successes=1200 ms=49.998700 ms/call=0.041666
+TOTAL Bridge calls=1200 successes=1200 ms=442.134200 ms/call=0.368445
+PASS fixed-input CPU path only. This is not a whole-game FPS measurement; the real map has additional rendering, water and crowd work.

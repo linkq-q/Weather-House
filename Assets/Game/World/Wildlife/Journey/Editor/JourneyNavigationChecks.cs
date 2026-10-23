@@ -243,6 +243,9 @@ namespace WeatherHouse.WildlifeJourney.Editor
                     "A bridge-specific shortcut crossed another bridge or ignored its starting deck identity.");
                 results.Add("PASS optional step constraints validate every surface mode and bridge identity including the start");
 
+                CheckBridgeLookup();
+                results.Add("PASS lazy real-collider bridge mapping, replacement, rebuild edits and disabled/destroyed decks");
+
                 CheckTerrainTriangles();
                 results.Add("PASS real TerrainCollider thin-triangle rejection and safe-line movement agree with route planning");
 
@@ -263,6 +266,43 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 return string.Join("\n", results);
             }
             finally { UnityEngine.Random.state = randomState; Object.DestroyImmediate(root); }
+        }
+
+        private static void CheckBridgeLookup()
+        {
+            var root = new GameObject("Isolated bridge lookup check") { hideFlags = HideFlags.HideAndDontSave };
+            try
+            {
+                root.transform.position = new Vector3(2000, 0, 2000);
+                var first = new GameObject("First deck"); first.transform.SetParent(root.transform, false); first.layer = 31;
+                var second = new GameObject("Second deck"); second.transform.SetParent(root.transform, false); second.layer = 31;
+                second.transform.localPosition = new Vector3(3, 0, 0);
+                Collider a = first.AddComponent<BoxCollider>(), b = second.AddComponent<BoxCollider>();
+                JourneyNavigation nav = root.AddComponent<JourneyNavigation>(); nav.groundMask = 1 << 31; nav.obstacleMask = 0;
+                nav.bridges = new[] { null, new JourneyBridgeSurface { id = 0, surface = a },
+                    new JourneyBridgeSurface { id = 4 }, new JourneyBridgeSurface { id = 7, surface = a },
+                    new JourneyBridgeSurface { id = 9, surface = a }, new JourneyBridgeSurface { id = 5, surface = b } };
+                Physics.SyncTransforms();
+                JourneySurface firstHit = nav.SampleSurface(first.transform.position);
+                Require(nav.Version == 0 && firstHit.valid && firstHit.bridgeId == 7 && firstHit.supportingCollider == a &&
+                    nav.SampleSurface(second.transform.position).bridgeId == 5,
+                    "Fresh serialized bridge mappings require Rebuild, lose real collider identity, or replace the first positive duplicate ID.");
+                nav.bridges = new[] { new JourneyBridgeSurface { id = 11, surface = b } };
+                Require(nav.SampleSurface(first.transform.position).bridgeId == 0 && nav.SampleSurface(second.transform.position).bridgeId == 11,
+                    "Replacing the bridge array retained stale collider mappings.");
+                nav.bridges[0].id = 13; nav.Rebuild();
+                Require(nav.SampleSurface(second.transform.position).bridgeId == 13, "Rebuild ignored an ID edited within the same bridge array.");
+                nav.bridges[0].surface = a; nav.Rebuild();
+                Require(nav.SampleSurface(first.transform.position).bridgeId == 13 && nav.SampleSurface(second.transform.position).bridgeId == 0,
+                    "Rebuild ignored a collider edited within the same bridge array or retained its old mapping.");
+                a.enabled = false; Physics.SyncTransforms();
+                Require(!nav.SampleSurface(first.transform.position).valid, "A cached disabled collider still supplied a bridge surface.");
+                a.enabled = true; Physics.SyncTransforms();
+                Require(nav.SampleSurface(first.transform.position).bridgeId == 13, "Re-enabling a bridge collider lost its cached identity.");
+                Object.DestroyImmediate(a); Physics.SyncTransforms();
+                Require(!nav.SampleSurface(first.transform.position).valid, "A cached destroyed collider still supplied a bridge surface.");
+            }
+            finally { Object.DestroyImmediate(root); }
         }
 
         private static void CheckTerrainTriangles()

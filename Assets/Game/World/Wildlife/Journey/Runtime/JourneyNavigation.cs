@@ -52,6 +52,8 @@ namespace WeatherHouse.WildlifeJourney
         public int Version { get; private set; }
         private readonly RaycastHit[] groundHits = new RaycastHit[64];
         private readonly Collider[] overlaps = new Collider[32];
+        private readonly Dictionary<Collider, int> bridgeIds = new Dictionary<Collider, int>();
+        private JourneyBridgeSurface[] cachedBridges;
         private const int MaximumSamples = 4096;
         private readonly List<float> sampleTimes = new List<float>();
         private readonly List<float> terrainCuts = new List<float>();
@@ -65,7 +67,18 @@ namespace WeatherHouse.WildlifeJourney
         {
             nodes = nodes ?? new JourneyNode[0]; links = links ?? new JourneyLink[0];
             waterAreas = waterAreas ?? new JourneyWaterArea[0]; bridges = bridges ?? new JourneyBridgeSurface[0];
+            cachedBridges = null; // Rebuild also invalidates edits within the existing bridge array.
             Version++;
+        }
+
+        private void EnsureBridgeLookup()
+        {
+            if (ReferenceEquals(cachedBridges, bridges)) return;
+            bridgeIds.Clear(); cachedBridges = bridges;
+            if (bridges == null) return;
+            foreach (JourneyBridgeSurface entry in bridges)
+                if (entry != null && entry.id > 0 && entry.surface && !bridgeIds.ContainsKey(entry.surface))
+                    bridgeIds.Add(entry.surface, entry.id);
         }
 
         public JourneySurface SampleSurface(Vector3 point)
@@ -86,16 +99,18 @@ namespace WeatherHouse.WildlifeJourney
             int count = Physics.RaycastNonAlloc(point + Vector3.up * height, Vector3.down, groundHits,
                 height * 2f, groundMask, QueryTriggerInteraction.Ignore);
             if (count == groundHits.Length) { sample.blocked = true; return sample; }
+            if (count > 0) EnsureBridgeLookup();
             float nearest = float.PositiveInfinity;
             for (int i = 0; i < count; i++)
             {
-                RaycastHit hit = groundHits[i]; int bridge = 0;
-                foreach (JourneyBridgeSurface entry in bridges)
-                    if (entry != null && entry.id > 0 && entry.surface == hit.collider) { bridge = entry.id; break; }
-                if (terrain != null && !(hit.collider is TerrainCollider) && bridge == 0) continue;
+                RaycastHit hit = groundHits[i];
+                Collider collider = hit.collider;
+                if (!collider) continue;
+                bridgeIds.TryGetValue(collider, out int bridge);
+                if (terrain != null && !(collider is TerrainCollider) && bridge == 0) continue;
                 if (hit.distance >= nearest) continue;
                 nearest = hit.distance; sample.groundY = hit.point.y; sample.bridgeId = bridge;
-                sample.supportingCollider = hit.collider; sample.valid = true;
+                sample.supportingCollider = collider; sample.valid = true;
                 sample.slope = Vector3.Angle(hit.normal, Vector3.up);
             }
             if (worldWaterSurface != null)
