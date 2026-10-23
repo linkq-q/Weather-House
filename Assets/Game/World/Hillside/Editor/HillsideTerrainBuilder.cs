@@ -47,7 +47,7 @@ namespace WeatherHouse.Hillside.Editor
             var layers = new TerrainLayer[names.Length];
             for (int i = 0; i < layers.Length; i++)
             {
-                var texture = new Texture2D(4, 4, TextureFormat.RGBA32, false) { name = names[i] + " Color" };
+                var texture = new Texture2D(4, 4, TextureFormat.RGB24, false) { name = names[i] + " Color" };
                 var pixels = new Color[16];
                 for (int p = 0; p < pixels.Length; p++) pixels[p] = colors[i];
                 texture.SetPixels(pixels);
@@ -64,7 +64,7 @@ namespace WeatherHouse.Hillside.Editor
                 {
                     float u = x / (float)(SurfaceResolution - 1), v = z / (float)(SurfaceResolution - 1);
                     float wx = (u - .5f) * HillsideLayout.Size, wz = (v - .5f) * HillsideLayout.Size;
-                    float path = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(1.15f, 2.3f, HillsideLayout.PathDistance(wx, wz)));
+                    float path = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.15f, .6f, HillsideLayout.PathEdgeDistance(wx, wz)));
                     float bank = 0f;
                     foreach (HillsideLayout.WaterBody water in HillsideLayout.Waters)
                         bank = Mathf.Max(bank, 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.5f, 3.1f, water.SignedDistance(wx, wz))));
