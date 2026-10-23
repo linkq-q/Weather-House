@@ -73,7 +73,7 @@ namespace WeatherHouse.Hillside.Editor
         [Serializable] sealed class Report
         {
             public string utc, status, error, runPath, currentStage, leftFootPath, rightFootPath, leftLegPath, rightLegPath;
-            public string evidence = "Unity Editor Play, foreground Game view required; CPU/GC recorder unavailable values are -1. Frame time and Main Thread include Editor overhead/waits; no player build or GPU timing. Editor update observes distinct Time.frameCount values and may miss frames; frameGap/sampleCoverage expose this. Cold start begins at EnteredPlayMode and excludes domain reload/asset import. Grass uses manualCaptureOnly to preserve caches: grassCells counts cached cells; grassClumps is zero while suppressed. Gait run moves the player and is separate from stationary comparisons. AI progresses between stages; baseline_repeat checks drift.";
+            public string evidence = "Unity Editor Play, foreground Game view required; CPU/GC recorder unavailable values are -1. Frame time and Main Thread include Editor overhead/waits; no player build or GPU timing. Editor update observes distinct Time.frameCount values and may miss frames; frameGap/sampleCoverage expose this. Cold-stage elapsed time begins at EnteredPlayMode; its first unscaled frame delta can still include Play-entry work. Grass uses manualCaptureOnly to preserve caches: grassCells counts cached cells; grassClumps is zero while suppressed. Gait run moves the player and is separate from stationary comparisons. AI progresses between stages; baseline_repeat checks drift.";
             public StageSummary[] stages;
         }
 
@@ -89,8 +89,21 @@ namespace WeatherHouse.Hillside.Editor
         static bool RestorePending => SessionState.GetBool(Key + "restorePending", false);
         static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
         static T[] SceneObjects<T>() where T : Component => Object.FindObjectsOfType<T>(true).Where(o => o.gameObject.scene.IsValid() && o.gameObject.scene.isLoaded).ToArray();
-        static void Json(string path, object value) { Directory.CreateDirectory(Path.GetDirectoryName(path)); File.WriteAllText(path, JsonUtility.ToJson(value, true)); }
+        static void Json(string path, object value) { Directory.CreateDirectory(Path.GetDirectoryName(path)); WriteText(path, JsonUtility.ToJson(value, true)); }
 
+        // Replace the file so viewers with a Windows memory map do not block report updates.
+        internal static void WriteText(string path, string value)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                File.WriteAllText(temporary, value);
+                if (File.Exists(path)) File.Replace(temporary, path, null);
+                else File.Move(temporary, path);
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        }
         static void Update()
         {
             try
@@ -113,12 +126,15 @@ namespace WeatherHouse.Hillside.Editor
                             else if (command == "benchmark_cell") BenchmarkCell();
                             else if (command == "selfcheck") SelfCheck();
                             else if (command == "grass_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideGrassPerformanceChecks", "grass-repair-checks.txt");
+                            else if (command == "grass_lod_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideGrassLodChecks", "grass-lod-checks.txt");
+                            else if (command == "grass_batching_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideGrassBatchingChecks", "grass-batching-checks.txt");
+                            else if (command == "tree_lod_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideTreeLodChecks", "tree-lod-checks.txt");
                             else if (command == "cape_checks") RunRepairCheck("ForestSpriteCharacter.Editor.ForestSpriteCapePerformanceChecks", "cape-repair-checks.txt");
                             else if (command == "runtime_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideSafeRuntimeChecks", "runtime-repair-checks.txt");
                             else throw new InvalidOperationException("Unknown performance command: " + command);
-                            File.WriteAllText(Folder + "/last-command.txt", command + " OK " + DateTime.UtcNow.ToString("O"));
+                            WriteText(Folder + "/last-command.txt", command + " OK " + DateTime.UtcNow.ToString("O"));
                         }
-                        catch (Exception e) { File.WriteAllText(Folder + "/last-command.txt", command + " FAIL\n" + e); }
+                        catch (Exception e) { WriteText(Folder + "/last-command.txt", command + " FAIL\n" + e); }
                     }
                 }
                 if (measuring && EditorApplication.isPlaying && !EditorApplication.isPaused) Tick();
@@ -168,9 +184,9 @@ namespace WeatherHouse.Hillside.Editor
                 var run = type.GetMethod("Run", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
                 Require(run != null, "Repair check has no public static Run method: " + typeName);
                 string result = run.Invoke(null, null)?.ToString() ?? "PASS";
-                File.WriteAllText(Folder + "/" + reportName, result);
+                WriteText(Folder + "/" + reportName, result);
             }
-            catch (Exception e) { File.WriteAllText(Folder + "/" + reportName, "FAIL\n" + e); throw; }
+            catch (Exception e) { WriteText(Folder + "/" + reportName, "FAIL\n" + e); throw; }
         }
         static void FocusGameView() { var type = Type.GetType("UnityEditor.GameView,UnityEditor"); if (type != null) EditorWindow.GetWindow(type)?.Focus(); }
 
@@ -196,7 +212,7 @@ namespace WeatherHouse.Hillside.Editor
             runFolder = Folder + "/" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ"); Directory.CreateDirectory(runFolder);
             File.Copy(Folder + "/state.json", runFolder + "/entry-state.json");
             SessionState.SetString(Key + "runFolder", runFolder);
-            File.WriteAllText(Folder + "/latest-run.txt", runFolder); frames.Clear(); summaries.Clear(); error = ""; status = "entering_play";
+            WriteText(Folder + "/latest-run.txt", runFolder); frames.Clear(); summaries.Clear(); error = ""; status = "entering_play";
             stage = -1; snapshot = null; stopping = measuring = globalsOnlyRestore = false; leftFoot = rightFoot = null;
             SessionState.SetBool(Key + "active", true); SessionState.SetBool(Key + "restorePending", true);
             SessionState.SetBool(Key + "explicitRestore", false);
@@ -356,7 +372,7 @@ namespace WeatherHouse.Hillside.Editor
                 f.animatorRun ? 1 : 0, f.animatorJump ? 1 : 0, f.transition ? 1 : 0, f.runCadence, f.velocityY, f.verticalSpeed,
                 f.leftFootPosition.x, f.leftFootPosition.y, f.leftFootPosition.z, f.rightFootPosition.x, f.rightFootPosition.y, f.rightFootPosition.z,
                 f.leftLegRotation.x, f.leftLegRotation.y, f.leftLegRotation.z, f.leftLegRotation.w, f.rightLegRotation.x, f.rightLegRotation.y, f.rightLegRotation.z, f.rightLegRotation.w, f.frameGap, f.applicationFocused ? 1 : 0);
-            File.WriteAllText(runFolder + "/frames.csv", csv.ToString());
+            WriteText(runFolder + "/frames.csv", csv.ToString());
         }
 
         static void WriteReport()
@@ -491,7 +507,7 @@ namespace WeatherHouse.Hillside.Editor
             Require(Math.Abs(Percentile(new[] { 1.0, 2, 3, 4 }, .95) - 3.85) < .000001, "Interpolated p95 failed.");
             var result = Stats(new[] { -1.0, double.NaN, 5, 1, 3 });
             Require(result.validSamples == 3 && result.median == 3 && result.max == 5, "Unavailable metric filtering failed.");
-            Directory.CreateDirectory(Folder); File.WriteAllText(Folder + "/selfcheck.txt", "PASS: empty, single, even median, interpolated p95, unavailable metrics.\n");
+            Directory.CreateDirectory(Folder); WriteText(Folder + "/selfcheck.txt", "PASS: empty, single, even median, interpolated p95, unavailable metrics.\n");
         }
     }
 }

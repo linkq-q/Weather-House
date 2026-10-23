@@ -77,7 +77,7 @@ namespace WeatherHouse.Hillside.Editor
                 CheckTurnBack(grass, report);
                 report.AppendLine("PASS: " + comparisons + " legacy matrix comparisons, " + matrices + " matrices, near/far/water/shore/boundary cells; warm queries unchanged; resumable work; turn-back cache retained.");
                 Directory.CreateDirectory("HillsidePerformanceReview");
-                File.WriteAllText("HillsidePerformanceReview/grass-repair-checks.txt", report.ToString());
+                HillsidePerformanceDiagnostics.WriteText("HillsidePerformanceReview/grass-repair-checks.txt", report.ToString());
                 return report.ToString();
             }
             finally

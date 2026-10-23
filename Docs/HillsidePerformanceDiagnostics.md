@@ -25,6 +25,8 @@
 
 修复后的等价检查命令是 `grass_checks`、`cape_checks`、`runtime_checks`，分别输出 `grass-repair-checks.txt`、`cape-repair-checks.txt`、`runtime-repair-checks.txt`。这些检查只允许编辑态运行，用临时对象比较旧算法和优化算法，不保存当前场景。草检查覆盖位置/变体/矩阵、切片预算和转镜头缓存；披风检查覆盖接触计算；运行时检查覆盖动物动画图和零扰动水波。
 
-这些是 Unity Editor Play 的数据，包含编辑器和等待开销，不等同于独立构建性能。工具不提供 GPU 时间；不可用计数器以 `-1` 表示。三角形统计包含渲染通道、阴影和反射等重复提交，不能当成模型的唯一面数。行为状态随时间变化，重复基线用来检查漂移；关闭某组没有稳定提速，也不能证明该组没有成本。`applicationFocused` 与 `focusedFraction` 用于识别前台条件。
+补充检查命令 `grass_lod_checks`、`tree_lod_checks`、`grass_batching_checks` 分别检查远草网格与资源生命周期、树 LOD 阈值与恢复、跨格实例提交的矩阵完整性。输出对应 `grass-lod-checks.txt`、`tree-lod-checks.txt`、`grass-batching-checks.txt`。
+
+这些是 Unity Editor Play 的数据，包含编辑器和等待开销，不等同于独立构建性能。冷阶段的计时起点是进入 Play 回调，但首个 `unscaledDeltaTime` 仍可能包含进入 Play 的工作，不能直接解释为草生成开销。工具不提供 GPU 时间；不可用计数器以 `-1` 表示。三角形统计包含渲染通道、阴影和反射等重复提交，不能当成模型的唯一面数。行为状态随时间变化，重复基线用来检查漂移；关闭某组没有稳定提速，也不能证明该组没有成本。`applicationFocused` 与 `focusedFraction` 用于识别前台条件。
 
 编辑器轮询按 `Time.frameCount` 去重，`frameGap` 与 `sampleCoverage` 显示漏采情况。跑步判定同时查看原生 Animator 状态、归一化时间、接地状态和大腿旋转；脚骨局部平移固定不能单独证明动画停止。
