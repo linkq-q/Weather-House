@@ -1,0 +1,148 @@
+天气屋当前山林场景：全面性能原因清单
+2026-10-23，基于 c99af7c 水面修复后的现行源码与当前编辑态场景
+
+本轮范围
+重新核对草、树、角色与布料、动物、物理、水面反射、水波模拟、URP通道、画质、GC和编辑器开销。没有修改游戏代码，没有进入Play、切换场景、保存或丢弃场景。当前场景有未保存改动，原样保留。
+当前独立Unity桥接未连接；使用项目已有Editor诊断入口读取当前状态，并在当前Terrain上直接调用三次BuildCell。它只返回生成数据，不绘制，也不写入草缓存。
+
+最强的新证据
+cell-benchmark.json：当前人物所在格(-5,-5)，cellSize=16，密度28.011204。
+单格BuildCell三次耗时：312.5724 / 261.9081 / 270.3125 ms，中位数270.3125 ms。
+这是现行生成函数的CPU耗时，包含位置、环境筛选和矩阵数组创建，没有GPU绘制。编辑态计时不是逐帧Profiler，但已经直接证明该调用足以造成停顿。60 FPS的单帧预算约16.67 ms，单格超过约16倍。
+现行Play一帧允许同步生成两格，约0.52～0.63秒的同量级CPU工作，与此前跑动的430～641 ms长帧相符。不能据此把其它模块开销全部算成零。
+
+一、确定会触发移动/转镜头长帧的路径，优先级P0
+
+1. 整格同步生成，没有可中断预算【已计时】
+   HillsideGrassRenderer.cs:92,112–116,159–216。
+   每帧最多两格是数量限制，不是耗时限制。即便改为一格，单格仍可能卡0.27秒。首次入场、转入新区域、缓存失效时都会调用。
+   修复方向：静态草候选预计算/缓存，并按候选或毫秒切片；不能仅改2→1。
+
+2. 每个草候选重复查询整条道路网、地形、坡度、水体【源码确认，子项未分别计时】
+   HillsideGrassRenderer.cs:168–198；Runtime/HillsideLayout.cs:151–173。
+   每格最多7171候选，每候选扫描319段道路，另有Terrain.SampleHeight/GetSteepness及三个水体含三角函数的SignedDistance。两格最多约457.5万次线段距离计算是工作量上界，不是额外测得的耗时。
+   修复方向：道路覆盖场/局部路径段索引；地高、坡度、水体与草候选保持相机无关，只生成一次。
+
+3. 视锥外缓存立即删除，镜头转回还要重新生成【源码确认】
+   HillsideGrassRenderer.cs:129–132。
+   没有保留圈、预取圈或最近使用缓存。刚走出屏幕的草格就丢弃，反复转镜头容易反复支付上面的整格成本。
+
+4. 相机移动导致密度变化时完整重建草格【源码确认】
+   HillsideGrassRenderer.cs:108–116,207。
+   密度比缓存增减约20%就重新做地形、道路和水体筛选。地形没有变也重复计算；应复用静态候选，只调整保留实例。
+
+二、持续低帧率的渲染候选，配置/执行路径已核实，单项毫秒尚未测量
+
+5. 草本身的几何量仍大【P1】
+   短草195顶点/208三角，高草165/176，雏菊约439～453三角/丛。当前混合比例约208三角/丛，先前同画面约11万丛，即单次几何通道约2300万三角的量级。
+   HillsideGrassRenderer.cs:124–125,198–214。
+   实例化减少提交次数，但每个实例的顶点与片元仍要处理。远处仅降低数量/缩小尺寸，没有换低面数模型；visibleRadius=42是满密度范围，远处最低仍保留0.006密度，没有真正截止。
+
+6. 草叶双面、程序噪声、风和阴影接收【P1】
+   PainterlyGrass.shader:28,50–57,111–144,186–242。
+   Cull Off、每像素多次PatchNoise及光照，DepthNormals等几何通道仍要做风变形。它是Opaque且有深度写入，不能误称透明混合；也不能只按Pass声明个数认定每帧全执行。
+
+7. SSAO增加DepthNormals预通道，且全分辨率计算【P1】
+   Assets/Settings/URP-HighFidelity-Renderer.asset:15–27。
+   SSAO开启、Downsample=0、Source=DepthNormals、高质量模糊；URP14 ScreenSpaceAmbientOcclusion.cs:264–271请求Normal输入。
+   草和树的几何因此可能在颜色通道之前额外执行DepthNormals。实际帧内次数应由Frame Debugger确认。
+
+8. 上次水面修复没有把反射相机的SSAO关掉【P1，新发现遗漏】
+   PainterlyWaterReflection.cs:131–151。
+   反射相机仍使用默认Renderer，其SSAO是RendererFeature；renderPostProcessing=false或关闭常规depth请求不等于关闭SSAO。当前反射RT是颜色RT，不满足SSAO源码的depth-only早退条件，因此反射仍会排入SSAO/DepthNormals。
+   修复方向：反射相机使用无SSAO、无额外效果的轻量Renderer；不能只关post标志就宣布反射通道精简完成。
+
+9. 15Hz反射限频有条件，多视图交替可绕过【P1】
+   PainterlyWaterReflection.cs:114–120。
+   只限制Play的主Game相机；SceneView/其它Game相机逐次拍摄。换源、累计位移>1米、旋转>8度、投影变化立即刷新；SceneView与Game交替使用单缓存时会互相使缓存失效。
+   这是现行行为，不能把15Hz理解为每个视图的严格总预算。当前保存场景仅一个主相机；动态Editor视图数量仍需现场统计。
+
+10. 水面片元shader本身复杂，限频反射不减少它每帧的计算【P1】
+    PainterlyWater.shader:256–258,405–407,555–557,640–687。
+    反射笔触、表面笔触、焦散都有3×3邻域搜索和hash/sincos；当前材质启用了粗细笔触、焦散、短波及多次深度/颜色/阴影采样。水覆盖屏幕较大时可能产生明显像素成本。
+    区分方法：分别只关反射组件、只关水MeshRenderer；两者不是同一个实验。
+
+11. 三处水波模拟即使无人入水、在画外也继续运行【P1–P2】
+    HillsideWaterInteraction.cs:82–119。
+    每池256² RT，每LateUpdate执行1～8次高度迭代再算一次法线，三个池塘独立执行；没有湿润状态/画面可见性休眠。低帧时还会增加子步数，属于独立于反射的开销。
+
+12. 主画质配置远高于“简单光照”的直觉【P1】
+    URP-HighFidelity.asset:29–30,39,49–58；主相机scene:40518,40530–40531。
+    4×MSAA、HDR、renderScale=1、4096主光阴影、150米阴影距离、四级联和软阴影；主相机far=450。一个方向光也会让大量投影对象进入多级阴影通道。
+    主相机还固定开启Opaque/Depth，Renderer Intermediate Texture为Always，水面全关也不一定自动消除Copy Color/Depth成本。
+
+13. 287棵独立杉树的远距离LOD/剔除设置保守【P1】
+    HillsideNatureBuilder.cs:159起；scene有Fir1=96、Fir2=95、Fir3=96。
+    末级LOD阈值被改成0.001，全局lodBias=2；末级仍是mesh，不是billboard。它们是独立Prefab，不受Terrain.treeDistance控制。
+    远树可能持续参与Forward、DepthNormals和150米范围内阴影。
+
+14. 树叶双面AlphaTest、风、LOD交叉淡化与多个通道叠加【P1–P2】
+    实际是Backdrop_Tall_Fir_Branch.mat与HIGHLANDS/Highlands_Foliage.shader，不是树研究实验材质。
+    材质CullMode=0，风开启；树叶投影开启，LOD crossfade开启。近树的叶片重叠与MSAA、SSAO、阴影共同增加负担。
+    场景没有烘焙遮挡剔除数据；Camera.occlusionCulling=true不能证明已有有效的烘焙遮挡剔除。
+
+三、角色/动物/物理与GC候选，路径确定但耗时未测
+
+15. 披风除了原生Cloth，还做多轮CPU蒙皮与接触响应【P1】
+    ForestSpriteCapeCloth.cs:183–200,308–340；ForestSpriteCapeContact.cs:159–237。
+    当前披风558顶点、411粒子、646三角、42引导节点、47骨骼。每帧接触响应约5次全网格CPU蒙皮，拉伸测量再做一次，并排序936条边；另有三轮接触投影。它们是实际代码路径，不是只有一个便宜的动画组件。
+
+16. 披风接触“采样诊断”常驻每帧【P1】
+    ForestSpriteCapeContact.cs:72–105,293–315,364–386。
+    自定义PlayerLoop在原生Cloth完成后读取所有cloth.vertices，检查411粒子及每三角4个表面点，共2995个采样点，再遍历显式碰撞体；约2.4万次几何测试/帧的量级。ShowMarkers=false只隐藏标记，不关闭计算。
+    responseEnabled=false也不等于完全隔离该组件，代码仍先蒙皮/测深度。
+
+17. 原生Cloth 480Hz及碰撞设置【P1–P2】
+    ForestSpriteCapeCloth.cs:379–394；ForestSprite.prefab:1884–1899,2739–2741。
+    每帧强制480Hz、连续碰撞、自碰撞；与自定义接触、引导骨并存。实际原生求解时间需Profiler测。
+    地板大球的普通物理Collider已禁用，不能说它正引起整场景普通物理接触；但它仍在Cloth的显式碰撞引用内。
+
+18. 80只动物离屏仍动画/蒙皮，缺距离LOD【P2】
+    九种Generated动物prefab均AlwaysAnimate、updateWhenOffscreen=true；WildlifeAnimation.cs:25–38,56–71。
+    每只持续运行PlayableGraph、每帧调整混合权重。当前没有远距降频/休眠/模型LOD；普通SkinnedMeshRenderer不能靠打开普通GPU Instancing直接合并。
+    之前关闭动物未测出稳定提速，只能说明当时它不是已分离出的主要限制，不能认定没有成本。
+
+19. 动物决策同帧批处理与路径/碰撞查询【P2】
+    WildlifePopulation.cs:58–84,224–255；WildlifeAgent.cs:193–259。
+    全体每0.2秒同帧Think，每帧全体Move；目的地最多14次、逃跑12次、落点18次尝试，每次沿路径采地形/坡度并执行OverlapSphereNonAlloc/SphereCastNonAlloc。可能形成约5Hz的峰。
+    NonAlloc只避免返回数组分配，不免除查询计算。邻域已有6米空间格与48候选/12邻居上限，不是无界N²。
+
+20. 分配和GC可能制造二次停顿【P2】
+    草每块新建12个List、矩阵数组，满格最终矩阵本身约459KB，替换/丢弃缓存后等待GC；披风还每帧读取cloth.vertices/bones/collider数组并构造诊断数据。
+    之前冷启动与跑动记录存在MB级分配，但尚未将GC.Collect与每个长帧一一对齐。应先消除反复生成，再做存储复用，避免只清GC掩盖根因。
+
+21. 慢帧的碰撞/物理追赶与动画混叠【放大器，不是独立首因】
+    ForestSpriteDemoController.cs:122–168把deltaTime切成最多约50ms的CharacterController.Move；TimeManager固定步长20ms、最大允许0.333秒，会增加慢帧中的追赶量。动物不等同80个Rigidbody刚体模拟。
+    跑步片段开启Loop，先前原生Run时间与腿骨确实前进；严重低帧时每显示帧前进约0.970588个步态周期，视觉接近同一姿势。没有证据支持重做跑步素材来修FPS。
+
+四、异常及环境因素，仍需排除，不能冒充已经确认的主因
+
+22. 披风Renderer的AABB为NaN【异常已确认，性能影响未知】
+    ForestSprite.prefab:1874–1875的既有未提交改动把有限bounds改成NaN。本轮未动。可能影响裁剪/报错，不能直接推断布料粒子也NaN或它就是0.3秒停顿的原因。
+
+23. 编辑器附加开销、脚本重载、错误日志【部分路径确认】
+    旧第二轮记录确因域重载中断，重载后曾有SquirrelTailWave异常，不能与初次完整测量混为一谈。最近日志尾未见持续异常刷屏，仍保留原RenderSingleCamera过时API警告。
+    SquirrelLabSession在Editor每0.5秒写状态JSON；其它Editor工具也轮询请求，Game/SceneView同时重绘还会增加反射。它们可影响Editor数据，需独立开发构建与Profiler比较，但不是已测单格CPU耗时的替代解释。
+
+24. GPU等待、VSync、显卡功耗/温控、显存/内存、后台负载【尚未测量】
+    当前实际设备读回RTX 5060 Laptop GPU，没有“误用核显”的证据。当前约2.1GB Unity进程工作集不能说明显存是否耗尽。没有GPU时间、功耗温度和显存驻留数据，不能先归因硬件。
+    vSync=1可造成60/30等台阶，但解释不了不涉及绘制的270ms草生成。Main Thread计数可能包含GPU/呈现等待，不能把全部Main Thread时间都算成脚本活跃计算。
+    首次shader编译/资源导入可造成入场卡顿；已热身后随镜头反复发生的草格重算有独立证据。
+
+已降权/排除的常见猜测
+- 当前生产场景仅一个保存的Camera、一个Directional Light、空camera stack，没有“大量灯光/相机堆叠”的配置证据。
+- c99af7c已把草DrawMeshInstanced绑定目标camera，旧的草自动重复进反射路径已关闭；不能继续把旧缺陷当现行原因。
+- 草投射阴影明确Off；shader有ShadowCaster声明不证明实际在投草影。
+- 当前Hillside没有GrassMeadow/GrassLiveUpdate引用，不能把实验场slider重建逻辑混入本场景。
+- UI演示面板与控制提示在Hillside实例禁用，没有其持续绘制的证据。
+- 没有每帧BakeMesh调用；角色实际做的是自定义CPU蒙皮。
+- 没有密度被简单乘成density²，或相机静止就由center/AABB差异无限重建的源码证据。
+- 地形构建与动物资源准备是Editor显式入口，不是当前每帧重造整张地图；草的“加载”实质是现场计算候选与矩阵。
+
+建议下一步顺序
+先消除P0：缓存静态候选、保留视锥外缓存、可中断生成；保持草位置/种子/画风不变。
+随后分离“暖缓存静止GPU慢”与“移动CPU尖峰”：依次测草绘制、SSAO、树阴影/LOD、水shader与水波模拟。
+再给披风原生求解、自定义响应、后置诊断分别计时，最后排动物动画/行为距离LOD。
+每次只隔离一项，记录CPU活跃时间、GPU时间、分配与真实通道，避免用关反射代替关闭全部水开销，或用关闭标记代替关闭布料诊断。
+
+本轮没有修复游戏逻辑。最确定的结论是：单草格已耗约0.27秒CPU，持续低帧还叠加了多条真实渲染/动画路径；水面局部优化不足以消除这些问题。
