@@ -28,7 +28,7 @@ namespace WeatherHouse.Vegetation.Editor
             public string id, command, result, message, utc, scene, action;
             public bool playing, grounded;
             public Vector3 player, camera, viewport;
-            public float yaw, pitch, distance, lookAhead, fov, capeDepth;
+            public float yaw, pitch, distance, lookAhead, fov, capeDepth, walkSpeed, runSpeed;
             public string[] checks;
             public string playModeStartScene;
             public int enabledPlayers, enabledCameras, enabledListeners;
@@ -321,6 +321,7 @@ namespace WeatherHouse.Vegetation.Editor
                     answer.player=a.player.transform.position;answer.camera=a.playerCamera.transform.position;
                     answer.viewport=a.playerCamera.WorldToViewportPoint(answer.player+Vector3.up*.8f);
                     answer.action=a.player.CurrentState;answer.grounded=a.player.IsGrounded;
+                    answer.walkSpeed=a.player.walkSpeed;answer.runSpeed=a.player.runSpeed;
                     var c=a.playerCamera.GetComponent<VegetationTopDownCamera>();
                     if(c){answer.yaw=c.Yaw;answer.pitch=c.pitch;answer.distance=c.distance;answer.lookAhead=c.lookAhead;answer.fov=c.fieldOfView;}
                     var contact=a.player.capeCloth.GetComponent<ForestSpriteCapeContact>();
@@ -363,7 +364,7 @@ namespace WeatherHouse.Vegetation.Editor
             var a=Adapter();var p=a.player;var c=a.playerCamera.GetComponent<VegetationTopDownCamera>();
             if(lastTestFrame==Time.frameCount)return;
             lastTestFrame=Time.frameCount;
-            simulatedStageTime+=Mathf.Min(Time.deltaTime,.05f);
+            simulatedStageTime+=Time.deltaTime;
             if(stage==3 && !p.IsGrounded && p.CurrentState=="Jump")
             {
                 jumpAirborne=true;

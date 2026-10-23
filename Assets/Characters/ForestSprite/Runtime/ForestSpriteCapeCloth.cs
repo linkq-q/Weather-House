@@ -23,9 +23,9 @@ namespace ForestSpriteCharacter
             [Range(.02f, .8f)] public float bendStiffness = .3f;
             [Range(0, 1)] public float contactRebound = .35f;
             [Range(.08f, .4f)] public float contactResponse = .18f;
-            [Range(.3f, 2f)] public float walkSpeed = 1.5f;
+            [Range(.3f, 4f)] public float walkSpeed = 2.25f;
             [Range(0, 1)] public float walkStride = 1f;
-            [Range(1, 4)] public float runSpeed = 3f;
+            [Range(1, 8)] public float runSpeed = 4.5f;
 
             public void Clamp()
             {
@@ -42,9 +42,9 @@ namespace ForestSpriteCharacter
                 bendStiffness = Safe(bendStiffness, .02f, .8f, .3f);
                 contactRebound = Safe(contactRebound, 0, 1, .35f);
                 contactResponse = Safe(contactResponse, .08f, .4f, .18f);
-                walkSpeed = Safe(walkSpeed, .3f, 2f, 1.5f);
+                walkSpeed = Safe(walkSpeed, .3f, 4f, 2.25f);
                 walkStride = Safe(walkStride, 0, 1, 1);
-                runSpeed = Safe(runSpeed, 1, 4, 3f);
+                runSpeed = Safe(runSpeed, 1, 8, 4.5f);
             }
             static float Safe(float value, float low, float high, float fallback) =>
                 float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Clamp(value, low, high);

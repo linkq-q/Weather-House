@@ -123,8 +123,8 @@ namespace ForestSpriteCharacter
                 GUILayout.Space(6f);
                 GUILayout.Label("移动调节", heading);
                 cape.settings.walkStride = Slider("走路步幅（原步幅 → 大步）", cape.settings.walkStride, 0f, 1f, ref changed, 100f, "%");
-                cape.settings.walkSpeed = Slider("走路速度", cape.settings.walkSpeed, .3f, 2f, ref changed, 1f, " m/s");
-                cape.settings.runSpeed = Slider("跑步速度", cape.settings.runSpeed, 1f, 4f, ref changed, 1f, " m/s");
+                cape.settings.walkSpeed = Slider("走路速度", cape.settings.walkSpeed, .3f, 4f, ref changed, 1f, " m/s");
+                cape.settings.runSpeed = Slider("跑步速度", cape.settings.runSpeed, 1f, 8f, ref changed, 1f, " m/s");
                 if (changed)
                 {
                     cape.ApplySettings();

@@ -12,9 +12,9 @@ namespace ForestSpriteCharacter
         public bool showControls = true;
         public ForestSpriteSecondaryMotion secondaryMotion;
         public ForestSpriteCapeCloth capeCloth;
-        public float walkSpeed = 1.5f;
+        public float walkSpeed = 2.25f;
         [Range(0f, 1f)] public float walkStride = 1f;
-        public float runSpeed = 3f;
+        public float runSpeed = 4.5f;
         [HideInInspector] public float originalWalkCycleDistance = .264f;
         [HideInInspector] public float walkCycleDistance = .72f;
         [HideInInspector] public float runCycleDistance = 1.230769f;
@@ -30,6 +30,7 @@ namespace ForestSpriteCharacter
         public string CurrentState { get; private set; } = "";
         public bool IsGrounded => controller != null && controller.isGrounded;
         public float VerticalSpeed => verticalSpeed;
+        public Vector3 ActualVelocity { get; private set; }
         public float JumpPhase { get; private set; }
         public float JumpOpenness => CurrentState == "Jump" ?
             Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.16f, .38f, JumpPhase)) *
@@ -94,56 +95,11 @@ namespace ForestSpriteCharacter
             else if (demonstration != Demonstration.Manual)
                 DemoInput(out movement, out running, out jump);
 
-            float dt = Mathf.Min(Time.deltaTime, .05f);
-            bool grounded = controller.isGrounded;
-            if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
-            if (jump && grounded && jumpStage != JumpStage.Anticipation)
-            {
-                jumpStage = JumpStage.Anticipation;
-                jumpElapsed = 0f;
-                JumpPhase = 0f;
-                SwitchState("Jump", true);
-            }
-            if (jumpStage == JumpStage.Anticipation)
-            {
-                jumpElapsed += dt;
-                JumpPhase = .22f * Mathf.Clamp01(jumpElapsed / AnticipationDuration);
-                if (jumpElapsed >= AnticipationDuration)
-                {
-                    verticalSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
-                    jumpStage = JumpStage.Air;
-                }
-            }
-            else if (jumpStage == JumpStage.Landing)
-            {
-                jumpElapsed += dt;
-                JumpPhase = Mathf.Lerp(.78f, 1f, jumpElapsed / LandingDuration);
-                if (jumpElapsed >= LandingDuration) jumpStage = JumpStage.None;
-            }
-            else if (!grounded && jumpStage == JumpStage.None)
-                jumpStage = JumpStage.Air;
-            if (jumpStage == JumpStage.Air)
-            {
-                float launchSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
-                // The pose follows actual upward/downward velocity, so ceilings and early landing remain coherent.
-                float flight = Mathf.Clamp01(.5f - .5f * verticalSpeed / Mathf.Max(.01f, launchSpeed));
-                JumpPhase = Mathf.Lerp(.22f, .78f, flight);
-            }
             Vector3 forward = demoCamera != null
                 ? Vector3.ProjectOnPlane(demoCamera.transform.forward, Vector3.up).normalized : Vector3.forward;
             Vector3 direction = forward * movement.y + Vector3.Cross(Vector3.up, forward) * movement.x;
             direction = Vector3.ClampMagnitude(direction, 1f);
-            if (direction.sqrMagnitude > .001f)
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 540f * dt);
-            verticalSpeed += gravity * dt;
-            var collision = controller.Move((direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt);
-            if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
-            if (controller.isGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
-            {
-                jumpStage = JumpStage.Landing;
-                jumpElapsed = 0f;
-                JumpPhase = .78f;
-            }
+            AdvanceMovement(direction, running, jump, Time.deltaTime);
             animator.SetFloat("JumpPhase", JumpPhase);
             string state = jumpStage != JumpStage.None || !controller.isGrounded ? "Jump" :
                 direction.sqrMagnitude > .001f ? (running ? "Run" : "Walk") : "Idle";
@@ -161,6 +117,64 @@ namespace ForestSpriteCharacter
                 }
                 if (!overPanel) cameraDistance = Mathf.Clamp(cameraDistance - Input.mouseScrollDelta.y * .2f, 1.5f, 7f);
             }
+        }
+
+        void AdvanceMovement(Vector3 direction, bool running, bool jump, float deltaTime)
+        {
+            Vector3 positionBeforeMove = transform.position;
+            // Keep collision steps bounded without discarding time on slow frames.
+            int steps = Mathf.CeilToInt(deltaTime / .05f);
+            float dt = deltaTime / Mathf.Max(1, steps);
+            for (int step = 0; step < steps; step++)
+            {
+                bool grounded = controller.isGrounded;
+                if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
+                if (jump && grounded && jumpStage != JumpStage.Anticipation)
+                {
+                    jumpStage = JumpStage.Anticipation;
+                    jumpElapsed = 0f;
+                    JumpPhase = 0f;
+                    SwitchState("Jump", true);
+                }
+                jump = false;
+                if (jumpStage == JumpStage.Anticipation)
+                {
+                    jumpElapsed += dt;
+                    JumpPhase = .22f * Mathf.Clamp01(jumpElapsed / AnticipationDuration);
+                    if (jumpElapsed >= AnticipationDuration)
+                    {
+                        verticalSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                        jumpStage = JumpStage.Air;
+                    }
+                }
+                else if (jumpStage == JumpStage.Landing)
+                {
+                    jumpElapsed += dt;
+                    JumpPhase = Mathf.Lerp(.78f, 1f, jumpElapsed / LandingDuration);
+                    if (jumpElapsed >= LandingDuration) jumpStage = JumpStage.None;
+                }
+                else if (!grounded && jumpStage == JumpStage.None)
+                    jumpStage = JumpStage.Air;
+                if (jumpStage == JumpStage.Air)
+                {
+                    float launchSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                    // The pose follows actual upward/downward velocity, so ceilings and early landing remain coherent.
+                    float flight = Mathf.Clamp01(.5f - .5f * verticalSpeed / Mathf.Max(.01f, launchSpeed));
+                    JumpPhase = Mathf.Lerp(.22f, .78f, flight);
+                }
+                if (direction.sqrMagnitude > .001f)
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 540f * dt);
+                verticalSpeed += gravity * dt;
+                var collision = controller.Move((direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt);
+                if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
+                if (controller.isGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
+                {
+                    jumpStage = JumpStage.Landing;
+                    jumpElapsed = 0f;
+                    JumpPhase = .78f;
+                }
+            }
+            ActualVelocity = deltaTime > 0f ? (transform.position - positionBeforeMove) / deltaTime : Vector3.zero;
         }
 
         void LateUpdate()
@@ -231,6 +245,7 @@ namespace ForestSpriteCharacter
             transform.SetPositionAndRotation(startPosition, startRotation);
             controller.enabled = true;
             verticalSpeed = 0f;
+            ActualVelocity = Vector3.zero;
             jumpStage = JumpStage.None;
             jumpElapsed = JumpPhase = 0f;
             animator.SetFloat("JumpPhase", 0f);

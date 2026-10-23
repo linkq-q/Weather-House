@@ -202,9 +202,9 @@ MonoBehaviour:
   demoCamera: {fileID: 1227226115}
   secondaryMotion: {fileID: 1145970792}
   capeCloth: {fileID: 213463384}
-  walkSpeed: 1.5
+  walkSpeed: 2.25
   walkStride: 1
-  runSpeed: 3
+  runSpeed: 4.5
   originalWalkCycleDistance: 0.52
   walkCycleDistance: 0.76
   runCycleDistance: 1.5454546
@@ -3062,9 +3062,9 @@ MonoBehaviour:
     bendStiffness: 0.3
     contactRebound: 0.35
     contactResponse: 0.18
-    walkSpeed: 1.5
+    walkSpeed: 2.25
     walkStride: 1
-    runSpeed: 3
+    runSpeed: 4.5
 --- !u!183 &213463385
 Cloth:
   m_ObjectHideFlags: 0
