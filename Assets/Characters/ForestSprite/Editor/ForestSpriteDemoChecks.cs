@@ -133,8 +133,8 @@ namespace ForestSpriteCharacter.Editor
             Require(ForestSpriteDemoBuilder.StateName("ForestSpriteRig|Walk") == "Walk", "FBX action naming");
             Require(ForestSpriteDemoController.IsGait("Walk") && ForestSpriteDemoController.IsGait("Run") &&
                 !ForestSpriteDemoController.IsGait("Jump"), "Only locomotion states share gait phase");
-            Require(Mathf.Abs(preview.walkCycleDistance - .72f) < .0001f &&
-                Mathf.Abs(preview.runCycleDistance - .32f / .26f) < .0001f,
+            Require(Mathf.Abs(preview.walkCycleDistance - .76f) < .0001f &&
+                Mathf.Abs(preview.runCycleDistance - .34f / .22f) < .0001f,
                 "Baked gait cycle distances match the longer planted-foot paths");
             var transforms = preview.visual.GetComponentsInChildren<Transform>();
             foreach (string bone in new[] { "Root", "Hips", "Spine", "Chest", "Neck", "Head", "UpperLeg.L", "LowerLeg.L", "Foot.L", "UpperLeg.R", "LowerLeg.R", "Foot.R" })
@@ -406,7 +406,7 @@ namespace ForestSpriteCharacter.Editor
                 if (elapsed < duration) return;
                 if (phase == 0)
                 {
-                    var body = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body");
+                    var body = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body_Boots");
                     float foot = ForestSpriteDemoBuilder.BoundsOf(new Renderer[] { body }).min.y;
                     if (phase == 0)
                     {
@@ -644,7 +644,7 @@ namespace ForestSpriteCharacter.Editor
 
         static void ValidateFrontLipBindings(ForestSpriteCapeCloth cape, SkinnedMeshRenderer skin)
         {
-            Require(skin != null && skin.bones.Length == 43, "Six guides plus the original Chest bind the open-front cape");
+            Require(skin != null && skin.bones.Length == 47, "Six guides, Chest and corresponding upper/lower arms bind the open-front cape");
             for (int side = 0; side < 2; side++)
             {
                 float sign = side == 0 ? 1f : -1f;
@@ -943,7 +943,7 @@ namespace ForestSpriteCharacter.Editor
                 && SelectedWeight(meshWeights[clothToMesh[i]], backBones) >= .75f).ToArray();
             Require(rearHemParticles.Length >= 3, "Back-weighted lower hem particles exist independently of the front flap");
             runtime.rearHemParticles = rearHemParticles.Length;
-            footSkin = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body");
+            footSkin = player.visual.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r => r.name == "Body_Boots");
             footMeshVertices = footSkin.sharedMesh.vertices;
             footWeights = footSkin.sharedMesh.boneWeights;
             footBindposes = footSkin.sharedMesh.bindposes;

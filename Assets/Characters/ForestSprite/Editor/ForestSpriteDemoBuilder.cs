@@ -15,7 +15,7 @@ namespace ForestSpriteCharacter.Editor
     public static class ForestSpriteDemoBuilder
     {
         public const string Root = "Assets/Characters/ForestSprite";
-        public const string ModelPath = Root + "/Model/ForestSprite.fbx";
+        public const string ModelPath = Root + "/Model/ForestSprite_Airy.fbx";
         public const string ScenePath = "Assets/Scenes/Experimental/ForestSprite_Demo.unity";
         public const string PrefabPath = Root + "/Generated/ForestSprite.prefab";
         public const string Review = Root + "/Verification~";
@@ -59,9 +59,9 @@ namespace ForestSpriteCharacter.Editor
                 visual.transform.position -= Vector3.up * bounds.min.y;
                 Require(Mathf.Abs(bounds.size.y - 1.65f) < .01f, "Actual fitted character height: " + bounds.size.y);
                 AssignMaterials(renderers);
-                var originalWalk = clips["Walk"];
-                clips["Walk"] = CreateLongerGait(visual, originalWalk, false, out float originalWalkDistance, out float walkDistance);
-                clips["Run"] = CreateLongerGait(visual, clips["Run"], true, out _, out float runDistance);
+                var originalWalk = clips["WalkShort"];
+                clips["Walk"] = CopyAuthoredGait(clips["Walk"], false, out float originalWalkDistance, out float walkDistance);
+                clips["Run"] = CopyAuthoredGait(clips["Run"], true, out _, out float runDistance);
                 clips["Idle"].SampleAnimation(visual, 0f);
                 var animator = visual.GetComponent<Animator>();
                 if (animator == null) animator = visual.AddComponent<Animator>();
@@ -168,7 +168,7 @@ namespace ForestSpriteCharacter.Editor
             string path = Generated + "/ForestSprite.controller";
             var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(path);
             if (controller == null) controller = AnimatorController.CreateAnimatorControllerAtPath(path);
-            foreach (string parameter in new[] { "WalkStride", "WalkCadence", "RunCadence" })
+            foreach (string parameter in new[] { "WalkStride", "WalkCadence", "RunCadence", "JumpPhase" })
                 if (!controller.parameters.Any(p => p.name == parameter))
                     controller.AddParameter(new AnimatorControllerParameter
                         { name = parameter, type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
@@ -208,199 +208,37 @@ namespace ForestSpriteCharacter.Editor
                     state.speedParameter = "RunCadence";
                     state.speedParameterActive = true;
                 }
-                if (name == "Jump") state.speed = clips[name].length / (2f * Mathf.Sqrt(2f * .48f / 8f));
+                if (name == "Jump")
+                {
+                    state.timeParameter = "JumpPhase";
+                    state.timeParameterActive = true;
+                }
                 if (name == "Idle") machine.defaultState = state;
             }
             EditorUtility.SetDirty(controller);
             return controller;
         }
 
-        [Serializable]
-        sealed class GaitStrideEvidence
-        {
-            public string result = "PASS";
-            public string clip;
-            public float[] originalFootSpan, generatedFootSpan, strideRatio;
-            public float originalGroundContactError, generatedGroundContactError, maximumIKTargetError;
-            public float stanceFraction, cycleDistance, pelvisDrop, minimumReachMargin;
-            public int sampledFrames;
-        }
-
-        static AnimationClip CreateLongerGait(GameObject visual, AnimationClip source, bool running,
+        // Authored in Blender with sole contact, toe roll, opposite arm swing and phase-dependent pelvis height.
+        // Copying preserves one source of animation truth between the editable .blend and Unity.
+        static AnimationClip CopyAuthoredGait(AnimationClip source, bool running,
             out float originalCycleDistance, out float cycleDistance)
         {
-            var bones = visual.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
-            var legs = new[] { "L", "R" }.SelectMany(side => new[]
-                { bones["UpperLeg." + side], bones["LowerLeg." + side], bones["Foot." + side] })
-                .Concat(new[] { bones["Hips"], bones["Head"] }).ToArray();
-            var head = bones["Head"];
-            Quaternion headRestRotation = head.localRotation;
-            var body = visual.GetComponentsInChildren<Renderer>().Single(r => r.name == "Body");
-            Vector3 forward = visual.transform.parent.forward;
-            Vector3 headRight = visual.transform.parent.right, headUp = visual.transform.parent.up;
-            const int sampleCount = 120;
-            float plantedTravel = running ? .32f : .36f;
-            float stanceFraction = running ? .26f : .5f;
-            const float pelvisDrop = .045f;
-            float[] hipCenters = new float[2], ankleFloor = { float.MaxValue, float.MaxValue };
-            var original = Measure(source, out float oldGroundError, out float[] centers);
-            originalCycleDistance = original.Average() / .5f;
-            cycleDistance = plantedTravel / stanceFraction;
-            var result = Object.Instantiate(source);
+            originalCycleDistance = .52f;
+            cycleDistance = running ? .34f / .22f : .38f / .5f;
+            string path = Generated + "/" + (running ? "Run" : "Walk") + "_LongStride.anim";
+            var result = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
+            if (result == null)
+            {
+                result = Object.Instantiate(source);
+                result.hideFlags = HideFlags.None;
+                AssetDatabase.CreateAsset(result, path);
+            }
+            else EditorUtility.CopySerialized(source, result);
             result.name = running ? "Run" : "Walk";
             result.hideFlags = HideFlags.None;
-            result.frameRate = 60f;
-            string[] properties = { "m_LocalPosition.x", "m_LocalPosition.y", "m_LocalPosition.z",
-                "m_LocalRotation.x", "m_LocalRotation.y", "m_LocalRotation.z", "m_LocalRotation.w" };
-            string[] paths = legs.Select(b => AnimationUtility.CalculateTransformPath(b, visual.transform)).ToArray();
-            foreach (var binding in AnimationUtility.GetCurveBindings(result))
-                if (paths.Contains(binding.path) && binding.type == typeof(Transform) &&
-                    (binding.propertyName.StartsWith("m_LocalPosition.", StringComparison.Ordinal) ||
-                     binding.propertyName.IndexOf("Rotation", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     binding.propertyName.IndexOf("EulerAngles", StringComparison.OrdinalIgnoreCase) >= 0))
-                    AnimationUtility.SetEditorCurve(result, binding, null);
-            var curves = new AnimationCurve[legs.Length, properties.Length];
-            for (int bone = 0; bone < legs.Length; bone++)
-                for (int channel = 0; channel < properties.Length; channel++) curves[bone, channel] = new AnimationCurve();
-            int bakeFrames = Mathf.RoundToInt(source.length * result.frameRate);
-            float maximumTargetError = 0;
-            float minimumReachMargin = float.MaxValue;
-            for (int frame = 0; frame <= bakeFrames; frame++)
-            {
-                float time = source.length * frame / bakeFrames;
-                // Reset unkeyed head channels too, so each frame starts from the source pose.
-                head.localRotation = headRestRotation;
-                source.SampleAnimation(visual, time);
-                var targets = new Vector3[2];
-                var rotations = new Quaternion[2];
-                for (int side = 0; side < 2; side++)
-                {
-                    var foot = legs[side * 3 + 2];
-                    Vector3 target = foot.position;
-                    float forwardOffset = (Vector3.Dot(target, forward) - centers[side]) * plantedTravel / original[side];
-                    if (running)
-                    {
-                        float phase = Mathf.Repeat((float)frame / bakeFrames + side * .5f, 1f);
-                        if (phase <= stanceFraction)
-                            forwardOffset = plantedTravel * (.5f - phase / stanceFraction);
-                        else
-                        {
-                            float u = (phase - stanceFraction) / (1f - stanceFraction);
-                            float tangent = -plantedTravel * (1f - stanceFraction) / stanceFraction;
-                            // The swing continues backward after toe-off, then reaches forward before landing.
-                            // Its endpoint velocities match the planted foot, avoiding a snap at contact.
-                            forwardOffset = -.5f * plantedTravel + tangent * u +
-                                (3f * plantedTravel - 3f * tangent) * u * u +
-                                (-2f * plantedTravel + 2f * tangent) * u * u * u;
-                            float sine = Mathf.Sin(Mathf.PI * u), cosine = Mathf.Cos(Mathf.PI * u);
-                            // Broaden early clearance while keeping one arch and zero vertical endpoint velocity.
-                            target.y = ankleFloor[side] + .13f * Mathf.Pow(sine, 1.25f) * (1f + .6f * cosine * cosine);
-                        }
-                        if (phase <= stanceFraction) target.y = ankleFloor[side];
-                    }
-                    target += forward * (hipCenters[side] + forwardOffset - Vector3.Dot(target, forward));
-                    targets[side] = target;
-                    rotations[side] = foot.rotation;
-                }
-                bones["Hips"].position -= Vector3.up * pelvisDrop;
-                for (int side = 0; side < 2; side++)
-                {
-                    var upper = legs[side * 3]; var lower = legs[side * 3 + 1]; var foot = legs[side * 3 + 2];
-                    Vector3 hip = upper.position, knee = lower.position, ankle = foot.position;
-                    Vector3 target = targets[side];
-                    float upperLength = Vector3.Distance(hip, knee), lowerLength = Vector3.Distance(knee, ankle);
-                    Vector3 delta = target - hip;
-                    float distance = delta.magnitude;
-                    minimumReachMargin = Mathf.Min(minimumReachMargin, upperLength + lowerLength - distance);
-                    Require(distance < upperLength + lowerLength && distance > Mathf.Abs(upperLength - lowerLength),
-                        result.name + " target reachable without stretching bones: frame " + frame + ", side " + side);
-                    Vector3 axis = delta / distance;
-                    Vector3 bend = Vector3.ProjectOnPlane(knee - hip, axis).normalized;
-                    if (bend.sqrMagnitude < .001f) bend = Vector3.ProjectOnPlane(forward, axis).normalized;
-                    float along = (upperLength * upperLength - lowerLength * lowerLength + distance * distance) / (2f * distance);
-                    Vector3 desiredKnee = hip + axis * along + bend * Mathf.Sqrt(Mathf.Max(0, upperLength * upperLength - along * along));
-                    upper.rotation = Quaternion.FromToRotation(knee - hip, desiredKnee - hip) * upper.rotation;
-                    lower.rotation = Quaternion.FromToRotation(foot.position - lower.position, target - lower.position) * lower.rotation;
-                    foot.rotation = rotations[side];
-                    maximumTargetError = Mathf.Max(maximumTargetError, Vector3.Distance(foot.position, target));
-                }
-                float headPhase = 2f * Mathf.PI * frame / bakeFrames;
-                float nod = Mathf.Sin(2f * headPhase) * (running ? 2.2f : 1.6f);
-                float sway = Mathf.Sin(headPhase + .35f) * (running ? 1.4f : 1f);
-                // World axes follow the character root; preserve the source head animation underneath.
-                head.rotation = Quaternion.AngleAxis(sway, headUp) * Quaternion.AngleAxis(nod, headRight) * head.rotation;
-                for (int bone = 0; bone < legs.Length; bone++)
-                {
-                    Vector3 p = legs[bone].localPosition;
-                    Quaternion q = legs[bone].localRotation;
-                    float[] values = { p.x, p.y, p.z, q.x, q.y, q.z, q.w };
-                    for (int channel = 0; channel < properties.Length; channel++)
-                        curves[bone, channel].AddKey(time, values[channel]);
-                }
-            }
-            for (int bone = 0; bone < legs.Length; bone++)
-                for (int channel = 0; channel < properties.Length; channel++)
-                {
-                    var curve = curves[bone, channel];
-                    for (int key = 0; key < curve.length; key++)
-                    {
-                        AnimationUtility.SetKeyLeftTangentMode(curve, key, AnimationUtility.TangentMode.Linear);
-                        AnimationUtility.SetKeyRightTangentMode(curve, key, AnimationUtility.TangentMode.Linear);
-                    }
-                    AnimationUtility.SetEditorCurve(result, EditorCurveBinding.FloatCurve(paths[bone], typeof(Transform), properties[channel]), curve);
-                }
-            result.EnsureQuaternionContinuity();
-            var generated = Measure(result, out float newGroundError, out _);
-            var ratios = generated.Select((span, i) => span / original[i]).ToArray();
-            Require(generated.All(span => span >= (running ? .43f : .35f)),
-                result.name + " has a genuinely wider step: " + string.Join(", ", generated));
-            Require(minimumReachMargin >= .005f, result.name + " keeps knee extension reserve: " + minimumReachMargin);
-            Require(newGroundError <= .05f && maximumTargetError < .002f,
-                result.name + " keeps visible foot contact and reaches its targets: " + newGroundError + ", " + maximumTargetError);
-            string assetPath = Generated + "/" + result.name + "_LongStride.anim";
-            var existing = AssetDatabase.LoadAssetAtPath<AnimationClip>(assetPath);
-            if (existing == null) AssetDatabase.CreateAsset(result, assetPath);
-            else { EditorUtility.CopySerialized(result, existing); Object.DestroyImmediate(result); result = existing; }
-            File.WriteAllText(Review + (running ? "/run-stride.json" : "/walk-stride.json"), JsonUtility.ToJson(new GaitStrideEvidence
-            {
-                clip = assetPath, originalFootSpan = original, generatedFootSpan = generated, strideRatio = ratios,
-                originalGroundContactError = oldGroundError, generatedGroundContactError = newGroundError,
-                stanceFraction = stanceFraction, cycleDistance = cycleDistance, pelvisDrop = pelvisDrop,
-                minimumReachMargin = minimumReachMargin,
-                maximumIKTargetError = maximumTargetError, sampledFrames = sampleCount + 1
-            }, true));
-            head.localRotation = headRestRotation;
+            EditorUtility.SetDirty(result);
             return result;
-
-            float[] Measure(AnimationClip clip, out float groundError, out float[] midpoints)
-            {
-                float[] minimum = { float.MaxValue, float.MaxValue }, maximum = { float.MinValue, float.MinValue };
-                groundError = 0;
-                for (int frame = 0; frame <= sampleCount; frame++)
-                {
-                    clip.SampleAnimation(visual, clip.length * frame / sampleCount);
-                    for (int side = 0; side < 2; side++)
-                    {
-                        float position = Vector3.Dot(legs[side * 3 + 2].position, forward);
-                        minimum[side] = Mathf.Min(minimum[side], position);
-                        maximum[side] = Mathf.Max(maximum[side], position);
-                        if (clip == source)
-                        {
-                            hipCenters[side] += Vector3.Dot(legs[side * 3].position, forward) / (sampleCount + 1);
-                            ankleFloor[side] = Mathf.Min(ankleFloor[side], legs[side * 3 + 2].position.y);
-                        }
-                    }
-                    float footHeight = BoundsOf(new[] { body }).min.y;
-                    float phase = Mathf.Repeat((float)frame / sampleCount, 1f);
-                    bool supporting = !running || clip == source || phase <= stanceFraction ||
-                        (phase >= .5f && phase <= .5f + stanceFraction);
-                    // Running has a flight interval: absence of floor contact is expected there,
-                    // while penetration remains invalid in every frame.
-                    groundError = Mathf.Max(groundError, supporting ? Mathf.Abs(footHeight) : Mathf.Max(0, -footHeight));
-                }
-                midpoints = minimum.Select((value, i) => (value + maximum[i]) * .5f).ToArray();
-                return minimum.Select((value, i) => maximum[i] - value).ToArray();
-            }
         }
 
         static void AssignMaterials(Renderer[] renderers)
@@ -417,6 +255,7 @@ namespace ForestSpriteCharacter.Editor
             foreach (var renderer in renderers)
             {
                 string region = new[] { "Body", "Hair", "Hat", "Cape" }.FirstOrDefault(n => renderer.name.StartsWith(n, StringComparison.OrdinalIgnoreCase));
+                if (renderer.name == "Underbody") { renderer.sharedMaterial = Material("Underbody", new Color(.30f, .20f, .12f), null); continue; }
                 if (region == null && (renderer.name.StartsWith("Eye", StringComparison.OrdinalIgnoreCase) || renderer.name.StartsWith("Smile", StringComparison.OrdinalIgnoreCase))) region = "Features";
                 Require(region != null, "Known renderer material region: " + renderer.name);
                 renderer.sharedMaterials = Enumerable.Repeat(materials[region], renderer.sharedMaterials.Length).ToArray();

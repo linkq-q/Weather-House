@@ -143,7 +143,8 @@ namespace ForestSpriteCharacter
             runBlend = Mathf.Lerp(runBlend, running ? 1f : 0f, 1f - Mathf.Exp(-dt / .3f));
             float referenceSpeed = locomotion == null ? 1.6f : running ? locomotion.runSpeed : locomotion.walkSpeed;
             float speed = windPreview ? 1f : Mathf.Clamp01(horizontal.magnitude / Mathf.Max(.1f, referenceSpeed));
-            float target = motionEnabled ? speed * smooth.windStrength : 0;
+            float jumpOpen = locomotion != null ? locomotion.JumpOpenness : 0f;
+            float target = motionEnabled ? Mathf.Max(speed, jumpOpen) * smooth.windStrength : 0;
             float response = target > flowAmount ? .22f : smooth.settleTime / 3f;
             flowAmount = Mathf.Lerp(flowAmount, target, 1f - Mathf.Exp(-dt / response));
             wavePhase += dt * smooth.waveSpeed * Mathf.Lerp(.8f, 1.5f, runBlend) * Mathf.PI * 2f;
@@ -232,13 +233,15 @@ namespace ForestSpriteCharacter
             float moving = Mathf.Clamp01(flowAmount);
             // Open-front wing trial: keep rear support and the travelling wave while each side opens freely.
             // Default means are 38 degrees walking and 58 running, before the gradual hem support below.
+            float jumpOpen = locomotion != null ? locomotion.JumpOpenness : 0f;
             float mean = moving * Mathf.Lerp(26f + smooth.lift * 15f, 42f + smooth.lift * 20f, runBlend);
+            mean = Mathf.Lerp(mean, 65f, jumpOpen);
             float wave = moving * smooth.waveAmplitude * Mathf.Lerp(110f, 400f, runBlend);
             float sBend = moving * smooth.sCurve * Mathf.Lerp(5f, 11f, runBlend);
             // The matching Builder opens the front and widens the sides; this range belongs to that variant.
             float opening = Mathf.Lerp(15f, 35f, runBlend)
                 + Mathf.Sin(wavePhase - .6f) * Mathf.Lerp(2f, 5f, runBlend) * smooth.wingFlap;
-            WingSpreadDegrees = moving * smooth.wingSpread * opening;
+            WingSpreadDegrees = moving * smooth.wingSpread * Mathf.Lerp(opening, 48f, jumpOpen);
             Vector3 right = guideFrame.InverseTransformDirection(simulationRoot.right).normalized;
             Vector3 forward = guideFrame.InverseTransformDirection(simulationRoot.forward).normalized;
             GuideMaxSegmentError = 0;

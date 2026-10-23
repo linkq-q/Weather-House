@@ -49,6 +49,7 @@ namespace ForestSpriteCharacter.Editor
             WidenWingCape(mesh);
             var guides = BuildGuides(player.transform, skin, original.bones, weights);
             OpenWingFront(mesh, guides, skin);
+            BindCapeShoulders(player.transform, visual.transform, skin);
             skin.localBounds = new Bounds(mesh.bounds.center, mesh.bounds.size + Vector3.one * 1.2f);
             var cloth = node.AddComponent<Cloth>();
             cloth.useGravity = true;
@@ -178,6 +179,58 @@ namespace ForestSpriteCharacter.Editor
             public Vector3[] restPoints;
             public int[] edgeVertices;
             public float[] edgeLengths;
+        }
+
+
+        // The collar stays on Chest. The shoulder panels follow the matching upper arm,
+        // allowing the authored arm opening to carry the cloth instead of passing through a pinned sheet.
+        static void BindCapeShoulders(Transform player, Transform visual, SkinnedMeshRenderer skin)
+        {
+            var bones = visual.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
+            var arms = new[] { bones["UpperArm.L"], bones["UpperArm.R"] };
+            var forearms = new[] { bones["Forearm.L"], bones["Forearm.R"] };
+            var all = skin.bones.Concat(arms).Concat(forearms).ToArray();
+            var mesh = skin.sharedMesh;
+            var weights = mesh.boneWeights; var points = mesh.vertices;
+            int changed = 0;
+            for (int i = 0; i < points.Length; i++)
+            {
+                var w = weights[i];
+                if (w.boneIndex0 == 0 && w.weight0 > .999f) continue;
+                Vector3 p = player.InverseTransformPoint(skin.transform.TransformPoint(points[i]));
+                int side = Math.Sign(p.x) == Math.Sign(player.InverseTransformPoint(arms[0].position).x) ? 0 : 1;
+                Vector3 shoulder = player.InverseTransformPoint(arms[side].position);
+                float lateral = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(Mathf.Abs(shoulder.x) * .55f, Mathf.Abs(shoulder.x) * 1.45f, Mathf.Abs(p.x)));
+                float below = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.10f, .30f, shoulder.y - p.y));
+                float above = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.01f, .055f, p.y - shoulder.y));
+                float front = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.24f, -.04f, p.z - shoulder.z));
+                float amount = lateral * below * above * front;
+                float forearm = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.045f, .17f, shoulder.y - p.y));
+                if (amount < .001f) continue;
+                var entries = new[] {
+                    new KeyValuePair<int,float>(w.boneIndex0, w.weight0 * (1-amount)),
+                    new KeyValuePair<int,float>(w.boneIndex1, w.weight1 * (1-amount)),
+                    new KeyValuePair<int,float>(w.boneIndex2, w.weight2 * (1-amount)),
+                    new KeyValuePair<int,float>(w.boneIndex3, w.weight3 * (1-amount)),
+                    new KeyValuePair<int,float>(all.Length - 4 + side, amount * (1f-forearm)),
+                    new KeyValuePair<int,float>(all.Length - 2 + side, amount * forearm)
+                }.GroupBy(k => k.Key).Select(g => new KeyValuePair<int,float>(g.Key,g.Sum(k => k.Value)))
+                    .OrderByDescending(k => k.Value).Take(4).ToArray();
+                float sum = entries.Sum(e => e.Value); var result = new BoneWeight();
+                for (int j = 0; j < entries.Length; j++)
+                {
+                    int b = entries[j].Key; float a = entries[j].Value / sum;
+                    if (j==0) { result.boneIndex0=b; result.weight0=a; }
+                    if (j==1) { result.boneIndex1=b; result.weight1=a; }
+                    if (j==2) { result.boneIndex2=b; result.weight2=a; }
+                    if (j==3) { result.boneIndex3=b; result.weight3=a; }
+                }
+                weights[i]=result; changed++;
+            }
+            mesh.boneWeights=weights; skin.bones=all;
+            mesh.bindposes=all.Select(b => b.worldToLocalMatrix * skin.transform.localToWorldMatrix).ToArray();
+            EditorUtility.SetDirty(mesh);
+            ForestSpriteDemoBuilder.Require(changed > 0, "Cape shoulder panels have actual matching-arm influence");
         }
 
         static GuideRig BuildGuides(Transform player, SkinnedMeshRenderer skin, Transform[] originalBones, BoneWeight[] originalWeights)

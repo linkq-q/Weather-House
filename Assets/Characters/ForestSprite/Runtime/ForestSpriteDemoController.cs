@@ -8,6 +8,8 @@ namespace ForestSpriteCharacter
         public Animator animator;
         public Transform visual;
         public Camera demoCamera;
+        public bool externalCameraControl;
+        public bool showControls = true;
         public ForestSpriteSecondaryMotion secondaryMotion;
         public ForestSpriteCapeCloth capeCloth;
         public float walkSpeed = 1.5f;
@@ -28,6 +30,10 @@ namespace ForestSpriteCharacter
         public string CurrentState { get; private set; } = "";
         public bool IsGrounded => controller != null && controller.isGrounded;
         public float VerticalSpeed => verticalSpeed;
+        public float JumpPhase { get; private set; }
+        public float JumpOpenness => CurrentState == "Jump" ?
+            Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.16f, .38f, JumpPhase)) *
+            (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.78f, 1f, JumpPhase))) : 0f;
         public bool ScriptedInput { get; private set; }
 
         CharacterController controller;
@@ -36,7 +42,10 @@ namespace ForestSpriteCharacter
         Vector2 scriptedMovement;
         bool scriptedRun, scriptedJump;
         float verticalSpeed, modeStarted, nextJump;
-        bool airborne;
+        enum JumpStage { None, Anticipation, Air, Landing }
+        JumpStage jumpStage;
+        float jumpElapsed;
+        const float AnticipationDuration = .14f, LandingDuration = .22f;
         GUIStyle label, button;
 
         void Awake()
@@ -88,12 +97,37 @@ namespace ForestSpriteCharacter
             float dt = Mathf.Min(Time.deltaTime, .05f);
             bool grounded = controller.isGrounded;
             if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
-            if (grounded && airborne) airborne = false;
-            if (jump && grounded)
+            if (jump && grounded && jumpStage != JumpStage.Anticipation)
             {
-                verticalSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
-                airborne = true;
+                jumpStage = JumpStage.Anticipation;
+                jumpElapsed = 0f;
+                JumpPhase = 0f;
                 SwitchState("Jump", true);
+            }
+            if (jumpStage == JumpStage.Anticipation)
+            {
+                jumpElapsed += dt;
+                JumpPhase = .22f * Mathf.Clamp01(jumpElapsed / AnticipationDuration);
+                if (jumpElapsed >= AnticipationDuration)
+                {
+                    verticalSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                    jumpStage = JumpStage.Air;
+                }
+            }
+            else if (jumpStage == JumpStage.Landing)
+            {
+                jumpElapsed += dt;
+                JumpPhase = Mathf.Lerp(.78f, 1f, jumpElapsed / LandingDuration);
+                if (jumpElapsed >= LandingDuration) jumpStage = JumpStage.None;
+            }
+            else if (!grounded && jumpStage == JumpStage.None)
+                jumpStage = JumpStage.Air;
+            if (jumpStage == JumpStage.Air)
+            {
+                float launchSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                // The pose follows actual upward/downward velocity, so ceilings and early landing remain coherent.
+                float flight = Mathf.Clamp01(.5f - .5f * verticalSpeed / Mathf.Max(.01f, launchSpeed));
+                JumpPhase = Mathf.Lerp(.22f, .78f, flight);
             }
             Vector3 forward = demoCamera != null
                 ? Vector3.ProjectOnPlane(demoCamera.transform.forward, Vector3.up).normalized : Vector3.forward;
@@ -104,13 +138,19 @@ namespace ForestSpriteCharacter
             verticalSpeed += gravity * dt;
             var collision = controller.Move((direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt);
             if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
-            if (controller.isGrounded && verticalSpeed <= 0f) airborne = false;
-            string state = airborne || !controller.isGrounded ? "Jump" :
+            if (controller.isGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
+            {
+                jumpStage = JumpStage.Landing;
+                jumpElapsed = 0f;
+                JumpPhase = .78f;
+            }
+            animator.SetFloat("JumpPhase", JumpPhase);
+            string state = jumpStage != JumpStage.None || !controller.isGrounded ? "Jump" :
                 direction.sqrMagnitude > .001f ? (running ? "Run" : "Walk") : "Idle";
             SwitchState(state);
             if (transform.position.y < -4f) ResetPosition();
 
-            if (demoCamera != null && !ScriptedInput)
+            if (demoCamera != null && !ScriptedInput && !externalCameraControl)
             {
                 bool overPanel = (Input.mousePosition.x < 320f && Screen.height - Input.mousePosition.y < 310f)
                     || ForestSpriteCapePanel.PointerOverPanel;
@@ -125,7 +165,7 @@ namespace ForestSpriteCharacter
 
         void LateUpdate()
         {
-            if (demoCamera == null) return;
+            if (demoCamera == null || externalCameraControl) return;
             Vector3 target = transform.position + Vector3.up * cameraHeight;
             demoCamera.transform.position = target + Quaternion.Euler(cameraPitch, cameraYaw, 0f) * Vector3.back * cameraDistance;
             demoCamera.transform.LookAt(target);
@@ -155,6 +195,7 @@ namespace ForestSpriteCharacter
             if (IsGait(CurrentState) && IsGait(state))
                 phase = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
             if (CurrentState.Length == 0) animator.Play(state, 0, 0f);
+            else if (state == "Jump") animator.CrossFadeInFixedTime(state, .04f, 0, 0f);
             else animator.CrossFade(state, .12f, 0, phase);
             CurrentState = state;
         }
@@ -190,7 +231,9 @@ namespace ForestSpriteCharacter
             transform.SetPositionAndRotation(startPosition, startRotation);
             controller.enabled = true;
             verticalSpeed = 0f;
-            airborne = false;
+            jumpStage = JumpStage.None;
+            jumpElapsed = JumpPhase = 0f;
+            animator.SetFloat("JumpPhase", 0f);
             if (secondaryMotion != null) secondaryMotion.ResetSimulation();
             if (capeCloth != null) capeCloth.ResetSimulation();
             SetDemonstration(Demonstration.Manual);
@@ -207,6 +250,7 @@ namespace ForestSpriteCharacter
 
         void OnGUI()
         {
+            if (!showControls) return;
             if (label == null)
             {
                 var font = Font.CreateDynamicFontFromOSFont("Microsoft YaHei", 14);
