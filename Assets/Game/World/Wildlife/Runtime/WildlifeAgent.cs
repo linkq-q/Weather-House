@@ -1,0 +1,374 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace WeatherHouse.Hillside
+{
+    public sealed class WildlifeAgent : MonoBehaviour
+    {
+        public string speciesId = "rabbit";
+        public int spawnId, groupId;
+        public WildlifeLocomotion locomotion;
+        public Vector3 habitatCenter;
+        public float habitatRadius = 10f;
+        public int waterAreaIndex = -1;
+        public Transform visualRoot;
+        public Transform motionRoot;
+        public Animator animator;
+        public WildlifeClips clips = new WildlifeClips();
+        public Vector2 scaleRange = new Vector2(.85f, 1.15f);
+        public float walkSpeed = 1f, runSpeed = 2.5f, bodyRadius = .3f;
+        public float flightHeight = 5f, swimDepth = .4f;
+        [Range(0f, 1f)] public float timidity = .6f, sociability = .5f;
+        public bool startlesOthers, friendlyAcrossSpecies;
+        public WildlifeState State { get; private set; }
+        public float StateAge => population == null ? 0f : population.SimulationTime - stateSince;
+        public float ScaleFactor { get; private set; } = 1f;
+        public float Radius => Mathf.Max(.05f, bodyRadius * ScaleFactor);
+        public float ActualSpeed { get; private set; }
+        public int AcceptedAlarmCount { get; private set; }
+        public WildlifeAgent GreetingPartner => partner;
+        public Vector3 Destination => destination;
+        public float AirHeight => population == null ? flightHeight : altitude;
+
+        private WildlifePopulation population;
+        private WildlifeRandom random;
+        private readonly WildlifeAnimation animationPlayer = new WildlifeAnimation();
+        private WildlifeAgent partner;
+        private Vector3 baseVisualScale, baseVisualPosition, baseMotionPosition, destination, separation, threat;
+        private float stateSince, stateUntil, nextGreeting, nextAlarm, nextDestination, speedVariation, altitude;
+        private int lastAlarm;
+        private bool capturedScale, capturedMotionPosition, landingApproach, fleeAfterTakeoff;
+
+        public void Initialize(WildlifePopulation owner)
+        {
+            ReleasePartner();
+            population = owner;
+            random = new WildlifeRandom(owner.worldSeed, spawnId, speciesId);
+            ScaleFactor = random.Range(Mathf.Max(.1f, scaleRange.x), Mathf.Max(.1f, scaleRange.y));
+            speedVariation = random.Range(.88f, 1.12f);
+            if (visualRoot != null)
+            {
+                if (!capturedScale)
+                { baseVisualScale = visualRoot.localScale; baseVisualPosition = visualRoot.localPosition; capturedScale = true; }
+                visualRoot.localScale = baseVisualScale * ScaleFactor;
+                visualRoot.localPosition = baseVisualPosition * ScaleFactor;
+            }
+            if (motionRoot != null && !capturedMotionPosition)
+            { baseMotionPosition = motionRoot.localPosition; capturedMotionPosition = true; }
+            if (animator == null) animator = GetComponentInChildren<Animator>();
+            // Editor self-checks exercise decisions without starting a live animation graph.
+            if (Application.isPlaying) animationPlayer.Initialize(animator, clips, random.Value());
+            nextGreeting = owner.SimulationTime + random.Range(1f, 5f);
+            nextAlarm = 0f; lastAlarm = 0; AcceptedAlarmCount = 0; ActualSpeed = 0f;
+            separation = Vector3.zero;
+            landingApproach = fleeAfterTakeoff = false;
+            altitude = locomotion == WildlifeLocomotion.Flying && transform.position.y - owner.GroundHeight(transform.position) > 1f ? flightHeight : 0f;
+            SetState(locomotion == WildlifeLocomotion.Flying && altitude > 0f ? WildlifeState.Fly :
+                locomotion == WildlifeLocomotion.Swimming ? WildlifeState.Swim : WildlifeState.Idle,
+                owner.SimulationTime, locomotion == WildlifeLocomotion.Flying ? random.Range(6f, 12f) : random.Range(1f, 3.5f));
+            if (owner.TryProjectPosition(this, transform.position, out Vector3 initial)) transform.position = initial;
+            destination = transform.position;
+            nextDestination = 0f;
+        }
+
+        internal void Think(float now, List<WildlifeAgent> neighbours)
+        {
+            separation = Vector3.zero;
+            foreach (WildlifeAgent other in neighbours)
+            {
+                Vector3 away = transform.position - other.transform.position;
+                away.y = 0f;
+                float distance = away.magnitude;
+                float spacing = Radius + other.Radius + .45f;
+                if (distance < spacing && distance > .01f) separation += away.normalized * (1f - distance / spacing);
+                if (timidity > .15f && other.startlesOthers && other.ActualSpeed > Mathf.Max(.4f, other.walkSpeed * .65f) && distance < 2.8f &&
+                    other.locomotion == locomotion && now >= nextAlarm)
+                    population.TryAmbientAlarm(other.transform.position, 5f, .8f);
+            }
+            if (population.player != null && timidity > .15f && now >= nextAlarm)
+            {
+                float distance = Vector3.Distance(transform.position, population.player.position);
+                if (distance < .8f + timidity * .7f || (population.PlayerSpeed > 2.5f && distance < 3f + timidity * 2.5f))
+                    population.TryAmbientAlarm(population.player.position, 5.5f, .9f);
+            }
+
+            if (State == WildlifeState.Alert)
+            {
+                if (now >= stateUntil)
+                {
+                    if (locomotion == WildlifeLocomotion.Flying && altitude < flightHeight * .5f)
+                    { fleeAfterTakeoff = true; SetState(WildlifeState.Takeoff, now, ClipDuration(clips.takeoff, 1.6f)); }
+                    else { SetState(WildlifeState.Flee, now, random.Range(2.5f, 4f)); ChooseFleeDestination(now); }
+                }
+                return;
+            }
+            if (State == WildlifeState.Flee)
+            {
+                if (now >= stateUntil)
+                {
+                    SetState(locomotion == WildlifeLocomotion.Ground ? WildlifeState.ReturnHome : CruiseState(), now, random.Range(4f, 7f));
+                    ChooseDestination(now, true);
+                }
+                else if (ReachedDestination() || now >= nextDestination) ChooseFleeDestination(now);
+                return;
+            }
+            if (State == WildlifeState.Greet)
+            {
+                if (partner == null || !partner.isActiveAndEnabled || now >= stateUntil)
+                {
+                    ReleasePartner();
+                    SetState(locomotion == WildlifeLocomotion.Swimming ? WildlifeState.Swim : WildlifeState.Idle, now, random.Range(2f, 4f));
+                }
+                return;
+            }
+            if (State == WildlifeState.Takeoff)
+            {
+                if (now >= stateUntil)
+                {
+                    altitude = flightHeight;
+                    SetState(fleeAfterTakeoff ? WildlifeState.Flee : WildlifeState.Fly, now, fleeAfterTakeoff ? random.Range(2.5f, 4f) : random.Range(9f, 16f));
+                    if (fleeAfterTakeoff) ChooseFleeDestination(now); else ChooseDestination(now, false);
+                    fleeAfterTakeoff = false;
+                }
+                return;
+            }
+            if (State == WildlifeState.Landing)
+            {
+                if (now >= stateUntil)
+                { altitude = 0f; SetState(random.Value() < .7f ? WildlifeState.Forage : WildlifeState.Idle, now, random.Range(4f, 9f)); }
+                return;
+            }
+            if (locomotion == WildlifeLocomotion.Ground && HorizontalDistance(transform.position, habitatCenter) > habitatRadius * 1.15f)
+            {
+                if (State != WildlifeState.ReturnHome) { SetState(WildlifeState.ReturnHome, now, 8f); ChooseDestination(now, true); }
+            }
+            if (CanGreet(now) && random.Value() < sociability * .16f)
+                foreach (WildlifeAgent other in neighbours)
+                    if (population.TryGreet(this, other)) return;
+
+            if (locomotion == WildlifeLocomotion.Flying)
+            {
+                if (State == WildlifeState.Idle || State == WildlifeState.Forage)
+                {
+                    if (now >= stateUntil) SetState(WildlifeState.Takeoff, now, ClipDuration(clips.takeoff, 1.6f));
+                }
+                else if (landingApproach)
+                {
+                    if (ReachedDestination())
+                    { landingApproach = false; SetState(WildlifeState.Landing, now, ClipDuration(clips.land, 1.6f)); }
+                    else if (now >= nextDestination) FindLanding(now);
+                }
+                else if (now >= stateUntil) FindLanding(now);
+                else if (ReachedDestination() || now >= nextDestination) ChooseDestination(now, false);
+                return;
+            }
+            if (locomotion == WildlifeLocomotion.Swimming)
+            {
+                if (ReachedDestination() || now >= nextDestination) ChooseDestination(now, false);
+                return;
+            }
+            if (State == WildlifeState.ReturnHome && ReachedDestination())
+                SetState(WildlifeState.Idle, now, random.Range(1f, 2f));
+            if (now >= stateUntil || (State == WildlifeState.Wander && ReachedDestination()))
+            {
+                float choice = random.Value();
+                WildlifeState next = choice < .25f ? WildlifeState.Idle : choice < .58f ? WildlifeState.Forage : WildlifeState.Wander;
+                SetState(next, now, random.Range(2.5f, 6.5f));
+                if (next == WildlifeState.Wander) ChooseDestination(now, false);
+            }
+            if ((State == WildlifeState.Wander || State == WildlifeState.ReturnHome) && now >= nextDestination)
+                ChooseDestination(now, State == WildlifeState.ReturnHome);
+        }
+
+        private WildlifeState CruiseState()
+        { return locomotion == WildlifeLocomotion.Flying ? WildlifeState.Fly : WildlifeState.Swim; }
+
+        private static float HorizontalDistance(Vector3 a, Vector3 b)
+        { return new Vector2(a.x - b.x, a.z - b.z).magnitude; }
+
+        private bool ReachedDestination() { return HorizontalDistance(transform.position, destination) < Radius + .25f; }
+
+        private static float ClipDuration(AnimationClip clip, float fallback)
+        { return clip != null && clip.length > .1f ? clip.length : fallback; }
+
+        private void FindLanding(float now)
+        {
+            for (int i = 0; i < 18; i++)
+            {
+                Vector2 offset = random.InCircle(10f);
+                Vector3 candidate = transform.position + new Vector3(offset.x, 0f, offset.y);
+                if (!population.TryLandingPosition(this, candidate, out _)) continue;
+                if (!population.TryMove(this, candidate, out Vector3 approach)) continue;
+                destination = approach; landingApproach = true; nextDestination = now + 7f;
+                return;
+            }
+            landingApproach = false; stateUntil = now + 4f; ChooseDestination(now, false);
+        }
+
+        private void ChooseDestination(float now, bool home)
+        {
+            nextDestination = now + random.Range(3.5f, 7f);
+            Vector3 center = home ? habitatCenter : population.GroupCenter(groupId, habitatCenter);
+            if (locomotion == WildlifeLocomotion.Ground)
+                center = Vector3.Lerp(habitatCenter, center, .4f);
+            for (int attempt = 0; attempt < 14; attempt++)
+            {
+                Vector3 candidate;
+                if (locomotion == WildlifeLocomotion.Flying)
+                {
+                    // A flock keeps a shared broad direction while individual birds cross region boundaries.
+                    Vector2 offset = random.InCircle(Mathf.Max(12f, habitatRadius));
+                    candidate = center + new Vector3(offset.x, 0f, offset.y);
+                    candidate.x = Mathf.Clamp(candidate.x, population.worldBounds.min.x + 2f, population.worldBounds.max.x - 2f);
+                    candidate.z = Mathf.Clamp(candidate.z, population.worldBounds.min.z + 2f, population.worldBounds.max.z - 2f);
+                }
+                else if (locomotion == WildlifeLocomotion.Swimming && waterAreaIndex >= 0 && waterAreaIndex < population.waterAreas.Length)
+                {
+                    HabitatVolume water = population.waterAreas[waterAreaIndex];
+                    Vector2 offset = random.InCircle(.82f);
+                    candidate = water.center + new Vector3(offset.x * water.radii.x, 0f, offset.y * water.radii.y);
+                }
+                else
+                {
+                    Vector2 offset = random.InCircle(home ? Mathf.Min(2f, habitatRadius) : habitatRadius * .6f);
+                    candidate = center + new Vector3(offset.x, 0f, offset.y);
+                    if (HorizontalDistance(candidate, habitatCenter) > habitatRadius) continue;
+                }
+                if (!population.TryMove(this, candidate, out Vector3 valid)) continue;
+                destination = valid;
+                return;
+            }
+            destination = transform.position;
+            nextDestination = now + .8f;
+        }
+
+        private void ChooseFleeDestination(float now)
+        {
+            Vector3 away = transform.position - threat;
+            away.y = 0f;
+            if (away.sqrMagnitude < .01f) away = transform.forward;
+            away.Normalize();
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = i == 0 ? 0f : ((i + 1) / 2) * 22f * (i % 2 == 0 ? -1f : 1f);
+                Vector3 candidate = transform.position + Quaternion.Euler(0f, angle, 0f) * away * random.Range(2.5f, 6f);
+                if (locomotion == WildlifeLocomotion.Ground && HorizontalDistance(candidate, habitatCenter) > habitatRadius * 1.4f) continue;
+                if (!population.TryMove(this, candidate, out Vector3 valid)) continue;
+                destination = valid; nextDestination = now + 1.5f;
+                return;
+            }
+            destination = transform.position; nextDestination = now + .5f;
+        }
+
+        internal void Move(float dt, float now)
+        {
+            if (State == WildlifeState.Takeoff)
+                altitude = Mathf.MoveTowards(altitude, flightHeight, flightHeight * dt / Mathf.Max(.1f, stateUntil - stateSince));
+            else if (State == WildlifeState.Landing)
+                altitude = Mathf.MoveTowards(altitude, 0f, flightHeight * dt / Mathf.Max(.1f, stateUntil - stateSince));
+            bool moving = State == WildlifeState.Wander || State == WildlifeState.Flee || State == WildlifeState.ReturnHome ||
+                State == WildlifeState.Fly || State == WildlifeState.Swim;
+            Vector3 direction = destination - transform.position;
+            direction.y = 0f;
+            if (State == WildlifeState.Greet && partner != null)
+            {
+                direction = partner.transform.position - transform.position;
+                direction.y = 0f;
+                moving = direction.magnitude > Radius + partner.Radius + .35f;
+            }
+            float speed = (State == WildlifeState.Flee ? runSpeed : walkSpeed) * speedVariation;
+            if (moving && direction.sqrMagnitude > .01f)
+            {
+                Vector3 steering = direction.normalized + separation * 1.3f;
+                steering.y = 0f;
+                if (steering.sqrMagnitude < .001f) steering = direction.normalized;
+                Vector3 displacement = steering.normalized * Mathf.Min(speed * dt, direction.magnitude);
+                Vector3 before = transform.position;
+                if (population.TryMove(this, before + displacement, out Vector3 next))
+                {
+                    transform.position = next;
+                    ActualSpeed = HorizontalDistance(before, next) / Mathf.Max(.001f, dt);
+                }
+                else { ActualSpeed = 0f; nextDestination = Mathf.Min(nextDestination, now + .1f); }
+            }
+            else
+            {
+                ActualSpeed = 0f;
+                if (locomotion == WildlifeLocomotion.Flying && (State == WildlifeState.Takeoff || State == WildlifeState.Landing || altitude == 0f))
+                {
+                    if (population.TryMove(this, transform.position, out Vector3 rise)) transform.position = rise;
+                    else if (State == WildlifeState.Landing)
+                    { landingApproach = false; SetState(WildlifeState.Takeoff, now, ClipDuration(clips.takeoff, 1.6f)); }
+                }
+            }
+            if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), dt * (State == WildlifeState.Flee ? 300f : 150f));
+            AnimationClip clip = clips == null ? null : clips.ForState(State, locomotion);
+            bool repeat = State != WildlifeState.Alert && State != WildlifeState.Takeoff && State != WildlifeState.Landing;
+            float clipSpeed = State == WildlifeState.Flee && locomotion != WildlifeLocomotion.Flying && clips != null &&
+                clips.run != null && clips.run != clips.walk ? runSpeed : walkSpeed;
+            float playback = ActualSpeed > .05f ? Mathf.Clamp(ActualSpeed / Mathf.Max(.1f, clipSpeed), .65f, 1.8f) : 1f;
+            animationPlayer.Play(clip, repeat, playback);
+            animationPlayer.Tick(dt);
+        }
+
+        public bool ReceiveStartle(WildlifeAlarm alarm, float now)
+        {
+            if (alarm.id <= lastAlarm || now > alarm.expiresAt || now < nextAlarm || alarm.intensity * timidity <= .12f || timidity <= .15f) return false;
+            if ((transform.position - alarm.origin).sqrMagnitude > alarm.radius * alarm.radius) return false;
+            lastAlarm = alarm.id;
+            AcceptedAlarmCount++;
+            nextAlarm = now + random.Range(7f, 11f);
+            threat = alarm.origin;
+            landingApproach = false;
+            ReleasePartner();
+            SetState(WildlifeState.Alert, now, random.Range(.25f, .65f));
+            return true;
+        }
+
+        public bool CanGreet(float now)
+        {
+            return isActiveAndEnabled && partner == null && sociability > 0f && now >= nextGreeting &&
+                State != WildlifeState.Alert && State != WildlifeState.Flee && State != WildlifeState.Takeoff && State != WildlifeState.Landing && State != WildlifeState.ReturnHome &&
+                (locomotion != WildlifeLocomotion.Flying || altitude < .01f);
+        }
+
+        internal void BeginGreeting(WildlifeAgent other, float now)
+        {
+            partner = other;
+            nextGreeting = now + random.Range(10f, 18f);
+            SetState(WildlifeState.Greet, now, 1.8f);
+        }
+
+        private void ReleasePartner()
+        {
+            WildlifeAgent other = partner;
+            partner = null;
+            if (other != null && other.partner == this)
+            {
+                other.partner = null;
+                if (other.State == WildlifeState.Greet)
+                    other.SetState(other.locomotion == WildlifeLocomotion.Swimming ? WildlifeState.Swim : WildlifeState.Idle,
+                        other.population == null ? 0f : other.population.SimulationTime, 1.5f);
+            }
+        }
+
+        private void SetState(WildlifeState state, float now, float duration)
+        { State = state; stateSince = now; stateUntil = now + duration; }
+
+        private void LateUpdate()
+        {
+            // Robin clips bake travel into body. World flight owns that travel; retain the wing/leg pose only.
+            if (locomotion == WildlifeLocomotion.Flying && motionRoot != null && capturedMotionPosition)
+                motionRoot.localPosition = baseMotionPosition;
+        }
+
+        private void OnEnable()
+        {
+            if (population != null && Application.isPlaying)
+                animationPlayer.Initialize(animator, clips, 0f);
+        }
+        private void OnDisable() { ReleasePartner(); animationPlayer.Dispose(); }
+        private void OnDestroy() { animationPlayer.Dispose(); }
+    }
+}
