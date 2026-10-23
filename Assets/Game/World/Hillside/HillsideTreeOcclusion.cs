@@ -17,9 +17,22 @@ namespace WeatherHouse.Hillside
             public float clearSince = -1;
         }
 
+        sealed class TreeLod
+        {
+            public LODGroup group;
+            public LOD[] original;
+        }
+
         readonly List<Tree> trees = new List<Tree>();
+        readonly List<TreeLod> treeLods = new List<TreeLod>();
+        bool initialized, treeLodsApplied;
         Camera viewCamera;
         Transform player;
+
+        void OnEnable()
+        {
+            if (Application.isPlaying && initialized) ApplyTreeLods();
+        }
 
         void Start()
         {
@@ -41,6 +54,28 @@ namespace WeatherHouse.Hillside
                     tree.bounds.Encapsulate(renderers[i].bounds);
                 }
                 trees.Add(tree);
+            }
+            initialized = true;
+            if (Application.isPlaying) ApplyTreeLods();
+        }
+
+        void ApplyTreeLods()
+        {
+            if (treeLodsApplied) return;
+            treeLodsApplied = true;
+            foreach (LODGroup group in GetComponentsInChildren<LODGroup>())
+            {
+                LOD[] original = group.GetLODs();
+                if (original.Length < 3) continue;
+                float previous = original[1].screenRelativeTransitionHeight;
+                float earlier = Mathf.Min(previous * 1.5f, original[0].screenRelativeTransitionHeight * .95f);
+                if (!(earlier > previous)) continue;
+                var adjusted = (LOD[])original.Clone();
+                LOD middle = adjusted[1];
+                middle.screenRelativeTransitionHeight = earlier;
+                adjusted[1] = middle;
+                treeLods.Add(new TreeLod { group = group, original = original });
+                group.SetLODs(adjusted);
             }
         }
 
@@ -78,6 +113,10 @@ namespace WeatherHouse.Hillside
 
         void OnDisable()
         {
+            foreach (TreeLod lod in treeLods)
+                if (lod.group) lod.group.SetLODs(lod.original);
+            treeLods.Clear();
+            treeLodsApplied = false;
             foreach (Tree tree in trees)
             {
                 if (tree.hidden) SetHidden(tree, false);
