@@ -15,6 +15,7 @@ namespace WeatherHouse.WatersideV2.Editor
     public static class WatersidePropsBuilder
     {
         const string Pack = "Assets/HIGHLANDS - Stylized Environment/";
+        public const float LowLanternIntensity = .6f;
         static readonly Dictionary<Material, Material> Materials = new Dictionary<Material, Material>();
         static readonly List<Vector4> Occupied = new List<Vector4>();
         static Terrain ground;
@@ -178,7 +179,7 @@ namespace WeatherHouse.WatersideV2.Editor
             head.GetComponent<MeshRenderer>().sharedMaterials = lanternMaterials; head.isStatic = true;
             var light = new GameObject("近人物暖光 · 范围4.5 无阴影").AddComponent<Light>();
             light.transform.SetParent(lamp, false); light.transform.position = new Vector3(site.x, top + .3f, site.z);
-            light.type = LightType.Point; light.range = 4.5f; light.intensity = 2.1f;
+            light.type = LightType.Point; light.range = 4.5f; light.intensity = LowLanternIntensity;
             light.color = new Color(1,.72f,.36f); light.shadows = LightShadows.None;
             Occupied.Add(new Vector4(site.x,site.z,.5f,0));
         }

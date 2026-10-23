@@ -52485,7 +52485,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.72, b: 0.36, a: 1}
-  m_Intensity: 2.1
+  m_Intensity: 0.6
   m_Range: 4.5
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -105063,7 +105063,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.72, b: 0.36, a: 1}
-  m_Intensity: 2.1
+  m_Intensity: 0.6
   m_Range: 4.5
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -123049,7 +123049,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.72, b: 0.36, a: 1}
-  m_Intensity: 2.1
+  m_Intensity: 0.6
   m_Range: 4.5
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -283086,6 +283086,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   navigation: {fileID: 1883821999}
   social: {fileID: 1883821997}
+  surroundingPopulation: {fileID: 0}
   members:
   - id: 23
     root: {fileID: 704161304}

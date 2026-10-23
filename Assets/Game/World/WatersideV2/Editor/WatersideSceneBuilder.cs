@@ -69,6 +69,22 @@ namespace WeatherHouse.WatersideV2.Editor
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), ScenePath);
             File.WriteAllText(Review + "/scene-checks.txt", Verify());
         }
+        public static void ApplyLanternDefaults()
+        {
+            RequireSaved();
+            var scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath || SceneManager.sceneCount != 1)
+                throw new InvalidOperationException("Update lanterns only with the saved Waterside V2 scene open by itself.");
+            var lamps = Object.FindObjectsOfType<Light>().Where(light => light.gameObject.scene == scene &&
+                light.name == "近人物暖光 · 范围4.5 无阴影").ToArray();
+            if (lamps.Length != 3 || lamps.Any(light => light.type != LightType.Point))
+                throw new InvalidOperationException("Expected the three existing low stone lanterns before applying their defaults.");
+            foreach (var lamp in lamps) { lamp.intensity = WatersidePropsBuilder.LowLanternIntensity; EditorUtility.SetDirty(lamp); }
+            EditorSceneManager.MarkSceneDirty(scene);
+            if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Could not save the lantern adjustment.");
+            // Reload the saved scene so the transient day/night baseline takes the new light intensities.
+            EditorSceneManager.OpenScene(ScenePath);
+        }
         static ForestSpriteDemoController Player(Terrain terrain)
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Characters/ForestSprite/Generated/ForestSprite.prefab");

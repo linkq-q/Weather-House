@@ -93,6 +93,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 if(command=="inspect") State();
                 else if(command=="build") { WatersideSceneBuilder.Build();State(); }
                 else if(command=="integrate") { WatersideSceneBuilder.CompleteAnimalIntegration();State(); }
+                else if(command=="lanterns") { WatersideSceneBuilder.ApplyLanternDefaults();State(); }
                 else if(command=="capture") BeginCapture();
                 else if(command=="verify") File.WriteAllText(Folder+"/scene-checks.txt",WatersideSceneBuilder.Verify());
                 else if(command=="checks") File.WriteAllText(Folder+"/integration-checks.txt",WatersideGrassMaskChecks.Run()+"\n"+WatersideGrassMaskChecks.VerifySceneWater());
