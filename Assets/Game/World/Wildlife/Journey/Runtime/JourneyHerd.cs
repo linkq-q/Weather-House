@@ -287,8 +287,8 @@ namespace WeatherHouse.WildlifeJourney
                 RouteChanges++; m.LastDecision = "找到新的可行路线";
             }
             while (m.segment < m.route.segments.Count && (m.segment == m.route.segments.Count - 1
-                ? FlatDistance(m.root.position, m.route.segments[m.segment].to) < .18f
-                : PassedWaypoint(m, m.route.segments[m.segment]))) m.segment++;
+                ? FlatDistance(m.root.position, m.route.segments[m.segment].to) < (m.route.segments[m.segment].surfaceBoundary ? .001f : .18f)
+                : PassedWaypoint(m, m.route.segments[m.segment], m.route.segments[m.segment + 1]))) m.segment++;
             if (m.segment >= m.route.segments.Count)
             {
                 ReleaseBridge(m); m.Arrived = true; m.route = null;
@@ -315,14 +315,16 @@ namespace WeatherHouse.WildlifeJourney
             float speed = (segment.mode == JourneyTravelMode.Swim ? m.profile.swimSpeed : m.profile.walkSpeed) * m.pace;
             if (segment.mode == JourneyTravelMode.Wade) speed *= .7f;
             Vector3 target = segment.to;
-            // Look ahead within the current surface mode so fine navigation samples do not become visible steering corners.
-            for (int ahead = m.segment + 1; ahead < m.route.segments.Count; ahead++)
+            // Smooth fine samples only when the entire shortcut is safe on this same surface.
+            for (int ahead = m.segment + 1; !segment.surfaceBoundary && ahead < m.route.segments.Count; ahead++)
             {
                 JourneySegment candidate = m.route.segments[ahead];
-                if (candidate.mode != segment.mode || candidate.bridgeId != segment.bridgeId || candidate.linkIndex != segment.linkIndex ||
+                if (candidate.surfaceBoundary || candidate.mode != segment.mode || candidate.bridgeId != segment.bridgeId || candidate.linkIndex != segment.linkIndex ||
                     FlatDistance(m.root.position, candidate.to) > 1.3f) break;
                 target = candidate.to;
             }
+            if (target != segment.to && !navigation.TryStep(m.profile, m.root.position, target, out _, out _, segment.mode, segment.bridgeId))
+                target = segment.to;
             if (m.crowdPath != null && m.crowdStep < m.crowdPath.Count) target = m.crowdPath[m.crowdStep];
             Vector3 next = Vector3.MoveTowards(m.root.position, target, speed * dt);
             if (!navigation.TryStep(m.profile, m.root.position, next, out Vector3 projected, out JourneyTravelMode mode))
@@ -403,7 +405,7 @@ namespace WeatherHouse.WildlifeJourney
             {
                 Vector3 target = m.crowdPath != null && m.crowdStep < m.crowdPath.Count ? m.crowdPath[m.crowdStep] : m.localTarget;
                 Vector3 next = Vector3.MoveTowards(m.root.position, target, m.profile.walkSpeed * .5f * dt);
-                if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode mode) && mode == JourneyTravelMode.Walk &&
+                if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode mode, JourneyTravelMode.Walk) && mode == JourneyTravelMode.Walk &&
                     AvoidOthers(m, next, mode, out next)) Move(m, next, dt);
                 else if (m.crowdPath == null) m.localTarget = m.root.position;
             }
@@ -421,7 +423,7 @@ namespace WeatherHouse.WildlifeJourney
             if (direction.magnitude > targetSpace)
             {
                 Vector3 next = m.root.position + direction.normalized * Mathf.Min(.35f * dt, direction.magnitude - targetSpace);
-                if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode mode) && mode == JourneyTravelMode.Walk &&
+                if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode mode, JourneyTravelMode.Walk) && mode == JourneyTravelMode.Walk &&
                     ClearOfOthers(m, next, partner)) Move(m, next, dt);
             }
             if (direction.sqrMagnitude > .001f) m.root.rotation = Quaternion.RotateTowards(m.root.rotation, Quaternion.LookRotation(direction), dt * 100f);
@@ -442,7 +444,7 @@ namespace WeatherHouse.WildlifeJourney
                     return false; // Re-evaluate the resumed route next frame, without stepping toward its old waypoint.
                 }
                 Vector3 next = Vector3.MoveTowards(m.root.position, m.crowdPath[m.crowdStep], step);
-                if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode nextMode) &&
+                if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode nextMode, JourneyTravelMode.Walk) &&
                     nextMode == JourneyTravelMode.Walk && ClearOfOthers(m, next)) { result = next; return true; }
                 m.crowdPath = null;
             }
@@ -504,7 +506,7 @@ namespace WeatherHouse.WildlifeJourney
                     for (int step = 1; step <= 6; step++)
                     {
                         if (!navigation.TryStep(other.profile, previous, Vector3.Lerp(other.root.position, candidate, step / 6f),
-                            out Vector3 next, out JourneyTravelMode mode) || mode != JourneyTravelMode.Walk || !ClearOfOthers(other, next))
+                            out Vector3 next, out JourneyTravelMode mode, JourneyTravelMode.Walk) || mode != JourneyTravelMode.Walk || !ClearOfOthers(other, next))
                         { safe = false; break; }
                         previous = next;
                     }
@@ -527,7 +529,7 @@ namespace WeatherHouse.WildlifeJourney
             if (!navigation.TryProject(member.profile, previous, out previous, out JourneyTravelMode initial) || initial != JourneyTravelMode.Walk) return false;
             for (int i = 1; i <= steps; i++)
             {
-                if (!navigation.TryStep(member.profile, previous, Vector3.Lerp(from, to, (float)i / steps), out Vector3 next, out JourneyTravelMode mode) ||
+                if (!navigation.TryStep(member.profile, previous, Vector3.Lerp(from, to, (float)i / steps), out Vector3 next, out JourneyTravelMode mode, JourneyTravelMode.Walk) ||
                     mode != JourneyTravelMode.Walk || (member.Arrived && FlatDistance(next, sites[TargetSite].center) > sites[TargetSite].radius)) return false;
                 previous = next;
             }
@@ -586,13 +588,21 @@ namespace WeatherHouse.WildlifeJourney
             return true;
         }
 
-        private static bool PassedWaypoint(JourneyMember m, JourneySegment segment)
+        private bool PassedWaypoint(JourneyMember m, JourneySegment segment, JourneySegment next)
         {
-            if (FlatDistance(m.root.position, segment.to) < .12f) return true;
-            if (segment.bridgeId != 0 || segment.mode != m.Mode) return false;
-            Vector3 along = segment.to - segment.from; along.y = 0;
-            Vector3 offset = m.root.position - segment.to; offset.y = 0;
-            return offset.magnitude < 1.6f && Vector3.Dot(offset, along) >= 0;
+            float distance = FlatDistance(m.root.position, segment.to);
+            // At the actual corner, hand an obstructed next leg to normal blocked-route recovery.
+            if (distance < .001f) return true;
+            if (distance >= .12f)
+            {
+                if (segment.bridgeId != 0 || segment.mode != m.Mode) return false;
+                Vector3 along = segment.to - segment.from; along.y = 0;
+                Vector3 offset = m.root.position - segment.to; offset.y = 0;
+                if (distance >= 1.6f || Vector3.Dot(offset, along) < 0) return false;
+            }
+            // Reach water/land and bridge boundaries physically; a skipped bank must not erase a planned rest.
+            return !segment.surfaceBoundary && !next.surfaceBoundary && segment.mode == next.mode && segment.bridgeId == next.bridgeId &&
+                navigation.TryStep(m.profile, m.root.position, next.to, out _, out _, segment.mode, segment.bridgeId);
         }
 
         private static bool Live(JourneyMember m) => m != null && m.root && m.root.gameObject.activeInHierarchy;

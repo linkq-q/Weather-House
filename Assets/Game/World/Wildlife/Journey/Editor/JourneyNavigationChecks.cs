@@ -228,6 +228,24 @@ namespace WeatherHouse.WildlifeJourney.Editor
                     "Direct validation accepts inputs rejected by route search.");
                 results.Add("PASS graph-independent direct surface validation shares geometry, costs and swimming limits without detours");
 
+                nav.surfaceSampler = p => new JourneySurface { valid = true, groundY = -.1f,
+                    hasWater = p.x >= 0 && p.x <= .4f, waterY = 0 };
+                Vector3 dryStart = new Vector3(-.5f, -.1f, 0), dryGoal = new Vector3(1, -.1f, 0);
+                Require(nav.TryStep(dry, dryStart, dryGoal, out _, out _) &&
+                    !nav.TryStep(dry, dryStart, dryGoal, out _, out _, JourneyTravelMode.Walk) &&
+                    !nav.TryStep(dry, new Vector3(.1f, -.1f, 0), dryGoal, out _, out _, JourneyTravelMode.Walk),
+                    "A walking-only shortcut crossed shallow water or accepted a wet starting surface.");
+                nav.surfaceSampler = p => new JourneySurface { valid = true, bridgeId = p.x > .2f && p.x < .6f ? 8 : 7 };
+                Require(nav.TryStep(dry, Vector3.zero, new Vector3(1, 0, 0), out _, out _, JourneyTravelMode.Bridge) &&
+                    !nav.TryStep(dry, Vector3.zero, new Vector3(1, 0, 0), out _, out _, JourneyTravelMode.Bridge, 7) &&
+                    !nav.TryStep(dry, Vector3.zero, new Vector3(-1, 0, 0), out _, out _, JourneyTravelMode.Bridge, 8) &&
+                    nav.TryStep(dry, Vector3.zero, new Vector3(-1, 0, 0), out _, out _, JourneyTravelMode.Bridge, 7),
+                    "A bridge-specific shortcut crossed another bridge or ignored its starting deck identity.");
+                results.Add("PASS optional step constraints validate every surface mode and bridge identity including the start");
+
+                CheckTerrainTriangles();
+                results.Add("PASS real TerrainCollider thin-triangle rejection and safe-line movement agree with route planning");
+
                 nav.surfaceSampler = null;
                 nav.waterAreas = new[] { new JourneyWaterArea { surfaceHeight = 9,
                     bounds = new Bounds(Vector3.zero, new Vector3(20, 20, 20)) } };
@@ -245,6 +263,53 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 return string.Join("\n", results);
             }
             finally { UnityEngine.Random.state = randomState; Object.DestroyImmediate(root); }
+        }
+
+        private static void CheckTerrainTriangles()
+        {
+            const int resolution = 33;
+            const float cell = 180f / 512f;
+            var data = new TerrainData { heightmapResolution = resolution, size = new Vector3(32 * cell, 20, 32 * cell) };
+            GameObject ground = null;
+            try
+            {
+                var heights = new float[resolution, resolution];
+                // The four corners reproduce the 31.29/26.66 degree triangles at the observed Waterside stall.
+                for (int z = 0; z < resolution; z++)
+                    for (int x = 0; x < resolution; x++)
+                        heights[z, x] = (z <= 16 ? (x <= 16 ? 9.598364f : 9.809436f) :
+                            (x <= 16 ? 9.745956f : 9.842764f)) / 20f;
+                data.SetHeights(0, 0, heights);
+                ground = Terrain.CreateTerrainGameObject(data);
+                ground.name = "Isolated thin-terrain-triangle check"; ground.hideFlags = HideFlags.HideAndDontSave; ground.layer = 31;
+                Vector3 origin = new Vector3(1000, 0, 1000);
+                ground.transform.position = origin;
+                JourneyNavigation nav = ground.AddComponent<JourneyNavigation>();
+                nav.terrain = ground.GetComponent<Terrain>(); nav.groundMask = 1 << 31; nav.obstacleMask = 0; nav.maxSlope = 29;
+                Physics.SyncTransforms();
+                var profile = new JourneyProfile { bodyRadius = .28566015f, canSwim = false };
+                Vector3 start = origin + new Vector3(17.045333f * cell, 0, 16.686222f * cell);
+                Vector3 badGoal = origin + new Vector3(15 * cell, 0, 17.2f * cell);
+                Vector3 goodGoal = origin + new Vector3(17.5f * cell, 0, 19 * cell);
+                Require(nav.TryProject(profile, start, out start, out _) && nav.TryProject(profile, badGoal, out badGoal, out _) &&
+                    nav.TryProject(profile, goodGoal, out goodGoal, out _), "Terrain regression endpoints must all be walkable.");
+                Require(!nav.TryStep(profile, start, Vector3.MoveTowards(start, badGoal, .02f), out _, out _),
+                    "The real TerrainCollider fixture no longer reproduces the steep thin triangle between coarse samples.");
+                Require(nav.TraceDirectRoute(start, badGoal, profile) == null,
+                    "Direct planning skipped a steep terrain triangle that rejects the first real walking step.");
+                nav.nodes = new[] { new JourneyNode { position = start }, new JourneyNode { position = badGoal } };
+                nav.links = new[] { Link(0, 1) };
+                Require(nav.FindRoute(start, badGoal, profile) == null, "Graph planning skipped the same steep terrain triangle.");
+                Require(nav.TraceDirectRoute(start, goodGoal, profile) != null, "Triangle sampling rejected the safe northeast alternative.");
+                Vector3 current = start;
+                for (int step = 0; step < 128 && Vector3.Distance(current, goodGoal) > .001f; step++)
+                {
+                    Require(nav.TryStep(profile, current, Vector3.MoveTowards(current, goodGoal, .02f), out current, out JourneyTravelMode mode) &&
+                        mode == JourneyTravelMode.Walk, "A planned safe terrain alternative fails incremental walking.");
+                }
+                Require(Vector3.Distance(current, goodGoal) <= .001f, "Incremental walking did not finish the safe terrain alternative.");
+            }
+            finally { if (ground) Object.DestroyImmediate(ground); Object.DestroyImmediate(data); }
         }
 
         private static JourneySurface River(Vector3 p)

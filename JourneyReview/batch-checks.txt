@@ -1,4 +1,4 @@
-PASS 2026-10-23T18:27:53.1726702Z
+PASS 2026-10-23T19:06:36.6117829Z
 PASS deterministic scatter, varying seeds and independent global random stream
 PASS requested counts, plane, outer boundary and minimum pair spacing
 PASS filled, uneven herd outline
@@ -18,6 +18,8 @@ PASS individual body waterlines, shallow-bottom support and inherited default
 PASS obstacle-corner start and goal connectors retain both verified legs
 PASS bent start and goal connectors preserve the entire continuous swimming budget
 PASS graph-independent direct surface validation shares geometry, costs and swimming limits without detours
+PASS optional step constraints validate every surface mode and bridge identity including the start
+PASS real TerrainCollider thin-triangle rejection and safe-line movement agree with route planning
 PASS authoritative world-water boundary and height with standalone and injected fallbacks
 PASS adjacent body circles have a deterministic short exterior path without penetration
 PASS occupied goals and terrain-blocked paths are rejected
@@ -29,6 +31,7 @@ PASS observed three-neighbour pocket: an arrived neighbour yields; traveller arr
 PASS arrived wandering: held detour executes and clears in 12.60s, 5.60m; next activity remains available
 PASS .04m social gap opens to normal walking clearance: held detour executes and clears in 11.40s, 5.06m; next activity remains available
 PASS the entire bridge approach keeps its center line while open ground retains individual route offsets
+PASS route variation rejects hidden mid-segment swimming beyond endurance while preserving a safe land offset
 PASS lateral bridge entrances admit the same crossing direction and reject opposing crossings
 PASS independent stable individual animation phases
 PASS mixed-ability split, staggered departure, surface swimming, bridge queue and full east-bank reunion
@@ -42,6 +45,11 @@ PASS bridge crossing rejects a mid-crossing destination reversal and still reuni
 PASS a faster bridge follower waits behind a slow leader and all queued companions eventually reunite
 PASS deactivating a queued sheep releases its reservation and lets active companions reunite
 PASS an on-shore reservation holder can deactivate, clear for 0.4 seconds, re-enable and cross before full reunion
+PASS same-link curved corridor rejects an unsafe lookahead chord and arrives without replanning; time=4.180s, distance=2.341m, longestStop=0.000s, largestStep=0.012m, routeChanges=0
+PASS a nearby corner remains active until the next leg is reachable, then the member arrives without replanning; time=2.360s, distance=1.311m, longestStop=0.000s, largestStep=0.012m, routeChanges=0
+PASS a newly blocked next leg enters replanning after reaching its corner and arrives after reopening; time=4.960s, distance=1.647m, longestStop=0.480s, largestStep=0.012m, routeChanges=1
+PASS real traced Swim-to-bank-to-Swim transitions physically rest, reset and resume before arrival; time=2.620s, maximumContinuousSwim=0.954m, routeChanges=0
+PASS .10 m final Swim-to-Walk and Bridge-to-Walk segments physically land before arrival; Swim=0.280s, Bridge=0.280s
 PASS 6 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners.
 PASS saved scene: ten independent sheep, real rig bindings, real deck and river colliders, unsafe-bank rejection and 300-second whole-herd reunion
 INFO sheep 01 rendered metres width=0.609 height=0.894 length=1.051 footOffset=0.000; configured bodyLength=1.176 width=0.483 waterline=0.462

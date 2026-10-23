@@ -18,7 +18,7 @@ namespace WeatherHouse.WildlifeJourney
                 Vector3 heading = finish - origin; heading.y = 0;
                 float length = heading.magnitude;
                 bool narrow = false;
-                for (int i = first; i < end; i++) narrow |= varied[i].bridgeId != 0;
+                for (int i = first; i < end; i++) narrow |= varied[i].bridgeId != 0 || varied[i].surfaceBoundary;
                 // Merge onto the shared approach before the bottleneck, while there is still room to queue.
                 for (int i = end; !narrow && i < varied.Count; i++)
                 {
@@ -46,8 +46,9 @@ namespace WeatherHouse.WildlifeJourney
             for (int i = 0; i < varied.Count; i++)
             {
                 JourneySegment segment = varied[i];
-                if (!navigation.TryStep(profile, previous, segment.to, out Vector3 point, out JourneyTravelMode mode)) return;
                 JourneySegment original = route.segments[i];
+                if (!navigation.TryStep(profile, previous, segment.to, out Vector3 point, out JourneyTravelMode mode,
+                    original.surfaceBoundary ? (JourneyTravelMode?)null : original.mode, original.bridgeId)) return;
                 if ((mode == JourneyTravelMode.Bridge) != (original.bridgeId != 0) && original.mode != JourneyTravelMode.Bridge) return;
                 if (mode == JourneyTravelMode.Swim || previousMode == JourneyTravelMode.Swim)
                 {
@@ -56,6 +57,7 @@ namespace WeatherHouse.WildlifeJourney
                 }
                 if (mode != JourneyTravelMode.Swim) swimming = 0;
                 segment.from = previous; segment.to = point;
+                segment.surfaceBoundary = original.surfaceBoundary || previousMode != mode;
                 segment.mode = mode == JourneyTravelMode.Swim || previousMode == JourneyTravelMode.Swim ? JourneyTravelMode.Swim :
                     mode == JourneyTravelMode.Bridge || previousMode == JourneyTravelMode.Bridge ? JourneyTravelMode.Bridge : mode;
                 float speed = segment.mode == JourneyTravelMode.Swim ? profile.swimSpeed : profile.walkSpeed;

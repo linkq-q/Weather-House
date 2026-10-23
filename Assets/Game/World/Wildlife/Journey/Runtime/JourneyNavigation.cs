@@ -28,6 +28,7 @@ namespace WeatherHouse.WildlifeJourney
         public Vector3 from, to;
         public JourneyTravelMode mode;
         public int bridgeId, linkIndex;
+        public bool surfaceBoundary;
     }
     public sealed class JourneyRoute
     {
@@ -51,6 +52,9 @@ namespace WeatherHouse.WildlifeJourney
         public int Version { get; private set; }
         private readonly RaycastHit[] groundHits = new RaycastHit[64];
         private readonly Collider[] overlaps = new Collider[32];
+        private const int MaximumSamples = 4096;
+        private readonly List<float> sampleTimes = new List<float>();
+        private readonly List<float> terrainCuts = new List<float>();
         private static readonly Vector3[] Footprint = {
             new Vector3(1, 0, 0), new Vector3(-1, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 0, -1),
             new Vector3(.7071f, 0, .7071f), new Vector3(-.7071f, 0, .7071f),
@@ -113,16 +117,18 @@ namespace WeatherHouse.WildlifeJourney
         { return Project(profile, requested, out projected, out mode, out _); }
 
         // Placement may project onto a surface; movement must also reach it safely from the current feet position.
-        public bool TryStep(JourneyProfile profile, Vector3 from, Vector3 requested, out Vector3 projected, out JourneyTravelMode mode)
+        public bool TryStep(JourneyProfile profile, Vector3 from, Vector3 requested, out Vector3 projected, out JourneyTravelMode mode,
+            JourneyTravelMode? requiredMode = null, int requiredBridgeId = 0)
         {
             projected = from; mode = JourneyTravelMode.Walk;
-            if (!Finite(from) || !Finite(requested) || !Project(profile, from, out Vector3 previous, out JourneyTravelMode previousMode, out _) ||
-                Mathf.Abs(previous.y - from.y) > Mathf.Max(.01f, maxStepHeight)) return false;
-            int steps = Mathf.Max(1, Mathf.CeilToInt(Horizontal(from, requested) / Spacing(profile)));
-            if (steps > 4096) return false;
-            for (int i = 1; i <= steps; i++)
+            if (!Finite(from) || !Finite(requested) || !Project(profile, from, out Vector3 previous, out JourneyTravelMode previousMode, out JourneySurface previousSurface) ||
+                Mathf.Abs(previous.y - from.y) > Mathf.Max(.01f, maxStepHeight) ||
+                (requiredMode.HasValue && (previousMode != requiredMode.Value || (requiredBridgeId != 0 && previousSurface.bridgeId != requiredBridgeId)))) return false;
+            if (!BuildSamples(from, requested, profile)) return false;
+            foreach (float t in sampleTimes)
             {
-                if (!Project(profile, Vector3.Lerp(from, requested, (float)i / steps), out Vector3 point, out JourneyTravelMode nextMode, out _) ||
+                if (!Project(profile, Vector3.Lerp(from, requested, t), out Vector3 point, out JourneyTravelMode nextMode, out JourneySurface surface) ||
+                    (requiredMode.HasValue && (nextMode != requiredMode.Value || (requiredBridgeId != 0 && surface.bridgeId != requiredBridgeId))) ||
                     !SafeStep(previous, point, previousMode, nextMode)) return false;
                 previous = point; previousMode = nextMode;
             }
@@ -174,6 +180,61 @@ namespace WeatherHouse.WildlifeJourney
         }
 
         private float Spacing(JourneyProfile profile) => Mathf.Clamp(Mathf.Min(sampleSpacing, Mathf.Max(.05f, profile.bodyRadius)), .04f, 1f);
+        private bool BuildSamples(Vector3 from, Vector3 to, JourneyProfile profile)
+        {
+            sampleTimes.Clear();
+            int steps = Mathf.Max(1, Mathf.CeilToInt(Horizontal(from, to) / Spacing(profile)));
+            if (steps > MaximumSamples) return false;
+            for (int i = 1; i <= steps; i++) sampleTimes.Add((float)i / steps);
+            if (surfaceSampler != null || !terrain || !terrain.terrainData) return true;
+            TerrainData data = terrain.terrainData;
+            int cells = data.heightmapResolution - 1;
+            Vector3 size = data.size, origin = terrain.transform.position;
+            if (cells < 1 || size.x <= 0 || size.z <= 0) return true;
+            Vector2 a = new Vector2((from.x - origin.x) * cells / size.x, (from.z - origin.z) * cells / size.z);
+            Vector2 b = new Vector2((to.x - origin.x) * cells / size.x, (to.z - origin.z) * cells / size.z);
+            if (!Finite(a.x) || !Finite(a.y) || !Finite(b.x) || !Finite(b.y)) return false;
+            terrainCuts.Clear(); terrainCuts.Add(0); terrainCuts.Add(1);
+            // Grid edges and both possible diagonals partition the line into individual heightfield triangles.
+            if (!AddTerrainCuts(a.x, b.x, 0, cells, a, b, cells) || !AddTerrainCuts(a.y, b.y, 0, cells, a, b, cells) ||
+                !AddTerrainCuts(a.x + a.y, b.x + b.y, 0, cells * 2, a, b, cells) ||
+                !AddTerrainCuts(a.x - a.y, b.x - b.y, -cells, cells, a, b, cells)) return false;
+            SortUnique(terrainCuts);
+            for (int i = 1; i < terrainCuts.Count; i++)
+            {
+                sampleTimes.Add(terrainCuts[i]);
+                sampleTimes.Add((terrainCuts[i - 1] + terrainCuts[i]) * .5f);
+            }
+            SortUnique(sampleTimes);
+            return sampleTimes.Count <= MaximumSamples;
+        }
+
+        private bool AddTerrainCuts(float from, float to, int minimum, int maximum, Vector2 a, Vector2 b, int cells)
+        {
+            if (from == to || Mathf.Max(from, to) < minimum || Mathf.Min(from, to) > maximum) return true;
+            int first = Mathf.CeilToInt(Mathf.Max(minimum, Mathf.Min(from, to)));
+            int last = Mathf.FloorToInt(Mathf.Min(maximum, Mathf.Max(from, to)));
+            for (int line = first; line <= last; line++)
+            {
+                float t = (line - from) / (to - from);
+                if (t <= 0 || t >= 1) continue;
+                float x = a.x + (b.x - a.x) * t, z = a.y + (b.y - a.y) * t;
+                if (x < 0 || z < 0 || x > cells || z > cells) continue;
+                terrainCuts.Add(t);
+                if (terrainCuts.Count > MaximumSamples) return false;
+            }
+            return true;
+        }
+
+        private static void SortUnique(List<float> values)
+        {
+            values.Sort();
+            int count = 0;
+            for (int i = 0; i < values.Count; i++)
+                if (count == 0 || values[i] != values[count - 1]) values[count++] = values[i];
+            if (count < values.Count) values.RemoveRange(count, values.Count - count);
+        }
+
         private bool SafeStep(Vector3 from, Vector3 to, JourneyTravelMode fromMode, JourneyTravelMode toMode)
         {
             float horizontal = Horizontal(from, to), rise = Mathf.Abs(to.y - from.y);
@@ -303,14 +364,12 @@ namespace WeatherHouse.WildlifeJourney
         private Edge Trace(Vector3 from, Vector3 to, JourneyProfile profile, int linkIndex, int bridgeId, float priorSwim)
         {
             if (!Project(profile, from, out Vector3 previous, out JourneyTravelMode previousMode, out JourneySurface previousSurface)) return null;
-            float distance = Horizontal(from, to);
-            int steps = Mathf.Max(1, Mathf.CeilToInt(distance / Spacing(profile)));
-            if (steps > 4096) return null;
+            if (!BuildSamples(from, to, profile)) return null;
             var edge = new Edge { swimDistance = previousMode == JourneyTravelMode.Swim ? priorSwim : 0 };
             bool foundBridge = previousSurface.bridgeId == bridgeId && bridgeId > 0;
-            for (int i = 1; i <= steps; i++)
+            foreach (float t in sampleTimes)
             {
-                if (!Project(profile, Vector3.Lerp(from, to, (float)i / steps), out Vector3 point, out JourneyTravelMode mode, out JourneySurface surface)) return null;
+                if (!Project(profile, Vector3.Lerp(from, to, t), out Vector3 point, out JourneyTravelMode mode, out JourneySurface surface)) return null;
                 float horizontal = Horizontal(previous, point);
                 bool swimming = mode == JourneyTravelMode.Swim || previousMode == JourneyTravelMode.Swim;
                 if (!SafeStep(previous, point, previousMode, mode)) return null;
@@ -335,7 +394,8 @@ namespace WeatherHouse.WildlifeJourney
                     float penalty = travel == JourneyTravelMode.Swim ? 1 + aversion : travel == JourneyTravelMode.Wade ? 1 + aversion * .5f : 1;
                     edge.cost += Vector3.Distance(previous, point) / Mathf.Max(.01f, speed) * penalty;
                     edge.segments.Add(new JourneySegment { from = previous, to = point, mode = travel,
-                        bridgeId = surface.bridgeId > 0 ? surface.bridgeId : previousSurface.bridgeId, linkIndex = linkIndex });
+                        bridgeId = surface.bridgeId > 0 ? surface.bridgeId : previousSurface.bridgeId, linkIndex = linkIndex,
+                        surfaceBoundary = previousMode != mode || previousSurface.bridgeId != surface.bridgeId });
                 }
                 previous = point; previousMode = mode; previousSurface = surface;
             }
