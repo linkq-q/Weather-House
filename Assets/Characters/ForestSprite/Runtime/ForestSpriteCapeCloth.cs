@@ -99,6 +99,24 @@ namespace ForestSpriteCharacter
         Matrix4x4[] guideBindposes, guideMatrices;
         float[] guideEdgeRatios;
 
+        // Broad travelling waves: walking approaches horizontal; running lifts the rear wing above it.
+        static readonly float[,] WalkCapeMean = {
+            {0f,65f,45f,50f,85f,100f}, {0f,29.75f,21.25f,38.25f,59.5f,72.25f},
+            {0f,0f,0f,2f,6f,10f}, {0f,8.5f,14.875f,32.9375f,55.0375f,67.15f}
+        };
+        static readonly float[,] WalkCapeAmplitude = {
+            {0f,3f,5f,8f,8f,6f}, {0f,1f,2f,4f,5f,4f},
+            {0f,0f,0f,.5f,1f,1f}, {0f,.5f,2f,4f,4.5f,3.5f}
+        };
+        static readonly float[,] RunCapeMean = {
+            {0f,90f,65f,80f,140f,150f}, {0f,45f,35f,55f,80f,95f},
+            {0f,0f,0f,2f,6f,10f}, {0f,10f,17.5f,38.75f,64.75f,79f}
+        };
+        static readonly float[,] RunCapeAmplitude = {
+            {0f,5f,8f,14f,16f,12f}, {0f,3f,6f,12f,14f,10f},
+            {0f,0f,0f,.5f,1f,1f}, {0f,1f,4.5f,10.75f,13.25f,10f}
+        };
+
         void OnEnable()
         {
             if (simulationRoot != null) previousPosition = simulationRoot.position;
@@ -119,23 +137,32 @@ namespace ForestSpriteCharacter
         {
             // Restore before Animator evaluates this frame; never accumulate last frame's bend.
             RestorePose();
+            // The terrain adapter supplies its sampled ground height later in LateUpdate.
+            if (floorCollision != null && simulationRoot != null)
+                floorCollision.transform.position = new Vector3(simulationRoot.position.x, -25f, simulationRoot.position.z);
+        }
+
+        void UpdateFlow()
+        {
             if (simulationRoot == null || cloth == null) return;
             if (smooth == null) ApplySettings();
-            if (floorCollision != null)
-                floorCollision.transform.position = new Vector3(simulationRoot.position.x, -25f, simulationRoot.position.z);
             bool desired = secondaryMotion == null || secondaryMotion.MotionEnabled;
             if (desired != motionEnabled) SetMotionEnabled(desired);
             float dt = Time.deltaTime;
             Vector3 delta = simulationRoot.position - previousPosition;
             previousPosition = simulationRoot.position;
-            if (dt <= 0 || dt > .2f || delta.sqrMagnitude > .75f * .75f)
+            if (dt <= 0) return;
+            float teleportDistance = Mathf.Max(1f, (locomotion == null ? 4f : Mathf.Max(locomotion.walkSpeed, locomotion.runSpeed)) * dt * 2.5f);
+            if (delta.sqrMagnitude > teleportDistance * teleportDistance)
             {
                 ResetSimulation();
                 return;
             }
             SmoothSettings(1f - Mathf.Exp(-dt / .18f));
             UpdateClothSettings();
-            filteredVelocity = Vector3.Lerp(filteredVelocity, delta / dt, 1f - Mathf.Exp(-7f * dt));
+            // Read this frame's collision-resolved motion after the controller has consumed all of its time.
+            Vector3 velocity = locomotion == null ? delta / dt : locomotion.ActualVelocity;
+            filteredVelocity = Vector3.Lerp(filteredVelocity, velocity, 1f - Mathf.Exp(-7f * dt));
             Vector3 horizontal = Vector3.ProjectOnPlane(filteredVelocity, Vector3.up);
             string state = locomotion == null ? "" : locomotion.CurrentState;
             // Carry the last gait through a jump or stop; flowAmount handles the gradual settling.
@@ -155,6 +182,7 @@ namespace ForestSpriteCharacter
 
         void LateUpdate()
         {
+            UpdateFlow();
             if (!motionEnabled || smooth == null || flowUpper == null || flowUpper.Length == 0) return;
             if (baseUpper == null || baseUpper.Length != flowUpper.Length)
             {
@@ -231,17 +259,10 @@ namespace ForestSpriteCharacter
             if (GuideTangentDegrees == null || GuideTangentDegrees.Length != GuideDirectionCount * guideSegments)
                 GuideTangentDegrees = new float[GuideDirectionCount * guideSegments];
             float moving = Mathf.Clamp01(flowAmount);
-            // Open-front wing trial: keep rear support and the travelling wave while each side opens freely.
-            // Default means are 38 degrees walking and 58 running, before the gradual hem support below.
             float jumpOpen = locomotion != null ? locomotion.JumpOpenness : 0f;
-            float mean = moving * Mathf.Lerp(26f + smooth.lift * 15f, 42f + smooth.lift * 20f, runBlend);
-            mean = Mathf.Lerp(mean, 65f, jumpOpen);
-            float wave = moving * smooth.waveAmplitude * Mathf.Lerp(110f, 400f, runBlend);
-            float sBend = moving * smooth.sCurve * Mathf.Lerp(5f, 11f, runBlend);
-            // The matching Builder opens the front and widens the sides; this range belongs to that variant.
-            float opening = Mathf.Lerp(15f, 35f, runBlend)
-                + Mathf.Sin(wavePhase - .6f) * Mathf.Lerp(2f, 5f, runBlend) * smooth.wingFlap;
-            WingSpreadDegrees = moving * smooth.wingSpread * Mathf.Lerp(opening, 48f, jumpOpen);
+            float gait = Mathf.Max(runBlend, jumpOpen);
+            float opening = 14f + Mathf.Lerp(3f, 10f, gait) * Mathf.Sin(wavePhase - .6f) * smooth.wingFlap;
+            WingSpreadDegrees = moving * smooth.wingSpread / .85f * Mathf.Lerp(opening, 9f, jumpOpen);
             Vector3 right = guideFrame.InverseTransformDirection(simulationRoot.right).normalized;
             Vector3 forward = guideFrame.InverseTransformDirection(simulationRoot.forward).normalized;
             GuideMaxSegmentError = 0;
@@ -250,7 +271,7 @@ namespace ForestSpriteCharacter
                 int first = d * (guideSegments + 1);
                 Vector3 point = guideRestPoints[first];
                 guideNodes[first].SetLocalPositionAndRotation(point, Quaternion.identity);
-                float influence = d == 3 ? .12f : d == 0 ? 1f : .85f;
+                int family = d == 0 ? 0 : d == 3 ? 2 : d >= 4 ? 3 : 1;
                 // Imported Cape_Left is physically +X; use the actual material path, not its name.
                 float side = d == 1 || d == 2 || d >= 4
                     ? Mathf.Sign(Vector3.Dot(guideRestPoints[first + guideSegments] - guideRestPoints[first], right)) : 0f;
@@ -258,25 +279,28 @@ namespace ForestSpriteCharacter
                 for (int s = 0; s < guideSegments; s++)
                 {
                     float u = (s + .5f) / guideSegments;
-                    // Keep the first two segments still; fade in over physical guide arc, never remap vertex u.
-                    // This also leaves node 01 at identity instead of blending it against a moving first segment.
+                    // Spread keeps its envelope; the material arc uses the full six-segment profile.
                     float envelope = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.25f, .55f, u));
-                    float hemSupport = moving * Mathf.Lerp(8f, 16f, runBlend)
-                        * Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.55f, 1f, u));
-                    float theta = influence * envelope * (mean + hemSupport + sBend * Mathf.Sin(u * Mathf.PI * 2f)
-                        + wave * Mathf.Sin(wavePhase - u * Mathf.PI * 2f));
+                    float mean = Mathf.Lerp(WalkCapeMean[family,s], RunCapeMean[family,s], gait);
+                    float wave = Mathf.Lerp(WalkCapeAmplitude[family,s], RunCapeAmplitude[family,s], gait)
+                        * Mathf.Sin(wavePhase - s * 1.05f);
+                    float theta = moving * Mathf.Lerp(.5f, 1.125f, smooth.lift) *
+                        (mean * smooth.sCurve / .7f + wave * smooth.waveAmplitude / .07f);
+                    if (s > 0) theta += jumpOpen * 12f * u;
                     GuideTangentDegrees[d * guideSegments + s] = theta;
                     Quaternion rotation = Quaternion.AngleAxis(theta, d == 3 ? -right : right)
                         * Quaternion.AngleAxis(WingSpreadDegrees * side * envelope, forward);
                     Vector3 restSegment = guideRestPoints[first + s + 1] - guideRestPoints[first + s];
                     Vector3 next = point + rotation * restSegment;
-                    if (s > 0) guideNodes[first + s].localRotation = Quaternion.Slerp(previous, rotation, .5f);
+                    if (s > 1) guideNodes[first + s].localRotation = Quaternion.Slerp(previous, rotation, .5f);
                     guideNodes[first + s + 1].SetLocalPositionAndRotation(next, rotation);
                     GuideMaxSegmentError = Mathf.Max(GuideMaxSegmentError,
                         Mathf.Abs(Vector3.Distance(next, point) - restSegment.magnitude));
                     previous = rotation;
                     point = next;
                 }
+                // Keep the root rotation continuous with the fixed collar.
+                guideNodes[first + 1].localRotation = Quaternion.identity;
             }
             UpperBendDegrees = GuideTangentDegrees[1];
             LowerBendDegrees = GuideTangentDegrees[4] - UpperBendDegrees;
@@ -367,15 +391,31 @@ namespace ForestSpriteCharacter
             cloth.clothSolverFrequency = 480;
             cloth.worldVelocityScale = .12f;
             cloth.worldAccelerationScale = .08f;
-            // Broad waves come from the cape bones; local fabric should not break that silhouette into tiny folds.
-            // Broad guide waves remain; resist the small triangle folds observed in the freer cloth.
+            // Guide bones supply the broad wave; native bending only resists local folds.
             cloth.bendingStiffness = smooth.bendStiffness * (UsesGuides ? .2f : .1f);
             if (freedomWeights == null || freedomWeights.Length == 0) return;
             if (Mathf.Abs(smooth.clothFreedom - appliedFreedom) < .00001f) return;
             if (coefficients == null || coefficients.Length != freedomWeights.Length) coefficients = cloth.coefficients;
+            float top = float.NegativeInfinity, bottom = float.PositiveInfinity;
+            foreach (var point in restParticles)
+            {
+                top = Mathf.Max(top, point.y);
+                bottom = Mathf.Min(bottom, point.y);
+            }
             for (int i = 0; i < coefficients.Length; i++)
+            {
                 coefficients[i].maxDistance = (UsesGuides ? Mathf.Lerp(.025f, .3f, smooth.clothFreedom)
                     : Mathf.Lerp(.015f, .05f, smooth.clothFreedom)) * freedomWeights[i];
+                if (UsesGuides && freedomWeights[i] > 0)
+                {
+                    // Give the open shoulder edge room to slide around the arm while the collar stays pinned.
+                    float depth = Mathf.InverseLerp(top, bottom, restParticles[i].y);
+                    float shoulder = Mathf.Lerp(.075f, .2f, smooth.clothFreedom)
+                        * Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.07f, .11f, depth))
+                        * (1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.30f, .55f, depth)));
+                    coefficients[i].maxDistance = Mathf.Max(coefficients[i].maxDistance, shoulder);
+                }
+            }
             cloth.coefficients = coefficients;
             appliedFreedom = smooth.clothFreedom;
         }
@@ -425,6 +465,7 @@ namespace ForestSpriteCharacter
             filteredVelocity = Vector3.zero;
             flowAmount = 0;
             runBlend = 0;
+            wavePhase = 0;
             UpperBendDegrees = LowerBendDegrees = WingSpreadDegrees = 0;
             if (simulationRoot != null) previousPosition = simulationRoot.position;
             if (cloth == null) return;

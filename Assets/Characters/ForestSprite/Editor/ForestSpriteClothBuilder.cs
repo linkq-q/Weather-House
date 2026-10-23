@@ -49,7 +49,8 @@ namespace ForestSpriteCharacter.Editor
             WidenWingCape(mesh);
             var guides = BuildGuides(player.transform, skin, original.bones, weights);
             OpenWingFront(mesh, guides, skin);
-            BindCapeShoulders(player.transform, visual.transform, skin);
+            CutOpenWingRear(mesh, guides);
+            PreserveCapeBoneTable(visual.transform, skin);
             skin.localBounds = new Bounds(mesh.bounds.center, mesh.bounds.size + Vector3.one * 1.2f);
             var cloth = node.AddComponent<Cloth>();
             cloth.useGravity = true;
@@ -182,55 +183,26 @@ namespace ForestSpriteCharacter.Editor
         }
 
 
-        // The collar stays on Chest. The shoulder panels follow the matching upper arm,
-        // allowing the authored arm opening to carry the cloth instead of passing through a pinned sheet.
-        static void BindCapeShoulders(Transform player, Transform visual, SkinnedMeshRenderer skin)
+        // Keep the prefab's 47-bone table; only Chest and the guide bones carry cloth weights.
+        static void PreserveCapeBoneTable(Transform visual, SkinnedMeshRenderer skin)
         {
+            const int guideBoneCount = 43;
+            ForestSpriteDemoBuilder.Require(skin.bones.Length == guideBoneCount,
+                "Six cape guides and Chest precede the four compatibility arm bones");
             var bones = visual.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
-            var arms = new[] { bones["UpperArm.L"], bones["UpperArm.R"] };
-            var forearms = new[] { bones["Forearm.L"], bones["Forearm.R"] };
-            var all = skin.bones.Concat(arms).Concat(forearms).ToArray();
+            var arms = new[] { bones["UpperArm.L"], bones["UpperArm.R"], bones["Forearm.L"], bones["Forearm.R"] };
             var mesh = skin.sharedMesh;
-            var weights = mesh.boneWeights; var points = mesh.vertices;
-            int changed = 0;
-            for (int i = 0; i < points.Length; i++)
-            {
-                var w = weights[i];
-                if (w.boneIndex0 == 0 && w.weight0 > .999f) continue;
-                Vector3 p = player.InverseTransformPoint(skin.transform.TransformPoint(points[i]));
-                int side = Math.Sign(p.x) == Math.Sign(player.InverseTransformPoint(arms[0].position).x) ? 0 : 1;
-                Vector3 shoulder = player.InverseTransformPoint(arms[side].position);
-                float lateral = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(Mathf.Abs(shoulder.x) * .55f, Mathf.Abs(shoulder.x) * 1.45f, Mathf.Abs(p.x)));
-                float below = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.10f, .30f, shoulder.y - p.y));
-                float above = 1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.01f, .055f, p.y - shoulder.y));
-                float front = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.24f, -.04f, p.z - shoulder.z));
-                float amount = lateral * below * above * front;
-                float forearm = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.045f, .17f, shoulder.y - p.y));
-                if (amount < .001f) continue;
-                var entries = new[] {
-                    new KeyValuePair<int,float>(w.boneIndex0, w.weight0 * (1-amount)),
-                    new KeyValuePair<int,float>(w.boneIndex1, w.weight1 * (1-amount)),
-                    new KeyValuePair<int,float>(w.boneIndex2, w.weight2 * (1-amount)),
-                    new KeyValuePair<int,float>(w.boneIndex3, w.weight3 * (1-amount)),
-                    new KeyValuePair<int,float>(all.Length - 4 + side, amount * (1f-forearm)),
-                    new KeyValuePair<int,float>(all.Length - 2 + side, amount * forearm)
-                }.GroupBy(k => k.Key).Select(g => new KeyValuePair<int,float>(g.Key,g.Sum(k => k.Value)))
-                    .OrderByDescending(k => k.Value).Take(4).ToArray();
-                float sum = entries.Sum(e => e.Value); var result = new BoneWeight();
-                for (int j = 0; j < entries.Length; j++)
-                {
-                    int b = entries[j].Key; float a = entries[j].Value / sum;
-                    if (j==0) { result.boneIndex0=b; result.weight0=a; }
-                    if (j==1) { result.boneIndex1=b; result.weight1=a; }
-                    if (j==2) { result.boneIndex2=b; result.weight2=a; }
-                    if (j==3) { result.boneIndex3=b; result.weight3=a; }
-                }
-                weights[i]=result; changed++;
-            }
-            mesh.boneWeights=weights; skin.bones=all;
-            mesh.bindposes=all.Select(b => b.worldToLocalMatrix * skin.transform.localToWorldMatrix).ToArray();
+            ForestSpriteDemoBuilder.Require(mesh.boneWeights.All(w =>
+                w.boneIndex0 >= 0 && w.boneIndex0 < guideBoneCount && w.boneIndex1 >= 0 && w.boneIndex1 < guideBoneCount
+                && w.boneIndex2 >= 0 && w.boneIndex2 < guideBoneCount && w.boneIndex3 >= 0 && w.boneIndex3 < guideBoneCount
+                && w.weight0 >= 0 && w.weight1 >= 0 && w.weight2 >= 0 && w.weight3 >= 0
+                && Mathf.Abs(w.weight0 + w.weight1 + w.weight2 + w.weight3 - 1f) < .00001f),
+                "Cape weights stay normalized on Chest and guides, with no arm influence");
+            skin.bones = skin.bones.Concat(arms).ToArray();
+            mesh.bindposes = skin.bones.Select(b => b.worldToLocalMatrix * skin.transform.localToWorldMatrix).ToArray();
+            ForestSpriteDemoBuilder.Require(skin.bones.Length == 47 && mesh.bindposes.Length == 47,
+                "The open-front cape preserves its 47-bone prefab compatibility table");
             EditorUtility.SetDirty(mesh);
-            ForestSpriteDemoBuilder.Require(changed > 0, "Cape shoulder panels have actual matching-arm influence");
         }
 
         static GuideRig BuildGuides(Transform player, SkinnedMeshRenderer skin, Transform[] originalBones, BoneWeight[] originalWeights)
@@ -353,8 +325,9 @@ namespace ForestSpriteCharacter.Editor
             var longitudinal = main.ToDictionary(i => i, i => fromCollar[i] / (fromCollar[i] + fromHem[i]));
             float collarEnd = main.Where(i => (top - points[i].y) / (top - bottom) <= .07f).Max(i => longitudinal[i]);
             ForestSpriteDemoBuilder.Require(collarEnd < .95f, "Cape guide has a free arc below the collar");
-            int[] sectorForBone = originalBones.Select(b => Array.FindIndex(directions,
-                d => b.name.StartsWith("Cape_" + d + "_", StringComparison.Ordinal))).ToArray();
+            float tau = Mathf.PI * 2f;
+            var angles = radial.Select(v => Mathf.Repeat(Mathf.Atan2(v.x, -v.z), tau)).ToArray();
+            int[] ring = Enumerable.Range(0, 4).OrderBy(d => angles[d]).ToArray();
             for (int i = 0; i < points.Count; i++)
             {
                 float depth = (top - points[i].y) / (top - bottom);
@@ -368,27 +341,20 @@ namespace ForestSpriteCharacter.Editor
                 float u = longitudinal[i];
                 int lower = Mathf.Min(segments - 1, Mathf.FloorToInt(u * segments));
                 float t = Mathf.Clamp01(u * segments - lower);
-                var sectorWeights = new float[4]; var old = originalWeights[representatives[i]];
-                Accumulate(old.boneIndex0, old.weight0); Accumulate(old.boneIndex1, old.weight1);
-                Accumulate(old.boneIndex2, old.weight2); Accumulate(old.boneIndex3, old.weight3);
-                if (sectorWeights.Sum() < .00001f)
+                var sectorWeights = new float[4];
+                // Every free cloth point uses the same continuous angular sectors; longitudinal u stays geodesic.
+                float angle = Mathf.Repeat(Mathf.Atan2(points[i].x - centre.x, centre.z - points[i].z), tau);
+                for (int sector = 0; sector < 4; sector++)
                 {
-                    // Angular fallback only for original all-Chest vertices; use cyclic order, not directions[] order.
-                    float tau = Mathf.PI * 2f;
-                    var angles = radial.Select(v => Mathf.Repeat(Mathf.Atan2(v.x, -v.z), tau)).ToArray();
-                    int[] ring = Enumerable.Range(0, 4).OrderBy(d => angles[d]).ToArray();
-                    float angle = Mathf.Repeat(Mathf.Atan2(points[i].x - centre.x, centre.z - points[i].z), tau);
-                    for (int sector = 0; sector < 4; sector++)
-                    {
-                        int sectorA = ring[sector], sectorB = ring[(sector + 1) % 4];
-                        float span = Mathf.Repeat(angles[sectorB] - angles[sectorA], tau), offset = Mathf.Repeat(angle - angles[sectorA], tau);
-                        if (offset > span + .00001f) continue;
-                        float fraction = Mathf.Clamp01(offset / span);
-                        sectorWeights[sectorA] = 1f - fraction; sectorWeights[sectorB] = fraction; break;
-                    }
+                    int sectorA = ring[sector], sectorB = ring[(sector + 1) % 4];
+                    float span = Mathf.Repeat(angles[sectorB] - angles[sectorA], tau), offset = Mathf.Repeat(angle - angles[sectorA], tau);
+                    if (offset > span + .00001f) continue;
+                    float fraction = Mathf.Clamp01(offset / span);
+                    sectorWeights[sectorA] = 1f - fraction; sectorWeights[sectorB] = fraction; break;
                 }
                 int[] order = Enumerable.Range(0, 4).OrderByDescending(d => sectorWeights[d]).ToArray();
                 float sum = sectorWeights[order[0]] + sectorWeights[order[1]];
+                ForestSpriteDemoBuilder.Require(Mathf.Abs(sum - 1f) < .00001f, "Two angular sectors cover each free cape point");
                 float a = sectorWeights[order[0]] / sum, b = sectorWeights[order[1]] / sum;
                 int first = 1 + order[0] * pointsPerGuide + lower, second = 1 + order[1] * pointsPerGuide + lower;
                 particleWeights[i] = new BoneWeight { boneIndex0 = first, weight0 = a * (1f - t), boneIndex1 = first + 1, weight1 = a * t,
@@ -401,7 +367,6 @@ namespace ForestSpriteCharacter.Editor
                 particleWeights[i] = new BoneWeight { boneIndex0 = indices[slots[0]], weight0 = values[slots[0]],
                     boneIndex1 = indices[slots[1]], weight1 = values[slots[1]], boneIndex2 = indices[slots[2]], weight2 = values[slots[2]],
                     boneIndex3 = indices[slots[3]], weight3 = values[slots[3]] };
-                void Accumulate(int bone, float value) { if (sectorForBone[bone] >= 0) sectorWeights[sectorForBone[bone]] += value; }
             }
             for (int i = 0; i < vertices.Length; i++) newWeights[i] = particleWeights[welded[i]];
             foreach (int d in new[] { 1, 2 })
@@ -654,6 +619,182 @@ namespace ForestSpriteCharacter.Editor
                 p.x = radius * Mathf.Sin(theta); p.z = -radius * Mathf.Cos(theta);
                 return p;
             }
+        }
+
+        // Cut the generated sheet instead of compressing its angular span around the arms.
+        // Original positions, UVs and weights survive exactly; only edge intersections are new.
+        static void CutOpenWingRear(Mesh mesh, GuideRig guides)
+        {
+            ForestSpriteDemoBuilder.Require(mesh.subMeshCount == 1, "Rear-wing cut keeps the cape material");
+            var before = new CapeTopology(mesh);
+            var loops = before.BoundaryLoops();
+            ForestSpriteDemoBuilder.Require(loops.Count == 2, "Rear-wing cut starts with collar and open hem loops");
+            var collar = new HashSet<int>(loops.OrderByDescending(loop => loop.Average(i => before.points[i].y)).First());
+            var collarEdges = before.edgeFaces.Where(pair => pair.Value.Count == 1
+                && collar.Contains((int)(pair.Key >> 32)) && collar.Contains((int)pair.Key)).Select(pair => pair.Key).ToArray();
+            Vector3[] source = mesh.vertices;
+            Vector2[] sourceUV = mesh.uv;
+            BoneWeight[] sourceWeights = mesh.boneWeights;
+            ForestSpriteDemoBuilder.Require(sourceUV.Length == source.Length && sourceWeights.Length == source.Length,
+                "Rear-wing cut has UVs and skin weights for every render record");
+            bool[] main = before.welded.Select(i => before.main.Contains(i)).ToArray();
+            double top = before.main.Max(i => before.points[i].y), bottom = before.main.Min(i => before.points[i].y);
+            double[] field = source.Select((p, i) => main[i] ? Field(p.x, p.y, p.z) : 1d).ToArray();
+            ForestSpriteDemoBuilder.Require(collar.All(i => field[before.representatives[i]] >= 0),
+                "Rear-wing cut preserves every point of the original collar");
+            var vertices = source.ToList(); var uv = sourceUV.ToList(); var weights = sourceWeights.ToList();
+            var intersections = new Dictionary<long, int>(); var triangles = new List<int>();
+            var physicalCuts = new Dictionary<long, (Vector3 point, BoneWeight weight, double t, int first)>();
+            int newPoints = 0, snappedPoints = 0, reducedPoints = 0;
+            double maxDiscardedDirection = 0;
+            for (int face = 0; face < before.triangles.Length; face += 3)
+            {
+                var polygon = new List<int>(4);
+                for (int edge = 0; edge < 3; edge++)
+                {
+                    int a = before.triangles[face + edge], b = before.triangles[face + (edge + 1) % 3];
+                    if (field[a] >= 0) polygon.Add(a);
+                    if ((field[a] >= 0) != (field[b] >= 0)) polygon.Add(Intersection(a, b));
+                }
+                polygon = polygon.Distinct().ToList();
+                for (int j = 1; j < polygon.Count - 1; j++)
+                { triangles.Add(polygon[0]); triangles.Add(polygon[j]); triangles.Add(polygon[j + 1]); }
+            }
+            int[] used = triangles.Distinct().OrderBy(i => i).ToArray();
+            var remap = used.Select((old, index) => new { old, index }).ToDictionary(p => p.old, p => p.index);
+            ForestSpriteDemoBuilder.Require(Enumerable.Range(0, source.Length).Where(i => !main[i]).All(remap.ContainsKey),
+                "Rear-wing cut retains every original button record");
+            Matrix4x4[] bindposes = mesh.bindposes;
+            mesh.Clear();
+            mesh.vertices = used.Select(i => vertices[i]).ToArray();
+            mesh.uv = used.Select(i => uv[i]).ToArray();
+            mesh.boneWeights = used.Select(i => weights[i]).ToArray();
+            mesh.bindposes = bindposes;
+            mesh.triangles = triangles.Select(i => remap[i]).ToArray();
+            mesh.RecalculateNormals(); mesh.RecalculateTangents(); mesh.RecalculateBounds();
+            var after = new CapeTopology(mesh);
+            ForestSpriteDemoBuilder.Require(after.components == before.components && after.BoundaryLoops().Count == 2,
+                "Rear wing and button remain separate, with continuous collar and outer boundaries");
+            foreach (long edge in collarEdges)
+            {
+                int a = before.representatives[(int)(edge >> 32)], b = before.representatives[(int)edge];
+                ForestSpriteDemoBuilder.Require(remap.ContainsKey(a) && remap.ContainsKey(b), "Original collar render records remain");
+                long retained = CapeTopology.Edge(after.welded[remap[a]], after.welded[remap[b]]);
+                ForestSpriteDemoBuilder.Require(after.edgeFaces.TryGetValue(retained, out var faces) && faces.Count == 1,
+                    "Every original collar edge remains an unchanged boundary edge");
+            }
+            // OpenWingFront's render indices are stale after clipping and compaction.
+            var edges = after.edgeFaces.Keys.Where(key => after.main.Contains((int)(key >> 32))).ToArray();
+            guides.edgeVertices = edges.SelectMany(key => new[] { after.representatives[(int)(key >> 32)], after.representatives[(int)key] }).ToArray();
+            guides.edgeLengths = edges.Select(key => Vector3.Distance(after.points[(int)(key >> 32)], after.points[(int)key])).ToArray();
+            ForestSpriteDemoBuilder.Require(guides.edgeVertices.All(i => i >= 0 && i < mesh.vertexCount)
+                && guides.edgeLengths.All(length => length > 0), "Cloth edges address the final clipped mesh");
+            EditorUtility.SetDirty(mesh);
+            Debug.Log("Rear wing cut: collar=" + collar.Count + ", vertices=" + mesh.vertexCount + ", triangles=" + triangles.Count / 3
+                + ", new intersections=" + newPoints + ", endpoint snaps=" + snappedPoints + ", four-slot reductions=" + reducedPoints
+                + ", maximum discarded direction weight=" + maxDiscardedDirection);
+
+            double Field(double x, double y, double z)
+            {
+                double depth = (top - y) / (top - bottom);
+                double q = Math.Max(0d, Math.Min(1d, (depth - .07d) / .06d));
+                double smooth = q * q * (3d - 2d * q);
+                return -z / Math.Sqrt(x * x + z * z) - (-1.02d + (Math.Cos(70d * Math.PI / 180d) + 1.02d) * smooth);
+            }
+            int Intersection(int a, int b)
+            {
+                long key = CapeTopology.Edge(a, b);
+                if (intersections.TryGetValue(key, out int cached)) return cached;
+                long physicalEdge = CapeTopology.Edge(before.welded[a], before.welded[b]);
+                if (physicalCuts.TryGetValue(physicalEdge, out var physical))
+                {
+                    double physicalT = physical.first == before.welded[a] ? physical.t : 1d - physical.t;
+                    return Append(physical.point, physical.weight, physicalT);
+                }
+                double lo = 0d, hi = 1d;
+                for (int iteration = 0; iteration < 24; iteration++)
+                {
+                    double mid = (lo + hi) * .5d;
+                    double f = Field(source[a].x * (1d - mid) + source[b].x * mid,
+                        source[a].y * (1d - mid) + source[b].y * mid, source[a].z * (1d - mid) + source[b].z * mid);
+                    if ((f >= 0) == (field[a] >= 0)) lo = mid; else hi = mid;
+                }
+                double t = (lo + hi) * .5d;
+                var point = new Vector3((float)(source[a].x * (1d - t) + source[b].x * t),
+                    (float)(source[a].y * (1d - t) + source[b].y * t), (float)(source[a].z * (1d - t) + source[b].z * t));
+                foreach (int endpoint in new[] { a, b })
+                    if (Vector3.Distance(point, source[endpoint]) < .0003f)
+                    { intersections[key] = endpoint; snappedPoints++; return endpoint; }
+                var merged = new Dictionary<int, double>();
+                Add(sourceWeights[a], 1d - t); Add(sourceWeights[b], t);
+                merged = merged.Where(pair => pair.Value > 1e-8d).ToDictionary(pair => pair.Key, pair => pair.Value);
+                if (merged.Count > 4)
+                {
+                    merged = ReduceCutWeights(merged, out double discarded);
+                    maxDiscardedDirection = Math.Max(maxDiscardedDirection, discarded); reducedPoints++;
+                }
+                BoneWeight packed = PackCutWeights(merged);
+                // Render seams keep separate UVs but must share bit-identical position AND skin weights
+                // for the native Cloth cooker to weld them into the same material particle.
+                physicalCuts[physicalEdge] = (point, packed, t, before.welded[a]);
+                return Append(point, packed, t);
+                int Append(Vector3 position, BoneWeight weight, double fraction)
+                {
+                    int index = vertices.Count; intersections[key] = index; vertices.Add(position);
+                    uv.Add(new Vector2((float)(sourceUV[a].x * (1d - fraction) + sourceUV[b].x * fraction),
+                        (float)(sourceUV[a].y * (1d - fraction) + sourceUV[b].y * fraction)));
+                    weights.Add(weight); newPoints++; return index;
+                }
+                void Add(BoneWeight w, double factor)
+                {
+                    int[] ids = { w.boneIndex0, w.boneIndex1, w.boneIndex2, w.boneIndex3 };
+                    float[] values = { w.weight0, w.weight1, w.weight2, w.weight3 };
+                    for (int slot = 0; slot < 4; slot++)
+                        if (values[slot] > 0)
+                        { merged.TryGetValue(ids[slot], out double old); merged[ids[slot]] = old + factor * values[slot]; }
+                }
+            }
+        }
+
+        // Keep each direction's total influence and longitudinal first moment, instead of dropping
+        // arbitrary small node weights. The independent directions still use two adjacent nodes each.
+        static Dictionary<int, double> ReduceCutWeights(Dictionary<int, double> weights, out double discarded)
+        {
+            var directions = weights.Where(pair => pair.Key > 0).GroupBy(pair => (pair.Key - 1) / 7)
+                .ToDictionary(group => group.Key, group => group.Select(pair => new KeyValuePair<int, double>((pair.Key - 1) % 7, pair.Value)).ToList());
+            double guideMass = directions.Values.Sum(entries => entries.Sum(pair => pair.Value));
+            ForestSpriteDemoBuilder.Require(guideMass > 0, "A cut point with more than four weights has guide influence");
+            // Node 00 is fixed in the Chest rigid frame; distribute Chest across those equivalent roots.
+            if (weights.TryGetValue(0, out double chest))
+                foreach (var entries in directions.Values)
+                    entries.Add(new KeyValuePair<int, double>(0, chest * entries.Sum(pair => pair.Value) / guideMass));
+            var ordered = directions.OrderByDescending(pair => pair.Value.Sum(entry => entry.Value)).ToArray();
+            discarded = ordered.Skip(2).Sum(pair => pair.Value.Sum(entry => entry.Value)) / ordered.Sum(pair => pair.Value.Sum(entry => entry.Value));
+            var result = new Dictionary<int, double>();
+            foreach (var direction in ordered.Take(2))
+            {
+                double mass = direction.Value.Sum(pair => pair.Value);
+                double u = direction.Value.Sum(pair => pair.Key * pair.Value) / mass;
+                int lower = Math.Min(5, (int)Math.Floor(u)); double fraction = u - lower;
+                if ((1d - fraction) * mass > 1e-8d) result[1 + direction.Key * 7 + lower] = (1d - fraction) * mass;
+                if (fraction * mass > 1e-8d) result[2 + direction.Key * 7 + lower] = fraction * mass;
+            }
+            double sum = result.Values.Sum();
+            return result.ToDictionary(pair => pair.Key, pair => pair.Value / sum);
+        }
+
+        static BoneWeight PackCutWeights(Dictionary<int, double> weights)
+        {
+            var ordered = weights.OrderByDescending(pair => pair.Value).ToArray();
+            ForestSpriteDemoBuilder.Require(ordered.Length > 0 && ordered.Length <= 4 && ordered.All(pair => pair.Key >= 0 && pair.Key < 43 && pair.Value >= 0),
+                "New cut points keep four nonnegative Chest/guide weights");
+            double sum = ordered.Sum(pair => pair.Value);
+            var result = new BoneWeight();
+            if (ordered.Length > 0) { result.boneIndex0 = ordered[0].Key; result.weight0 = (float)(ordered[0].Value / sum); }
+            if (ordered.Length > 1) { result.boneIndex1 = ordered[1].Key; result.weight1 = (float)(ordered[1].Value / sum); }
+            if (ordered.Length > 2) { result.boneIndex2 = ordered[2].Key; result.weight2 = (float)(ordered[2].Value / sum); }
+            if (ordered.Length > 3) { result.boneIndex3 = ordered[3].Key; result.weight3 = (float)(ordered[3].Value / sum); }
+            return result;
         }
 
         sealed class CapeTopology

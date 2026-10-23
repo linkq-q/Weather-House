@@ -1871,8 +1871,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 4895664046688151057}
   m_AABB:
-    m_Center: {x: NaN, y: NaN, z: NaN}
-    m_Extent: {x: NaN, y: NaN, z: NaN}
+    m_Center: {x: 0.015848666, y: 0.44542745, z: -0.16785541}
+    m_Extent: {x: 1.1278195, y: 0.967198, z: 0.91327393}
   m_DirtyAABB: 0
 --- !u!183 &9156024291483501896
 Cloth:
@@ -1898,301 +1898,29 @@ Cloth:
   m_SolverFrequency: 480
   m_SleepThreshold: 0.001
   m_Coefficients:
-  - maxDistance: 0.018431643
-    collisionSphereDistance: 0
-  - maxDistance: 0.017461212
-    collisionSphereDistance: 0
-  - maxDistance: 0.010944114
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0075466493
-    collisionSphereDistance: 0
-  - maxDistance: 0.0061287708
-    collisionSphereDistance: 0
-  - maxDistance: 0.015307594
-    collisionSphereDistance: 0
-  - maxDistance: 0.059142895
-    collisionSphereDistance: 0
-  - maxDistance: 0.06917837
-    collisionSphereDistance: 0
-  - maxDistance: 0.06842276
-    collisionSphereDistance: 0
-  - maxDistance: 0.0676124
-    collisionSphereDistance: 0
-  - maxDistance: 0.055515904
-    collisionSphereDistance: 0
-  - maxDistance: 0.06680442
-    collisionSphereDistance: 0
-  - maxDistance: 0.06592259
-    collisionSphereDistance: 0
-  - maxDistance: 0.064954035
-    collisionSphereDistance: 0
-  - maxDistance: 0.06388968
-    collisionSphereDistance: 0
-  - maxDistance: 0.06272317
-    collisionSphereDistance: 0
-  - maxDistance: 0.051573396
-    collisionSphereDistance: 0
-  - maxDistance: 0.061904307
-    collisionSphereDistance: 0
-  - maxDistance: 0.061150495
-    collisionSphereDistance: 0
-  - maxDistance: 0.060240444
-    collisionSphereDistance: 0
-  - maxDistance: 0.059247404
-    collisionSphereDistance: 0
-  - maxDistance: 0.058168646
-    collisionSphereDistance: 0
-  - maxDistance: 0.05644768
-    collisionSphereDistance: 0
-  - maxDistance: 0.053484004
-    collisionSphereDistance: 0
-  - maxDistance: 0.04938249
-    collisionSphereDistance: 0
-  - maxDistance: 0.039171472
-    collisionSphereDistance: 0
-  - maxDistance: 0.04825281
-    collisionSphereDistance: 0
-  - maxDistance: 0.035126425
-    collisionSphereDistance: 0
-  - maxDistance: 0.04731424
-    collisionSphereDistance: 0
-  - maxDistance: 0.04660025
-    collisionSphereDistance: 0
-  - maxDistance: 0.032567117
-    collisionSphereDistance: 0
-  - maxDistance: 0.04622712
-    collisionSphereDistance: 0
-  - maxDistance: 0.046123233
-    collisionSphereDistance: 0
-  - maxDistance: 0.046487436
-    collisionSphereDistance: 0
-  - maxDistance: 0.03350173
-    collisionSphereDistance: 0
-  - maxDistance: 0.04714939
-    collisionSphereDistance: 0
-  - maxDistance: 0.04821329
-    collisionSphereDistance: 0
-  - maxDistance: 0.049586613
-    collisionSphereDistance: 0
-  - maxDistance: 0.021386871
-    collisionSphereDistance: 0
-  - maxDistance: 0.023868302
-    collisionSphereDistance: 0
-  - maxDistance: 0.021743717
-    collisionSphereDistance: 0
-  - maxDistance: 0.03801706
-    collisionSphereDistance: 0
-  - maxDistance: 0.05134726
-    collisionSphereDistance: 0
-  - maxDistance: 0.053310998
-    collisionSphereDistance: 0
-  - maxDistance: 0.044777058
-    collisionSphereDistance: 0
-  - maxDistance: 0.02519158
-    collisionSphereDistance: 0
-  - maxDistance: 0.031460773
-    collisionSphereDistance: 0
-  - maxDistance: 0.014137487
-    collisionSphereDistance: 0
-  - maxDistance: 0.013928743
-    collisionSphereDistance: 0
-  - maxDistance: 0.016471997
-    collisionSphereDistance: 0
-  - maxDistance: 0.02061689
-    collisionSphereDistance: 0
-  - maxDistance: 0.009918036
-    collisionSphereDistance: 0
-  - maxDistance: 0.069885276
-    collisionSphereDistance: 0
-  - maxDistance: 0.062453855
-    collisionSphereDistance: 0
-  - maxDistance: 0.07054571
-    collisionSphereDistance: 0
-  - maxDistance: 0.07114653
-    collisionSphereDistance: 0
-  - maxDistance: 0.071684144
-    collisionSphereDistance: 0
-  - maxDistance: 0.072145626
-    collisionSphereDistance: 0
-  - maxDistance: 0.072488464
-    collisionSphereDistance: 0
-  - maxDistance: 0.046538007
-    collisionSphereDistance: 0
-  - maxDistance: 0.072725
-    collisionSphereDistance: 0
-  - maxDistance: 0.07292099
-    collisionSphereDistance: 0
-  - maxDistance: 0.0498027
-    collisionSphereDistance: 0
-  - maxDistance: 0.035297167
-    collisionSphereDistance: 0
-  - maxDistance: 0.043126766
-    collisionSphereDistance: 0
-  - maxDistance: 0.027489176
-    collisionSphereDistance: 0
-  - maxDistance: 0.033443492
-    collisionSphereDistance: 0
-  - maxDistance: 0.023097591
-    collisionSphereDistance: 0
-  - maxDistance: 0.03084848
-    collisionSphereDistance: 0
-  - maxDistance: 0.022523593
-    collisionSphereDistance: 0
-  - maxDistance: 0.014474204
-    collisionSphereDistance: 0
-  - maxDistance: 0.008587424
-    collisionSphereDistance: 0
-  - maxDistance: 0.0048560966
-    collisionSphereDistance: 0
-  - maxDistance: 0.0044672918
-    collisionSphereDistance: 0
-  - maxDistance: 0.00216041
-    collisionSphereDistance: 0
-  - maxDistance: 0.0038698118
-    collisionSphereDistance: 0
-  - maxDistance: 0.0141370185
-    collisionSphereDistance: 0
-  - maxDistance: 0.008024197
-    collisionSphereDistance: 0
-  - maxDistance: 0.0070897965
-    collisionSphereDistance: 0
-  - maxDistance: 0.012894711
-    collisionSphereDistance: 0
-  - maxDistance: 0.011126972
-    collisionSphereDistance: 0
-  - maxDistance: 0.020773465
-    collisionSphereDistance: 0
-  - maxDistance: 0.018217744
-    collisionSphereDistance: 0
-  - maxDistance: 0.015591508
-    collisionSphereDistance: 0
-  - maxDistance: 0.06383466
-    collisionSphereDistance: 0
-  - maxDistance: 0.07303724
-    collisionSphereDistance: 0
-  - maxDistance: 0.07309386
-    collisionSphereDistance: 0
-  - maxDistance: 0.063298695
-    collisionSphereDistance: 0
-  - maxDistance: 0.07300034
-    collisionSphereDistance: 0
-  - maxDistance: 0.07271546
-    collisionSphereDistance: 0
-  - maxDistance: 0.07228342
-    collisionSphereDistance: 0
-  - maxDistance: 0.0717344
-    collisionSphereDistance: 0
-  - maxDistance: 0.07109878
-    collisionSphereDistance: 0
-  - maxDistance: 0.049073756
-    collisionSphereDistance: 0
-  - maxDistance: 0.050879892
-    collisionSphereDistance: 0
-  - maxDistance: 0.06073278
-    collisionSphereDistance: 0
-  - maxDistance: 0.070405886
-    collisionSphereDistance: 0
-  - maxDistance: 0.047853418
     collisionSphereDistance: 0
-  - maxDistance: 0.03349973
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.034942552
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.045322366
+  - maxDistance: 0.0987602
     collisionSphereDistance: 0
-  - maxDistance: 0.05744732
+  - maxDistance: 0.09241563
     collisionSphereDistance: 0
-  - maxDistance: 0.042141814
+  - maxDistance: 0.08523543
     collisionSphereDistance: 0
-  - maxDistance: 0.03422609
+  - maxDistance: 0.05488657
     collisionSphereDistance: 0
-  - maxDistance: 0.03280761
+  - maxDistance: 0.07760698
     collisionSphereDistance: 0
-  - maxDistance: 0.021921074
-    collisionSphereDistance: 0
-  - maxDistance: 0.02200315
-    collisionSphereDistance: 0
-  - maxDistance: 0.02307955
-    collisionSphereDistance: 0
-  - maxDistance: 0.014193498
-    collisionSphereDistance: 0
-  - maxDistance: 0.013919755
-    collisionSphereDistance: 0
-  - maxDistance: 0.030151894
-    collisionSphereDistance: 0
-  - maxDistance: 0.027704762
-    collisionSphereDistance: 0
-  - maxDistance: 0.018201012
-    collisionSphereDistance: 0
-  - maxDistance: 0.020181896
-    collisionSphereDistance: 0
-  - maxDistance: 0.0110120475
-    collisionSphereDistance: 0
-  - maxDistance: 0.012439452
-    collisionSphereDistance: 0
-  - maxDistance: 0.022261504
-    collisionSphereDistance: 0
-  - maxDistance: 0.013914629
-    collisionSphereDistance: 0
-  - maxDistance: 0.0077192853
-    collisionSphereDistance: 0
-  - maxDistance: 0.014626952
-    collisionSphereDistance: 0
-  - maxDistance: 0.00839657
-    collisionSphereDistance: 0
-  - maxDistance: 0.0040927194
-    collisionSphereDistance: 0
-  - maxDistance: 0.008646954
-    collisionSphereDistance: 0
-  - maxDistance: 0.008884246
-    collisionSphereDistance: 0
-  - maxDistance: 0.004559561
-    collisionSphereDistance: 0
-  - maxDistance: 0.0018193851
-    collisionSphereDistance: 0
-  - maxDistance: 0.004283116
-    collisionSphereDistance: 0
-  - maxDistance: 0.0015894287
-    collisionSphereDistance: 0
-  - maxDistance: 0.001631481
-    collisionSphereDistance: 0
-  - maxDistance: 0.0049076113
-    collisionSphereDistance: 0
-  - maxDistance: 0.009392133
-    collisionSphereDistance: 0
-  - maxDistance: 0.00834893
-    collisionSphereDistance: 0
-  - maxDistance: 0.0043119844
-    collisionSphereDistance: 0
-  - maxDistance: 0.008492123
-    collisionSphereDistance: 0
-  - maxDistance: 0.0059622233
-    collisionSphereDistance: 0
-  - maxDistance: 0.002594974
-    collisionSphereDistance: 0
-  - maxDistance: 0.0020054802
-    collisionSphereDistance: 0
-  - maxDistance: 0.000485333
-    collisionSphereDistance: 0
-  - maxDistance: 0.0003339743
-    collisionSphereDistance: 0
-  - maxDistance: 0.00027815963
-    collisionSphereDistance: 0
-  - maxDistance: 0.00013839817
-    collisionSphereDistance: 0
-  - maxDistance: 0.0002336288
-    collisionSphereDistance: 0
-  - maxDistance: 0.00076609215
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.0000002531176
+  - maxDistance: 0.00015100869
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -2203,25 +1931,21 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0049695848
     collisionSphereDistance: 0
-  - maxDistance: 0.012272705
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.00225872
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0027769702
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0018397877
+  - maxDistance: 0.096307136
     collisionSphereDistance: 0
-  - maxDistance: 0.00037755247
+  - maxDistance: 0.08893138
     collisionSphereDistance: 0
-  - maxDistance: 0.0003044202
+  - maxDistance: 0.040143453
     collisionSphereDistance: 0
-  - maxDistance: 0.00009212868
+  - maxDistance: 0.04127846
     collisionSphereDistance: 0
-  - maxDistance: 0.00009539811
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
@@ -2242,33 +1966,33 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.0032969743
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.009054964
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.00044254705
+  - maxDistance: 0.09950341
     collisionSphereDistance: 0
-  - maxDistance: 0.0004887016
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.00052455504
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.00016454104
+  - maxDistance: 0.062071215
     collisionSphereDistance: 0
-  - maxDistance: 0.00013730218
+  - maxDistance: 0.05456827
     collisionSphereDistance: 0
-  - maxDistance: 0.000019413304
+  - maxDistance: 0.010253298
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00011545281
+  - maxDistance: 0.04791974
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00009784092
+  - maxDistance: 0.04211619
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -2309,19 +2033,11 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0010726287
-    collisionSphereDistance: 0
-  - maxDistance: 0.003256959
     collisionSphereDistance: 0
-  - maxDistance: 0.0006857669
+  - maxDistance: 0.036475163
     collisionSphereDistance: 0
-  - maxDistance: 0.00042865684
+  - maxDistance: 0.0115155205
     collisionSphereDistance: 0
-  - maxDistance: 0.00008184876
-    collisionSphereDistance: 0
-  - maxDistance: 0.000022013051
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
@@ -2341,32 +2057,14 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0014016706
-    collisionSphereDistance: 0
-  - maxDistance: 0.0017699184
-    collisionSphereDistance: 0
-  - maxDistance: 0.0015553079
-    collisionSphereDistance: 0
-  - maxDistance: 0.0012746429
-    collisionSphereDistance: 0
-  - maxDistance: 0.00054600975
     collisionSphereDistance: 0
-  - maxDistance: 0.000984117
-    collisionSphereDistance: 0
-  - maxDistance: 0.00028566073
-    collisionSphereDistance: 0
-  - maxDistance: 0.000064429674
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00016795706
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.000004059269
+  - maxDistance: 0.002314168
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -2379,29 +2077,15 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0013197539
-    collisionSphereDistance: 0
-  - maxDistance: 0.00030630306
     collisionSphereDistance: 0
-  - maxDistance: 0.00000030133157
+  - maxDistance: 0.00017952587
     collisionSphereDistance: 0
-  - maxDistance: 0.0010702963
+  - maxDistance: 0.04966438
     collisionSphereDistance: 0
-  - maxDistance: 0.00020228393
-    collisionSphereDistance: 0
-  - maxDistance: 0.00012100395
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0015028466
     collisionSphereDistance: 0
-  - maxDistance: 0.00080108165
-    collisionSphereDistance: 0
-  - maxDistance: 0.0012182463
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
@@ -2419,224 +2103,134 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.06966509
-    collisionSphereDistance: 0
-  - maxDistance: 0.06887648
-    collisionSphereDistance: 0
-  - maxDistance: 0.06809671
-    collisionSphereDistance: 0
-  - maxDistance: 0.06726027
-    collisionSphereDistance: 0
-  - maxDistance: 0.0663582
-    collisionSphereDistance: 0
-  - maxDistance: 0.065386005
-    collisionSphereDistance: 0
-  - maxDistance: 0.06434083
-    collisionSphereDistance: 0
-  - maxDistance: 0.054076128
-    collisionSphereDistance: 0
-  - maxDistance: 0.06361399
-    collisionSphereDistance: 0
-  - maxDistance: 0.062945135
-    collisionSphereDistance: 0
-  - maxDistance: 0.06213484
-    collisionSphereDistance: 0
-  - maxDistance: 0.06124526
-    collisionSphereDistance: 0
-  - maxDistance: 0.06027171
-    collisionSphereDistance: 0
-  - maxDistance: 0.058713935
-    collisionSphereDistance: 0
-  - maxDistance: 0.056011852
-    collisionSphereDistance: 0
-  - maxDistance: 0.05222091
-    collisionSphereDistance: 0
-  - maxDistance: 0.051485803
-    collisionSphereDistance: 0
-  - maxDistance: 0.03951562
-    collisionSphereDistance: 0
-  - maxDistance: 0.050934095
-    collisionSphereDistance: 0
-  - maxDistance: 0.05056881
-    collisionSphereDistance: 0
-  - maxDistance: 0.03854414
-    collisionSphereDistance: 0
-  - maxDistance: 0.050468173
-    collisionSphereDistance: 0
-  - maxDistance: 0.050552793
-    collisionSphereDistance: 0
-  - maxDistance: 0.050974164
-    collisionSphereDistance: 0
-  - maxDistance: 0.039971873
-    collisionSphereDistance: 0
-  - maxDistance: 0.051574998
-    collisionSphereDistance: 0
-  - maxDistance: 0.052421913
-    collisionSphereDistance: 0
-  - maxDistance: 0.053434633
-    collisionSphereDistance: 0
-  - maxDistance: 0.02678243
-    collisionSphereDistance: 0
-  - maxDistance: 0.043066945
-    collisionSphereDistance: 0
-  - maxDistance: 0.054693516
-    collisionSphereDistance: 0
-  - maxDistance: 0.05604158
-    collisionSphereDistance: 0
-  - maxDistance: 0.046421953
-    collisionSphereDistance: 0
-  - maxDistance: 0.028072061
-    collisionSphereDistance: 0
-  - maxDistance: 0.020732068
-    collisionSphereDistance: 0
-  - maxDistance: 0.012553782
-    collisionSphereDistance: 0
-  - maxDistance: 0.030790227
-    collisionSphereDistance: 0
-  - maxDistance: 0.034304667
-    collisionSphereDistance: 0
-  - maxDistance: 0.0509117
     collisionSphereDistance: 0
-  - maxDistance: 0.058598626
+  - maxDistance: 0.05091171
     collisionSphereDistance: 0
-  - maxDistance: 0.06220741
+  - maxDistance: 0.06220742
     collisionSphereDistance: 0
   - maxDistance: 0.06731004
     collisionSphereDistance: 0
-  - maxDistance: 0.069129765
+  - maxDistance: 0.06912977
     collisionSphereDistance: 0
   - maxDistance: 0.06776993
     collisionSphereDistance: 0
   - maxDistance: 0.070510544
     collisionSphereDistance: 0
-  - maxDistance: 0.06636372
+  - maxDistance: 0.06636374
     collisionSphereDistance: 0
-  - maxDistance: 0.06491577
+  - maxDistance: 0.064915776
     collisionSphereDistance: 0
-  - maxDistance: 0.06349732
-    collisionSphereDistance: 0
-  - maxDistance: 0.062022667
-    collisionSphereDistance: 0
-  - maxDistance: 0.06056734
-    collisionSphereDistance: 0
-  - maxDistance: 0.059057828
+  - maxDistance: 0.063497335
     collisionSphereDistance: 0
   - maxDistance: 0.07181978
     collisionSphereDistance: 0
   - maxDistance: 0.073062755
     collisionSphereDistance: 0
-  - maxDistance: 0.07423023
+  - maxDistance: 0.07423024
     collisionSphereDistance: 0
   - maxDistance: 0.072577134
     collisionSphereDistance: 0
   - maxDistance: 0.07533729
     collisionSphereDistance: 0
-  - maxDistance: 0.076355055
+  - maxDistance: 0.07635505
     collisionSphereDistance: 0
   - maxDistance: 0.0772844
     collisionSphereDistance: 0
   - maxDistance: 0.07811851
     collisionSphereDistance: 0
-  - maxDistance: 0.07725858
+  - maxDistance: 0.07725857
     collisionSphereDistance: 0
-  - maxDistance: 0.07886685
+  - maxDistance: 0.07886684
     collisionSphereDistance: 0
   - maxDistance: 0.079450816
     collisionSphereDistance: 0
-  - maxDistance: 0.07983901
+  - maxDistance: 0.079839006
     collisionSphereDistance: 0
-  - maxDistance: 0.079995304
+  - maxDistance: 0.0799953
     collisionSphereDistance: 0
-  - maxDistance: 0.056560066
+  - maxDistance: 0.056560073
     collisionSphereDistance: 0
-  - maxDistance: 0.07982849
+  - maxDistance: 0.079828486
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
   - maxDistance: 0.07556413
     collisionSphereDistance: 0
-  - maxDistance: 0.06984696
+  - maxDistance: 0.06984697
     collisionSphereDistance: 0
-  - maxDistance: 0.06304066
+  - maxDistance: 0.06304068
     collisionSphereDistance: 0
-  - maxDistance: 0.043348182
+  - maxDistance: 0.0433482
     collisionSphereDistance: 0
-  - maxDistance: 0.05686872
+  - maxDistance: 0.05686873
     collisionSphereDistance: 0
-  - maxDistance: 0.064157076
+  - maxDistance: 0.06415709
     collisionSphereDistance: 0
-  - maxDistance: 0.04434178
+  - maxDistance: 0.044341803
     collisionSphereDistance: 0
-  - maxDistance: 0.04953492
+  - maxDistance: 0.049534943
     collisionSphereDistance: 0
-  - maxDistance: 0.030485071
+  - maxDistance: 0.041265775
     collisionSphereDistance: 0
-  - maxDistance: 0.038365386
+  - maxDistance: 0.0383654
     collisionSphereDistance: 0
-  - maxDistance: 0.0400813
+  - maxDistance: 0.04008131
     collisionSphereDistance: 0
-  - maxDistance: 0.026784185
+  - maxDistance: 0.058106754
     collisionSphereDistance: 0
-  - maxDistance: 0.023632336
+  - maxDistance: 0.09648578
     collisionSphereDistance: 0
-  - maxDistance: 0.016612358
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.014547302
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.007451516
+  - maxDistance: 0.090535894
     collisionSphereDistance: 0
-  - maxDistance: 0.008588692
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.018850235
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.009713451
+  - maxDistance: 0.08186639
     collisionSphereDistance: 0
-  - maxDistance: 0.010802776
+  - maxDistance: 0.03496098
     collisionSphereDistance: 0
-  - maxDistance: 0.021299124
+  - maxDistance: 0.072618395
     collisionSphereDistance: 0
-  - maxDistance: 0.034960963
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.023543712
+  - maxDistance: 0.06817526
     collisionSphereDistance: 0
-  - maxDistance: 0.011585305
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.024558058
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.05754883
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.079869084
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.08
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
+  - maxDistance: 0.07993604
     collisionSphereDistance: 0
-  - maxDistance: 0.07986909
+  - maxDistance: 0.07940943
     collisionSphereDistance: 0
-  - maxDistance: 0.080000006
-    collisionSphereDistance: 0
-  - maxDistance: 0.07993605
-    collisionSphereDistance: 0
-  - maxDistance: 0.079409435
-    collisionSphereDistance: 0
-  - maxDistance: 0.07447838
+  - maxDistance: 0.07447837
     collisionSphereDistance: 0
   - maxDistance: 0.078376114
     collisionSphereDistance: 0
-  - maxDistance: 0.07700025
+  - maxDistance: 0.077000245
     collisionSphereDistance: 0
   - maxDistance: 0.07539854
     collisionSphereDistance: 0
@@ -2646,91 +2240,67 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0.07159368
     collisionSphereDistance: 0
-  - maxDistance: 0.06943372
+  - maxDistance: 0.06943373
     collisionSphereDistance: 0
   - maxDistance: 0.06713608
     collisionSphereDistance: 0
-  - maxDistance: 0.064841926
-    collisionSphereDistance: 0
-  - maxDistance: 0.058171567
-    collisionSphereDistance: 0
-  - maxDistance: 0.062472902
-    collisionSphereDistance: 0
-  - maxDistance: 0.06015701
-    collisionSphereDistance: 0
-  - maxDistance: 0.057826314
+  - maxDistance: 0.06484193
     collisionSphereDistance: 0
   - maxDistance: 0.05513864
     collisionSphereDistance: 0
   - maxDistance: 0.0673224
     collisionSphereDistance: 0
-  - maxDistance: 0.040507473
+  - maxDistance: 0.040507484
     collisionSphereDistance: 0
-  - maxDistance: 0.052440174
+  - maxDistance: 0.052440185
     collisionSphereDistance: 0
   - maxDistance: 0.07712982
     collisionSphereDistance: 0
-  - maxDistance: 0.06416714
+  - maxDistance: 0.06416716
     collisionSphereDistance: 0
   - maxDistance: 0.07800102
     collisionSphereDistance: 0
-  - maxDistance: 0.06893405
+  - maxDistance: 0.06893406
     collisionSphereDistance: 0
-  - maxDistance: 0.04540326
+  - maxDistance: 0.04540327
     collisionSphereDistance: 0
-  - maxDistance: 0.024165243
+  - maxDistance: 0.069910556
     collisionSphereDistance: 0
-  - maxDistance: 0.04104828
+  - maxDistance: 0.041048303
     collisionSphereDistance: 0
-  - maxDistance: 0.022124412
+  - maxDistance: 0.0785799
     collisionSphereDistance: 0
-  - maxDistance: 0.011431071
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.033748746
+  - maxDistance: 0.03374876
     collisionSphereDistance: 0
-  - maxDistance: 0.01883911
+  - maxDistance: 0.09057081
     collisionSphereDistance: 0
-  - maxDistance: 0.010458356
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.026364097
+  - maxDistance: 0.060027342
     collisionSphereDistance: 0
-  - maxDistance: 0.055536322
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0028637461
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0024487313
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0005558518
+  - maxDistance: 0.06985613
     collisionSphereDistance: 0
-  - maxDistance: 0.006355
+  - maxDistance: 0.09965892
     collisionSphereDistance: 0
-  - maxDistance: 0.005584526
+  - maxDistance: 0.07074393
     collisionSphereDistance: 0
-  - maxDistance: 0.010382448
+  - maxDistance: 0.080911964
     collisionSphereDistance: 0
-  - maxDistance: 0.00048158344
-    collisionSphereDistance: 0
-  - maxDistance: 0.0001965277
-    collisionSphereDistance: 0
-  - maxDistance: 0.0021503076
-    collisionSphereDistance: 0
-  - maxDistance: 0.005376233
-    collisionSphereDistance: 0
-  - maxDistance: 0.00044907248
-    collisionSphereDistance: 0
-  - maxDistance: 0.0005055764
-    collisionSphereDistance: 0
-  - maxDistance: 0.00020047354
-    collisionSphereDistance: 0
-  - maxDistance: 0.00025168282
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00000001137637
+  - maxDistance: 0.0000068782465
     collisionSphereDistance: 0
-  - maxDistance: 0.000002093632
+  - maxDistance: 0.0012143342
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -2755,27 +2325,11 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
-    collisionSphereDistance: 0
-  - maxDistance: 0.0058397553
-    collisionSphereDistance: 0
-  - maxDistance: 0.0067542484
-    collisionSphereDistance: 0
-  - maxDistance: 0.0030082816
     collisionSphereDistance: 0
-  - maxDistance: 0.00247003
+  - maxDistance: 0.09448599
     collisionSphereDistance: 0
-  - maxDistance: 0.0009378047
+  - maxDistance: 0.007729196
     collisionSphereDistance: 0
-  - maxDistance: 0.002138121
-    collisionSphereDistance: 0
-  - maxDistance: 0.00065960764
-    collisionSphereDistance: 0
-  - maxDistance: 0.00035512945
-    collisionSphereDistance: 0
-  - maxDistance: 0.000014338402
-    collisionSphereDistance: 0
-  - maxDistance: 0.0005562577
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
@@ -2784,10 +2338,8 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.0035944285
+  - maxDistance: 0.025585726
     collisionSphereDistance: 0
-  - maxDistance: 0.000053708878
-    collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
@@ -2814,25 +2366,25 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00002656286
+  - maxDistance: 0.013678982
     collisionSphereDistance: 0
-  - maxDistance: 0.0000343606
+  - maxDistance: 0.017264254
     collisionSphereDistance: 0
-  - maxDistance: 0.0001852294
+  - maxDistance: 0.067227505
     collisionSphereDistance: 0
-  - maxDistance: 0.00020511197
+  - maxDistance: 0.07176781
     collisionSphereDistance: 0
-  - maxDistance: 0.0005757946
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0006089737
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0042503993
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.003765743
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.004123765
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.011694277
+  - maxDistance: 0.1
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -2842,25 +2394,25 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.000037646547
+  - maxDistance: 0.018732484
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00021357823
+  - maxDistance: 0.07358238
     collisionSphereDistance: 0
-  - maxDistance: 0.0000398996
+  - maxDistance: 0.019725492
     collisionSphereDistance: 0
-  - maxDistance: 0.00021869157
+  - maxDistance: 0.07464481
     collisionSphereDistance: 0
-  - maxDistance: 0.00062540796
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.00061881763
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0042850436
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.004072413
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.0037311134
+  - maxDistance: 0.1
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -2900,17 +2452,17 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
-  - maxDistance: 0.00021116152
+  - maxDistance: 0.073071495
     collisionSphereDistance: 0
-  - maxDistance: 0.00020370253
+  - maxDistance: 0.071459465
     collisionSphereDistance: 0
-  - maxDistance: 0.0006214562
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.00019568129
+  - maxDistance: 0.069663696
     collisionSphereDistance: 0
-  - maxDistance: 0.0006043729
+  - maxDistance: 0.1
     collisionSphereDistance: 0
-  - maxDistance: 0.003317384
+  - maxDistance: 0.1
     collisionSphereDistance: 0
   - maxDistance: 0
     collisionSphereDistance: 0
@@ -3009,20 +2561,164 @@ Cloth:
   - maxDistance: 0
     collisionSphereDistance: 0
   - maxDistance: 0
+    collisionSphereDistance: 0
+  - maxDistance: 0.099010974
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.09808483
+    collisionSphereDistance: 0
+  - maxDistance: 0.09679439
+    collisionSphereDistance: 0
+  - maxDistance: 0.09443337
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.091757365
+    collisionSphereDistance: 0
+  - maxDistance: 0.08783042
+    collisionSphereDistance: 0
+  - maxDistance: 0.07777826
+    collisionSphereDistance: 0
+  - maxDistance: 0.06659752
+    collisionSphereDistance: 0
+  - maxDistance: 0.0853187
+    collisionSphereDistance: 0
+  - maxDistance: 0.0076928968
+    collisionSphereDistance: 0
+  - maxDistance: 0.015880149
+    collisionSphereDistance: 0
+  - maxDistance: 0.03237477
+    collisionSphereDistance: 0
+  - maxDistance: 0.052390587
+    collisionSphereDistance: 0
+  - maxDistance: 0.041891452
+    collisionSphereDistance: 0
+  - maxDistance: 0.003828847
+    collisionSphereDistance: 0
+  - maxDistance: 0.0035621847
+    collisionSphereDistance: 0
+  - maxDistance: 0.0033280984
+    collisionSphereDistance: 0
+  - maxDistance: 0.0065008327
+    collisionSphereDistance: 0
+  - maxDistance: 0.012634664
+    collisionSphereDistance: 0
+  - maxDistance: 0.056934662
+    collisionSphereDistance: 0
+  - maxDistance: 0.06281903
+    collisionSphereDistance: 0
+  - maxDistance: 0.025082964
+    collisionSphereDistance: 0
+  - maxDistance: 0.038788166
+    collisionSphereDistance: 0
+  - maxDistance: 0.003256581
+    collisionSphereDistance: 0
+  - maxDistance: 0.0032227144
+    collisionSphereDistance: 0
+  - maxDistance: 0.03896718
+    collisionSphereDistance: 0
+  - maxDistance: 0.04803655
+    collisionSphereDistance: 0
+  - maxDistance: 0.055325802
+    collisionSphereDistance: 0
+  - maxDistance: 0.06033738
+    collisionSphereDistance: 0
+  - maxDistance: 0.035377454
+    collisionSphereDistance: 0
+  - maxDistance: 0.03338049
+    collisionSphereDistance: 0
+  - maxDistance: 0.06950023
+    collisionSphereDistance: 0
+  - maxDistance: 0.07847678
+    collisionSphereDistance: 0
+  - maxDistance: 0.09936002
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.09997273
+    collisionSphereDistance: 0
+  - maxDistance: 0.061518896
+    collisionSphereDistance: 0
+  - maxDistance: 0.064301126
+    collisionSphereDistance: 0
+  - maxDistance: 0.06449978
+    collisionSphereDistance: 0
+  - maxDistance: 0.057009213
+    collisionSphereDistance: 0
+  - maxDistance: 0.047845054
+    collisionSphereDistance: 0
+  - maxDistance: 0.04368178
+    collisionSphereDistance: 0
+  - maxDistance: 0.03268695
+    collisionSphereDistance: 0
+  - maxDistance: 0.039853293
+    collisionSphereDistance: 0
+  - maxDistance: 0.08411154
+    collisionSphereDistance: 0
+  - maxDistance: 0.08480375
+    collisionSphereDistance: 0
+  - maxDistance: 0.088835984
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.1
+    collisionSphereDistance: 0
+  - maxDistance: 0.09921463
+    collisionSphereDistance: 0
+  - maxDistance: 0.095899135
     collisionSphereDistance: 0
-  - maxDistance: 0.06383466
+  - maxDistance: 0.09618751
     collisionSphereDistance: 0
-  - maxDistance: 0.050879892
+  - maxDistance: 0.09559634
     collisionSphereDistance: 0
-  - maxDistance: 0.034942552
+  - maxDistance: 0.08896413
     collisionSphereDistance: 0
-  - maxDistance: 0.02200315
+  - maxDistance: 0.077943966
     collisionSphereDistance: 0
-  - maxDistance: 0.013919755
+  - maxDistance: 0.08451312
     collisionSphereDistance: 0
-  - maxDistance: 0.008884246
+  - maxDistance: 0.06491735
     collisionSphereDistance: 0
-  - maxDistance: 0.07303724
+  - maxDistance: 0.044374324
     collisionSphereDistance: 0
   m_CapsuleColliders: []
   m_SphereColliders:
@@ -3040,9 +2736,9 @@ Cloth:
     second: {fileID: 7936421561506188107}
   - first: {fileID: 7936421561506188107}
     second: {fileID: 1414079473203578087}
-  m_SelfCollisionDistance: 0.0044181533
+  m_SelfCollisionDistance: 0.00096206635
   m_SelfCollisionStiffness: 0.4
-  m_SelfAndInterCollisionIndices: 000000000100000002000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000200000002100000022000000230000002400000025000000260000002700000028000000290000002a0000002b0000002c0000002d0000002e0000002f000000300000003100000032000000330000003400000035000000360000003700000038000000390000003a0000003b0000003c0000003d0000003e0000003f000000400000004100000042000000430000004400000045000000460000004700000048000000490000004a0000004b0000004c0000004f000000500000005100000052000000530000005400000055000000560000005700000058000000590000005a0000005b0000005c0000005d0000005e0000005f000000600000006100000062000000630000006400000065000000660000006700000068000000690000006a0000006b0000006c0000006d0000006e0000006f000000700000007100000072000000730000007400000075000000760000007700000078000000790000007a0000007b0000007d0000007e0000007f0000008400000085000000860000008800000089000000990000009a000000ad00000005010000060100000701000008010000090100000a0100000b0100000c0100000d0100000e0100000f010000100100001101000012010000130100001401000015010000160100001701000018010000190100001a0100001b0100001c0100001d0100001e0100001f010000200100002101000022010000230100002401000025010000260100002701000028010000290100002a0100002b0100002c0100002d0100002e0100002f010000300100003101000032010000330100003401000035010000360100003701000038010000390100003a0100003b0100003c0100003d0100003e0100003f010000400100004101000042010000430100004401000045010000460100004701000048010000490100004a0100004b0100004c0100004d0100004e0100004f010000500100005101000052010000530100005401000055010000560100005701000058010000590100005a0100005b0100005c0100005d0100005e0100005f010000600100006101000062010000630100006401000065010000660100006701000068010000690100006a0100006b0100006c0100006d0100006e0100006f010000700100007101000072010000730100007401000075010000760100007701000078010000790100007a0100007b0100007c0100007d0100007e0100007f010000800100008101000082010000830100008401000085010000860100008701000088010000890100008a0100008b0100008c0100008d0100008e01000092010000930100009401000098010000ad010000ae010000d30100002c0200002d0200002e0200002f020000300200003102000032020000
+  m_SelfAndInterCollisionIndices: 03000000040000000500000011000000230000006700000068000000690000006a0000006b0000006c0000006d0000006e0000006f000000700000007100000072000000730000007400000075000000760000007700000078000000790000007a0000007b0000007c0000007d0000007e0000007f000000800000008100000082000000830000008400000085000000860000008700000088000000890000008a0000008b0000008c0000008d0000008e0000008f000000900000009100000092000000930000009400000095000000960000009700000098000000990000009a0000009b0000009c0000009d0000009e0000009f000000a0000000a1000000a2000000a3000000a4000000a5000000a6000000a7000000a8000000a9000000aa000000ab000000ac000000ad000000ae000000af000000b0000000b1000000b2000000b3000000b4000000b5000000b6000000b7000000b8000000b9000000ba000000bb000000bc000000bd000000be000000f3000000520100005301000054010000700100007101000072010000730100007401000075010000760100007701000078010000790100007a0100007b0100007c0100007d0100007e0100007f0100008001000081010000820100008301000084010000850100008601000087010000880100008b010000
   m_VirtualParticleWeights:
   - {x: 0.33333334, y: 0.33333334, z: 0.33333334}
   - {x: 0.6666667, y: 0.16666667, z: 0.16666667}
@@ -3063,152 +2759,16 @@ MonoBehaviour:
   cloth: {fileID: 9156024291483501896}
   simulationRoot: {fileID: 7540500193135485838}
   restParticles:
-  - {x: -0.4811043, y: 0.5600306, z: -0.048985284}
-  - {x: -0.47856274, y: 0.5661772, z: -0.0025496266}
-  - {x: -0.41712752, y: 0.6110997, z: -0.04310244}
   - {x: 0.19953439, y: 0.7964486, z: 0.0029023655}
   - {x: 0.19239673, y: 0.79841626, z: 0.0026280077}
   - {x: 0.17969102, y: 0.7943882, z: 0.030693041}
-  - {x: 0.26509494, y: 0.6386008, z: -0.16635354}
-  - {x: 0.30477944, y: 0.65155387, z: -0.12742661}
-  - {x: 0.32353783, y: 0.58023626, z: -0.18792711}
-  - {x: 0.32475403, y: 0.33107647, z: 0.15752803}
-  - {x: 0.33618528, y: 0.26414022, z: 0.15410711}
-  - {x: 0.3523841, y: 0.26979572, z: 0.15022771}
-  - {x: 0.36930877, y: 0.2757078, z: 0.14641564}
-  - {x: 0.38508105, y: 0.35252175, z: 0.13734448}
-  - {x: 0.3866475, y: 0.28146115, z: 0.14209054}
-  - {x: 0.40450302, y: 0.28759584, z: 0.13750538}
-  - {x: 0.42314675, y: 0.29417822, z: 0.13255373}
-  - {x: 0.44192585, y: 0.30124393, z: 0.12713017}
-  - {x: 0.4601033, y: 0.30880937, z: 0.12092203}
-  - {x: 0.45600033, y: 0.3749508, z: 0.1117334}
-  - {x: 0.4705197, y: 0.31402028, z: 0.11706399}
-  - {x: 0.47814825, y: 0.3187511, z: 0.1141561}
-  - {x: 0.48389342, y: 0.32438487, z: 0.11138945}
-  - {x: 0.48667338, y: 0.33044383, z: 0.109226584}
-  - {x: 0.4869491, y: 0.33693087, z: 0.10772058}
-  - {x: 0.4848265, y: 0.34709883, z: 0.10550832}
-  - {x: 0.47839257, y: 0.36417556, z: 0.10262925}
-  - {x: 0.4659559, y: 0.38713104, z: 0.09897936}
-  - {x: 0.4290985, y: 0.44254577, z: 0.10804145}
-  - {x: 0.49757397, y: 0.39335153, z: 0.08622616}
-  - {x: 0.50057435, y: 0.46438846, z: 0.06752197}
-  - {x: 0.5254657, y: 0.39849395, z: 0.072085686}
-  - {x: 0.54981184, y: 0.40239215, z: 0.05623566}
-  - {x: 0.55524343, y: 0.47832167, z: 0.013248095}
-  - {x: 0.5698653, y: 0.40442505, z: 0.03860846}
-  - {x: 0.58557755, y: 0.40499058, z: 0.019096509}
-  - {x: 0.59727854, y: 0.40300706, z: -0.0020329845}
-  - {x: 0.5746763, y: 0.4732187, z: -0.049756978}
-  - {x: 0.60451096, y: 0.399395, z: -0.024142688}
-  - {x: 0.60771656, y: 0.39356855, z: -0.046238743}
-  - {x: 0.6075777, y: 0.38600305, z: -0.06805798}
-  - {x: 0.51316005, y: 0.5418974, z: 0.0077635366}
-  - {x: 0.46385065, y: 0.5272229, z: 0.060467906}
-  - {x: 0.5289884, y: 0.53975946, z: -0.050929297}
-  - {x: 0.5609932, y: 0.44876653, z: -0.110628165}
-  - {x: 0.60377324, y: 0.37621596, z: -0.089406386}
-  - {x: 0.59753406, y: 0.36515796, z: -0.11032896}
-  - {x: 0.5229221, y: 0.41230148, z: -0.16816935}
-  - {x: 0.51240027, y: 0.51956195, z: -0.10794633}
-  - {x: 0.47481516, y: 0.48438895, z: -0.16265304}
-  - {x: 0.4733899, y: 0.5881581, z: -0.048999254}
-  - {x: 0.46037593, y: 0.58959526, z: 0.0048379456}
-  - {x: 0.4600643, y: 0.57255816, z: -0.10183844}
-  - {x: 0.42424336, y: 0.5465458, z: -0.15321672}
-  - {x: 0.3968083, y: 0.61899364, z: -0.09437521}
-  - {x: 0.32069367, y: 0.25871006, z: 0.15822281}
-  - {x: 0.27614725, y: 0.31053182, z: 0.1771496}
-  - {x: 0.3053944, y: 0.25350112, z: 0.16229628}
-  - {x: 0.29044008, y: 0.24863541, z: 0.16683298}
-  - {x: 0.27434427, y: 0.24416803, z: 0.17145926}
-  - {x: 0.25701872, y: 0.24023874, z: 0.1769026}
-  - {x: 0.23735186, y: 0.23725808, z: 0.18380564}
-  - {x: 0.30001494, y: 0.40273145, z: 0.16504456}
-  - {x: 0.21506526, y: 0.2351689, z: 0.19286859}
-  - {x: 0.18913467, y: 0.2334162, z: 0.20551126}
-  - {x: 0.2529765, y: 0.38480756, z: 0.19009669}
-  - {x: 0.20450722, y: 0.463463, z: 0.19546598}
-  - {x: 0.35922942, y: 0.42122868, z: 0.1382788}
-  - {x: 0.39671594, y: 0.50648284, z: 0.10227602}
-  - {x: 0.26419213, y: 0.47353616, z: 0.1665643}
-  - {x: 0.15805005, y: 0.5317346, z: 0.18701254}
-  - {x: 0.3280035, y: 0.48776087, z: 0.13549343}
-  - {x: 0.22875828, y: 0.5351207, z: 0.15922578}
-  - {x: 0.122791745, y: 0.5858556, z: 0.17035079}
-  - {x: 0.094918415, y: 0.62972796, z: 0.15155804}
-  - {x: 0.01045119, y: 0.6643185, z: 0.1385961}
-  - {x: 0.07181608, y: 0.6685005, z: 0.1328844}
-  - {x: 0.006977553, y: 0.6977913, z: 0.121666886}
-  - {x: 0.1276194, y: 0.6752536, z: 0.115755394}
-  - {x: 0.19565928, y: 0.5881613, z: 0.1467713}
-  - {x: 0.16126314, y: 0.63447136, z: 0.13172226}
-  - {x: 0.21836773, y: 0.6426536, z: 0.10539309}
-  - {x: 0.26008657, y: 0.5968324, z: 0.11771237}
-  - {x: 0.3171523, y: 0.6097235, z: 0.08578528}
-  - {x: 0.29607245, y: 0.54559654, z: 0.12823422}
-  - {x: 0.36180887, y: 0.56137633, z: 0.094708204}
-  - {x: 0.42100435, y: 0.5783463, z: 0.054103184}
-  - {x: -0.19340113, y: 0.3016048, z: 0.20258135}
-  - {x: -0.1632012, y: 0.23236713, z: 0.21800052}
-  - {x: -0.18784018, y: 0.23185353, z: 0.19354327}
-  - {x: -0.21023923, y: 0.30509877, z: 0.16161856}
-  - {x: -0.20806082, y: 0.23270087, z: 0.17461519}
-  - {x: -0.22599179, y: 0.2352536, z: 0.16174047}
-  - {x: -0.24393234, y: 0.23904735, z: 0.15347639}
-  - {x: -0.26200712, y: 0.24374457, z: 0.14791757}
-  - {x: -0.28148362, y: 0.24902683, z: 0.14437142}
-  - {x: -0.17622252, y: 0.38883469, z: 0.1741954}
-  - {x: -0.16919014, y: 0.37882468, z: 0.2108599}
-  - {x: -0.28164598, y: 0.32134712, z: 0.13850819}
-  - {x: -0.3016072, y: 0.25461555, z: 0.14149281}
-  - {x: -0.25415143, y: 0.39554247, z: 0.14246026}
-  - {x: -0.1323262, y: 0.47322962, z: 0.1837228}
-  - {x: -0.11578664, y: 0.4653856, z: 0.21588765}
-  - {x: -0.342173, y: 0.40934363, z: 0.123357706}
-  - {x: -0.3659812, y: 0.34121814, z: 0.1257169}
-  - {x: -0.4295307, y: 0.4265436, z: 0.09548481}
-  - {x: -0.22389808, y: 0.46927604, z: 0.14628664}
-  - {x: -0.3154174, y: 0.47700673, z: 0.12003152}
-  - {x: -0.100658186, y: 0.5387005, z: 0.17805591}
-  - {x: -0.06649293, y: 0.5382113, z: 0.20310132}
-  - {x: -0.19718438, y: 0.5318407, z: 0.14441667}
-  - {x: -0.08215643, y: 0.58777374, z: 0.16406439}
-  - {x: -0.035682634, y: 0.5896573, z: 0.1806036}
-  - {x: -0.40358835, y: 0.49161062, z: 0.08794495}
-  - {x: -0.4796479, y: 0.50526834, z: 0.046398625}
-  - {x: -0.4394086, y: 0.56148183, z: 0.042645663}
-  - {x: -0.36928013, y: 0.5491942, z: 0.08272222}
-  - {x: -0.3785965, y: 0.6105874, z: 0.04187365}
-  - {x: -0.322609, y: 0.6000856, z: 0.07839377}
-  - {x: -0.28670922, y: 0.5366746, z: 0.115530096}
-  - {x: -0.253106, y: 0.5896927, z: 0.10935503}
-  - {x: -0.21194796, y: 0.6370959, z: 0.101062916}
-  - {x: -0.17262244, y: 0.58481735, z: 0.13751125}
-  - {x: -0.14503779, y: 0.6313207, z: 0.12681967}
-  - {x: -0.11572564, y: 0.6726836, z: 0.11367464}
-  - {x: -0.06823372, y: 0.6292341, z: 0.14793639}
-  - {x: -0.019028394, y: 0.6272789, z: 0.15925404}
-  - {x: -0.05432863, y: 0.66749406, z: 0.13126116}
-  - {x: -0.03801272, y: 0.7031846, z: 0.114835046}
-  - {x: 0.33312827, y: 0.6705371, z: 0.0014388779}
-  - {x: 0.27990407, y: 0.7070918, z: -0.03939115}
-  - {x: 0.2738964, y: 0.7063585, z: -0.00061798503}
-  - {x: 0.30648303, y: 0.66377556, z: 0.04125}
-  - {x: 0.36532056, y: 0.6231632, z: 0.047964085}
-  - {x: 0.3972161, y: 0.6317206, z: 0.0031570124}
-  - {x: 0.3417577, y: 0.67021537, z: -0.04217939}
-  - {x: 0.40735155, y: 0.6305215, z: -0.045608975}
-  - {x: 0.2666783, y: 0.65315473, z: 0.07586395}
-  - {x: 0.21831653, y: 0.69146013, z: 0.06630346}
-  - {x: 0.25224563, y: 0.7001885, z: 0.035157207}
-  - {x: 0.2025049, y: 0.7317026, z: 0.029562287}
-  - {x: 0.21798643, y: 0.7367999, z: -0.0034049056}
-  - {x: 0.21984312, y: 0.7389589, z: -0.038317736}
-  - {x: 0.21910547, y: 0.74557143, z: -0.0026119633}
-  - {x: 0.20393002, y: 0.74083847, z: 0.031230137}
-  - {x: 0.17456043, y: 0.7239824, z: 0.057850897}
+  - {x: 0.26509488, y: 0.6386008, z: -0.16635352}
+  - {x: 0.3047793, y: 0.651554, z: -0.12742658}
+  - {x: 0.3235378, y: 0.5802363, z: -0.1879271}
+  - {x: 0.2179864, y: 0.7367999, z: -0.0034049193}
+  - {x: 0.21984307, y: 0.7389588, z: -0.03831774}
+  - {x: 0.21910542, y: 0.74557143, z: -0.0026119682}
+  - {x: 0.20393, y: 0.7408384, z: 0.031230122}
   - {x: 0.21772124, y: 0.7642807, z: -0.00036773388}
   - {x: 0.20243043, y: 0.7605536, z: 0.032154907}
   - {x: 0.21138781, y: 0.7833233, z: 0.0020698812}
@@ -3216,15 +2776,13 @@ MonoBehaviour:
   - {x: 0.2052705, y: 0.7927888, z: 0.0027018932}
   - {x: 0.19050248, y: 0.7896327, z: 0.032848764}
   - {x: 0.18577729, y: 0.79326016, z: 0.0320183}
-  - {x: 0.33119184, y: 0.6631257, z: -0.085924536}
-  - {x: 0.36744365, y: 0.60128814, z: -0.14115173}
-  - {x: 0.24564277, y: 0.6963112, z: -0.11307006}
-  - {x: 0.21050979, y: 0.6889547, z: -0.1438711}
-  - {x: 0.26982877, y: 0.7028494, z: -0.07759828}
-  - {x: 0.18949287, y: 0.73523414, z: -0.098159686}
-  - {x: 0.21021158, y: 0.7379191, z: -0.06937857}
-  - {x: 0.21332282, y: 0.7484714, z: -0.07236347}
-  - {x: 0.22103739, y: 0.74824566, z: -0.037955374}
+  - {x: 0.3674435, y: 0.60128826, z: -0.14115168}
+  - {x: 0.24564266, y: 0.69631135, z: -0.11307008}
+  - {x: 0.21050967, y: 0.68895483, z: -0.1438711}
+  - {x: 0.18949285, y: 0.73523426, z: -0.09815971}
+  - {x: 0.21021155, y: 0.73791903, z: -0.06937858}
+  - {x: 0.21332279, y: 0.7484714, z: -0.07236347}
+  - {x: 0.2210374, y: 0.7482456, z: -0.037955377}
   - {x: 0.21163602, y: 0.7673259, z: -0.068674535}
   - {x: 0.220277, y: 0.7664075, z: -0.034707032}
   - {x: 0.20746543, y: 0.78735775, z: -0.06411401}
@@ -3235,9 +2793,9 @@ MonoBehaviour:
   - {x: 0.20315789, y: 0.7994108, z: -0.028223742}
   - {x: 0.18956614, y: 0.8041952, z: -0.058025584}
   - {x: 0.1955292, y: 0.801407, z: -0.027499931}
-  - {x: 0.16742271, y: 0.68218005, z: -0.16979182}
-  - {x: 0.21421887, y: 0.62588525, z: -0.20276482}
-  - {x: 0.16113141, y: 0.73305386, z: -0.12142335}
+  - {x: 0.16742267, y: 0.68218005, z: -0.1697918}
+  - {x: 0.21421887, y: 0.62588537, z: -0.20276485}
+  - {x: 0.1611314, y: 0.7330538, z: -0.121423356}
   - {x: 0.12764841, y: 0.73159873, z: -0.13898018}
   - {x: 0.088514805, y: 0.73051375, z: -0.15033661}
   - {x: 0.09094691, y: 0.7441448, z: -0.15530595}
@@ -3245,7 +2803,7 @@ MonoBehaviour:
   - {x: 0.09169251, y: 0.75538754, z: -0.15498737}
   - {x: 0.13315442, y: 0.76671857, z: -0.139525}
   - {x: 0.09185484, y: 0.77210563, z: -0.15136248}
-  - {x: 0.16666524, y: 0.7469374, z: -0.1262799}
+  - {x: 0.16666523, y: 0.7469373, z: -0.12627989}
   - {x: 0.0910233, y: 0.7905798, z: -0.14506564}
   - {x: 0.046131637, y: 0.7903046, z: -0.1512869}
   - {x: 0.19448297, y: 0.7480795, z: -0.102497704}
@@ -3269,10 +2827,6 @@ MonoBehaviour:
   - {x: 0.15271923, y: 0.8094533, z: -0.10522438}
   - {x: 0.18118137, y: 0.8048394, z: -0.08706122}
   - {x: 0.175101, y: 0.8069722, z: -0.084598064}
-  - {x: 0.13784659, y: 0.71699214, z: 0.08173519}
-  - {x: 0.17687155, y: 0.68268335, z: 0.09300602}
-  - {x: 0.14018622, y: 0.7260271, z: 0.08616001}
-  - {x: 0.1768097, y: 0.733506, z: 0.061086386}
   - {x: 0.13756648, y: 0.74920815, z: 0.08469798}
   - {x: 0.17350452, y: 0.7550082, z: 0.06068065}
   - {x: 0.16975634, y: 0.7753486, z: 0.06024885}
@@ -3285,16 +2839,7 @@ MonoBehaviour:
   - {x: 0.088756196, y: 0.78103507, z: 0.09291369}
   - {x: 0.1604061, y: 0.79029924, z: 0.056849703}
   - {x: 0.15796144, y: 0.7890151, z: 0.05576592}
-  - {x: 0.09484155, y: 0.7104831, z: 0.101365365}
-  - {x: 0.04983816, y: 0.7040047, z: 0.115356535}
-  - {x: 0.0064359484, y: 0.7076935, z: 0.1232847}
-  - {x: 0.05314043, y: 0.7129001, z: 0.11738346}
-  - {x: 0.005228082, y: 0.7298816, z: 0.11933234}
-  - {x: 0.0984479, y: 0.7188997, z: 0.105257764}
-  - {x: 0.05110089, y: 0.7386572, z: 0.11594688}
-  - {x: 0.004368147, y: 0.75057, z: 0.11497306}
   - {x: 0.048499282, y: 0.76122147, z: 0.11270664}
-  - {x: 0.096127085, y: 0.7439669, z: 0.10307416}
   - {x: 0.013604309, y: 0.76233816, z: 0.113413684}
   - {x: 0.01041847, y: 0.7652857, z: 0.109709464}
   - {x: 0.0040358715, y: 0.758556, z: 0.11028508}
@@ -3304,17 +2849,10 @@ MonoBehaviour:
   - {x: 0.024822757, y: 0.77282715, z: 0.10813362}
   - {x: 0.046441194, y: 0.7745117, z: 0.10882203}
   - {x: 0.04432236, y: 0.7763346, z: 0.10512305}
-  - {x: -0.042170525, y: 0.7120293, z: 0.116887435}
-  - {x: -0.04232031, y: 0.73784626, z: 0.115675844}
   - {x: -0.041210473, y: 0.7604931, z: 0.11258851}
-  - {x: -0.08982441, y: 0.71704143, z: 0.10464272}
-  - {x: -0.08900618, y: 0.74226904, z: 0.10280476}
   - {x: -0.13223165, y: 0.7465955, z: 0.084742814}
   - {x: -0.08794049, y: 0.7649398, z: 0.099671155}
   - {x: -0.086394735, y: 0.7781524, z: 0.097018674}
-  - {x: -0.085687816, y: 0.70863086, z: 0.10072757}
-  - {x: -0.13418603, y: 0.723124, z: 0.08589015}
-  - {x: -0.13159113, y: 0.7140095, z: 0.08146751}
   - {x: -0.039939538, y: 0.77383476, z: 0.108780295}
   - {x: -0.08341236, y: 0.7796355, z: 0.093040146}
   - {x: -0.037999496, y: 0.77568316, z: 0.10511124}
@@ -3324,158 +2862,101 @@ MonoBehaviour:
   - {x: -0.0099508595, y: 0.76944286, z: 0.109083705}
   - {x: -0.006153341, y: 0.76217943, z: 0.113387875}
   - {x: -0.003252693, y: 0.7651764, z: 0.10969768}
-  - {x: -0.32249793, y: 0.26041684, z: 0.13899668}
-  - {x: -0.3438625, y: 0.2664173, z: 0.13646707}
-  - {x: -0.36522508, y: 0.27219254, z: 0.13329872}
-  - {x: -0.3866059, y: 0.27823168, z: 0.12966575}
-  - {x: -0.40834293, y: 0.28458327, z: 0.12548059}
-  - {x: -0.42973578, y: 0.29126152, z: 0.120632194}
-  - {x: -0.4500507, y: 0.29826912, z: 0.114832416}
-  - {x: -0.45014802, y: 0.36080194, z: 0.10291916}
-  - {x: -0.46155, y: 0.303048, z: 0.11112991}
-  - {x: -0.46994156, y: 0.30738315, z: 0.10828265}
-  - {x: -0.47632548, y: 0.3125611, z: 0.105482765}
-  - {x: -0.47958064, y: 0.31815967, z: 0.10318305}
-  - {x: -0.4802351, y: 0.32419264, z: 0.1014476}
-  - {x: -0.47863084, y: 0.33366352, z: 0.09880405}
-  - {x: -0.4731179, y: 0.34964204, z: 0.0950772}
-  - {x: -0.4621362, y: 0.37131667, z: 0.09013295}
-  - {x: -0.49545452, y: 0.37544104, z: 0.078065835}
-  - {x: -0.50693315, y: 0.4406921, z: 0.056053326}
-  - {x: -0.5235227, y: 0.37852255, z: 0.06477979}
-  - {x: -0.54695433, y: 0.38055652, z: 0.05005224}
-  - {x: -0.55494857, y: 0.44592556, z: 0.0068290867}
-  - {x: -0.56533396, y: 0.38111612, z: 0.033805165}
-  - {x: -0.5789459, y: 0.38064566, z: 0.015846202}
-  - {x: -0.58831966, y: 0.37829912, z: -0.0036004381}
-  - {x: -0.56343526, y: 0.43823487, z: -0.048704714}
-  - {x: -0.5932166, y: 0.3749418, z: -0.02397048}
-  - {x: -0.5942244, y: 0.37018505, z: -0.04438892}
-  - {x: -0.5920688, y: 0.36445606, z: -0.06463382}
-  - {x: -0.52310026, y: 0.5104788, z: -0.001228724}
-  - {x: -0.5411024, y: 0.42155173, z: -0.10293284}
-  - {x: -0.58633775, y: 0.3572653, z: -0.08450034}
-  - {x: -0.57821757, y: 0.34946892, z: -0.10401657}
-  - {x: -0.49472207, y: 0.4033639, z: -0.15432592}
-  - {x: -0.52595913, y: 0.5032037, z: -0.05133766}
-  - {x: -0.45253304, y: 0.5458473, z: -0.09293661}
-  - {x: -0.39766148, y: 0.59926456, z: -0.08479635}
-  - {x: -0.4977758, y: 0.48808226, z: -0.099627174}
-  - {x: -0.4511255, y: 0.46884894, z: -0.1462268}
   - {x: -0.43965575, y: 0.3786474, z: -0.20636573}
-  - {x: -0.5336865, y: 0.33435643, z: -0.15856898}
-  - {x: -0.47271279, y: 0.3121005, z: -0.21151283}
-  - {x: -0.40376574, y: 0.27787656, z: -0.26712623}
-  - {x: -0.4435015, y: 0.26450852, z: -0.24268176}
-  - {x: -0.4614618, y: 0.2745702, z: -0.22901757}
-  - {x: -0.42451677, y: 0.25378203, z: -0.25639918}
+  - {x: -0.4727128, y: 0.3121005, z: -0.21151283}
+  - {x: -0.40376574, y: 0.27787656, z: -0.26712626}
+  - {x: -0.44350153, y: 0.26450852, z: -0.24268176}
+  - {x: -0.46146178, y: 0.2745702, z: -0.22901757}
+  - {x: -0.42451677, y: 0.253782, z: -0.25639918}
   - {x: -0.47893536, y: 0.28454483, z: -0.21496426}
-  - {x: -0.4959479, y: 0.2944351, z: -0.20080969}
-  - {x: -0.51197076, y: 0.3038084, z: -0.18655895}
-  - {x: -0.5274553, y: 0.31327182, z: -0.17146577}
-  - {x: -0.54185694, y: 0.3223705, z: -0.15586002}
-  - {x: -0.5551436, y: 0.3315907, z: -0.1397064}
-  - {x: -0.40528417, y: 0.2430226, z: -0.2699981}
+  - {x: -0.49594793, y: 0.2944351, z: -0.20080969}
+  - {x: -0.51197076, y: 0.3038084, z: -0.18655893}
+  - {x: -0.40528417, y: 0.2430226, z: -0.26999813}
   - {x: -0.38511926, y: 0.23213583, z: -0.28358796}
   - {x: -0.36370295, y: 0.2211382, z: -0.2971663}
-  - {x: -0.32404837, y: 0.23647818, z: -0.3242033}
-  - {x: -0.34100395, y: 0.20978723, z: -0.3105194}
+  - {x: -0.3240484, y: 0.2364782, z: -0.32420334}
+  - {x: -0.34100395, y: 0.20978725, z: -0.31051943}
   - {x: -0.31634027, y: 0.19825286, z: -0.32386202}
   - {x: -0.28948247, y: 0.18637583, z: -0.33695877}
-  - {x: -0.26088718, y: 0.17399725, z: -0.35009822}
-  - {x: -0.21034849, y: 0.18672878, z: -0.38067713}
-  - {x: -0.23054558, y: 0.1604363, z: -0.3636209}
-  - {x: -0.19894807, y: 0.14637768, z: -0.3772356}
+  - {x: -0.26088718, y: 0.17399724, z: -0.3500982}
+  - {x: -0.2103485, y: 0.18672879, z: -0.38067716}
+  - {x: -0.23054557, y: 0.1604363, z: -0.3636209}
+  - {x: -0.19894806, y: 0.14637768, z: -0.37723556}
   - {x: -0.16585164, y: 0.13183504, z: -0.39122126}
-  - {x: -0.13117875, y: 0.11781425, z: -0.40489477}
-  - {x: -0.38147393, y: 0.34644103, z: -0.2629013}
+  - {x: -0.13117875, y: 0.11781426, z: -0.40489477}
+  - {x: -0.38147393, y: 0.34644103, z: -0.26290137}
   - {x: -0.062647514, y: 0.13238297, z: -0.44295478}
   - {x: -0.09376432, y: 0.10592904, z: -0.41930217}
   - {x: -0.05298365, y: 0.09628257, z: -0.43326434}
   - {x: -0.057376947, y: 0.20732151, z: -0.44266003}
-  - {x: -0.21195331, y: 0.25900808, z: -0.37803787}
-  - {x: -0.31755075, y: 0.30676752, z: -0.3213563}
+  - {x: -0.21195328, y: 0.25900805, z: -0.37803784}
+  - {x: -0.31755072, y: 0.30676752, z: -0.32135627}
   - {x: -0.34279838, y: 0.42003274, z: -0.24848065}
   - {x: -0.17927095, y: 0.3446302, z: -0.35776594}
   - {x: -0.037946485, y: 0.29948422, z: -0.41659933}
-  - {x: -0.015618284, y: 0.41465938, z: -0.37205446}
+  - {x: -0.015618285, y: 0.41465938, z: -0.37205446}
   - {x: -0.27769318, y: 0.38628882, z: -0.3030312}
-  - {x: -0.29635176, y: 0.48976743, z: -0.22669132}
-  - {x: -0.39839467, y: 0.4468889, z: -0.19482663}
+  - {x: -0.29635176, y: 0.4897675, z: -0.22669135}
+  - {x: -0.3983946, y: 0.4468889, z: -0.19482665}
   - {x: -0.13130543, y: 0.43764555, z: -0.32153744}
-  - {x: -0.35416356, y: 0.51046884, z: -0.17913882}
-  - {x: -0.40642986, y: 0.5286001, z: -0.13527994}
-  - {x: -0.31205988, y: 0.5716452, z: -0.16323608}
-  - {x: -0.35962945, y: 0.58535826, z: -0.12402007}
-  - {x: -0.3025618, y: 0.6394362, z: -0.113136284}
-  - {x: -0.261828, y: 0.6297174, z: -0.14715472}
-  - {x: -0.2551632, y: 0.55741113, z: -0.2024668}
-  - {x: -0.2119847, y: 0.62060505, z: -0.17909582}
-  - {x: -0.15109217, y: 0.6121695, z: -0.20645191}
-  - {x: -0.18482912, y: 0.5424247, z: -0.24011026}
-  - {x: -0.22515006, y: 0.46528572, z: -0.2732133}
+  - {x: -0.35416353, y: 0.51046884, z: -0.17913878}
+  - {x: -0.31205976, y: 0.57164526, z: -0.16323604}
+  - {x: -0.30256164, y: 0.63943636, z: -0.11313627}
+  - {x: -0.2618279, y: 0.6297174, z: -0.1471547}
+  - {x: -0.2551632, y: 0.5574111, z: -0.20246677}
+  - {x: -0.21198465, y: 0.6206051, z: -0.1790958}
+  - {x: -0.15109217, y: 0.61216956, z: -0.20645191}
+  - {x: -0.1848291, y: 0.5424247, z: -0.24011026}
+  - {x: -0.22515005, y: 0.46528572, z: -0.2732133}
   - {x: -0.099915326, y: 0.5291183, z: -0.2747934}
-  - {x: -0.07941813, y: 0.60631144, z: -0.22762705}
-  - {x: 0.0015047153, y: 0.5232168, z: -0.3042067}
-  - {x: -0.56727606, y: 0.3406171, z: -0.12232983}
+  - {x: -0.07941813, y: 0.6063115, z: -0.22762708}
+  - {x: 0.0015047154, y: 0.5232168, z: -0.3042067}
   - {x: -0.011117387, y: 0.089847945, z: -0.4463344}
   - {x: 0.031051347, y: 0.08448237, z: -0.4569364}
-  - {x: 0.107521676, y: 0.10948509, z: -0.48112914}
-  - {x: 0.071820274, y: 0.08064158, z: -0.46459404}
+  - {x: 0.10752166, y: 0.10948509, z: -0.48112914}
+  - {x: 0.071820274, y: 0.08064158, z: -0.46459407}
   - {x: 0.1122364, y: 0.0782294, z: -0.46720573}
   - {x: 0.15261286, y: 0.07864385, z: -0.46415594}
   - {x: 0.19395454, y: 0.08312172, z: -0.45480555}
   - {x: 0.23624533, y: 0.09209759, z: -0.43928996}
-  - {x: 0.2776654, y: 0.13016264, z: -0.42829219}
+  - {x: 0.27766544, y: 0.13016267, z: -0.42829224}
   - {x: 0.2781378, y: 0.106394626, z: -0.41857457}
   - {x: 0.31716037, y: 0.12555702, z: -0.3942676}
   - {x: 0.35253203, y: 0.14756091, z: -0.368298}
-  - {x: 0.41802022, y: 0.2186822, z: -0.31456557}
-  - {x: 0.38544983, y: 0.16967648, z: -0.34164265}
-  - {x: 0.4162163, y: 0.1901793, z: -0.31620553}
-  - {x: 0.4447451, y: 0.20912676, z: -0.29281905}
-  - {x: 0.47073954, y: 0.22751373, z: -0.27142295}
+  - {x: 0.4180202, y: 0.21868221, z: -0.3145656}
+  - {x: 0.38544983, y: 0.16967648, z: -0.34164268}
+  - {x: 0.41621628, y: 0.19017929, z: -0.31620553}
+  - {x: 0.4447451, y: 0.20912676, z: -0.29281908}
+  - {x: 0.47073954, y: 0.22751375, z: -0.27142298}
   - {x: 0.5084155, y: 0.2890232, z: -0.23096868}
-  - {x: 0.49251983, y: 0.24492778, z: -0.25221154}
+  - {x: 0.49251983, y: 0.2449278, z: -0.25221157}
   - {x: 0.5111385, y: 0.26219508, z: -0.2340796}
   - {x: 0.5274175, y: 0.2791157, z: -0.21690485}
   - {x: 0.541704, y: 0.29493034, z: -0.20038024}
-  - {x: 0.5603304, y: 0.3369134, z: -0.16967222}
-  - {x: 0.55501705, y: 0.31041032, z: -0.18342629}
-  - {x: 0.56720126, y: 0.32489738, z: -0.16625674}
-  - {x: 0.57839286, y: 0.33897036, z: -0.14871524}
-  - {x: 0.47938, y: 0.35470262, z: -0.22868752}
-  - {x: 0.40289778, y: 0.27778828, z: -0.312339}
+  - {x: 0.47938004, y: 0.35470268, z: -0.22868755}
+  - {x: 0.40289772, y: 0.27778828, z: -0.31233904}
   - {x: 0.42978966, y: 0.4353503, z: -0.22041886}
   - {x: 0.36963922, y: 0.37008214, z: -0.29481187}
   - {x: 0.27865884, y: 0.18846622, z: -0.4271471}
-  - {x: 0.28054166, y: 0.2994178, z: -0.39567593}
-  - {x: 0.116147056, y: 0.17587578, z: -0.47889927}
+  - {x: 0.28054166, y: 0.29941776, z: -0.3956759}
+  - {x: 0.11614706, y: 0.17587578, z: -0.47889927}
   - {x: 0.13941205, y: 0.26598495, z: -0.44755644}
-  - {x: 0.13343532, y: 0.40890446, z: -0.3950606}
-  - {x: 0.10875083, y: 0.5254947, z: -0.3144588}
-  - {x: 0.24406728, y: 0.4324372, z: -0.34540963}
-  - {x: 0.19440334, y: 0.5374894, z: -0.28523612}
-  - {x: 0.079417616, y: 0.6074538, z: -0.24508776}
-  - {x: 0.31539914, y: 0.47187307, z: -0.2696203}
+  - {x: 0.13343532, y: 0.4089045, z: -0.39506063}
+  - {x: 0.10875082, y: 0.52549464, z: -0.31445876}
+  - {x: 0.2440673, y: 0.4324372, z: -0.34540966}
+  - {x: 0.19440335, y: 0.5374894, z: -0.28523612}
+  - {x: 0.079417616, y: 0.6074539, z: -0.24508777}
+  - {x: 0.31539914, y: 0.47187313, z: -0.2696203}
   - {x: 0.2649745, y: 0.5574805, z: -0.23669364}
   - {x: 0.15194708, y: 0.61479926, z: -0.23151645}
-  - {x: 0.37528896, y: 0.512855, z: -0.20633398}
-  - {x: 0.58852524, y: 0.3524035, z: -0.12999725}
-  - {x: -0.24445419, y: 0.6877865, z: -0.10205}
-  - {x: -0.26914737, y: 0.69353217, z: -0.06953794}
-  - {x: -0.18805422, y: 0.7295956, z: -0.09028596}
-  - {x: -0.33215767, y: 0.64940864, z: -0.07670126}
-  - {x: -0.3462426, y: 0.6568576, z: -0.03768634}
-  - {x: -0.41186723, y: 0.6153833, z: 0.00024292055}
-  - {x: -0.20844568, y: 0.7318187, z: -0.06291959}
-  - {x: -0.21120037, y: 0.7425433, z: -0.066118814}
-  - {x: -0.28013706, y: 0.6979451, z: -0.03427502}
-  - {x: -0.33945566, y: 0.6589457, z: 0.0022201145}
-  - {x: -0.2180126, y: 0.7328438, z: -0.03347921}
-  - {x: -0.21610145, y: 0.73108345, z: -0.0002953898}
-  - {x: -0.21889359, y: 0.74235487, z: -0.03333404}
-  - {x: -0.21695381, y: 0.740057, z: 0.00038957715}
+  - {x: 0.375289, y: 0.512855, z: -0.20633398}
+  - {x: -0.24445404, y: 0.68778664, z: -0.10205001}
+  - {x: -0.18805416, y: 0.7295958, z: -0.09028599}
+  - {x: -0.20844562, y: 0.7318187, z: -0.06291961}
+  - {x: -0.21120036, y: 0.7425433, z: -0.066118814}
+  - {x: -0.21801256, y: 0.7328438, z: -0.033479225}
+  - {x: -0.2188936, y: 0.74235487, z: -0.033334047}
+  - {x: -0.2169538, y: 0.740057, z: 0.00038956717}
   - {x: -0.20948245, y: 0.76199275, z: -0.06324267}
   - {x: -0.19155604, y: 0.7622842, z: -0.09217881}
   - {x: -0.2180589, y: 0.7610768, z: -0.030612841}
@@ -3492,21 +2973,12 @@ MonoBehaviour:
   - {x: -0.19000864, y: 0.79475605, z: 0.0049087144}
   - {x: -0.1933579, y: 0.7975269, z: -0.024393637}
   - {x: -0.18758012, y: 0.80031735, z: -0.054145258}
-  - {x: -0.31174904, y: 0.6543441, z: 0.039565675}
-  - {x: -0.26756424, y: 0.6456999, z: 0.0726203}
-  - {x: -0.21598302, y: 0.6858759, z: 0.06559446}
-  - {x: -0.25237277, y: 0.69322693, z: 0.035820354}
-  - {x: -0.17067805, y: 0.7199304, z: 0.058354337}
-  - {x: -0.27468067, y: 0.69813114, z: 0.0019676557}
-  - {x: -0.20007478, y: 0.72671753, z: 0.03118931}
-  - {x: -0.20134385, y: 0.73602813, z: 0.03281085}
+  - {x: -0.20134382, y: 0.73602825, z: 0.032810833}
   - {x: -0.1996947, y: 0.7562093, z: 0.03372794}
-  - {x: -0.17297418, y: 0.72958386, z: 0.06156727}
   - {x: -0.19387624, y: 0.77642024, z: 0.034527287}
   - {x: -0.18777944, y: 0.78610164, z: 0.034350745}
   - {x: -0.18304254, y: 0.7898755, z: 0.033525355}
   - {x: -0.1769224, y: 0.7911228, z: 0.032221057}
-  - {x: -0.17039582, y: 0.6785216, z: 0.09135132}
   - {x: -0.16973235, y: 0.75150084, z: 0.061353467}
   - {x: -0.1662309, y: 0.77222615, z: 0.061025884}
   - {x: -0.13067833, y: 0.7685364, z: 0.08288573}
@@ -3528,9 +3000,9 @@ MonoBehaviour:
   - {x: 0.04474065, y: 0.7290235, z: -0.15511109}
   - {x: -0.00010465151, y: 0.7280925, z: -0.15474166}
   - {x: -0.0005616719, y: 0.6709029, z: -0.19301717}
-  - {x: 0.1164309, y: 0.676476, z: -0.1879508}
+  - {x: 0.1164309, y: 0.67647606, z: -0.1879508}
   - {x: 0.059266392, y: 0.6723306, z: -0.19512258}
-  - {x: 0.000026094762, y: 0.6055078, z: -0.2412178}
+  - {x: 0.000026094764, y: 0.60550785, z: -0.24121784}
   - {x: -0.044610612, y: 0.8088192, z: -0.13964784}
   - {x: -0.045192763, y: 0.8037728, z: -0.14293945}
   - {x: -0.045939397, y: 0.7892056, z: -0.14892268}
@@ -3541,10 +3013,10 @@ MonoBehaviour:
   - {x: -0.09158743, y: 0.7528485, z: -0.14910021}
   - {x: -0.09100079, y: 0.74150765, z: -0.14891452}
   - {x: -0.045362536, y: 0.7276404, z: -0.15129133}
-  - {x: -0.08879701, y: 0.727821, z: -0.14355122}
-  - {x: -0.060801998, y: 0.6705156, z: -0.18686162}
-  - {x: -0.11744833, y: 0.6729151, z: -0.1744448}
-  - {x: -0.16751575, y: 0.6768861, z: -0.15499972}
+  - {x: -0.08879701, y: 0.72782093, z: -0.14355122}
+  - {x: -0.060802005, y: 0.6705156, z: -0.18686162}
+  - {x: -0.117448315, y: 0.67291504, z: -0.17444478}
+  - {x: -0.1675157, y: 0.67688614, z: -0.15499972}
   - {x: -0.043558896, y: 0.8116929, z: -0.13533795}
   - {x: -0.08704591, y: 0.80757624, z: -0.13201591}
   - {x: -0.084984645, y: 0.81044704, z: -0.12780175}
@@ -3565,11 +3037,11 @@ MonoBehaviour:
   - {x: -0.18851635, y: 0.78454834, z: -0.08807173}
   - {x: -0.16537096, y: 0.763026, z: -0.11483363}
   - {x: -0.13176852, y: 0.7418535, z: -0.13571079}
-  - {x: -0.1653892, y: 0.74220204, z: -0.11813598}
-  - {x: -0.12739286, y: 0.7277486, z: -0.13063048}
+  - {x: -0.16538918, y: 0.7422019, z: -0.11813597}
+  - {x: -0.12739284, y: 0.7277485, z: -0.13063048}
   - {x: -0.19263127, y: 0.74258393, z: -0.094985135}
-  - {x: -0.16025096, y: 0.7282201, z: -0.112822995}
-  - {x: -0.20967402, y: 0.6819244, z: -0.13038476}
+  - {x: -0.16025095, y: 0.7282201, z: -0.112822995}
+  - {x: -0.2096739, y: 0.6819245, z: -0.13038476}
   - {x: 0.009101514, y: 0.6771633, z: 0.14541847}
   - {x: -0.0048692334, y: 0.6715833, z: 0.12719259}
   - {x: 0.0088248355, y: 0.6707166, z: 0.12779373}
@@ -3619,179 +3091,110 @@ MonoBehaviour:
   - {x: 0.034006257, y: 0.68165696, z: 0.14437252}
   - {x: 0.03384401, y: 0.6752214, z: 0.1260407}
   - {x: 0.04377617, y: 0.68684816, z: 0.1427455}
-  - {x: 0.19340113, y: 0.3016048, z: 0.20258135}
-  - {x: 0.16919014, y: 0.37882468, z: 0.2108599}
-  - {x: 0.11578664, y: 0.4653856, z: 0.21588765}
-  - {x: 0.06649293, y: 0.5382113, z: 0.20310132}
-  - {x: 0.035682634, y: 0.5896573, z: 0.1806036}
-  - {x: 0.019028394, y: 0.6272789, z: 0.15925404}
-  - {x: 0.1632012, y: 0.23236713, z: 0.21800052}
+  - {x: 0.20815375, y: 0.73356247, z: 0.017533224}
+  - {x: 0.22816426, y: 0.73125833, z: -0.0028975937}
+  - {x: 0.2368741, y: 0.7286872, z: -0.02643936}
+  - {x: 0.20556118, y: 0.734256, z: 0.023638701}
+  - {x: 0.20301819, y: 0.7349932, z: 0.030163016}
+  - {x: 0.19558546, y: 0.7360493, z: 0.038793653}
+  - {x: 0.32759184, y: 0.64348286, z: -0.11923366}
+  - {x: 0.31330314, y: 0.6552885, z: -0.114033}
+  - {x: 0.3712317, y: 0.6035724, z: -0.13511728}
+  - {x: 0.2803765, y: 0.68283767, z: -0.10204869}
+  - {x: 0.25856933, y: 0.6998058, z: -0.09411152}
+  - {x: 0.23658001, y: 0.7162525, z: -0.086108066}
+  - {x: 0.23711939, y: 0.7220906, z: -0.07308851}
+  - {x: 0.23962747, y: 0.7249074, z: -0.056721427}
+  - {x: 0.24178582, y: 0.7273164, z: -0.03870991}
+  - {x: 0.1898272, y: 0.73702556, z: 0.046755623}
+  - {x: 0.1812951, y: 0.7382413, z: 0.05602132}
+  - {x: 0.15858313, y: 0.7407989, z: 0.07205279}
+  - {x: 0.13824281, y: 0.7432235, z: 0.08507543}
+  - {x: 0.17597494, y: 0.73893654, z: 0.060983896}
+  - {x: 0.027784934, y: 0.7562219, z: 0.113770455}
+  - {x: 0.049354106, y: 0.7538073, z: 0.11377131}
+  - {x: 0.07933881, y: 0.7500488, z: 0.1064695}
+  - {x: 0.11268718, y: 0.74606144, z: 0.09573063}
+  - {x: 0.09572653, y: 0.748124, z: 0.102452554}
+  - {x: 0.010011684, y: 0.75776064, z: 0.11402024}
+  - {x: 0.0073771086, y: 0.75788844, z: 0.11235536}
+  - {x: 0.0040588295, y: 0.75800425, z: 0.11060899}
+  - {x: -0.023559289, y: 0.7566502, z: 0.11351197}
+  - {x: -0.041495074, y: 0.7546856, z: 0.11338023}
+  - {x: -0.1179673, y: 0.7451678, z: 0.090703234}
+  - {x: -0.12849894, y: 0.7439941, z: 0.086494416}
+  - {x: -0.065499835, y: 0.75161237, z: 0.10754389}
+  - {x: -0.08870188, y: 0.7487422, z: 0.101910025}
+  - {x: -0.0024021387, y: 0.75804037, z: 0.11395304}
+  - {x: 0.00046151475, y: 0.7580576, z: 0.11226877}
+  - {x: -0.44792077, y: 0.44364634, z: -0.16302979}
+  - {x: -0.47505978, y: 0.3945385, z: -0.17290758}
+  - {x: -0.4927857, y: 0.35362178, z: -0.17935927}
+  - {x: -0.50473446, y: 0.32378864, z: -0.18370825}
+  - {x: -0.4371483, y: 0.46302807, z: -0.15910892}
+  - {x: -0.425579, y: 0.4798145, z: -0.15489806}
+  - {x: -0.3959167, y: 0.5249531, z: -0.14410186}
+  - {x: -0.38727155, y: 0.53733885, z: -0.1409553}
+  - {x: -0.35384458, y: 0.5836908, z: -0.12878887}
+  - {x: -0.307113, y: 0.6375138, z: -0.11177996}
+  - {x: -0.31995153, y: 0.6229575, z: -0.11645281}
+  - {x: -0.34818193, y: 0.59055054, z: -0.12672785}
+  - {x: 0.53814375, y: 0.31644672, z: -0.19586824}
+  - {x: 0.543302, y: 0.29853216, z: -0.19774573}
+  - {x: 0.5436681, y: 0.29721415, z: -0.19787897}
+  - {x: 0.5289751, y: 0.34380388, z: -0.19253118}
+  - {x: 0.51028776, y: 0.39558837, z: -0.18572952}
+  - {x: 0.49896657, y: 0.41823003, z: -0.18160893}
+  - {x: 0.46864268, y: 0.4776664, z: -0.17057195}
+  - {x: 0.46215343, y: 0.48801044, z: -0.16821006}
+  - {x: 0.4234184, y: 0.54597825, z: -0.15411167}
+  - {x: 0.42255664, y: 0.5471102, z: -0.153798}
+  - {x: 0.41635698, y: 0.55414665, z: -0.1515415}
+  - {x: 0.37684608, y: 0.59837174, z: -0.13716073}
+  - {x: -0.2993592, y: 0.64462095, z: -0.10895781}
+  - {x: -0.25223458, y: 0.6895971, z: -0.09180586}
+  - {x: -0.22328976, y: 0.7139259, z: -0.0812708}
+  - {x: -0.3044505, y: 0.6400728, z: -0.1108109}
+  - {x: -0.22255723, y: 0.7229181, z: -0.064458214}
+  - {x: -0.22567038, y: 0.7269566, z: -0.038879298}
+  - {x: -0.22722045, y: 0.7276713, z: -0.03359718}
+  - {x: -0.21625799, y: 0.73122776, z: -0.0030139082}
+  - {x: -0.21618582, y: 0.7314242, z: -0.001293994}
+  - {x: -0.21614492, y: 0.73154163, z: -0.00026043958}
+  - {x: -0.20849463, y: 0.7333717, z: 0.01582522}
+  - {x: -0.20019503, y: 0.7354252, z: 0.03376772}
+  - {x: -0.20124336, y: 0.7352912, z: 0.03268248}
+  - {x: -0.19928905, y: 0.7355614, z: 0.034893587}
+  - {x: -0.18132922, y: 0.73790926, z: 0.05286234}
+  - {x: -0.15627854, y: 0.74076056, z: 0.07064024}
+  - {x: -0.17155923, y: 0.7391497, z: 0.06147394}
+  - {x: -0.13248372, y: 0.74356824, z: 0.08489079}
+  - {x: -0.09751685, y: 0.7476336, z: 0.098736696}
   freedomWeights:
-  - 0.23039551
-  - 0.21826515
-  - 0.13680142
-  - 0
-  - 0
-  - 0
-  - 0.09433311
-  - 0.07660963
-  - 0.19134492
-  - 0.7392861
-  - 0.86472964
-  - 0.8552844
-  - 0.845155
-  - 0.69394875
-  - 0.8350552
-  - 0.8240323
-  - 0.81192535
-  - 0.798621
-  - 0.78403956
-  - 0.6446674
-  - 0.7738038
-  - 0.7643811
-  - 0.7530055
-  - 0.7405925
-  - 0.727108
-  - 0.70559597
-  - 0.66855
-  - 0.6172811
-  - 0.48964337
-  - 0.6031601
-  - 0.4390803
-  - 0.591428
-  - 0.5825031
-  - 0.40708894
-  - 0.57783896
-  - 0.57654035
-  - 0.5810929
-  - 0.41877156
-  - 0.58936733
-  - 0.6026661
-  - 0.61983263
-  - 0.26733586
-  - 0.29835376
-  - 0.27179644
-  - 0.47521323
-  - 0.6418407
-  - 0.66638744
-  - 0.5597132
-  - 0.31489474
-  - 0.39325964
-  - 0.17671858
-  - 0.17410928
-  - 0.20589994
-  - 0.2577111
-  - 0.12397544
-  - 0.8735659
-  - 0.78067315
-  - 0.8818213
-  - 0.88933164
-  - 0.89605176
-  - 0.9018203
-  - 0.9061057
-  - 0.58172506
-  - 0.9090624
-  - 0.9115124
-  - 0.6225337
-  - 0.44121456
-  - 0.53908455
-  - 0.34361467
-  - 0.4180436
-  - 0.28871986
-  - 0.385606
-  - 0.2815449
-  - 0.18092753
-  - 0.10734279
-  - 0.060701203
-  - 0.05584114
-  - 0.027005123
-  - 0.048372645
-  - 0.17671272
-  - 0.10030246
-  - 0.08862245
-  - 0.16118388
-  - 0.13908714
-  - 0.2596683
-  - 0.2277218
-  - 0.19489384
-  - 0.7979332
-  - 0.91296536
-  - 0.91367316
-  - 0.79123366
-  - 0.9125042
-  - 0.90894324
-  - 0.90354264
-  - 0.8966799
-  - 0.88873476
-  - 0.6134219
-  - 0.6359986
-  - 0.7591597
-  - 0.88007355
-  - 0.59816766
-  - 0.4187466
-  - 0.43678185
-  - 0.5665295
-  - 0.7180915
-  - 0.5267726
-  - 0.4278261
-  - 0.4100951
-  - 0.2740134
-  - 0.27503935
-  - 0.28849435
-  - 0.17741871
-  - 0.17399693
-  - 0.37689865
-  - 0.3463095
-  - 0.22751264
-  - 0.25227368
-  - 0.13765058
-  - 0.15549314
-  - 0.27826878
-  - 0.17393285
-  - 0.09649106
-  - 0.18283689
-  - 0.10495712
-  - 0.051158987
-  - 0.10808692
-  - 0.11105307
-  - 0.05699451
-  - 0.022742312
-  - 0.05353895
-  - 0.019867858
-  - 0.020393511
-  - 0.061345138
-  - 0.11740166
-  - 0.104361616
-  - 0.0538998
-  - 0.10615153
-  - 0.074527785
-  - 0.03243717
-  - 0.025068501
-  - 0.0060666623
-  - 0.0041746786
-  - 0.003476995
-  - 0.0017299771
-  - 0.0029203598
-  - 0.009576151
   - 0
-  - 0.0000031639697
   - 0
   - 0
+  - 0.09433333
+  - 0.07660966
+  - 0.19134507
+  - 0.0041747363
+  - 0.0034770828
+  - 0.0017300139
+  - 0.0029204243
   - 0
+  - 0.0000031655854
   - 0
   - 0
-  - 0.062119804
-  - 0.15340881
-  - 0.028234
-  - 0.034712125
-  - 0.022997344
-  - 0.0047194054
-  - 0.003805252
-  - 0.0011516084
-  - 0.0011924763
   - 0
   - 0
   - 0
+  - 0.15340886
+  - 0.02823399
+  - 0.034712154
+  - 0.0047194227
+  - 0.0038053265
+  - 0.0011516389
+  - 0.0011925182
   - 0
   - 0
   - 0
@@ -3799,23 +3202,23 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.041212175
-  - 0.11318705
-  - 0.0055318377
-  - 0.00610877
-  - 0.0065569375
-  - 0.0020567628
-  - 0.0017162772
-  - 0.0002426663
   - 0
   - 0
-  - 0.00144316
   - 0
+  - 0.04121234
+  - 0.11318708
+  - 0.0055319243
+  - 0.0061088367
+  - 0.0065570064
+  - 0.0020568033
+  - 0.0017163143
+  - 0.00024268038
   - 0
-  - 0.0012230114
   - 0
+  - 0.0014432181
   - 0
   - 0
+  - 0.0012230428
   - 0
   - 0
   - 0
@@ -3833,15 +3236,11 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.013407857
-  - 0.040711984
-  - 0.008572086
-  - 0.0053582103
-  - 0.0010231094
-  - 0.00027516313
   - 0
   - 0
   - 0
+  - 0.0010231382
+  - 0.00027517808
   - 0
   - 0
   - 0
@@ -3849,37 +3248,21 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.017520882
-  - 0.022123978
-  - 0.019441348
-  - 0.015933035
-  - 0.006825121
-  - 0.012301463
-  - 0.0035707587
-  - 0.00080537086
   - 0
-  - 0.002099463
   - 0
   - 0
-  - 0.00005074086
   - 0
   - 0
   - 0
+  - 0.00005074753
   - 0
   - 0
   - 0
-  - 0.016496923
-  - 0.003828788
-  - 0.0000037666443
-  - 0.013378702
-  - 0.002528549
-  - 0.0015125492
   - 0
   - 0
-  - 0.018785581
-  - 0.01001352
-  - 0.015228078
   - 0
+  - 0.0000037684083
+  - 0.0015125842
   - 0
   - 0
   - 0
@@ -3888,100 +3271,58 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.87081355
-  - 0.860956
-  - 0.85120887
-  - 0.8407534
-  - 0.8294775
-  - 0.817325
-  - 0.8042603
-  - 0.67595154
-  - 0.7951748
-  - 0.78681415
-  - 0.7766854
-  - 0.7655657
-  - 0.75339633
-  - 0.73392415
-  - 0.7001481
-  - 0.65276134
-  - 0.6435725
-  - 0.4939452
-  - 0.63667613
-  - 0.6321101
-  - 0.48180172
-  - 0.6308521
-  - 0.63190985
-  - 0.637177
-  - 0.49964836
-  - 0.6446874
-  - 0.65527385
-  - 0.66793287
-  - 0.33478037
-  - 0.53833675
-  - 0.6836689
-  - 0.7005197
-  - 0.58027434
-  - 0.35090074
-  - 0.25915083
-  - 0.15692227
-  - 0.3848778
-  - 0.4288083
-  - 0.63639617
-  - 0.7324828
-  - 0.77759254
-  - 0.84137547
-  - 0.864122
-  - 0.84712404
-  - 0.8813817
-  - 0.8295465
-  - 0.811447
-  - 0.79371643
-  - 0.7752833
-  - 0.7570917
-  - 0.7382228
-  - 0.8977472
-  - 0.91328436
-  - 0.9278778
-  - 0.9072141
-  - 0.9417161
+  - 0
+  - 0
+  - 0
+  - 0.6363964
+  - 0.7775928
+  - 0.8413756
+  - 0.8641222
+  - 0.84712416
+  - 0.8813818
+  - 0.8295467
+  - 0.8114472
+  - 0.79371667
+  - 0.89774734
+  - 0.9132845
+  - 0.927878
+  - 0.90721416
+  - 0.9417162
   - 0.95443815
-  - 0.966055
-  - 0.9764813
-  - 0.96573216
+  - 0.96605504
+  - 0.9764814
+  - 0.9657322
   - 0.98583555
-  - 0.9931351
+  - 0.9931352
   - 0.9979876
   - 0.99994123
-  - 0.7070008
+  - 0.7070009
   - 0.99785614
   - 1
   - 1
-  - 0.9445515
-  - 0.87308687
-  - 0.7880082
-  - 0.54185224
-  - 0.71085894
-  - 0.8019634
-  - 0.55427223
-  - 0.61918646
-  - 0.38106337
-  - 0.4795673
-  - 0.5010162
-  - 0.3348023
-  - 0.2954042
-  - 0.20765446
-  - 0.18184127
-  - 0.09314395
-  - 0.10735865
-  - 0.23562792
-  - 0.12141813
-  - 0.13503468
-  - 0.26623902
-  - 0.43701202
-  - 0.29429638
-  - 0.14481631
-  - 0.3069757
-  - 0.7193603
+  - 0.94455165
+  - 0.87308717
+  - 0.7880085
+  - 0.54185253
+  - 0.7108591
+  - 0.8019637
+  - 0.55427253
+  - 0.6191868
+  - 0.3810635
+  - 0.47956753
+  - 0.5010164
+  - 0.3348026
+  - 0.20765461
+  - 0.0931439
+  - 0.10735888
+  - 0.23562828
+  - 0.12141827
+  - 0.13503483
+  - 0.26623935
+  - 0.43701226
+  - 0.29429668
+  - 0.14481646
+  - 0.30697596
   - 1
   - 1
   - 1
@@ -3995,55 +3336,43 @@ MonoBehaviour:
   - 0.9992006
   - 0.9926179
   - 0.93097967
-  - 0.9797014
-  - 0.9625031
-  - 0.9424817
-  - 0.9195561
-  - 0.8214312
-  - 0.8949209
-  - 0.8679215
-  - 0.8392009
-  - 0.81052405
-  - 0.72714454
-  - 0.7809112
-  - 0.75196254
-  - 0.72282887
-  - 0.68923295
-  - 0.84152997
-  - 0.50634336
-  - 0.65550214
-  - 0.96412265
-  - 0.8020892
-  - 0.9750127
-  - 0.86167556
-  - 0.5675407
-  - 0.30206552
-  - 0.5131035
-  - 0.27655512
-  - 0.14288838
-  - 0.4218593
-  - 0.23548886
-  - 0.13072944
-  - 0.3295512
-  - 0.694204
-  - 0.035796825
-  - 0.030609138
-  - 0.0069481465
-  - 0.079437494
-  - 0.06980657
-  - 0.12978059
-  - 0.0060197925
-  - 0.0024565961
-  - 0.026878843
-  - 0.0672029
-  - 0.0056134057
-  - 0.006319704
-  - 0.0025059192
-  - 0.0031460351
+  - 0.97970146
+  - 0.96250314
+  - 0.9424818
+  - 0.9195562
+  - 0.8214313
+  - 0.894921
+  - 0.8679216
+  - 0.83920103
+  - 0.81052417
+  - 0.689233
+  - 0.8415301
+  - 0.50634354
+  - 0.6555023
+  - 0.9641228
+  - 0.8020895
+  - 0.97501284
+  - 0.86167574
+  - 0.5675409
+  - 0.30206597
+  - 0.5131038
+  - 0.27655542
+  - 0.14288853
+  - 0.4218595
+  - 0.23548912
+  - 0.13072969
+  - 0.3295515
+  - 0.035796855
+  - 0.006948143
+  - 0.0060198586
+  - 0.002456639
+  - 0.0056134695
+  - 0.002505964
+  - 0.0031460852
   - 0
   - 0
-  - 0.00000014220461
-  - 0.000026170399
+  - 0.00000014254765
+  - 0.000026175194
   - 0
   - 0
   - 0
@@ -4056,22 +3385,13 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.07299694
-  - 0.0844281
-  - 0.037603516
-  - 0.030875374
-  - 0.011722558
-  - 0.02672651
-  - 0.008245095
-  - 0.004439118
-  - 0.00017923002
-  - 0.0069532213
+  - 0.0044391328
+  - 0.00017924212
   - 0
   - 0
   - 0
   - 0
-  - 0.044930354
-  - 0.00067136093
+  - 0.0006713843
   - 0
   - 0
   - 0
@@ -4085,30 +3405,30 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.00033203574
-  - 0.0004295075
-  - 0.0023153673
-  - 0.0025638994
-  - 0.0071974318
-  - 0.007612171
-  - 0.05312999
-  - 0.047071785
-  - 0.05154706
-  - 0.14617845
+  - 0.00033205215
+  - 0.00042952615
+  - 0.0023154102
+  - 0.0025639446
+  - 0.007197506
+  - 0.007612245
+  - 0.05313016
+  - 0.047071896
+  - 0.05154725
+  - 0.1461786
   - 0
   - 0
   - 0
   - 0
-  - 0.00047058178
+  - 0.00047060137
   - 0
-  - 0.0026697277
-  - 0.000498745
-  - 0.0027336443
-  - 0.007817599
-  - 0.00773522
-  - 0.053563043
-  - 0.050905157
-  - 0.046638913
+  - 0.0026697735
+  - 0.00049876515
+  - 0.0027336911
+  - 0.007817674
+  - 0.0077353218
+  - 0.053563226
+  - 0.0509054
+  - 0.04663903
   - 0
   - 0
   - 0
@@ -4128,12 +3448,12 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.0026395188
-  - 0.0025462813
-  - 0.007768202
-  - 0.002446016
-  - 0.0075546606
-  - 0.041467298
+  - 0.0026395645
+  - 0.0025463565
+  - 0.007768304
+  - 0.00244606
+  - 0.007554737
+  - 0.04146734
   - 0
   - 0
   - 0
@@ -4183,13 +3503,85 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  - 0.7979332
-  - 0.6359986
-  - 0.43678185
-  - 0.27503935
-  - 0.17399693
-  - 0.11105307
-  - 0.91296536
+  - 0.0053367885
+  - 0.0062477947
+  - 0.0073460196
+  - 0.0050762
+  - 0.0048061633
+  - 0.004431819
+  - 0.08747245
+  - 0.071791224
+  - 0.14947869
+  - 0.040559325
+  - 0.025373342
+  - 0.013849099
+  - 0.010552563
+  - 0.009115392
+  - 0.007966519
+  - 0.0040989076
+  - 0.0037020398
+  - 0.002931639
+  - 0.0022825666
+  - 0.0034839506
+  - 0.00017834519
+  - 0.00039142108
+  - 0.00088569004
+  - 0.0016241835
+  - 0.0012148242
+  - 0.00008553716
+  - 0.00007934072
+  - 0.000073925614
+  - 0.0001491413
+  - 0.00030441492
+  - 0.0018196562
+  - 0.0020929377
+  - 0.0006561375
+  - 0.0011035295
+  - 0.00007227582
+  - 0.00007149534
+  - 0.48708978
+  - 0.6004569
+  - 0.69157255
+  - 0.75421727
+  - 0.44221818
+  - 0.40368012
+  - 0.30323136
+  - 0.27687183
+  - 0.18491681
+  - 0.095890045
+  - 0.11772286
+  - 0.17238285
+  - 0.7689862
+  - 0.8037641
+  - 0.80624723
+  - 0.7126152
+  - 0.5980632
+  - 0.5460223
+  - 0.4085869
+  - 0.38504082
+  - 0.25888106
+  - 0.25654975
+  - 0.24219984
+  - 0.15848203
+  - 0.085904166
+  - 0.0341223
+  - 0.01528079
+  - 0.09224209
+  - 0.010119927
+  - 0.008133375
+  - 0.007803533
+  - 0.0062603503
+  - 0.0061798915
+  - 0.006132042
+  - 0.005409583
+  - 0.0046512675
+  - 0.0046990514
+  - 0.00460294
+  - 0.00380848
+  - 0.0029425353
+  - 0.003418383
+  - 0.0021967357
+  - 0.0013068608
   secondaryMotion: {fileID: 8783843776925584538}
   floorCollision: {fileID: 0}
   flowUpper:
@@ -4300,351 +3692,31 @@ MonoBehaviour:
   - {x: -0.19962527, y: 0.3216399, z: 0.19396606}
   - {x: -0.23735188, y: 0.23725817, z: 0.18380569}
   guideSegments: 6
-  guideEdgeVertices: 000000000100000001000000020000000000000002000000030000000400000004000000050000000300000005000000060000000700000007000000080000000600000008000000090000000a0000000a0000000b000000090000000b0000000b0000000c000000090000000c000000090000000d0000000c0000000d0000000c0000000e0000000d0000000e0000000e0000000f0000000d0000000f0000000f000000100000000d0000001000000010000000110000000d0000001100000011000000120000000d0000001200000012000000130000000d00000013000000130000001400000012000000140000001400000015000000130000001500000015000000160000001300000016000000160000001700000013000000170000001700000018000000130000001800000018000000190000001300000019000000190000001a000000130000001a0000001a0000001b000000130000001b0000000d0000001c000000130000001c0000001b0000001c0000001b0000001d0000001c0000001d0000001d0000001e0000001c0000001e0000001d0000001f0000001e0000001f0000001e000000200000001f0000002000000020000000210000001e000000210000002000000022000000210000002200000022000000230000002100000023000000230000002400000021000000240000002400000025000000210000002500000024000000260000002500000026000000260000002700000025000000270000002700000028000000250000002800000021000000290000001e00000029000000290000002a0000001e0000002a000000210000002b000000290000002b000000250000002b000000250000002c000000280000002c000000280000002d0000002c0000002d0000002d0000002e0000002c0000002e0000002e0000002f0000002c0000002f0000002c0000003000000025000000300000002b000000300000002c0000003100000030000000310000002b0000003200000029000000320000003200000033000000290000003300000030000000340000002b000000340000003200000034000000300000003500000034000000350000003400000036000000320000003600000009000000380000000a00000038000000090000003a000000380000003a0000003a0000003b000000380000003b0000003a0000003c0000003b0000003c0000003a0000003d0000003c0000003d0000003a0000003e0000003d0000003e0000003a0000003f0000003e0000003f00000009000000400000003a000000400000000d000000400000003a0000000f0300003f0000000f030000420000000f0300003f00000042000000430000000f03000042000000430000003a00000044000000440000000f030000400000004400000044000000100300000f03000010030000440000001103000010030000110300004400000045000000450000001103000040000000450000004500000012030000110300001203000040000000460000000d000000460000001c000000460000001c0000004800000046000000480000001e000000480000002a00000048000000400000004b000000450000004b000000460000004b000000450000004c0000004c000000120300004b0000004c0000004c000000130300001203000013030000460000004d0000004b0000004d000000480000004d0000004b0000004e0000004c0000004e0000004d0000004e0000004c0000004f0000004f000000130300004e0000004f0000004f0000001403000013030000140300004f000000500000005000000014030000500000005100000051000000140300005000000052000000510000005200000052000000530000005100000053000000500000005400000052000000540000004f0000005500000050000000550000004e00000055000000500000005600000054000000560000005500000056000000560000005700000054000000570000005500000057000000550000005800000057000000580000004e00000058000000580000005900000057000000590000004d0000005a0000004e0000005a000000580000005a000000590000005a000000480000005a0000005a0000005b000000590000005b000000480000005b0000005b0000005c000000590000005c000000480000005c0000002a0000005c000000290000005c0000000f0300001603000043000000160300005e000000610000005f000000610000005e0000005f0000005e00000062000000610000006200000062000000630000006100000063000000620000006400000063000000640000006200000065000000640000006500000062000000660000006500000066000000620000006700000066000000670000005e0000006800000062000000680000005e000000690000006800000069000000620000006a000000670000006a0000006a0000006b000000670000006b0000006a0000006c000000620000006c000000680000006c000000690000006d000000680000006d000000690000006e0000006d0000006e0000006c0000006f0000006a0000006f0000006f000000700000006a000000700000006f00000071000000700000007100000068000000720000006c000000720000006d000000720000006c000000730000006f00000073000000710000007300000072000000730000006e000000740000006d000000740000006e0000007500000074000000750000006d0000007600000072000000760000007400000076000000750000007700000074000000770000007500000078000000770000007800000073000000790000007100000079000000790000007a000000710000007a000000790000007b0000007a0000007b000000790000007c0000007b0000007c000000730000007c0000007c0000007d0000007b0000007d0000007c0000007e0000007d0000007e000000720000007f000000730000007f0000007c0000007f0000007e0000007f000000760000007f0000007f000000800000007e00000080000000760000008000000080000000810000007e00000081000000760000008200000080000000820000008100000082000000740000008200000077000000820000008100000083000000820000008300000077000000830000008300000084000000810000008400000083000000850000007700000085000000840000008500000078000000850000007800000086000000850000008600000085000000870000008400000087000000860000008700000051000000860000005100000087000000510000008900000087000000890000008a0000008b0000008b0000008c0000008a0000008c0000008a0000008d0000008c0000008d0000008d0000008e0000008a0000008e0000008e0000008f0000008a0000008f0000008f000000900000008a000000900000005c0000008e0000005c0000008f000000330000005c000000330000008f00000033000000930000008f00000093000000590000008e0000008e0000009600000059000000960000008d000000960000005700000096000000960000009800000057000000980000008d000000980000008d0000009900000098000000990000008c00000099000000990000009a000000980000009a0000008c0000009a0000009a0000009b0000008c0000009b0000008c0000009c0000009b0000009c0000009b0000009d0000009a0000009d0000009d0000009e0000009a0000009e0000009e0000009f0000009a0000009f0000009d000000a00000009e000000a0000000a0000000a10000009e000000a1000000a0000000a2000000a1000000a2000000a2000000a3000000a1000000a3000000a2000000a4000000a3000000a4000000a4000000a5000000a3000000a5000000a4000000a6000000a5000000a600000003000000a400000003000000a6000000900000009300000093000000ab00000090000000ab000000360000009300000036000000ab0000003200000093000000070000003600000007000000ab00000036000000b000000007000000b000000007000000b1000000ab000000b100000007000000b2000000b1000000b2000000b1000000b3000000ab000000b300000090000000b3000000b1000000b4000000b3000000b4000000b4000000b5000000b3000000b50000008b000000b30000008b000000900000008b000000b50000009c000000b50000008b0000009c000000b5000000bc0000009c000000bc000000bc000000bd0000009c000000bd0000009b000000bd000000bc000000bf000000bd000000bf0000009d000000bd000000bf000000c1000000bd000000c10000009d000000c1000000a0000000c1000000bf000000c3000000c1000000c3000000c1000000c4000000a0000000c4000000c3000000c4000000a2000000c4000000c3000000c6000000c4000000c6000000a2000000c6000000c3000000c7000000c6000000c7000000a4000000c6000000c7000000c9000000c6000000c9000000c6000000ca000000a4000000ca000000c9000000ca000000c9000000cb000000ca000000cb00000003000000ca000000cb000000cd000000ca000000cd00000003000000cd00000004000000cd00000006000000b200000006000000d2000000b2000000d200000006000000d3000000d2000000d3000000d2000000d4000000b2000000d4000000b1000000d4000000b4000000d4000000d2000000d7000000d4000000d7000000d2000000d8000000d7000000d8000000d8000000d9000000d7000000d9000000d9000000da000000d7000000da000000d4000000da000000d9000000db000000da000000db000000db000000dc000000da000000dc000000db000000dd000000dc000000dd000000da000000de000000d4000000de000000b4000000de000000dc000000de000000dd000000df000000dc000000df000000dd000000e0000000df000000e0000000de000000e1000000b4000000e1000000b5000000e1000000bc000000e1000000e1000000e4000000bc000000e4000000de000000e4000000bf000000e4000000dc000000e6000000de000000e6000000e4000000e6000000e4000000e7000000bf000000e7000000c3000000e7000000c7000000e7000000e6000000ea000000e4000000ea000000dc000000ea000000e7000000ea000000df000000eb000000dc000000eb000000ea000000eb000000df000000ec000000eb000000ec000000df000000ed000000ec000000ed000000eb000000ee000000ea000000ee000000ec000000ee000000ed000000ef000000ec000000ef000000ee000000ef000000ed000000f0000000ef000000f0000000e7000000f1000000ea000000f1000000ee000000f1000000c7000000f2000000e7000000f2000000f1000000f2000000f0000000f3000000ef000000f3000000f0000000f4000000f3000000f4000000f3000000f5000000ef000000f5000000ee000000f5000000f3000000f6000000f5000000f6000000ee000000f7000000f1000000f7000000f5000000f7000000f6000000f7000000f2000000f7000000f6000000f8000000f7000000f8000000c7000000f9000000f2000000f9000000f7000000f9000000f8000000f9000000c9000000f9000000f8000000fb000000f9000000fb000000c9000000fb000000cb000000fb000000980000009f0000009f0000000001000098000000000100000001000001010000980000000101000057000000010100009f0000000301000000010000030100009f0000000401000003010000040100009e00000004010000a10000000401000004010000070100000301000007010000a10000000801000004010000080100000701000008010000a300000008010000a30000000a010000080100000a010000070100000a010000a50000000a0100000a0100000c010000070100000c0100000c0100000d010000070100000d010000a50000000e0100000a0100000e010000a60000000e0100000a010000100100000c010000100100000e0100001001000010010000110100000c010000110100000e010000120100001001000012010000120100001301000010010000130100000e010000140100001201000014010000a600000014010000140100001501000012010000150100000500000014010000050000001501000005000000a60000005400000001010000010100001b010000540000001b010000000100001b0100001b0100001d010000540000001d010000520000001d010000530000001d0100001d0100002001000053000000200100001d0100002101000020010000210100001b01000021010000210100002201000020010000220100001b010000230100000001000023010000210100002301000003010000230100002101000025010000220100002501000023010000250100002501000026010000220100002601000026010000270100002501000027010000030100002801000023010000280100002501000028010000270100002801000007010000280100000d010000280100000d01000027010000270100002b010000260100002b0100002b0100002c010000260100002c010000260100002d0100002c0100002d0100002b0100002e0100002c0100002e010000270100002e0100002e0100002f0100002c0100002f0100002e010000300100002f01000030010000270100003001000030010000310100002f010000310100002701000032010000300100003201000031010000320100000d01000032010000320100003301000031010000330100000d0100001101000011010000320100001101000033010000110100001301000013010000330100005300000089000000530000003b010000890000003b010000200100003b010000200100003d0100003b0100003d010000220100003d010000260100003d01000026010000400100003d010000400100003b0100004101000089000000410100003d010000420100003b010000420100004101000042010000420100004301000041010000430100003d010000440100004201000044010000400100004401000040010000450100004401000045010000410100004601000089000000460100004101000047010000460100004701000087000000460100008400000046010000460100004a010000840000004a010000450100004b010000400100004b0100004b0100004c010000450100004c0100004b0100004d0100004c0100004d0100004d0100004e0100004b0100004e010000400100004e0100004d0100004f0100004e0100004f0100004f010000500100004e0100005001000040010000500100004f01000051010000500100005101000040010000520100005001000052010000510100005201000026010000520100005101000053010000520100005301000026010000530100002d010000530100006a000000560100006b000000560100006a0000005801000056010000580100007000000058010000700000005a010000580100005a010000700000005b0100005a0100005b010000700000005c0100005b0100005c010000700000005d0100005c0100005d010000700000005e0100005d0100005e010000700000005f0100005e0100005f0100005f010000600100005e010000600100005f0100006101000060010000610100005f0100006201000061010000620100005f0100006301000062010000630100005f0100006401000063010000640100005f0100006501000064010000650100005f0100006601000065010000660100005f010000670100006601000067010000710000005f010000710000006701000071000000690100006701000069010000710000006a010000690100006a0100006a0100006b010000690100006b0100006a0100006c0100006b0100006c0100006a0100006d0100006c0100006d0100007a0000006a0100007a0000006d0100006d0100006f0100006c0100006f0100006d010000700100006f010000700100006d0100007101000070010000710100006d0100007201000071010000720100007201000073010000710100007301000072010000740100007301000074010000720100007501000074010000750100007a000000760100006d010000760100007201000076010000010000007a0000000100000076010000000000007601000072010000790100007501000079010000790100007a010000750100007a010000790100007b0100007a0100007b010000790100007c0100007b0100007c010000720100007d010000760100007d010000000000007d010000790100007d010000000000007e0100007d0100007e010000020000007e01000002000000800100007e010000800100007d0100008101000079010000810100007e01000081010000810100008201000079010000820100007e010000820100007c0100008201000082010000860100007c0100008601000086010000870100007c01000087010000860100008801000087010000880100007b01000087010000860100008a010000880100008a0100008a0100008b010000880100008b0100008b0100008c010000880100008c0100008a0100008d0100008b0100008d0100008c0100008e010000880100008e0100008e0100008f010000880100008f0100008f01000090010000880100009001000087010000900100009001000091010000870100009101000091010000920100008701000092010000870100009301000092010000930100008a010000940100008d010000940100008a0100009501000094010000950100008a0100009601000095010000960100008a0100009701000096010000970100009701000098010000960100009801000097010000990100009801000099010000970100009a010000990100009a010000970100009b0100009a0100009b010000970100009c0100009b0100009c0100009c0100009d0100009b0100009d0100009c0100009e0100009d0100009e0100009c0100009f0100009e0100009f0100009c010000a00100009f010000a001000097010000a10100008a010000a101000086010000a10100009c010000a2010000a0010000a2010000a2010000a3010000a0010000a3010000a2010000a4010000a3010000a40100009c010000a5010000a2010000a50100009c010000a601000097010000a6010000a5010000a601000097010000a7010000a1010000a7010000a6010000a701000086010000a8010000a1010000a8010000a7010000a8010000a6010000a9010000a5010000a9010000a9010000aa010000a5010000aa010000a9010000ab010000aa010000ab010000a7010000ac010000a6010000ac010000a9010000ac010000a8010000ac010000a8010000ad010000ac010000ad01000086010000ae010000a8010000ae010000ad010000ae01000082010000ae010000ab010000af010000a9010000af010000ac010000af01000082010000b0010000ae010000b0010000ad010000b001000082010000b1010000b0010000b10100007e010000b1010000b1010000b3010000b0010000b3010000ad010000b30100007e010000b4010000b1010000b4010000b3010000b401000080010000b401000080010000b6010000b4010000b6010000b4010000b7010000b3010000b7010000b3010000b8010000b7010000b8010000ad010000b8010000b7010000b9010000b8010000b9010000b9010000ba010000b8010000ba010000ba010000bb010000b8010000bb010000ad010000bb010000bb010000bc010000ad010000bc010000ac010000bc010000af010000bc010000af010000bb010000bb010000bd010000af010000bd010000bb010000be010000bd010000be010000ab010000bd010000bd010000bf010000ab010000bf01000087010000c10100007b010000c101000093010000c1010000a2010000c5010000a4010000c5010000a2010000c7010000c5010000c7010000a2010000c8010000c7010000c8010000c8010000c9010000c7010000c9010000c8010000ca010000c9010000ca010000c8010000cb010000ca010000cb010000c8010000cc010000cb010000cc010000c8010000cd010000cc010000cd010000c8010000ce010000cd010000ce010000ce010000cf010000cd010000cf010000ce010000d0010000cf010000d0010000ce010000d1010000d0010000d1010000ce010000d2010000d1010000d2010000d2010000d3010000d1010000d3010000d2010000d4010000d3010000d4010000d2010000d5010000d4010000d5010000d2010000d6010000d5010000d6010000d2010000d7010000d6010000d7010000d7010000d8010000d6010000d8010000d7010000d9010000d8010000d9010000d7010000da010000d9010000da010000d7010000db010000da010000db010000d7010000dc010000db010000dc010000dc010000dd010000db010000dd010000dc010000de010000dd010000de010000dc010000df010000de010000df010000d2010000e0010000d7010000e0010000dc010000e0010000d2010000e1010000e0010000e1010000ce010000e10100002f000000e00100002f000000dc0100002e000000dc0100002f000000e4010000e0010000e4010000e0010000e5010000e1010000e5010000e4010000e501000031000000e40100002f00000031000000ce010000e8010000e1010000e8010000e1010000e9010000e5010000e9010000e8010000e9010000ce010000ea010000e8010000ea010000c8010000ea010000a2010000ea010000a5010000ea010000aa010000ea010000ea010000ed010000e8010000ed010000aa010000ed010000e9010000ed010000aa010000ee010000ed010000ee010000e9010000ee010000ab010000ee010000bf010000ee010000bf010000f1010000ee010000f1010000e5010000f2010000e9010000f2010000ee010000f2010000f1010000f3010000ee010000f3010000f2010000f3010000f1010000f4010000f3010000f4010000f2010000f5010000e5010000f5010000f3010000f5010000e4010000f5010000f3010000f6010000f5010000f6010000f3010000f7010000f6010000f7010000d3000000f7010000d3000000f601000008000000d300000008000000f601000008000000f5010000e4010000fb010000f5010000fb01000008000000fb01000031000000fb01000035000000fb0100003100000035000000080000003500000008000000b000000035000000b000000034000000b0000000dc01000003020000df010000030200002e00000003020000b6010000b7010000b601000009020000b701000009020000b60100000a020000090200000a0200000a0200000b020000090200000b0200000a0200000c020000b60100000c020000800100000c020000020000000c020000020000000f0200000c0200000f0200000a0200000f02000002000000100200000f020000100200000a020000110200000b0200001102000011020000120200000b020000120200000f020000130200000a020000130200000f0200001402000013020000140200000a02000015020000110200001502000013020000150200001202000015020000130200001602000015020000160200001602000017020000150200001702000012020000170200001602000018020000170200001802000017020000190200001202000019020000190200001a020000120200001a020000180200001b020000170200001b020000190200001b020000180200001c0200001b0200001c0200001b0200001d020000190200001d0200001c0200001e0200001b0200001e0200001d0200001e0200001e0200001f0200001d0200001f0200001c020000200200001e020000200200001f020000200200001f020000210200001d0200002102000020020000220200001f0200002202000022020000230200001f020000230200001f02000024020000210200002402000023020000250200001f020000250200002402000025020000230200002602000025020000260200002602000027020000250200002702000024020000270200002702000028020000240200002802000001000000100200007d00000010020000010000007d000000010000007b0000007d0000001402000010020000140200007d0000003102000014020000310200007d0000003202000031020000320200007e0000003202000081000000320200008100000035020000320200003502000031020000350200003502000036020000310200003602000014020000360200003502000037020000360200003702000036020000380200001402000038020000130200003802000016020000380200001602000036020000370200003b020000360200003b020000160200003b020000180200003b020000370200003d0200003b0200003d020000180200003d0200001c0200003d0200003d0200003f0200001c0200003f0200003d020000400200003f02000040020000200200003f0200003f02000042020000200200004202000042020000430200002002000043020000220200004302000023020000430200004302000046020000230200004602000046020000470200002302000047020000260200004702000037020000400200004a010000400200004a01000037020000370200004d0200004a0100004d020000350200004d020000810000004d020000840000004d020000470100004a0100004701000040020000470100005302000040020000530200003f020000530200004202000053020000430100004701000043010000530200005302000058020000420200005802000043010000580200004302000058020000430100005a020000580200005a020000420100005a020000440100005a020000430200005d020000580200005d0200005a0200005d020000440100005e0200005a0200005e0200005d0200005e020000450100005e02000045010000600200005e020000600200005d020000600200004c010000600200005d0200006202000043020000620200006002000062020000460200006202000060020000640200006202000064020000470200006202000047020000640200006602000067020000f400000067020000f400000066020000f000000066020000ed00000066020000ed0000006b020000660200006b020000e0000000ed000000e00000006b020000e00000006e0200006b0200006e020000e00000006f0200006e0200006f020000e0000000700200006f02000070020000dd00000070020000db0000007002000070020000730200006f02000073020000db0000007302000073020000740200006f02000074020000d90000007302000073020000760200007402000076020000d90000007602000076020000770200007402000077020000d80000007602000076020000790200007702000079020000d800000079020000790200007a020000770200007a020000790200007b0200007a0200007b020000d80000007c020000790200007c020000d20000007c020000790200007e0200007b0200007e0200007c0200007e0200007e0200007f0200007b0200007f020000f40100007e020000f40100007f020000f40100007c020000bf010000f4010000bf0100007f020000d2000000f7010000f70100007c020000f4010000f7010000660200008702000067020000870200006b020000870200006b0200008a020000870200008a0200006e0200008a0200006e0200008c0200008a0200008c0200006f0200008c0200006f0200008e0200008c0200008e020000740200008e02000074020000900200008e0200009002000090020000910200008e0200009102000077020000900200007702000093020000900200009302000093020000940200009002000094020000930200009502000094020000950200007a02000093020000930200009702000095020000970200007a02000097020000970200009802000095020000980200007a0200009902000097020000990200007b02000099020000970200009b020000980200009b020000990200009b0200009b0200009c020000980200009c020000b90100009b020000b90100009c020000ba0100009b020000ba01000099020000be0100007b020000be01000099020000ba010000be010000be0100007f020000bd0100007f02000087020000a502000067020000a502000087020000a7020000a5020000a70200008a020000a7020000a7020000a9020000a5020000a90200008a020000aa020000a7020000aa0200008c020000aa020000a7020000ac020000a9020000ac020000ac020000ad020000a9020000ad020000ac020000ae020000ad020000ae020000aa020000af020000a7020000af020000ac020000af0200008c020000b0020000aa020000b0020000af020000b00200008c0200009102000091020000b0020000b0020000b3020000af020000b302000091020000b3020000ae020000b4020000ac020000b4020000af020000b5020000ac020000b5020000b4020000b5020000b3020000b6020000af020000b6020000b5020000b602000091020000b7020000b3020000b7020000b6020000b7020000ae020000b8020000b4020000b8020000b8020000b9020000ae020000b902000028020000b802000028020000b902000024020000b802000021020000b8020000b4020000bd020000b8020000bd020000b5020000bd02000021020000bd020000bd020000be020000b5020000be02000021020000be020000b6020000be0200001d020000be0200001a020000be0200001a0200001d0200001a020000b6020000b6020000c2020000b7020000c20200001a020000c2020000c2020000c3020000b7020000c3020000c2020000c40200001a020000c4020000c3020000c402000094020000c302000094020000b7020000910200009402000095020000c302000098020000c302000098020000c9020000c3020000c9020000c4020000c90200009c020000c90200001a020000cb020000c4020000cb02000012020000cb0200000b020000cb020000cb020000ce020000c4020000ce0200000b020000ce020000c9020000ce02000009020000ce020000ce020000d0020000c9020000d002000009020000d00200009c020000d0020000b7010000d0020000b70100009c020000
+  guideEdgeVertices: 00000000010000000100000002000000000000000200000003000000040000000400000005000000030000000500000006000000d0010000d0010000d101000006000000d101000007000000d2010000060000000700000006000000d2010000d1010000d2010000060000000800000008000000d301000006000000d3010000d0010000d3010000080000000900000009000000d401000008000000d4010000d3010000d401000009000000d5010000d4010000d5010000080000000a000000090000000a0000000a0000000b000000090000000b0000000a0000000c0000000b0000000c0000000c0000000d0000000b0000000d0000000c0000000e0000000d0000000e0000000e0000000f0000000d0000000f0000000e000000100000000f00000010000000000000000e000000000000001000000004000000d601000004000000d7010000d6010000d701000013000000d8010000040000001300000004000000d8010000d6010000d8010000040000001400000014000000d901000004000000d9010000d7010000d90100000400000015000000140000001500000014000000da010000d9010000da010000140000001600000016000000db01000014000000db010000da010000db010000160000001700000017000000dc01000016000000dc010000db010000dc01000017000000dd010000dc010000dd010000070000001700000007000000de01000017000000de010000dd010000de010000d2010000de010000170000001b000000070000001b0000001b0000001c000000070000001c000000060000001c0000001b0000001e0000001c0000001e000000080000001c0000001e000000200000001c0000002000000008000000200000000a000000200000001e00000022000000200000002200000020000000230000000a0000002300000022000000230000000c00000023000000220000002500000023000000250000000c00000025000000220000002600000025000000260000000e000000250000002600000028000000250000002800000025000000290000000e000000290000002800000029000000280000002a000000290000002a00000000000000290000002a0000002c000000290000002c000000000000002c000000010000002c000000030000001500000003000000310000001500000031000000030000003200000031000000320000003100000033000000150000003300000014000000330000001600000033000000310000003600000033000000360000003100000037000000360000003700000037000000380000003600000038000000380000003900000036000000390000003300000039000000380000003a000000390000003a0000003a0000003b000000390000003b0000003a0000003c0000003b0000003c000000390000003d000000330000003d000000160000003d0000003b0000003d0000003c0000003e0000003b0000003e0000003c0000003f0000003e0000003f0000003d00000040000000160000004000000017000000400000001b0000004000000040000000430000001b000000430000003d000000430000001e000000430000003b000000450000003d00000045000000430000004500000043000000460000001e0000004600000022000000460000002600000046000000450000004900000043000000490000003b0000004900000046000000490000003e0000004a0000003b0000004a000000490000004a0000003e0000004b0000004a0000004b0000003e0000004c0000004b0000004c0000004a0000004d000000490000004d0000004b0000004d0000004c0000004e0000004b0000004e0000004d0000004e0000004c0000004f0000004e0000004f000000460000005000000049000000500000004d000000500000002600000051000000460000005100000050000000510000004f000000520000004e000000520000004f00000053000000520000005300000052000000540000004e000000540000004d00000054000000520000005500000054000000550000004d0000005600000050000000560000005400000056000000550000005600000051000000560000005500000057000000560000005700000026000000580000005100000058000000560000005800000057000000580000002800000058000000570000005a000000580000005a000000280000005a0000002a0000005a00000009000000e1010000d5010000e10100000b000000e201000009000000e2010000e1010000e20100005e000000e30100005e000000e4010000e3010000e40100000b0000005f0000005f000000e50100000b000000e5010000e2010000e50100005e0000005f0000005f000000e3010000e3010000e50100000d0000005f0000000d000000610000005f000000610000005e000000610000000f0000006100000061000000630000005e0000006300000063000000640000005e000000640000000f00000065000000610000006500000010000000650000006100000067000000630000006700000065000000670000006700000068000000630000006800000065000000690000006700000069000000690000006a000000670000006a000000650000006b000000690000006b000000100000006b0000006b0000006c000000690000006c000000020000006b000000020000006c00000002000000100000006f000000e6010000e6010000e70100006f000000e70100006f000000e8010000e7010000e80100005e000000ea010000e4010000ea01000064000000eb0100005e000000eb010000ea010000eb010000640000006f0000006f000000eb010000e8010000eb0100006f0000007200000072000000e601000072000000ec010000e6010000ec010000720000007300000073000000ec01000073000000ed010000ec010000ed01000074000000ee010000ed010000ee01000074000000ed0100007300000074000000720000007500000073000000750000006f0000007500000075000000760000007300000076000000750000007700000076000000770000006f00000077000000770000007800000076000000780000006f00000079000000770000007900000078000000790000006400000079000000790000007a000000780000007a00000064000000680000006800000079000000680000007a000000680000006a0000006a0000007a0000007f000000ef0100007f000000f0010000ef010000f001000080000000f101000080000000f2010000f1010000f201000081000000f301000081000000f4010000f3010000f40100007f0000008100000081000000f0010000f0010000f30100007f00000082000000810000008200000082000000830000007f000000830000008300000084000000820000008400000083000000850000008400000085000000850000008600000083000000860000007f0000008600000085000000870000008600000087000000870000008800000086000000880000007f00000088000000870000008900000088000000890000007f0000008a000000880000008a000000890000008a0000008a000000ef010000ef010000f50100008a000000f5010000890000008b0000008a0000008b0000008b000000f5010000f5010000f60100008b000000f6010000ee010000f60100008b000000ee010000740000008b0000008d000000f80100008d000000f9010000f8010000f90100008d000000fa010000f9010000fa0100008d0000008e0000008e000000fa0100008e000000fb010000fa010000fb0100008d0000008f0000008e0000008f0000008f000000900000008e0000009000000090000000910000008e000000910000008f00000092000000900000009200000091000000930000008e0000009300000093000000940000008e0000009400000094000000950000008e0000009500000095000000fb0100008f0000009600000092000000960000008f0000009700000096000000970000008f0000009800000097000000980000008f000000990000009800000099000000990000009a000000980000009a000000990000009b0000009a0000009b000000990000009c0000009b0000009c000000990000009d0000009c0000009d000000990000009e0000009d0000009e0000009e0000009f0000009d0000009f0000009e000000a00000009f000000a00000009e000000a1000000a0000000a10000009e000000a2000000a1000000a200000099000000a30000008f000000a30000008d000000a30000009e000000a4000000a2000000a4000000a4000000a5000000a2000000a5000000a4000000a6000000a5000000a60000009e000000a7000000a4000000a70000009e000000a800000099000000a8000000a7000000a800000099000000a9000000a3000000a9000000a8000000a90000008d000000aa000000a3000000aa000000a9000000aa000000a8000000ab000000a7000000ab000000ab000000ac000000a7000000ac000000ab000000ad000000ac000000ad000000a9000000ae000000a8000000ae000000ab000000ae000000aa000000ae000000aa000000af000000ae000000af0000008d000000b0000000aa000000b0000000af000000b0000000f8010000fc0100008d000000fc010000b0000000fc010000ad000000b1000000ab000000b1000000ae000000b1000000fc010000fd010000b0000000fd010000b2000000fd010000b0000000b2000000af000000b2000000fd010000fe010000b2000000fe010000fe010000ff010000b2000000ff010000b3000000ff010000b2000000b3000000af000000b3000000b300000000020000ff01000000020000b400000001020000b40000000202000001020000020200000002000003020000b300000003020000b500000003020000b3000000b5000000b3000000b6000000b5000000b6000000af000000b6000000b5000000b7000000b6000000b7000000b7000000b8000000b6000000b8000000b8000000b9000000b6000000b9000000af000000b9000000b9000000ba000000af000000ba000000ae000000ba000000b1000000ba000000b1000000b9000000b9000000bb000000b1000000bb000000b9000000bc000000bb000000bc000000ad000000bb000000bb000000bd000000ad000000bd000000a4000000bf000000a6000000bf000000a4000000c1000000bf000000c1000000a4000000c2000000c1000000c2000000c2000000c3000000c1000000c3000000c2000000c4000000c3000000c4000000c2000000c5000000c4000000c5000000c2000000c6000000c5000000c6000000c2000000c7000000c6000000c7000000c2000000c8000000c7000000c8000000c8000000c9000000c7000000c9000000c8000000ca000000c9000000ca000000c8000000cb000000ca000000cb000000c8000000cc000000cb000000cc000000cc000000cd000000cb000000cd000000cc000000ce000000cd000000ce000000cc000000cf000000ce000000cf000000cc000000d0000000cf000000d0000000cc000000d1000000d0000000d1000000d1000000d2000000d0000000d2000000d1000000d3000000d2000000d3000000d1000000d4000000d3000000d4000000d1000000d5000000d4000000d5000000d1000000040200000402000005020000d100000005020000d500000005020000d5000000060200000502000006020000cc000000d6000000d1000000d6000000d600000007020000d1000000070200000402000007020000cc000000d7000000d6000000d7000000c8000000d7000000d6000000080200000702000008020000d8000000090200000802000009020000d800000008020000d6000000d8000000d6000000d9000000d7000000d9000000d8000000d9000000d80000000a020000090200000a020000c8000000da000000d7000000da000000d7000000db000000d9000000db000000da000000db000000c8000000dc000000da000000dc000000c2000000dc000000a4000000dc000000a7000000dc000000ac000000dc000000dc000000df000000da000000df000000ac000000df000000db000000df000000ac000000e0000000df000000e0000000db000000e0000000ad000000e0000000bd000000e0000000bd000000e3000000e0000000e3000000d9000000e4000000db000000e4000000e0000000e4000000e3000000e5000000e0000000e5000000e4000000e5000000e3000000e6000000e5000000e6000000e4000000e7000000d9000000e7000000e5000000e7000000d8000000e7000000e5000000e8000000e7000000e8000000e5000000e9000000e8000000e900000032000000e900000032000000e8000000050000003200000005000000e800000005000000e7000000d8000000ed000000e7000000ed00000005000000ed000000ed0000000b0200000a0200000b020000ed0000000a020000ed0000000c0200000b0200000c020000050000000d020000ed0000000d0200000c0200000d0200000500000013000000130000000e020000050000000e0200000d0200000e020000130000000f0200000e0200000f020000d80100000f020000b4000000b5000000b4000000030200000202000003020000b4000000f2000000b5000000f2000000b4000000130200001302000014020000b400000014020000f200000014020000f300000015020000f2000000f3000000f2000000150200001402000015020000b40000001602000013020000160200000102000016020000f400000018020000f3000000f4000000f3000000180200001502000018020000f4000000f5000000f3000000f50000001802000019020000f400000019020000f600000019020000f4000000f6000000f60000001a020000190200001a020000f5000000f6000000f60000001b0200001a0200001b020000f70000001c020000f6000000f7000000f60000001c0200001b0200001c020000f5000000f7000000f80000001d020000f7000000f8000000f70000001d0200001c0200001d020000f7000000f9000000f5000000f9000000f9000000fa000000f5000000fa000000f8000000fb000000f7000000fb000000f9000000fb000000f8000000fc000000fb000000fc000000fb000000fd000000f9000000fd000000fc000000fe000000fb000000fe000000fd000000fe000000fe000000ff000000fd000000ff000000fc00000000010000fe00000000010000ff00000000010000ff00000001010000fd000000010100000001000002010000ff000000020100000201000003010000ff00000003010000ff0000000401000001010000040100000301000005010000ff0000000501000004010000050100000301000006010000050100000601000006010000070100000501000007010000040100000701000007010000080100000401000008010000f80000001e0200001d0200001e0200000a010000200200000a010000210200002002000021020000f80000000a0100000a0100001e0200001e02000021020000fc0000000a0100000a0100000c010000fc0000000c0100000a0100002202000022020000230200000a010000230200000c01000023020000000100000c0100000c0100000e010000000100000e0100000e0100000f010000000100000f010000020100000f010000030100000f0100000f01000012010000030100001201000012010000130100000301000013010000060100001301000020020000220200001601000026020000160100002702000026020000270200000c01000016010000160100002302000023020000270200000e010000160100008000000029020000800000001601000016010000290200002602000029020000f201000029020000160100001a0100000e0100001a010000800000001a0100000f0100001a010000800000001c0100001a0100001c010000f10100002c020000800000002c0200001c0100002c020000810000001c0100001c010000f4010000f40100002c0200000f0100001e0100001a0100001e0100001c0100001e010000810000001f0100001c0100001f0100001e0100001f010000820000001f01000082000000210100001f010000210100001e0100002101000084000000210100001e010000230100000f010000230100002101000023010000120100002301000021010000250100002301000025010000130100002301000013010000250100002701000028010000530000002801000053000000270100004f000000270100004c000000270100004c0000002c010000270100002c0100003f0000004c0000003f0000002c0100003f0000002f0100002c0100002f0100003f000000300100002f010000300100003f0000003101000030010000310100003c000000310100003a00000031010000310100003401000030010000340100003a00000034010000340100003501000030010000350100003800000034010000340100003701000035010000370100003800000037010000370100003801000035010000380100003700000037010000370100003a010000380100003a010000370000003a0100003a0100003b010000380100003b0100003a0100003c0100003b0100003c010000370000003d0100003a0100003d010000310000003d0100003a0100003f0100003c0100003f0100003d0100003f0100003f010000400100003c01000040010000e60000003f010000e600000040010000e60000003d010000bd000000e6000000bd0000004001000031000000e9000000e90000003d010000e6000000e9000000270100004801000028010000480100002c010000480100002c0100004b010000480100004b0100002f0100004b0100002f0100004d0100004b0100004d010000300100004d010000300100004f0100004d0100004f010000350100004f01000035010000510100004f0100005101000051010000520100004f0100005201000038010000510100003801000054010000510100005401000054010000550100005101000055010000540100005601000055010000560100003b01000054010000540100005801000056010000580100003b01000058010000580100005901000056010000590100003b0100005a010000580100005a0100003c0100005a010000580100005c010000590100005c0100005a0100005c0100005c0100005d010000590100005d010000b70000005c010000b70000005d010000b80000005c010000b80000005a010000bc0000003c010000bc0000005a010000b8000000bc000000bc00000040010000bb0000004001000048010000660100002801000066010000480100006801000066010000680100004b01000068010000680100006a010000660100006a0100004b0100006b010000680100006b0100004d0100006b010000680100006d0100006a0100006d0100006d0100006e0100006a0100006e0100006d0100006f0100006e0100006f0100006b0100007001000068010000700100006d010000700100004d010000710100006b0100007101000070010000710100004d0100005201000052010000710100007101000074010000700100007401000052010000740100006f010000750100006d0100007501000070010000760100006d0100007601000075010000760100007401000077010000700100007701000076010000770100005201000078010000740100007801000077010000780100006f010000790100007501000079010000790100007a0100006f0100007a0100000801000079010000080100007a01000004010000790100000101000079010000750100007e010000790100007e010000760100007e010000010100007e0100007e0100007f010000760100007f010000010100007f010000770100007f010000fd0000007f010000fa0000007f010000fa000000fd000000fa0000007701000077010000830100007801000083010000fa00000083010000830100008401000078010000840100008301000085010000fa00000085010000840100008501000055010000840100005501000078010000520100005501000056010000840100005901000084010000590100008a010000840100008a010000850100008a0100005d0100008a010000fa0000008c010000850100008c010000f50000008c010000f30000008c0100008c0100008f010000850100008f010000f30000008f0100008a0100008f010000f20000008f0100008f010000910100008a01000091010000f2000000910100005d01000091010000b500000091010000b50000005d010000
   guideEdgeRestLengths:
-  - 0.046909582
-  - 0.08623723
-  - 0.082071334
   - 0.0074089896
   - 0.031069387
   - 0.03421003
   - 0.057078425
   - 0.095385596
   - 0.08536637
-  - 0.06799149
-  - 0.017590791
-  - 0.06761693
-  - 0.018328387
-  - 0.0719326
-  - 0.0671314
-  - 0.07893939
-  - 0.018773343
-  - 0.07123614
-  - 0.019428818
-  - 0.06776883
-  - 0.020382237
-  - 0.06982778
-  - 0.020784462
-  - 0.07723394
-  - 0.020644527
-  - 0.08836748
-  - 0.06690257
-  - 0.07866723
-  - 0.06286297
-  - 0.012269452
-  - 0.009435647
-  - 0.060454976
-  - 0.008508861
-  - 0.057749934
-  - 0.007008367
-  - 0.054110903
-  - 0.006665265
-  - 0.04918783
-  - 0.0106201125
-  - 0.04056393
-  - 0.018474286
-  - 0.026465157
-  - 0.02636183
-  - 0.020251881
-  - 0.10440567
-  - 0.072845265
-  - 0.0671669
-  - 0.034656033
-  - 0.087091215
-  - 0.07351941
-  - 0.08501604
-  - 0.03169144
-  - 0.0705869
-  - 0.079970434
-  - 0.029311305
-  - 0.08742275
-  - 0.07828467
-  - 0.026776703
-  - 0.07948379
-  - 0.025058163
-  - 0.079572834
-  - 0.024234334
-  - 0.08759438
-  - 0.08785292
-  - 0.06613106
-  - 0.023541333
-  - 0.083643064
-  - 0.023075078
-  - 0.08630301
-  - 0.023094054
-  - 0.09499488
-  - 0.0764394
-  - 0.09867682
-  - 0.07365126
-  - 0.073120214
-  - 0.092642665
-  - 0.060827278
-  - 0.08072441
-  - 0.067010775
-  - 0.089003354
-  - 0.023791084
-  - 0.086856715
-  - 0.02447368
-  - 0.09124542
-  - 0.10552234
-  - 0.078039125
-  - 0.08590971
-  - 0.09701546
-  - 0.06272197
-  - 0.10678115
-  - 0.07511739
-  - 0.07373847
-  - 0.08332906
-  - 0.055406414
-  - 0.07120259
-  - 0.07473271
-  - 0.09174994
-  - 0.05668253
-  - 0.10270921
-  - 0.06781967
-  - 0.078824356
-  - 0.09420492
-  - 0.0724836
-  - 0.016923817
-  - 0.056300193
-  - 0.070909135
-  - 0.065791495
-  - 0.01666714
-  - 0.064357474
-  - 0.016367307
-  - 0.06663172
-  - 0.017333068
-  - 0.0728497
-  - 0.018580746
-  - 0.083177075
-  - 0.02105521
-  - 0.076177135
-  - 0.09600508
-  - 0.10258926
-  - 0.08702517
-  - 0.080154195
-  - 0.070550695
-  - 0.024149422
-  - 0.068384744
-  - 0.02890163
-  - 0.07887587
-  - 0.10309122
-  - 0.05622712
-  - 0.08652782
-  - 0.08134876
-  - 0.16118018
-  - 0.10183323
-  - 0.092546135
-  - 0.09106086
-  - 0.11719864
-  - 0.1571418
-  - 0.08886477
-  - 0.06756411
-  - 0.073415436
-  - 0.07905951
-  - 0.071901545
-  - 0.099848524
-  - 0.11733015
-  - 0.08176263
-  - 0.07936562
-  - 0.067075066
-  - 0.112108156
-  - 0.08301051
-  - 0.093185335
-  - 0.12276535
-  - 0.13553558
-  - 0.06404771
-  - 0.07354836
-  - 0.07238533
-  - 0.078583054
-  - 0.07142885
-  - 0.076047465
-  - 0.11249803
-  - 0.066707134
-  - 0.08779277
-  - 0.118011385
-  - 0.112275824
-  - 0.046352535
-  - 0.055270888
-  - 0.07631857
-  - 0.09219128
-  - 0.043269504
-  - 0.048843905
-  - 0.06177186
-  - 0.07202654
-  - 0.03767083
-  - 0.066511445
-  - 0.05876238
-  - 0.076622345
-  - 0.10908436
-  - 0.063749306
-  - 0.069408774
-  - 0.05522702
-  - 0.059616983
-  - 0.063412175
-  - 0.09698135
-  - 0.072091825
-  - 0.0712073
-  - 0.06318082
-  - 0.080704115
-  - 0.06664845
-  - 0.10595868
-  - 0.06646252
-  - 0.07484262
-  - 0.06348861
-  - 0.07974052
-  - 0.11105323
-  - 0.075460374
-  - 0.06641752
-  - 0.06549105
-  - 0.07376211
-  - 0.11302006
-  - 0.08986053
-  - 0.0670069
-  - 0.10940086
-  - 0.07709503
-  - 0.02880325
-  - 0.07055389
-  - 0.034720313
-  - 0.07709503
-  - 0.0444261
-  - 0.082980536
-  - 0.07358746
-  - 0.027710367
-  - 0.07159964
-  - 0.022221496
-  - 0.074594334
-  - 0.020113451
-  - 0.081436925
-  - 0.019484935
-  - 0.09228919
-  - 0.020489307
-  - 0.09332697
-  - 0.09125251
-  - 0.08134876
-  - 0.038651522
-  - 0.07679211
-  - 0.07255778
-  - 0.069717035
-  - 0.02108265
-  - 0.07922449
-  - 0.10234937
-  - 0.08440991
-  - 0.10491743
-  - 0.095604196
-  - 0.10183323
-  - 0.037008993
-  - 0.09112177
-  - 0.10787235
-  - 0.07220444
-  - 0.087583676
-  - 0.09329583
-  - 0.11060272
-  - 0.09758422
-  - 0.079790704
-  - 0.0990076
-  - 0.10436959
-  - 0.07283707
-  - 0.12716502
-  - 0.09552425
-  - 0.08387607
-  - 0.072948076
-  - 0.08886477
-  - 0.042364825
-  - 0.09584794
-  - 0.06805483
-  - 0.1024498
-  - 0.065005064
-  - 0.054279394
-  - 0.06404771
-  - 0.049365036
-  - 0.09495749
-  - 0.07045276
-  - 0.08773644
-  - 0.105445646
-  - 0.09064833
-  - 0.069233306
-  - 0.06723254
-  - 0.08170139
-  - 0.097489536
-  - 0.07432712
-  - 0.07816685
-  - 0.06918717
-  - 0.067665316
-  - 0.09712768
-  - 0.06636783
-  - 0.089727595
-  - 0.08178548
-  - 0.094193906
-  - 0.06307325
-  - 0.076793775
-  - 0.08776908
-  - 0.06332302
-  - 0.11886769
-  - 0.05880065
-  - 0.08540575
-  - 0.07488672
-  - 0.094601795
-  - 0.0943287
-  - 0.07192864
-  - 0.05511601
-  - 0.08507401
-  - 0.05237246
-  - 0.103364654
-  - 0.07968145
-  - 0.046614584
-  - 0.07291922
-  - 0.060770433
-  - 0.046352535
-  - 0.050527975
-  - 0.043991376
-  - 0.06407659
-  - 0.060390122
-  - 0.051650047
-  - 0.065271065
-  - 0.0665125
-  - 0.042542227
-  - 0.07639463
-  - 0.039242666
-  - 0.06925184
-  - 0.048379846
-  - 0.06803039
-  - 0.0718073
-  - 0.07379178
-  - 0.055661716
-  - 0.0749462
-  - 0.08131958
-  - 0.04446485
-  - 0.07174216
-  - 0.07752556
-  - 0.064060315
-  - 0.07593769
-  - 0.08385365
-  - 0.049822535
-  - 0.06269965
-  - 0.106809065
-  - 0.06732252
-  - 0.053808395
-  - 0.057586066
-  - 0.062430497
-  - 0.06253064
-  - 0.09574675
-  - 0.06561037
-  - 0.046877034
-  - 0.042269226
-  - 0.059148718
-  - 0.056739476
-  - 0.0815469
-  - 0.036776286
-  - 0.06372082
-  - 0.07352404
+  - 0.023357391
+  - 0.028690552
+  - 0.011599754
+  - 0.023165869
   - 0.035028767
+  - 0.030873049
+  - 0.025232656
   - 0.008878233
-  - 0.038769916
+  - 0.03163202
+  - 0.029869964
+  - 0.006669279
   - 0.037389625
-  - 0.009395493
-  - 0.0430739
-  - 0.040506046
+  - 0.006011292
+  - 0.038011823
+  - 0.0070410976
+  - 0.01223822
+  - 0.011438911
   - 0.018894022
   - 0.041691236
   - 0.036130637
@@ -4661,32 +3733,36 @@ MonoBehaviour:
   - 0.00601461
   - 0.0068071433
   - 0.032359876
-  - 0.07674583
-  - 0.09213407
-  - 0.04555807
-  - 0.051207367
-  - 0.07952712
-  - 0.07853161
-  - 0.103062384
-  - 0.050536525
-  - 0.05799834
+  - 0.025547585
+  - 0.016309205
+  - 0.019250639
+  - 0.007482087
   - 0.08149739
+  - 0.08232437
+  - 0.061233737
   - 0.07554122
-  - 0.09569113
+  - 0.03885165
+  - 0.047097825
+  - 0.04457294
   - 0.102742426
   - 0.04729851
-  - 0.0434276
-  - 0.07357117
-  - 0.08656352
+  - 0.023210706
+  - 0.028748363
   - 0.069929324
-  - 0.08902461
+  - 0.052179933
+  - 0.03473808
+  - 0.028602136
   - 0.035564393
-  - 0.06965372
-  - 0.03974033
-  - 0.072066024
-  - 0.08189378
+  - 0.031437796
+  - 0.055404015
+  - 0.01427877
+  - 0.034565914
+  - 0.016796011
   - 0.0325365
-  - 0.06799974
+  - 0.024843177
+  - 0.045276027
+  - 0.018299643
+  - 0.013287993
   - 0.011399195
   - 0.035945997
   - 0.03526306
@@ -4820,23 +3896,21 @@ MonoBehaviour:
   - 0.006898337
   - 0.033494726
   - 0.030381715
-  - 0.05517004
-  - 0.04435347
-  - 0.08582203
-  - 0.053170115
-  - 0.050077394
-  - 0.058972485
-  - 0.04457772
-  - 0.010328694
-  - 0.010306603
-  - 0.04501002
-  - 0.040995996
-  - 0.047170095
-  - 0.048415847
-  - 0.023374464
+  - 0.021318264
+  - 0.009874383
+  - 0.038912002
+  - 0.033670284
+  - 0.012654175
+  - 0.025929065
+  - 0.006034634
+  - 0.024273366
   - 0.04100216
-  - 0.021758463
+  - 0.016263207
+  - 0.04470231
+  - 0.007308549
   - 0.043612074
+  - 0.023534564
+  - 0.020699352
   - 0.043997906
   - 0.038557317
   - 0.020687351
@@ -4866,44 +3940,30 @@ MonoBehaviour:
   - 0.03275361
   - 0.033610914
   - 0.006330204
-  - 0.05475863
-  - 0.08701497
-  - 0.050225206
-  - 0.047719453
-  - 0.04757128
-  - 0.08292588
-  - 0.045285903
-  - 0.04376597
-  - 0.044274315
-  - 0.010048133
-  - 0.009702541
-  - 0.04736287
-  - 0.044737056
-  - 0.050870094
-  - 0.022569736
-  - 0.0099497605
-  - 0.0459261
-  - 0.047284216
-  - 0.046450067
-  - 0.02587778
-  - 0.04682722
-  - 0.052405693
-  - 0.04823703
-  - 0.021160124
-  - 0.04545489
-  - 0.022943618
-  - 0.050488926
-  - 0.025268821
-  - 0.047130216
-  - 0.051564667
-  - 0.045633096
-  - 0.022866674
+  - 0.021335687
+  - 0.021703903
+  - 0.007538779
+  - 0.033388693
+  - 0.031088986
+  - 0.027397098
+  - 0.027833033
+  - 0.01864423
+  - 0.045464072
+  - 0.018360348
   - 0.047572147
+  - 0.050070982
+  - 0.0169823
   - 0.03491999
-  - 0.015040876
+  - 0.015447528
+  - 0.0058505153
+  - 0.017841483
   - 0.005706021
-  - 0.016758965
-  - 0.0092662815
+  - 0.008681842
+  - 0.008424353
+  - 0.0031191641
+  - 0.0006402201
+  - 0.0037515594
+  - 0.0039869244
   - 0.0092928605
   - 0.0076005347
   - 0.009772513
@@ -4926,36 +3986,20 @@ MonoBehaviour:
   - 0.048340354
   - 0.0052872268
   - 0.04631985
-  - 0.045824528
-  - 0.051391598
-  - 0.009986331
-  - 0.049217
-  - 0.057829604
-  - 0.025846003
-  - 0.04834933
-  - 0.048396252
-  - 0.046707217
-  - 0.02288313
-  - 0.04945653
-  - 0.054592554
-  - 0.04862917
-  - 0.057500876
-  - 0.02530776
-  - 0.04704672
-  - 0.055387944
-  - 0.05542024
-  - 0.022911027
+  - 0.018088251
+  - 0.005868142
+  - 0.018043552
+  - 0.015525371
+  - 0.0048752893
+  - 0.011402081
+  - 0.027261319
+  - 0.01636928
+  - 0.024048166
   - 0.04868599
+  - 0.049500134
+  - 0.024894485
   - 0.05094986
   - 0.013564601
-  - 0.010157734
-  - 0.050015964
-  - 0.04854493
-  - 0.052747335
-  - 0.06006601
-  - 0.048601367
-  - 0.050069902
-  - 0.054743458
   - 0.048115097
   - 0.013932619
   - 0.046597064
@@ -4975,109 +4019,26 @@ MonoBehaviour:
   - 0.035106763
   - 0.0077791484
   - 0.009257667
-  - 0.015747808
+  - 0.01826348
+  - 0.021207357
+  - 0.005614516
   - 0.007965231
   - 0.0055689556
-  - 0.017298969
+  - 0.008351932
+  - 0.0033222882
+  - 0.0084311
+  - 0.003962119
+  - 0.010282452
   - 0.0098639745
-  - 0.07335955
-  - 0.0218245
-  - 0.08302018
-  - 0.022334933
-  - 0.07873989
-  - 0.06944487
-  - 0.022355119
-  - 0.066394776
-  - 0.022512415
-  - 0.0707254
-  - 0.023029484
-  - 0.08115522
-  - 0.022929488
-  - 0.09503041
-  - 0.022258488
-  - 0.08937179
-  - 0.06365761
-  - 0.05943855
-  - 0.012991533
-  - 0.057219945
-  - 0.0098650195
-  - 0.054945536
-  - 0.008683621
-  - 0.05181423
-  - 0.0068722833
-  - 0.047409285
-  - 0.006311677
-  - 0.039556295
-  - 0.0099628875
-  - 0.026714342
-  - 0.01730883
-  - 0.020439256
-  - 0.024795806
-  - 0.069298685
-  - 0.064356625
-  - 0.08521056
-  - 0.035675455
-  - 0.088012226
-  - 0.06981415
-  - 0.06493401
-  - 0.031206345
-  - 0.07248453
-  - 0.027750323
-  - 0.06896304
-  - 0.078773476
-  - 0.070765875
-  - 0.10371859
-  - 0.07096358
-  - 0.024537552
-  - 0.070133045
-  - 0.022539524
-  - 0.076129764
-  - 0.021715112
-  - 0.05670251
-  - 0.0790312
-  - 0.07419387
-  - 0.02121769
-  - 0.07481563
-  - 0.020989405
-  - 0.08072755
-  - 0.021150038
-  - 0.06468092
-  - 0.07243199
-  - 0.09539443
-  - 0.07814726
-  - 0.071327776
-  - 0.080620885
-  - 0.060973566
-  - 0.085582145
-  - 0.08073873
-  - 0.021891352
-  - 0.08108416
-  - 0.022530066
-  - 0.071576424
-  - 0.11138763
-  - 0.07504905
-  - 0.050714947
-  - 0.072434746
-  - 0.09776738
-  - 0.054306567
-  - 0.09455344
-  - 0.08941409
-  - 0.047511883
-  - 0.077010185
-  - 0.05792102
-  - 0.079463504
-  - 0.07367829
-  - 0.06868548
-  - 0.110486455
-  - 0.093651466
-  - 0.07908576
-  - 0.10901643
-  - 0.07969536
-  - 0.11440287
-  - 0.07936166
+  - 0.07855687
+  - 0.05123884
+  - 0.056970872
+  - 0.064640686
+  - 0.045055617
   - 0.07448324
-  - 0.08376266
-  - 0.07202336
+  - 0.056220938
+  - 0.043989714
+  - 0.032429993
   - 0.123023175
   - 0.09496224
   - 0.04853008
@@ -5092,13 +4053,7 @@ MonoBehaviour:
   - 0.03108848
   - 0.023402445
   - 0.04725087
-  - 0.046778187
-  - 0.023603616
-  - 0.025489548
-  - 0.023102684
-  - 0.014756554
-  - 0.028702788
-  - 0.02285797
+  - 0.021440662
   - 0.035005
   - 0.025895724
   - 0.05206623
@@ -5160,26 +4115,32 @@ MonoBehaviour:
   - 0.08057629
   - 0.08179824
   - 0.11518108
-  - 0.07499821
+  - 0.022518257
+  - 0.096745044
+  - 0.055118736
   - 0.12831154
   - 0.11074774
   - 0.15623501
-  - 0.110530674
+  - 0.020817399
+  - 0.058458354
+  - 0.08140929
   - 0.07902477
   - 0.077665925
-  - 0.075417124
-  - 0.07059825
-  - 0.064930156
-  - 0.10742498
+  - 0.05508091
+  - 0.056397773
+  - 0.015428662
+  - 0.057237376
+  - 0.08561646
   - 0.075948484
   - 0.10477256
-  - 0.10563326
-  - 0.07442157
-  - 0.063157015
-  - 0.056376606
-  - 0.1070554
-  - 0.07937001
-  - 0.109854646
+  - 0.055476796
+  - 0.05842852
+  - 0.005123533
+  - 0.024185983
+  - 0.019963743
+  - 0.009130673
+  - 0.05472723
+  - 0.0969965
   - 0.07844889
   - 0.070561185
   - 0.09128007
@@ -5203,9 +4164,6 @@ MonoBehaviour:
   - 0.17223983
   - 0.10576388
   - 0.12915583
-  - 0.04980689
-  - 0.02309648
-  - 0.023035135
   - 0.06690295
   - 0.044328496
   - 0.10615758
@@ -5250,30 +4208,31 @@ MonoBehaviour:
   - 0.029090986
   - 0.045592446
   - 0.026967945
-  - 0.09351944
-  - 0.055249467
-  - 0.030328514
-  - 0.026538726
-  - 0.014256872
-  - 0.025556283
-  - 0.02774309
-  - 0.025119824
+  - 0.05355241
+  - 0.01873673
+  - 0.049104508
+  - 0.0047399737
+  - 0.0039153257
+  - 0.0013743805
   - 0.17216748
   - 0.071847476
-  - 0.101745926
+  - 0.062335733
+  - 0.07000761
+  - 0.029045008
   - 0.0610506
   - 0.13697787
   - 0.22565818
-  - 0.09421247
-  - 0.08417244
-  - 0.07552148
-  - 0.10924706
+  - 0.066875435
+  - 0.05547176
+  - 0.081146546
+  - 0.025647504
+  - 0.096251294
   - 0.09503484
   - 0.12904266
   - 0.09965687
   - 0.11581162
-  - 0.08814182
-  - 0.086840846
+  - 0.07605873
+  - 0.067631625
   - 0.05832327
   - 0.19129726
   - 0.14961249
@@ -5320,51 +4279,61 @@ MonoBehaviour:
   - 0.0957898
   - 0.096288465
   - 0.086932406
-  - 0.11235563
-  - 0.07970605
-  - 0.08068478
-  - 0.111720435
+  - 0.09806182
+  - 0.01243733
+  - 0.10598148
+  - 0.07836303
+  - 0.0711297
+  - 0.10984929
+  - 0.07853458
+  - 0.0014568431
   - 0.06751918
-  - 0.07980293
-  - 0.10463995
-  - 0.05107833
-  - 0.02516897
-  - 0.025113296
+  - 0.06872269
+  - 0.10305328
+  - 0.009645699
+  - 0.010622712
+  - 0.061022744
+  - 0.00792111
   - 0.053953204
+  - 0.068233214
+  - 0.044189867
   - 0.076401226
   - 0.07555344
-  - 0.07709549
-  - 0.041228667
-  - 0.09114348
+  - 0.0073888535
+  - 0.06736298
+  - 0.074188255
+  - 0.012990648
+  - 0.03960255
   - 0.07118522
-  - 0.07725607
-  - 0.04798828
-  - 0.08288966
-  - 0.09907738
-  - 0.08454456
-  - 0.042143047
-  - 0.091122024
-  - 0.04387298
-  - 0.08640216
-  - 0.07207172
+  - 0.039534338
+  - 0.039251532
+  - 0.0030627272
+  - 0.007073957
+  - 0.0038179038
+  - 0.016754854
   - 0.034200463
+  - 0.043613363
+  - 0.01908034
   - 0.011525597
   - 0.03588089
-  - 0.07790866
-  - 0.03719838
-  - 0.040533293
-  - 0.0798219
-  - 0.07389438
+  - 0.026082225
+  - 0.029971132
+  - 0.01106626
   - 0.030972792
-  - 0.07125997
+  - 0.010561907
+  - 0.0055510513
   - 0.03472503
-  - 0.07970766
-  - 0.03328539
-  - 0.035019875
+  - 0.030558573
+  - 0.03268272
+  - 0.0339614
   - 0.0095528755
+  - 0.03226828
+  - 0.0017326085
   - 0.033675846
-  - 0.00903986
+  - 0.00857835
   - 0.033857435
+  - 0.034904804
+  - 0.0010410066
   - 0.036996532
   - 0.019735955
   - 0.034040295
@@ -5402,43 +4371,21 @@ MonoBehaviour:
   - 0.03105557
   - 0.03043565
   - 0.0075266426
-  - 0.08292972
-  - 0.053507555
-  - 0.11806325
-  - 0.059980854
-  - 0.07377632
-  - 0.08452826
-  - 0.07992846
-  - 0.046728138
-  - 0.12044254
-  - 0.055853613
-  - 0.07172117
-  - 0.06305696
-  - 0.06044649
-  - 0.06575784
-  - 0.104129165
-  - 0.04758937
-  - 0.07107352
-  - 0.09943639
-  - 0.057137214
-  - 0.088853106
-  - 0.040837463
-  - 0.07570569
-  - 0.036651567
-  - 0.06724945
-  - 0.06366364
-  - 0.04059766
-  - 0.062274665
-  - 0.035597794
-  - 0.037569497
-  - 0.04303483
-  - 0.0095355855
+  - 0.018828427
+  - 0.017906005
+  - 0.0016121274
+  - 0.00075475953
+  - 0.0015148177
   - 0.036208313
+  - 0.018619923
+  - 0.018450806
   - 0.040816247
   - 0.02026921
   - 0.035205804
-  - 0.040905956
-  - 0.04688201
+  - 0.0029627266
+  - 0.025513625
+  - 0.028393418
+  - 0.032222755
   - 0.038167972
   - 0.021046964
   - 0.033695236
@@ -5451,30 +4398,31 @@ MonoBehaviour:
   - 0.0063806814
   - 0.033789128
   - 0.0305027
-  - 0.010429982
-  - 0.048488542
-  - 0.045793694
-  - 0.052948743
-  - 0.053505864
-  - 0.052874334
-  - 0.05947247
-  - 0.05934001
-  - 0.010457952
-  - 0.046236932
-  - 0.051680062
-  - 0.022156417
+  - 0.0014515293
+  - 0.019560188
+  - 0.012486119
+  - 0.017891789
   - 0.04102537
+  - 0.019781781
+  - 0.0130824745
   - 0.04385826
-  - 0.023580566
+  - 0.0030413386
   - 0.04446824
+  - 0.044770416
+  - 0.027877482
+  - 0.004316416
   - 0.021021558
   - 0.03852311
   - 0.04873777
   - 0.036992315
   - 0.022074062
   - 0.041898124
-  - 0.053134777
+  - 0.022109667
+  - 0.037443615
+  - 0.042283095
   - 0.046056576
+  - 0.05015728
+  - 0.009434119
   - 0.036342833
   - 0.012924148
   - 0.04184864
