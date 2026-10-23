@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0667f7a5eaaf09e4dac1c5722667bdec, type: 3}
+  m_Name: N01_WaterLily
+  m_EditorClassIdentifier: 
+  kind: 12
+  displayName: "\u6C34\u9762\u53F6\u76D8\u4E0E\u7761\u83B2"
+  height: 0.18
+  width: 0.11
+  tipWidthRatio: 0.11
+  bladeCount: 14
+  spread: 0.1296
+  rootSpread: 0.12
+  bend: 0.3
+  heightVariation: 0.23
+  outerBladeFraction: 0.25
+  clumpLayering: 0.55
+  seed: 20261160
+  baseColor: {r: 0.19, g: 0.31, b: 0.15, a: 1}
+  tipColor: {r: 0.49, g: 0.64, b: 0.29, a: 1}
+  flowerCount: 3
+  flowerRadius: 0.1
+  flowerColor: {r: 0.93, g: 0.79, b: 0.82, a: 1}
+  centerColor: {r: 0.94, g: 0.65, b: 0.14, a: 1}
+  petalCount: 5
+  headLength: 0.25
+  leafAspect: 1
+  curl: 0.24

@@ -188,6 +188,16 @@ namespace WeatherHouse.Hillside
                 simulation = CoreUtils.CreateEngineMaterial(simulationShader);
             }
             Bounds bounds = waterRenderer.bounds;
+            // A world surface may include a distant ocean apron; wakes only exist over this terrain.
+            if (surface && terrain.terrainData)
+            {
+                Vector3 origin = terrain.transform.position, extent = terrain.terrainData.size;
+                Vector3 min = bounds.min, max = bounds.max;
+                min.x = Mathf.Max(min.x, origin.x); min.z = Mathf.Max(min.z, origin.z);
+                max.x = Mathf.Min(max.x, origin.x + extent.x); max.z = Mathf.Min(max.z, origin.z + extent.z);
+                if (max.x <= min.x || max.z <= min.z) { IsInWater = false; ClearBinding(); return false; }
+                bounds.SetMinMax(min, max);
+            }
             float padding = Mathf.Clamp(fieldPadding, 0, 3);
             float sizeX = Mathf.Max(.1f, bounds.size.x + padding * 2), sizeZ = Mathf.Max(.1f, bounds.size.z + padding * 2);
             Vector4 rect = new Vector4(bounds.min.x - padding, bounds.min.z - padding, 1f / sizeX, 1f / sizeZ);
