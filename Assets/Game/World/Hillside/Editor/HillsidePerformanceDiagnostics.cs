@@ -106,11 +106,15 @@ namespace WeatherHouse.Hillside.Editor
                         {
                             if (command == "inspect") Inspect();
                             else if (command == "start") Start();
+                            else if (command == "start_current") StartComparison(false, true);
                             else if (command == "start_gait") StartGait();
                             else if (command == "stop") Stop("stopped");
                             else if (command == "restore") RequestRestore();
                             else if (command == "benchmark_cell") BenchmarkCell();
                             else if (command == "selfcheck") SelfCheck();
+                            else if (command == "grass_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideGrassPerformanceChecks", "grass-repair-checks.txt");
+                            else if (command == "cape_checks") RunRepairCheck("ForestSpriteCharacter.Editor.ForestSpriteCapePerformanceChecks", "cape-repair-checks.txt");
+                            else if (command == "runtime_checks") RunRepairCheck("WeatherHouse.Hillside.Editor.HillsideSafeRuntimeChecks", "runtime-repair-checks.txt");
                             else throw new InvalidOperationException("Unknown performance command: " + command);
                             File.WriteAllText(Folder + "/last-command.txt", command + " OK " + DateTime.UtcNow.ToString("O"));
                         }
@@ -154,17 +158,34 @@ namespace WeatherHouse.Hillside.Editor
 
         static Mesh MeshOf(Renderer renderer) => renderer is SkinnedMeshRenderer skin ? skin.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
         static long Triangles(Mesh mesh) { long total = 0; for (int i = 0; i < mesh.subMeshCount; i++) if (mesh.GetTopology(i) == MeshTopology.Triangles) total += (long)mesh.GetIndexCount(i) / 3; return total; }
+        static void RunRepairCheck(string typeName, string reportName)
+        {
+            Require(!Running && !EditorApplication.isPlayingOrWillChangePlaymode, "Repair checks need Edit mode.");
+            try
+            {
+                var type = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(typeName)).FirstOrDefault(t => t != null);
+                Require(type != null, "Repair check not imported: " + typeName);
+                var run = type.GetMethod("Run", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                Require(run != null, "Repair check has no public static Run method: " + typeName);
+                string result = run.Invoke(null, null)?.ToString() ?? "PASS";
+                File.WriteAllText(Folder + "/" + reportName, result);
+            }
+            catch (Exception e) { File.WriteAllText(Folder + "/" + reportName, "FAIL\n" + e); throw; }
+        }
         static void FocusGameView() { var type = Type.GetType("UnityEditor.GameView,UnityEditor"); if (type != null) EditorWindow.GetWindow(type)?.Focus(); }
 
         [MenuItem("Weather House/Hillside/Performance/Start Comparison")]
         public static void Start() { StartComparison(false); }
         [MenuItem("Weather House/Hillside/Performance/Start Gait Comparison")]
         public static void StartGait() { StartComparison(true); }
-        static void StartComparison(bool gaitOnly)
+        static void StartComparison(bool gaitOnly, bool currentUnsavedScene = false)
         {
             Require(!Running && !EditorApplication.isPlayingOrWillChangePlaymode, "Stop the current Play/session first.");
             Require(SceneManager.GetActiveScene().path == HillsideSceneBuilder.ScenePath, "Open the saved WeatherHouse_Hillside scene first.");
-            for (int i = 0; i < SceneManager.sceneCount; i++) { var scene = SceneManager.GetSceneAt(i); Require(!scene.isDirty && !string.IsNullOrEmpty(scene.path), "All open scenes must already be saved; diagnostics never saves them."); }
+            if (currentUnsavedScene)
+                Require(SceneManager.sceneCount == 1, "Current-scene measurements need only the hillside scene open; diagnostics never closes other scenes.");
+            else
+                for (int i = 0; i < SceneManager.sceneCount; i++) { var scene = SceneManager.GetSceneAt(i); Require(!scene.isDirty && !string.IsNullOrEmpty(scene.path), "All open scenes must already be saved; diagnostics never saves them."); }
             Inspect();
             bool inheritedRestore = RestorePending && !string.IsNullOrEmpty(SessionState.GetString(Key + "globals", ""));
             if (inheritedRestore) RestoreGlobals();
@@ -173,6 +194,7 @@ namespace WeatherHouse.Hillside.Editor
             if (!inheritedRestore) SessionState.SetString(Key + "globals", JsonUtility.ToJson(globals));
             SessionState.SetString(Key + "runtime", ""); SessionState.SetBool(Key + "gaitOnly", gaitOnly);
             runFolder = Folder + "/" + DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ"); Directory.CreateDirectory(runFolder);
+            File.Copy(Folder + "/state.json", runFolder + "/entry-state.json");
             SessionState.SetString(Key + "runFolder", runFolder);
             File.WriteAllText(Folder + "/latest-run.txt", runFolder); frames.Clear(); summaries.Clear(); error = ""; status = "entering_play";
             stage = -1; snapshot = null; stopping = measuring = globalsOnlyRestore = false; leftFoot = rightFoot = null;
@@ -439,13 +461,25 @@ namespace WeatherHouse.Hillside.Editor
         {
             Require(!EditorApplication.isPlayingOrWillChangePlaymode && !Running, "Cell benchmark requires Edit mode with no active measurement.");
             Require(SceneManager.GetActiveScene().path == HillsideSceneBuilder.ScenePath, "Open the saved Hillside scene first.");
-            var grass = SceneObjects<HillsideGrassRenderer>().Single(); var character = SceneObjects<ForestSpriteDemoController>().Single();
+            var source = SceneObjects<HillsideGrassRenderer>().Single(); var character = SceneObjects<ForestSpriteDemoController>().Single();
             var camera = Camera.main; Require(camera, "Main Game camera is missing.");
-            var key = new Vector2Int(Mathf.FloorToInt(character.transform.position.x / grass.cellSize), Mathf.FloorToInt(character.transform.position.z / grass.cellSize));
+            var key = new Vector2Int(Mathf.FloorToInt(character.transform.position.x / source.cellSize), Mathf.FloorToInt(character.transform.position.z / source.cellSize));
             var method = typeof(HillsideGrassRenderer).GetMethod("BuildCell", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             Require(method != null, "BuildCell entrypoint is missing."); var elapsed = new double[3];
-            for (int i = 0; i < elapsed.Length; i++) { var watch = System.Diagnostics.Stopwatch.StartNew(); method.Invoke(grass, new object[] { key, grass.cellSize, camera.transform.position }); watch.Stop(); elapsed[i] = watch.Elapsed.TotalMilliseconds; }
-            Json(Folder + "/cell-benchmark.json", new CellBenchmark { utc = DateTime.UtcNow.ToString("O"), key = key, density = grass.clumpsPerSquareMeter, cellSize = grass.cellSize, cameraPosition = camera.transform.position, milliseconds = elapsed });
+            var preview = EditorSceneManager.NewPreviewScene(); GameObject holder = null;
+            try
+            {
+                holder = new GameObject("Isolated grass benchmark") { hideFlags = HideFlags.HideAndDontSave };
+                SceneManager.MoveGameObjectToScene(holder, preview);
+                var grass = holder.AddComponent<HillsideGrassRenderer>(); grass.manualCaptureOnly = true;
+                grass.terrain = source.terrain; grass.variants = source.variants; grass.materials = source.materials;
+                grass.speciesWeights = (float[])source.speciesWeights.Clone(); grass.seed = source.seed;
+                grass.clumpsPerSquareMeter = source.clumpsPerSquareMeter; grass.cellSize = source.cellSize;
+                grass.visibleRadius = source.visibleRadius; grass.maximumSlope = source.maximumSlope;
+                for (int i = 0; i < elapsed.Length; i++) { var watch = System.Diagnostics.Stopwatch.StartNew(); method.Invoke(grass, new object[] { key, grass.cellSize, camera.transform.position }); watch.Stop(); elapsed[i] = watch.Elapsed.TotalMilliseconds; }
+                Json(Folder + "/cell-benchmark.json", new CellBenchmark { utc = DateTime.UtcNow.ToString("O"), key = key, density = grass.clumpsPerSquareMeter, cellSize = grass.cellSize, cameraPosition = camera.transform.position, milliseconds = elapsed });
+            }
+            finally { if (holder) Object.DestroyImmediate(holder); EditorSceneManager.ClosePreviewScene(preview); }
         }
 
         [MenuItem("Weather House/Hillside/Performance/Self Check")]

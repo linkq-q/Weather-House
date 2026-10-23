@@ -26,18 +26,37 @@ namespace WeatherHouse.Hillside
             public Bounds bounds;
             public Vector3 viewPosition;
             public float densityFraction;
-            public readonly List<Batch> batches = new List<Batch>();
+            public List<Batch> batches = new List<Batch>();
+            public List<Batch> spareBatches = new List<Batch>();
+            public readonly List<Candidate> candidates = new List<Candidate>();
+            public readonly List<PathSegment> paths = new List<PathSegment>();
+            public readonly List<Matrix4x4>[] groups = new List<Matrix4x4>[12];
+            public Vector2Int key;
+            public Vector3 origin, terrainSize, buildView;
+            public System.Random random;
+            public float edge, totalWeight, low, high;
+            public int maximum, generated, attempts, filterIndex, lastUsed;
+            public bool ready, building;
         }
+        struct Candidate
+        {
+            public Vector3 position;
+            public float yaw, scale, rank, coverage;
+            public int variant, index;
+        }
+        struct PathSegment { public Vector3 a, b; }
         struct CellRequest
         {
             public Vector2Int key;
             public Bounds bounds;
             public float priority;
+            public bool visible;
         }
         sealed class Batch
         {
             public int variant;
             public Matrix4x4[] matrices;
+            public int count;
         }
 
         readonly Dictionary<Vector2Int, Cell> cells = new Dictionary<Vector2Int, Cell>();
@@ -45,11 +64,20 @@ namespace WeatherHouse.Hillside
         readonly List<CellRequest> requests = new List<CellRequest>();
         readonly HashSet<Vector2Int> requestedKeys = new HashSet<Vector2Int>();
         readonly Plane[] frustum = new Plane[6];
+        long staticCandidateQueries;
+        int requestFrame;
+        TerrainData cachedTerrainData;
+        Vector3 cachedOrigin, cachedTerrainSize;
+        Vector4 cachedSettings;
+        Vector3 cachedWeights;
+        int cachedSeed, budgetFrame = -1;
+        long frameDeadline;
         public int CachedCellCount => cells.Count;
         public int VisibleClumpCount { get; private set; }
 
         void OnEnable()
         {
+            TerrainCallbacks.heightmapChanged += TerrainHeightChanged;
 #if UNITY_EDITOR
             UnityEditor.SceneView.duringSceneGui += DrawSceneView;
 #endif
@@ -57,11 +85,29 @@ namespace WeatherHouse.Hillside
         void OnDisable()
         {
             cells.Clear();
+            TerrainCallbacks.heightmapChanged -= TerrainHeightChanged;
 #if UNITY_EDITOR
             UnityEditor.SceneView.duringSceneGui -= DrawSceneView;
 #endif
         }
         void OnValidate() { cells.Clear(); }
+
+        void ValidateCache()
+        {
+            var settings = new Vector4(cellSize, clumpsPerSquareMeter, maximumSlope, visibleRadius);
+            var weights = new Vector3(speciesWeights[0], speciesWeights[1], speciesWeights[2]);
+            if (cachedTerrainData == terrain.terrainData && cachedOrigin.Equals(terrain.transform.position) &&
+                cachedTerrainSize.Equals(terrain.terrainData.size) && cachedSeed == seed &&
+                cachedSettings.Equals(settings) && cachedWeights.Equals(weights)) return;
+            cells.Clear();
+            cachedTerrainData = terrain.terrainData; cachedOrigin = terrain.transform.position;
+            cachedTerrainSize = terrain.terrainData.size; cachedSeed = seed;
+            cachedSettings = settings; cachedWeights = weights;
+        }
+        void TerrainHeightChanged(Terrain changed, RectInt region, bool synced)
+        {
+            if (changed == terrain) cells.Clear();
+        }
 
 #if UNITY_EDITOR
         void DrawSceneView(UnityEditor.SceneView view)
@@ -89,47 +135,85 @@ namespace WeatherHouse.Hillside
             if (groundCollider && groundCollider.Raycast(ray, out RaycastHit hit, Mathf.Max(300, camera.farClipPlane))) focus = hit.point;
             GeometryUtility.CalculateFrustumPlanes(camera, frustum);
             VisibleClumpCount = 0;
-            int buildBudget = populateImmediately ? int.MaxValue : Application.isPlaying ? 2 : 8;
+            ValidateCache();
+            bool immediate = populateImmediately && !Application.isPlaying;
+            bool mayPopulate = camera.cameraType != CameraType.Reflection &&
+                (!Application.isPlaying || camera == (viewCamera ? viewCamera : Camera.main));
+            if (Application.isPlaying && mayPopulate && budgetFrame != Time.frameCount)
+            {
+                budgetFrame = Time.frameCount;
+                frameDeadline = System.Diagnostics.Stopwatch.GetTimestamp() + (long)(System.Diagnostics.Stopwatch.Frequency * .003);
+            }
+            long deadline = !mayPopulate ? 0 : immediate ? long.MaxValue : Application.isPlaying ? frameDeadline :
+                System.Diagnostics.Stopwatch.GetTimestamp() + (long)(System.Diagnostics.Stopwatch.Frequency * .006);
             Vector3 origin = terrain.transform.position, terrainSize = terrain.terrainData.size;
+            requestFrame++;
             requests.Clear(); requestedKeys.Clear();
-            for (int z = Mathf.FloorToInt(origin.z / edge); z <= Mathf.FloorToInt((origin.z + terrainSize.z - .001f) / edge); z++)
-                for (int x = Mathf.FloorToInt(origin.x / edge); x <= Mathf.FloorToInt((origin.x + terrainSize.x - .001f) / edge); x++)
+            int minX = Mathf.FloorToInt(origin.x / edge), maxX = Mathf.FloorToInt((origin.x + terrainSize.x - .001f) / edge);
+            int minZ = Mathf.FloorToInt(origin.z / edge), maxZ = Mathf.FloorToInt((origin.z + terrainSize.z - .001f) / edge);
+            for (int z = minZ; z <= maxZ; z++)
+                for (int x = minX; x <= maxX; x++)
                 {
                     var key = new Vector2Int(x, z);
                     Bounds preview = CellBounds(key, edge);
                     if (!GeometryUtility.TestPlanesAABB(frustum, preview)) continue;
-                    requests.Add(new CellRequest { key = key, bounds = preview, priority = preview.SqrDistance(focus) });
+                    requests.Add(new CellRequest { key = key, bounds = preview, priority = preview.SqrDistance(focus), visible = true });
                     requestedKeys.Add(key);
                 }
-            requests.Sort((a, b) => a.priority.CompareTo(b.priority));
+            int visibleRequests = requests.Count;
+            // Populate a one-cell fringe after visible work, so small camera turns reuse prepared grass.
+            for (int i = 0; i < visibleRequests; i++)
+                for (int dz = -1; dz <= 1; dz++)
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        var key = requests[i].key + new Vector2Int(dx, dz);
+                        if (key.x < minX || key.x > maxX || key.y < minZ || key.y > maxZ || !requestedKeys.Add(key)) continue;
+                        Bounds preview = CellBounds(key, edge);
+                        requests.Add(new CellRequest { key = key, bounds = preview, priority = preview.SqrDistance(focus), visible = false });
+                    }
+            requests.Sort((a, b) => a.visible != b.visible ? (a.visible ? -1 : 1) : a.priority.CompareTo(b.priority));
             foreach (CellRequest request in requests)
             {
                 bool exists = cells.TryGetValue(request.key, out Cell cell);
-                float density = DensityFraction(Vector3.Distance(camera.transform.position,
-                    exists ? cell.bounds.center : request.bounds.center));
-                bool stale = exists && (populateImmediately ? cell.viewPosition != camera.transform.position :
+                if (cell != null && mayPopulate) cell.lastUsed = requestFrame;
+                bool hasBudget = mayPopulate && (immediate || System.Diagnostics.Stopwatch.GetTimestamp() < deadline);
+                if (!exists && hasBudget) cell = GetOrCreateCell(request.key, edge);
+                if (cell == null) continue;
+                float density = DensityFraction(Vector3.Distance(camera.transform.position, cell.bounds.center));
+                bool stale = !cell.ready || (immediate ? cell.viewPosition != camera.transform.position :
                     density > cell.densityFraction * 1.2f || density < cell.densityFraction * .8f);
-                if ((!exists || stale) && buildBudget > 0)
+                if (hasBudget && (cell.building || stale))
                 {
-                    buildBudget--;
-                    cell = BuildCell(request.key, edge, camera.transform.position);
-                    cells[request.key] = cell;
+                    if (!cell.building || immediate && cell.buildView != camera.transform.position)
+                        BeginBuild(cell, camera.transform.position);
+                    AdvanceBuild(cell, deadline);
                 }
-                if (cell == null || !GeometryUtility.TestPlanesAABB(frustum, cell.bounds)) continue;
+                if (!request.visible || !cell.ready || !GeometryUtility.TestPlanesAABB(frustum, cell.bounds)) continue;
                 foreach (Batch batch in cell.batches)
                 {
+                    if (batch.count == 0) continue;
                     Mesh mesh = variants[batch.variant];
                     Material material = materials[batch.variant / 4];
                     if (!mesh || !material) continue;
-                    Graphics.DrawMeshInstanced(mesh, 0, material, batch.matrices, batch.matrices.Length,
+                    Graphics.DrawMeshInstanced(mesh, 0, material, batch.matrices, batch.count,
                         null, ShadowCastingMode.Off, true, gameObject.layer, camera, LightProbeUsage.Off);
-                    VisibleClumpCount += batch.matrices.Length;
+                    VisibleClumpCount += batch.count;
                 }
             }
+            if (mayPopulate) RetireCells();
+        }
+
+        void RetireCells()
+        {
+            // Visible/prefetched cells stay resident; retain another 48 recently used cells for turns.
+            int capacity = Mathf.Max(96, requestedKeys.Count + 48);
+            if (cells.Count <= capacity) return;
             retired.Clear();
             foreach (var pair in cells)
                 if (!requestedKeys.Contains(pair.Key)) retired.Add(pair.Key);
-            foreach (Vector2Int key in retired) cells.Remove(key);
+            retired.Sort((a, b) => cells[a].lastUsed.CompareTo(cells[b].lastUsed));
+            int remove = Mathf.Min(cells.Count - capacity, retired.Count);
+            for (int i = 0; i < remove; i++) cells.Remove(retired[i]);
         }
 
         Bounds CellBounds(Vector2Int key, float edge)
@@ -156,67 +240,169 @@ namespace WeatherHouse.Hillside
             return depth;
         }
 
-        Cell BuildCell(Vector2Int key, float edge, Vector3 cameraPosition)
+        Cell GetOrCreateCell(Vector2Int key, float edge)
         {
-            var result = new Cell();
-            var groups = new List<Matrix4x4>[12];
-            for (int i = 0; i < groups.Length; i++) groups[i] = new List<Matrix4x4>();
-            var random = new System.Random(unchecked(seed ^ key.x * 73856093 ^ key.y * 19349663));
-            Vector3 origin = terrain.transform.position, size = terrain.terrainData.size;
-            float low = float.PositiveInfinity, high = float.NegativeInfinity;
-            float totalWeight = Mathf.Max(0, speciesWeights[0]) + Mathf.Max(0, speciesWeights[1]) + Mathf.Max(0, speciesWeights[2]);
-            int maximum = Mathf.CeilToInt(edge * edge * Mathf.Clamp(clumpsPerSquareMeter, 0, 40));
-            int attempts = Mathf.CeilToInt(maximum * DensityFraction(Mathf.Sqrt(CellBounds(key, edge).SqrDistance(cameraPosition))));
-            if (totalWeight <= 0) attempts = 0;
-            for (int i = 0; i < attempts; i++)
+            if (cells.TryGetValue(key, out Cell existing)) return existing;
+            var result = new Cell
             {
-                float x = (key.x + (float)random.NextDouble()) * edge;
-                float z = (key.y + (float)random.NextDouble()) * edge;
-                float pick = (float)random.NextDouble() * totalWeight;
-                int species = pick < speciesWeights[0] ? 0 : pick < speciesWeights[0] + speciesWeights[1] ? 1 : 2;
-                int variant = species * 4 + random.Next(4);
-                float yaw = (float)random.NextDouble() * 360, scale = .8f + (float)random.NextDouble() * .4f;
-                // Prefix ranks make every distant sample a subset of the same near-field seed.
-                float rank = (i + (float)random.NextDouble()) / Mathf.Max(1, maximum);
-                float u = (x - origin.x) / size.x, v = (z - origin.z) / size.z;
-                if (u <= .004f || u >= .996f || v <= .004f || v >= .996f) continue;
-                float height = terrain.SampleHeight(new Vector3(x, 0, z)) + origin.y - .025f;
-                float distance = Vector3.Distance(cameraPosition, new Vector3(x, height, z));
-                float depth = WaterDepth(x, z, height + .025f);
-                float coverage = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, 1.8f, HillsideLayout.PathEdgeDistance(x, z))) *
-                    (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(maximumSlope - 8, maximumSlope, terrain.terrainData.GetSteepness(u, v))));
-                if (depth > 0)
+                key = key, edge = edge, bounds = CellBounds(key, edge), lastUsed = requestFrame,
+                origin = terrain.transform.position, terrainSize = terrain.terrainData.size,
+                maximum = Mathf.CeilToInt(edge * edge * Mathf.Clamp(clumpsPerSquareMeter, 0, 40)),
+                totalWeight = Mathf.Max(0, speciesWeights[0]) + Mathf.Max(0, speciesWeights[1]) + Mathf.Max(0, speciesWeights[2]),
+                random = new System.Random(unchecked(seed ^ key.x * 73856093 ^ key.y * 19349663))
+            };
+            for (int i = 0; i < result.groups.Length; i++) result.groups[i] = new List<Matrix4x4>();
+            // Width is at most 1.6m and the coverage transition is 1.8m; farther segments cannot affect coverage.
+            float minX = key.x * edge - 3.401f, maxX = (key.x + 1) * edge + 3.401f;
+            float minZ = key.y * edge - 3.401f, maxZ = (key.y + 1) * edge + 3.401f;
+            foreach (Vector3[] route in HillsideLayout.Routes)
+                for (int i = 1; i < route.Length; i++)
                 {
-                    float patch = Mathf.PerlinNoise((x + seed * .13f) * .12f, (z - seed * .17f) * .12f);
-                    float bedDensity = Mathf.Lerp(.06f, .55f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.3f, .7f, patch)));
-                    coverage *= Mathf.Lerp(1, bedDensity, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.15f, 1.2f, depth)));
-                    // Keep the same meadow seed, with short grass on the bed and a few tall blades in shallows.
-                    float tallWeight = speciesWeights[1] * (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, .45f, depth)));
-                    species = pick >= speciesWeights[0] && pick < speciesWeights[0] + tallWeight ? 1 : 0;
-                    variant = species * 4 + variant % 4;
+                    Vector3 a = route[i - 1], b = route[i];
+                    if (Mathf.Max(a.x, b.x) < minX || Mathf.Min(a.x, b.x) > maxX ||
+                        Mathf.Max(a.z, b.z) < minZ || Mathf.Min(a.z, b.z) > maxZ) continue;
+                    result.paths.Add(new PathSegment { a = a, b = b });
                 }
-                if (rank >= DensityFraction(distance) * coverage) continue;
-                scale *= Mathf.Lerp(1, .65f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(75, 260, distance)));
-                groups[variant].Add(Matrix4x4.TRS(new Vector3(x, height, z), Quaternion.Euler(0, yaw, 0), Vector3.one * scale));
-                low = Mathf.Min(low, height); high = Mathf.Max(high, height);
-            }
-            if (float.IsPositiveInfinity(low)) { low = origin.y; high = origin.y + size.y; }
-            result.bounds = new Bounds(new Vector3((key.x + .5f) * edge, (low + high) * .5f + .4f, (key.y + .5f) * edge),
-                new Vector3(edge + 2, high - low + 2, edge + 2));
-            result.viewPosition = cameraPosition;
-            result.densityFraction = DensityFraction(Vector3.Distance(cameraPosition, result.bounds.center));
-            for (int variant = 0; variant < groups.Length; variant++)
-                for (int start = 0; start < groups[variant].Count; start += 1023)
-                {
-                    int count = Math.Min(1023, groups[variant].Count - start);
-                    var matrices = new Matrix4x4[count];
-                    groups[variant].CopyTo(start, matrices, 0, count);
-                    result.batches.Add(new Batch { variant = variant, matrices = matrices });
-                }
+            cells.Add(key, result);
             return result;
         }
 
+        void BeginBuild(Cell cell, Vector3 cameraPosition)
+        {
+            cell.buildView = cameraPosition;
+            cell.attempts = cell.totalWeight <= 0 ? 0 : Mathf.CeilToInt(cell.maximum *
+                DensityFraction(Mathf.Sqrt(CellBounds(cell.key, cell.edge).SqrDistance(cameraPosition))));
+            cell.filterIndex = 0;
+            cell.low = float.PositiveInfinity; cell.high = float.NegativeInfinity;
+            foreach (List<Matrix4x4> group in cell.groups) group.Clear();
+            cell.building = true;
+        }
+
+        bool AdvanceBuild(Cell cell, long deadline)
+        {
+            if (System.Diagnostics.Stopwatch.GetTimestamp() >= deadline) return false;
+            int work = 0;
+            while (cell.generated < cell.attempts)
+            {
+                GenerateCandidate(cell);
+                if (++work % 16 == 0 && System.Diagnostics.Stopwatch.GetTimestamp() >= deadline) return false;
+            }
+            while (cell.filterIndex < cell.candidates.Count)
+            {
+                Candidate candidate = cell.candidates[cell.filterIndex];
+                if (candidate.index >= cell.attempts) break;
+                cell.filterIndex++;
+                float distance = Vector3.Distance(cell.buildView, candidate.position);
+                if (candidate.rank < DensityFraction(distance) * candidate.coverage)
+                {
+                    float scale = candidate.scale * Mathf.Lerp(1, .65f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(75, 260, distance)));
+                    cell.groups[candidate.variant].Add(Matrix4x4.TRS(candidate.position, Quaternion.Euler(0, candidate.yaw, 0), Vector3.one * scale));
+                    cell.low = Mathf.Min(cell.low, candidate.position.y); cell.high = Mathf.Max(cell.high, candidate.position.y);
+                }
+                if (++work % 16 == 0 && System.Diagnostics.Stopwatch.GetTimestamp() >= deadline) return false;
+            }
+            CompleteBuild(cell);
+            return true;
+        }
+
+        void GenerateCandidate(Cell cell)
+        {
+            int index = cell.generated++;
+            System.Random random = cell.random;
+            float x = (cell.key.x + (float)random.NextDouble()) * cell.edge;
+            float z = (cell.key.y + (float)random.NextDouble()) * cell.edge;
+            float pick = (float)random.NextDouble() * cell.totalWeight;
+            int species = pick < speciesWeights[0] ? 0 : pick < speciesWeights[0] + speciesWeights[1] ? 1 : 2;
+            int variant = species * 4 + random.Next(4);
+            float yaw = (float)random.NextDouble() * 360, scale = .8f + (float)random.NextDouble() * .4f;
+            float rank = (index + (float)random.NextDouble()) / Mathf.Max(1, cell.maximum);
+            float u = (x - cell.origin.x) / cell.terrainSize.x, v = (z - cell.origin.z) / cell.terrainSize.z;
+            if (u <= .004f || u >= .996f || v <= .004f || v >= .996f) return;
+            staticCandidateQueries++;
+            float height = terrain.SampleHeight(new Vector3(x, 0, z)) + cell.origin.y - .025f;
+            float depth = WaterDepth(x, z, height + .025f);
+            float coverage = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, 1.8f, LocalPathDistance(cell, x, z) - HillsideLayout.PathHalfWidth(x, z))) *
+                (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(maximumSlope - 8, maximumSlope, terrain.terrainData.GetSteepness(u, v))));
+            if (depth > 0)
+            {
+                float patch = Mathf.PerlinNoise((x + seed * .13f) * .12f, (z - seed * .17f) * .12f);
+                float bedDensity = Mathf.Lerp(.06f, .55f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.3f, .7f, patch)));
+                coverage *= Mathf.Lerp(1, bedDensity, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.15f, 1.2f, depth)));
+                float tallWeight = speciesWeights[1] * (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, .45f, depth)));
+                species = pick >= speciesWeights[0] && pick < speciesWeights[0] + tallWeight ? 1 : 0;
+                variant = species * 4 + variant % 4;
+            }
+            if (coverage <= 0) return;
+            cell.candidates.Add(new Candidate { position = new Vector3(x, height, z), variant = variant, yaw = yaw,
+                scale = scale, rank = rank, coverage = coverage, index = index });
+        }
+
+        static float LocalPathDistance(Cell cell, float x, float z)
+        {
+            float distance = float.MaxValue;
+            foreach (PathSegment path in cell.paths)
+            {
+                float dx = path.b.x - path.a.x, dz = path.b.z - path.a.z;
+                float t = Mathf.Clamp01(((x - path.a.x) * dx + (z - path.a.z) * dz) / Mathf.Max(.0001f, dx * dx + dz * dz));
+                float px = x - Mathf.Lerp(path.a.x, path.b.x, t), pz = z - Mathf.Lerp(path.a.z, path.b.z, t);
+                distance = Mathf.Min(distance, Mathf.Sqrt(px * px + pz * pz));
+            }
+            return distance;
+        }
+
+        void CompleteBuild(Cell cell)
+        {
+            int batchIndex = 0;
+            for (int variant = 0; variant < cell.groups.Length; variant++)
+                for (int start = 0; start < cell.groups[variant].Count; start += 1023)
+                {
+                    int count = Math.Min(1023, cell.groups[variant].Count - start);
+                    Batch batch;
+                    if (batchIndex < cell.spareBatches.Count) batch = cell.spareBatches[batchIndex];
+                    else { batch = new Batch(); cell.spareBatches.Add(batch); }
+                    batch.variant = variant; batch.count = count;
+                    if (batch.matrices == null || batch.matrices.Length < count)
+                        batch.matrices = new Matrix4x4[Mathf.Min(1023, Mathf.NextPowerOfTwo(Mathf.Max(16, count)))];
+                    cell.groups[variant].CopyTo(start, batch.matrices, 0, count);
+                    batchIndex++;
+                }
+            for (int i = batchIndex; i < cell.spareBatches.Count; i++) cell.spareBatches[i].count = 0;
+            List<Batch> previous = cell.batches; cell.batches = cell.spareBatches; cell.spareBatches = previous;
+            float low = cell.low, high = cell.high;
+            if (float.IsPositiveInfinity(low)) { low = cell.origin.y; high = cell.origin.y + cell.terrainSize.y; }
+            cell.bounds = new Bounds(new Vector3((cell.key.x + .5f) * cell.edge, (low + high) * .5f + .4f, (cell.key.y + .5f) * cell.edge),
+                new Vector3(cell.edge + 2, high - low + 2, cell.edge + 2));
+            cell.viewPosition = cell.buildView;
+            cell.densityFraction = DensityFraction(Vector3.Distance(cell.viewPosition, cell.bounds.center));
+            cell.ready = true; cell.building = false;
+        }
+
+        // Synchronous path is retained for explicit review captures and independent Editor checks.
+        Cell BuildCell(Vector2Int key, float edge, Vector3 cameraPosition)
+        {
+            ValidateCache();
+            Cell cell = GetOrCreateCell(key, edge);
+            if (cell.ready && !cell.building && cell.viewPosition == cameraPosition) return cell;
+            BeginBuild(cell, cameraPosition);
+            AdvanceBuild(cell, long.MaxValue);
+            return cell;
+        }
+
 #if UNITY_EDITOR
+        Cell BuildVerificationCell(Vector2Int key, float edge, Vector3 view)
+        {
+            Cell source = BuildCell(key, edge, view);
+            var snapshot = new Cell();
+            foreach (Batch batch in source.batches)
+            {
+                if (batch.count == 0) continue;
+                var matrices = new Matrix4x4[batch.count];
+                Array.Copy(batch.matrices, matrices, batch.count);
+                snapshot.batches.Add(new Batch { variant = batch.variant, matrices = matrices, count = batch.count });
+            }
+            return snapshot;
+        }
+
         public string VerifyPlacement()
         {
             int checkedClumps = 0;
@@ -224,7 +410,7 @@ namespace WeatherHouse.Hillside
             {
                 var key = new Vector2Int(Mathf.FloorToInt(landmark.x / cellSize), Mathf.FloorToInt(landmark.z / cellSize));
                 Vector3 nearView = landmark + Vector3.up * 14;
-                Cell first = BuildCell(key, cellSize, nearView), repeated = BuildCell(key, cellSize, nearView);
+                Cell first = BuildVerificationCell(key, cellSize, nearView), repeated = BuildVerificationCell(key, cellSize, nearView);
                 if (first.batches.Count != repeated.batches.Count) throw new InvalidOperationException("Grass seed changed the batch count.");
                 for (int i = 0; i < first.batches.Count; i++)
                 {
@@ -244,8 +430,8 @@ namespace WeatherHouse.Hillside
             }
             if (checkedClumps < 100) throw new InvalidOperationException("The three route regions need visible meadow coverage.");
             var distantKey = new Vector2Int(Mathf.FloorToInt(HillsideLayout.B.x / cellSize), Mathf.FloorToInt(HillsideLayout.B.z / cellSize));
-            Cell near = BuildCell(distantKey, cellSize, HillsideLayout.B + Vector3.up * 14);
-            Cell far = BuildCell(distantKey, cellSize, HillsideLayout.B + Vector3.up * 245);
+            Cell near = BuildVerificationCell(distantKey, cellSize, HillsideLayout.B + Vector3.up * 14);
+            Cell far = BuildVerificationCell(distantKey, cellSize, HillsideLayout.B + Vector3.up * 245);
             var nearPoints = new HashSet<Vector3>();
             foreach (Batch batch in near.batches) foreach (Matrix4x4 matrix in batch.matrices) nearPoints.Add(matrix.GetColumn(3));
             int distantClumps = 0;
@@ -262,7 +448,7 @@ namespace WeatherHouse.Hillside
                 Vector3 view = new Vector3(water.Center.x, water.SurfaceY + 14, water.Center.y);
                 for (int z = Mathf.FloorToInt((water.Center.y - water.Radii.y * 1.1f) / cellSize); z <= Mathf.FloorToInt((water.Center.y + water.Radii.y * 1.1f) / cellSize); z++)
                     for (int x = Mathf.FloorToInt((water.Center.x - water.Radii.x * 1.1f) / cellSize); x <= Mathf.FloorToInt((water.Center.x + water.Radii.x * 1.1f) / cellSize); x++)
-                        foreach (Batch batch in BuildCell(new Vector2Int(x, z), cellSize, view).batches)
+                        foreach (Batch batch in BuildVerificationCell(new Vector2Int(x, z), cellSize, view).batches)
                             foreach (Matrix4x4 matrix in batch.matrices)
                             {
                                 Vector3 p = matrix.GetColumn(3);
