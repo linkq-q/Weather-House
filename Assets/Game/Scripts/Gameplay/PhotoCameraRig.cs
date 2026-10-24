@@ -39,6 +39,7 @@ namespace WeatherHousePrototype
         private Volume focusVolume;
         private VolumeProfile focusProfile;
         private DepthOfField focusEffect;
+        private Vignette vignetteEffect;
         private Renderer[] playerRenderers;
         private bool[] rendererForcedOff;
         private bool previousViewEnabled, previousMapEnabled, previousViewAudio, previousMapAudio;
@@ -118,6 +119,13 @@ namespace WeatherHousePrototype
             focusEffect.focusDistance.Override(FocusDistance);
             focusEffect.focalLength.Override(FocalLength);
             focusEffect.aperture.Override(5.6f);
+            vignetteEffect = focusProfile.Add<Vignette>(true);
+            vignetteEffect.color.Override(Color.black);
+            vignetteEffect.center.Override(new Vector2(.5f, .5f));
+            vignetteEffect.rounded.Override(false);
+            vignetteEffect.smoothness.Override(.8f);
+            // URP 14 multiplies intensity by 3 and smoothness by 5: .084 leaves about 88% at the extreme corners.
+            vignetteEffect.intensity.Override(.084f);
             focusVolume.sharedProfile = focusProfile;
             focusVolume.enabled = false;
         }
@@ -189,6 +197,11 @@ namespace WeatherHousePrototype
                 playerRenderers = null;
                 rendererForcedOff = null;
             }
+        }
+
+        public void SetVignetteVisibility(float visibility)
+        {
+            if (vignetteEffect != null) vignetteEffect.intensity.Override(.084f * Mathf.Clamp01(visibility));
         }
 
         private void Update()
@@ -279,11 +292,13 @@ namespace WeatherHousePrototype
         {
             if (photoCamera != null) DestroyOwned(photoCamera.gameObject);
             if (focusEffect != null) DestroyOwned(focusEffect);
+            if (vignetteEffect != null) DestroyOwned(vignetteEffect);
             if (focusProfile != null) DestroyOwned(focusProfile);
             photoCamera = null;
             photoListener = null;
             focusVolume = null;
             focusEffect = null;
+            vignetteEffect = null;
             focusProfile = null;
         }
 

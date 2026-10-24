@@ -35,7 +35,8 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 CheckCanonicalPresentationAndOcclusion(root.transform);
                 CheckReplyPlacement(root.transform);
                 CheckCameraFallback(root.transform);
-                return "PASS 10 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners; visible-pair priority; canonical animal bubble with independent speaker visibility and real occlusion; reply placement clears the listener head without changing the speaker anchor or unobstructed layout; active-camera fallback and explicit capture view.";
+                CheckPresentationFade(root.transform);
+                return "PASS 11 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners; visible-pair priority; canonical animal bubble with independent speaker visibility and real occlusion; reply placement clears the listener head without changing the speaker anchor or unobstructed layout; active-camera fallback and explicit capture view; timed speech fade, old-speaker retirement, immediate occlusion and capture visibility threshold.";
             }
             finally
             {
@@ -295,7 +296,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
             participants[listener].head.localPosition += Vector3.right * 100f;
             Require(social.CanPresentFrom(camera) && !social.ObserveFrom(camera) && !social.ActiveConversation.observed,
                 "An off-screen listener hid a visible speaker or incorrectly supplied a complete language observation.");
-            Call(social, "LateUpdate"); Canvas.ForceUpdateCanvases(); Call(social, "LateUpdate");
+            ShowFully(social);
             var background = social.GetComponentInChildren<ProceduralUiGraphic>();
             var glyph = social.GetComponentInChildren<AnimalGlyphGraphic>();
             var canvas = social.GetComponentInChildren<Canvas>();
@@ -319,8 +320,8 @@ namespace WeatherHouse.WildlifeJourney.Editor
             blocker.transform.localScale = Vector3.one * 2f; social.occlusionMask = 1 << 30;
             Physics.SyncTransforms();
             Require(!social.CanPresentFrom(camera) && !social.ObserveFrom(camera), "A real collider did not occlude the speaker or language evidence.");
-            Call(social, "LateUpdate");
-            Require(social.VisibleBubbleCount == 0 && !social.ActiveConversation.observed,
+            Advance(social, 0f);
+            Require(social.VisibleBubbleCount == 0 && Alpha(social) == 0f && !social.ActiveConversation.observed,
                 "An occluded word stayed on screen or was silently recorded.");
             Object.DestroyImmediate(blocker); Physics.SyncTransforms();
 
@@ -337,7 +338,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
             listener = social.ActiveConversation.listenerId;
             listenerHead = participants[listener].head.localPosition;
             participants[listener].head.localPosition += Vector3.right * 100f;
-            Call(social, "LateUpdate");
+            ShowFully(social);
             Require(social.VisibleBubbleCount == 1 && !social.ActiveConversation.observed && social.Completed.Count == 0,
                 "Showing a partial listener clue weakened its two-participant observation requirement.");
             participants[listener].head.localPosition = listenerHead;
@@ -367,7 +368,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 participants[speaker].root.position = Vector3.zero;
                 participants[listener].root.position = forward * 1.8f;
                 FacePair(social, participants);
-                Call(social, "LateUpdate"); Canvas.ForceUpdateCanvases(); Call(social, "LateUpdate");
+                ShowFully(social);
                 var background = social.GetComponentInChildren<ProceduralUiGraphic>();
                 var glyph = social.GetComponentInChildren<AnimalGlyphGraphic>();
                 Rect canvasRect = ((RectTransform)social.GetComponentInChildren<Canvas>().transform).rect;
@@ -389,7 +390,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
 
                 // At the same height beside the speaker, the head no longer intersects the bubble: keep normal placement.
                 participants[listener].root.position = camera.transform.right * 1.8f;
-                FacePair(social, participants); Call(social, "LateUpdate");
+                FacePair(social, participants); Advance(social, 0f);
                 anchor = camera.WorldToViewportPoint(participants[speaker].head.position + Vector3.up * .35f);
                 original = new Vector2((anchor.x - .5f) * canvasRect.width,
                     (anchor.y - .5f) * canvasRect.height + background.rectTransform.sizeDelta.y * .5f + 12f);
@@ -423,9 +424,85 @@ namespace WeatherHouse.WildlifeJourney.Editor
             Object.DestroyImmediate(replacement.gameObject); Object.DestroyImmediate(social.gameObject);
         }
 
-        private static void Call(JourneySocial social, string method)
+        private static void CheckPresentationFade(Transform parent)
         {
-            typeof(JourneySocial).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(social, null);
+            var participants = Participants(parent, 2);
+            JourneySocial social = Social(parent); Camera camera = View(parent); social.viewCamera = camera;
+            social.turnDuration = .2f; social.turnGap = .1f;
+            social.Tick(0f, participants); social.Tick(1.2f, participants); social.Tick(1.21f, participants);
+            Require(social.ActiveConversation != null, "Fade fixture must begin a real conversation.");
+            Advance(social, 0f); Canvas.ForceUpdateCanvases(); Advance(social, 0f);
+            Require(Alpha(social) == 0f && social.VisibleBubbleCount == 0 && !social.ActiveConversation.observed,
+                "A new word appeared or entered observation history without any fade time.");
+            RejectInvisibleCapture(social, camera);
+            Advance(social, .02f);
+            Require(Alpha(social) > 0f && Alpha(social) < .2f && social.VisibleBubbleCount == 0 && !social.ActiveConversation.observed,
+                "The first 20 ms must animate visually without treating a nearly transparent glyph as visible evidence.");
+            RejectInvisibleCapture(social, camera);
+            Advance(social, .16f);
+            Require(Mathf.Abs(Alpha(social) - 1f) < .001f && social.VisibleBubbleCount == 1 && social.ActiveConversation.observed,
+                "A clear word did not become fully visible after the authored 0.18 s fade.");
+            var background = social.GetComponentInChildren<ProceduralUiGraphic>(true);
+            Vector2 oldAnchor = background.rectTransform.anchoredPosition;
+            int oldSpeaker = social.ActiveConversation.speakerId;
+            social.Tick(1.43f, participants); Advance(social, .04f);
+            Require(social.ActiveConversation == null && Alpha(social) > .5f && Alpha(social) < 1f &&
+                background.gameObject.activeSelf && social.VisibleBubbleCount == 0 && Vector2.Distance(oldAnchor, background.rectTransform.anchoredPosition) < .01f,
+                "Natural end must retire the old bubble at its original speaker anchor without claiming a current visible word.");
+            social.Tick(1.54f, participants); Advance(social, .04f);
+            Require(social.ActiveConversation != null && social.ActiveConversation.speakerId != oldSpeaker && !social.ActiveConversation.observed &&
+                social.VisibleBubbleCount == 0 && Vector2.Distance(oldAnchor, background.rectTransform.anchoredPosition) < .01f,
+                "Changing speakers reused the old visible alpha or moved the retiring bubble to the new speaker.");
+            RejectInvisibleCapture(social, camera);
+            Advance(social, .10f);
+            Require(Alpha(social) < .001f && social.VisibleBubbleCount == 0 && !social.ActiveConversation.observed,
+                "Completing the old fade must not spend the same delta time brightening the next speaker.");
+            Advance(social, 0f); Advance(social, .02f);
+            Require(Alpha(social) > 0f && Alpha(social) < .2f && !social.ActiveConversation.observed,
+                "The reply must start its own fade from zero.");
+            Advance(social, .16f); Canvas.ForceUpdateCanvases(); Advance(social, 0f);
+            Require(social.VisibleBubbleCount == 1 && Mathf.Abs(Alpha(social) - 1f) < .001f &&
+                Vector2.Distance(oldAnchor, background.rectTransform.anchoredPosition) > 1f,
+                "The fully entered reply did not reach the new speaker anchor.");
+            camera.transform.rotation = Quaternion.LookRotation(Vector3.back);
+            Advance(social, 0f);
+            Require(Alpha(social) == 0f && social.VisibleBubbleCount == 0 && !background.gameObject.activeSelf,
+                "Leaving the view must hide immediately, without a fading word floating in an unrelated view.");
+            social.ResetSchedule();
+            Require(Alpha(social) == 0f && social.VisibleBubbleCount == 0, "Reset retained a fading word.");
+            Object.DestroyImmediate(social.gameObject); Object.DestroyImmediate(camera.gameObject);
+        }
+
+        private static void RejectInvisibleCapture(JourneySocial social, Camera camera)
+        {
+            bool rejected = false;
+            try { social.CaptureCurrent(camera, null); }
+            catch (InvalidOperationException) { rejected = true; }
+            catch (ArgumentException) { } // Old implementation reaches path handling after incorrectly observing the word.
+            Require(rejected && !social.ActiveConversation.observed,
+                "CaptureCurrent bypassed the visible-alpha threshold or recorded evidence before rejecting an invisible word.");
+        }
+
+        private static float Alpha(JourneySocial social)
+        {
+            var background = social.GetComponentInChildren<ProceduralUiGraphic>(true);
+            if (!background || !background.gameObject.activeSelf) return 0f;
+            var group = background.GetComponent<CanvasGroup>();
+            return group ? group.alpha : 1f;
+        }
+
+        private static void ShowFully(JourneySocial social)
+        {
+            Advance(social, 0f); Canvas.ForceUpdateCanvases(); Advance(social, .18f);
+            Canvas.ForceUpdateCanvases(); Advance(social, 0f);
+        }
+
+        private static void Advance(JourneySocial social, float deltaTime)
+        {
+            MethodInfo timed = typeof(JourneySocial).GetMethod("UpdatePresentation", BindingFlags.Instance | BindingFlags.NonPublic);
+            // The old version still runs its real presenter, so RED is a visible-behaviour failure, not a missing-method exception.
+            if (timed != null) timed.Invoke(social, new object[] { deltaTime });
+            else typeof(JourneySocial).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(social, null);
         }
 
         private static JourneySocial Social(Transform parent)

@@ -49,7 +49,7 @@ namespace WeatherHouse.WildlifeJourney
         public int FirstParticipantId => firstId;
         public int SecondParticipantId => secondId;
         public string CurrentIntent { get; private set; } = "";
-        public int VisibleBubbleCount => bubble != null && bubble.gameObject.activeSelf ? 1 : 0;
+        public int VisibleBubbleCount => HasVisibleCurrentBubble(ResolveViewCamera()) ? 1 : 0;
         public Camera CurrentViewCamera => ResolveViewCamera();
 
         private readonly List<JourneyConversation> completed = new List<JourneyConversation>();
@@ -66,10 +66,21 @@ namespace WeatherHouse.WildlifeJourney
         private bool clue, preparing;
         private Canvas canvas;
         private RectTransform bubble;
+        private CanvasGroup bubbleGroup;
+        private JourneyConversation presentedConversation;
+        private JourneySocialParticipant presentedSpeaker, presentedListener;
         private AnimalGlyphGraphic glyph;
         private GlyphCatalog catalog;
 
         public bool IsParticipating(int id) => firstId >= 0 && (id == firstId || id == secondId);
+
+        // Presentation ownership includes a retiring word; language evidence still requires the current turn.
+        public bool HasPresentedBubbleFor(int id)
+        {
+            Camera camera = ResolveViewCamera();
+            return presentedConversation != null && presentedSpeaker.id == id && bubble && bubble.gameObject.activeInHierarchy &&
+                bubbleGroup && bubbleGroup.alpha > 0f && canvas && canvas.enabled && canvas.worldCamera == camera && PresentedSpeakerInView(camera);
+        }
 
         /// <summary>Restart with the herd's simulation clock while retaining the presentation objects.</summary>
         public void ResetSchedule()
@@ -83,7 +94,7 @@ namespace WeatherHouse.WildlifeJourney
             firstRoot = secondRoot = null;
             nextConversation = nextTurn = preparationUntil = now = 0f;
             clue = preparing = false; CurrentIntent = "";
-            if (bubble != null) bubble.gameObject.SetActive(false);
+            HidePresentation();
         }
 
         public void Tick(float time, JourneySocialParticipant[] input)
@@ -223,7 +234,7 @@ namespace WeatherHouse.WildlifeJourney
                 if (completed.Count > 128) completed.RemoveAt(0);
             }
             ActiveConversation = null;
-            if (bubble != null) bubble.gameObject.SetActive(false);
+            if (interrupted) HidePresentation();
         }
 
         private void EndPair()
@@ -297,13 +308,59 @@ namespace WeatherHouse.WildlifeJourney
                 participant.root.position + Vector3.up * Mathf.Max(.85f, participant.radius * 3.2f);
         }
 
-        private void LateUpdate()
+        private void LateUpdate() => UpdatePresentation(ProceduralUiLibrary.FadeFrameDelta(Time.unscaledDeltaTime));
+
+        private void UpdatePresentation(float deltaTime)
         {
             Camera camera = ResolveViewCamera();
-            bool visible = CanPresentFrom(camera);
-            if (!visible) { if (bubble != null) bubble.gameObject.SetActive(false); return; }
+            if (presentedConversation != null && !PresentedSpeakerInView(camera)) HidePresentation();
+            if (presentedConversation != null && !MatchesCurrentPresentation())
+            {
+                bubbleGroup.alpha = ProceduralUiLibrary.FadeAlpha(bubbleGroup.alpha, false, deltaTime);
+                if (bubbleGroup.alpha <= 0f) HidePresentation();
+                else PositionPresented(camera);
+                return;
+            }
+            if (!CanPresentFrom(camera)) { HidePresentation(); return; }
             Present(camera);
-            ObserveFrom(camera);
+            if (presentedConversation == null) return;
+            bubbleGroup.alpha = ProceduralUiLibrary.FadeAlpha(bubbleGroup.alpha, true, deltaTime);
+            if (HasVisibleCurrentBubble(camera)) ObserveFrom(camera);
+        }
+
+        private bool HasVisibleCurrentBubble(Camera camera)
+        {
+            return MatchesCurrentPresentation() &&
+                bubble && bubble.gameObject.activeInHierarchy && bubbleGroup &&
+                bubbleGroup.alpha >= ProceduralUiLibrary.SpeechVisibleAlpha &&
+                canvas && canvas.enabled && canvas.worldCamera == camera && CanPresentFrom(camera);
+        }
+
+        private bool MatchesCurrentPresentation()
+        {
+            var current = ActiveConversation;
+            var shown = presentedConversation;
+            if (current == null || shown == null || current.sequenceId != shown.sequenceId || current.turnIndex != shown.turnIndex ||
+                current.speakerId != shown.speakerId || current.listenerId != shown.listenerId || current.glyphIds == null ||
+                shown.glyphIds == null || current.glyphIds.Length != shown.glyphIds.Length) return false;
+            for (int i = 0; i < current.glyphIds.Length; i++)
+                if (current.glyphIds[i] != shown.glyphIds[i]) return false;
+            return true;
+        }
+
+        private bool PresentedSpeakerInView(Camera camera)
+        {
+            return camera && camera.isActiveAndEnabled &&
+                TryFind(presentedSpeaker.id, out var speaker) && TryFind(presentedListener.id, out var listener) &&
+                speaker.root == presentedSpeaker.root && listener.root == presentedListener.root &&
+                CanParticipate(speaker) && CanParticipate(listener) && InView(camera, speaker, listener.root);
+        }
+
+        private void HidePresentation()
+        {
+            if (bubbleGroup) bubbleGroup.alpha = 0f;
+            if (bubble) bubble.gameObject.SetActive(false);
+            presentedConversation = null;
         }
 
         private Camera ResolveViewCamera()
@@ -317,6 +374,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private void Present(Camera camera)
         {
+            if (ActiveConversation?.glyphIds == null || ActiveConversation.glyphIds.Length == 0) { HidePresentation(); return; }
             if (catalog == null)
             {
                 TextAsset source = Resources.Load<TextAsset>("WeatherHouseGlyphs");
@@ -334,9 +392,18 @@ namespace WeatherHouse.WildlifeJourney
                 scaler.referenceResolution = new Vector2(1600f, 1000f); scaler.matchWidthOrHeight = .5f;
                 bubble = ProceduralUiLibrary.Create(go.transform, "Animal bubble", UiMark.AnimalBubble,
                     Vector2.zero, bubbleSize, ProceduralUiLibrary.Cream).rectTransform;
+                bubbleGroup = bubble.gameObject.AddComponent<CanvasGroup>();
+                bubbleGroup.alpha = 0f; bubbleGroup.interactable = bubbleGroup.blocksRaycasts = false;
                 glyph = new GameObject("Animal glyph", typeof(RectTransform), typeof(CanvasRenderer), typeof(AnimalGlyphGraphic)).GetComponent<AnimalGlyphGraphic>();
                 glyph.transform.SetParent(bubble, false); glyph.gameObject.layer = 5;
                 glyph.raycastTarget = false;
+            }
+            if (!MatchesCurrentPresentation())
+            {
+                presentedConversation = Copy(ActiveConversation);
+                TryFind(ActiveConversation.speakerId, out presentedSpeaker);
+                TryFind(ActiveConversation.listenerId, out presentedListener);
+                bubbleGroup.alpha = 0f;
             }
             canvas.worldCamera = camera; canvas.planeDistance = camera.nearClipPlane + .2f;
             bubble.sizeDelta = ProceduralUiLibrary.AnimalBubbleSize(bubbleSize, 1, glyphHeight, ((RectTransform)canvas.transform).rect.size);
@@ -348,23 +415,28 @@ namespace WeatherHouse.WildlifeJourney
             glyph.color = ProceduralUiLibrary.Ink;
             if (glyph.lineWidth != glyphStrokeWidth) { glyph.lineWidth = glyphStrokeWidth; glyph.SetVerticesDirty(); }
             bubble.gameObject.SetActive(true); glyph.SvgBody = definition.body;
-            TryFind(ActiveConversation.speakerId, out var speaker);
-            Vector3 screen = camera.WorldToViewportPoint(Anchor(speaker));
+            PositionPresented(camera);
+        }
+
+        private void PositionPresented(Camera camera)
+        {
+            canvas.worldCamera = camera; canvas.planeDistance = camera.nearClipPlane + .2f;
+            Vector3 screen = camera.WorldToViewportPoint(Anchor(presentedSpeaker));
             Rect size = ((RectTransform)canvas.transform).rect;
             Vector2 position = new Vector2((screen.x - .5f) * size.width, (screen.y - .5f) * size.height + bubble.sizeDelta.y * .5f + 12f);
             if (size.width > bubble.sizeDelta.x + 24f && size.height > bubble.sizeDelta.y + 24f)
             {
                 position.x = Mathf.Clamp(position.x, size.xMin + bubble.sizeDelta.x * .5f + 12f, size.xMax - bubble.sizeDelta.x * .5f - 12f);
                 position.y = Mathf.Clamp(position.y, size.yMin + bubble.sizeDelta.y * .5f + 12f, size.yMax - bubble.sizeDelta.y * .5f - 12f);
-                position = RaiseAboveListenerHead(camera, size, position);
+                position = RaiseAboveListenerHead(camera, size, position, presentedListener);
                 position.y = Mathf.Min(position.y, size.yMax - bubble.sizeDelta.y * .5f - 12f);
             }
             bubble.anchoredPosition = position;
         }
 
-        private Vector2 RaiseAboveListenerHead(Camera camera, Rect size, Vector2 position)
+        private Vector2 RaiseAboveListenerHead(Camera camera, Rect size, Vector2 position, JourneySocialParticipant listener)
         {
-            if (!TryFind(ActiveConversation.listenerId, out var listener) || listener.root == null) return position;
+            if (listener.root == null) return position;
             Vector3 head = listener.head != null ? listener.head.position : Anchor(listener) - Vector3.up * .35f;
             Vector3 screen = camera.WorldToViewportPoint(head);
             if (screen.z <= 0f || screen.x < 0f || screen.x > 1f || screen.y < 0f || screen.y > 1f) return position;
@@ -394,7 +466,7 @@ namespace WeatherHouse.WildlifeJourney
         /// <summary>Called explicitly by the player's shutter. Stores a sample photo and its original conversation context.</summary>
         public string CaptureCurrent(Camera camera, string path)
         {
-            if (!ObserveFrom(camera)) throw new InvalidOperationException("当前没有看清双方的动物交流。");
+            if (!HasVisibleCurrentBubble(camera) || !ObserveFrom(camera)) throw new InvalidOperationException("当前没有看清双方的动物交流。");
             string png = Path.ChangeExtension(Path.GetFullPath(path), ".png");
             string json = Path.ChangeExtension(png, ".json");
             if (File.Exists(png) || File.Exists(json)) throw new IOException("照片文件已存在，未覆盖。");

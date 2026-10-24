@@ -16,6 +16,7 @@ namespace WeatherHousePrototype
         [Range(.15f, .5f)] public float bubbleRadius = .47f;
         [Range(0f, .24f)] public float tailSize = .13f;
         [Range(0f, 40f)] public float cornerRadius = 18f;
+        public Vector2 viewfinderLegRatios = new Vector2(.16f, .16f);
         [Range(.22f, .38f)] public float shutterInnerRatio = .318f;
         [Range(.5f, 2f)] public float shutterOuterLineScale = 1f;
         [Range(.2f, 1f)] public float shutterInnerLineScale = .44f;
@@ -120,14 +121,16 @@ namespace WeatherHousePrototype
             float pad = lineWidth + 2f;
             float halfW = rect.width * .5f - pad;
             float halfH = rect.height * .5f - pad;
-            float leg = Mathf.Min(rect.width, rect.height) * .16f;
-            float radius = Mathf.Min(cornerRadius, leg);
+            float shortSide = Mathf.Min(rect.width, rect.height);
+            float legX = shortSide * Mathf.Clamp(viewfinderLegRatios.x, .05f, .45f);
+            float legY = shortSide * Mathf.Clamp(viewfinderLegRatios.y, .05f, .45f);
+            float radius = Mathf.Min(cornerRadius, Mathf.Min(legX, legY));
             foreach (float xSign in new[] { -1f, 1f })
             foreach (float ySign in new[] { -1f, 1f })
             {
-                var path = new List<Vector2> { new Vector2(halfW - leg, halfH) };
+                var path = new List<Vector2> { new Vector2(halfW - legX, halfH) };
                 path.AddRange(Arc(new Vector2(halfW - radius, halfH - radius), radius, 90f, 0f, 14));
-                path.Add(new Vector2(halfW, halfH - leg));
+                path.Add(new Vector2(halfW, halfH - legY));
                 for (int i = 0; i < path.Count; i++)
                     path[i] = rect.center + new Vector2(path[i].x * xSign, path[i].y * ySign);
                 Stroke(mesh, path, lineWidth);

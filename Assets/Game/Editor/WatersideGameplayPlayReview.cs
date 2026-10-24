@@ -39,6 +39,12 @@ namespace WeatherHousePrototype.Editor
         static Dictionary<JourneySocial, Camera> socialCameras;
         static Vector3 photoForward;
         static AnimalActor dialogueAnimal;
+        static int fadeSampleFrame = -1;
+        static List<float> fadeSamples;
+        static AnimalActor greetingActor;
+        static float greetingUntilBefore, nextGreetingBefore;
+        static int greetingSampleFrame = -1;
+        static List<float> greetingSamples;
         static bool Active => SessionState.GetBool(Key + "active", false);
         static bool Ending => SessionState.GetBool(Key + "ending", false);
 
@@ -50,6 +56,8 @@ namespace WeatherHousePrototype.Editor
             public float blockedHorizontalMotion, restoredHorizontalMotion, photoHorizontalMotion, photoDirectionAgreement;
             public string observed;
             public List<string> checks = new List<string>();
+            public List<float> photoEnterAlphas = new List<float>(), photoExitAlphas = new List<float>();
+            public List<float> greetingEnterAlphas = new List<float>(), greetingExitAlphas = new List<float>();
         }
 
         static WatersideGameplayPlayReview()
@@ -129,6 +137,8 @@ namespace WeatherHousePrototype.Editor
             if (!string.IsNullOrEmpty(logged)) { Finish(new InvalidOperationException(logged)); return; }
             if (!EditorApplication.isPlaying || EditorApplication.isPaused) return;
             EditorApplication.QueuePlayerLoopUpdate();
+            SamplePhotoFade();
+            SampleGreetingFade();
             if (Time.unscaledTime < next) return;
             try
             {
@@ -148,7 +158,47 @@ namespace WeatherHousePrototype.Editor
                             if (routeAttempt >= 12) throw new InvalidOperationException("No actual visible nearby animal could be observed; UI observation has not passed.");
                             PlaceNearAnimal(); next = Time.unscaledTime + .5f; break;
                         }
-                        report.observed = session.Observed.animalId; Capture("01_hud_observed");
+                        if (session.Observed.HasAmbientPresentation)
+                        {
+                            if (Time.unscaledTime - enteredAt > 20f) throw new TimeoutException("A social exchange kept owning the observed speaker; greeting fade has not been verified.");
+                            next = Time.unscaledTime + .2f; break;
+                        }
+                        report.observed = session.Observed.animalId;
+                        report.checks.Add(CameraReferenceChecks.InspectAnimalFade());
+                        BeginGreetingVisual();
+                        stage = 17; next = Time.unscaledTime + .07f; break;
+                    case 17:
+                        if (GreetingAlpha() == 0f) { next = Time.unscaledTime; break; }
+                        Require(GreetingAlpha() > .001f && GreetingAlpha() < .999f, "An actual rendered greeting frame has a partial entering alpha.");
+                        Capture("01a_greeting_enter_mid");
+                        stage = 18; next = Time.unscaledTime + .2f; break;
+                    case 18:
+                        if (GreetingAlpha() < .999f) { next = Time.unscaledTime; break; }
+                        Require(session.Observed == greetingActor && !greetingActor.HasAmbientPresentation && hud.IsAnimalSpeechVisible(greetingActor),
+                            "The actual observed animal owns the fully entered greeting.");
+                        Require(greetingSamples.Any(a => a > .001f && a < .999f), "Greeting fade-in has actual intermediate frame samples.");
+                        greetingSamples = null; Capture("01_hud_observed");
+                        SetGreetingClock(float.NegativeInfinity, float.NegativeInfinity);
+                        Require(greetingActor.TryBeginAutomaticGreeting(Time.unscaledTime - 10.1f, 10f, 30f), "An expired greeting window was prepared through the production clock API.");
+                        BeginGreetingSamples(report.greetingExitAlphas);
+                        stage = 19; next = Time.unscaledTime + .07f; break;
+                    case 19:
+                        if (GreetingAlpha() == 1f) { next = Time.unscaledTime; break; }
+                        Require(GreetingAlpha() > .001f && GreetingAlpha() < .999f, "An actual rendered greeting frame has a partial retiring alpha.");
+                        Capture("01b_greeting_exit_mid");
+                        stage = 20; next = Time.unscaledTime + .2f; break;
+                    case 20:
+                        if (GreetingAlpha() > 0f) { next = Time.unscaledTime; break; }
+                        Require(greetingSamples.Any(a => a > .001f && a < .999f), "Greeting fade-out has actual intermediate frame samples.");
+                        greetingSamples = null;
+                        Require(!greetingActor.HasAmbientPresentation && !session.ShouldShowAnimalUtterance(greetingActor) && !hud.IsAnimalSpeechVisible(greetingActor) && GreetingAlpha() == 0f,
+                            "An expired greeting finishes fading and leaves no constant hello bubble.");
+                        greetingActor.SetObserved(false); greetingActor.SetObserved(true);
+                        Require(!greetingActor.TryBeginAutomaticGreeting(Time.unscaledTime, 10f, 30f), "Re-observing the same real animal during cooldown does not restart its greeting.");
+                        Capture("01c_greeting_cooldown");
+                        stage = 21; next = Time.unscaledTime + .15f; break;
+                    case 21:
+                        RestoreGreetingVisual();
                         stage = 10; next = Time.unscaledTime + .3f; break;
                     case 10:
                         dialogueAnimal = session.Observed;
@@ -190,6 +240,7 @@ namespace WeatherHousePrototype.Editor
                         socialCameras = Object.FindObjectsOfType<JourneySocial>(true).Where(g => g.gameObject.scene == session.gameObject.scene).ToDictionary(g => g, g => g.viewCamera);
                         movementCameraBefore = player.MovementCameraOverride;
                         hud.SetCameraMode(true);
+                        BeginFadeSamples(report.photoEnterAlphas);
                         Require(grassCameras.Count > 0 && grassCameras.Keys.All(g => g.viewCamera == session.PhotoRig.CaptureCamera), "Photo camera receives every same-scene grass renderer including local overlays.");
                         Require(socialCameras.Count > 0 && socialCameras.Keys.All(g => g.CurrentViewCamera == session.PhotoRig.CaptureCamera), "Existing social bubbles resolve the active photo camera.");
                         Require(session.PhotoRig.Active && session.CurrentView == session.PhotoRig.CaptureCamera && !session.PlayerViewCamera.enabled,
@@ -197,6 +248,11 @@ namespace WeatherHousePrototype.Editor
                         Require(player.JumpBlocked && orbit.InputBlocked && renderers.Keys.All(r => r.forceRenderingOff), "Photo mode hides player visuals and prevents Space from also jumping.");
                         stage = 6; next = Time.unscaledTime + .3f; break;
                     case 6:
+                        if ((float)typeof(GameplayHud).GetField("cameraBlend", Private).GetValue(hud) < 1f) { next = Time.unscaledTime; break; }
+                        EndFadeSamples(true);
+                        report.checks.Add(CameraReferenceChecks.InspectCurrent());
+                        report.checks.Add(CameraReferenceChecks.InspectLiveRebuild());
+                        report.checks.Add(CameraReferenceChecks.InspectEffectsAndTransitions());
                         Require(renderers.All(r => r.Key.forceRenderingOff && r.Key.enabled == r.Value), "All player renderers including Cape Cloth remain suppressed after multiple rendered frames; their enabled state and cloth simulation are untouched.");
                         Require(Mathf.Abs(Mathf.DeltaAngle(0, session.CurrentView.transform.eulerAngles.x)) <= 15.01f,
                             "Photo entry uses the existing character's forward viewing pitch, not the top-down gameplay pitch.");
@@ -216,6 +272,13 @@ namespace WeatherHousePrototype.Editor
                         report.photoHorizontalMotion = photoDelta.magnitude; report.photoDirectionAgreement = Vector3.Dot(photoDelta.normalized, photoForward);
                         Require(report.photoHorizontalMotion > .08f && report.photoDirectionAgreement > .8f, "Real forward movement follows the photo camera after a 90 degree turn.");
                         hud.SetCameraMode(false);
+                        Require(hud.CameraMode && session.PhotoRig.Active, "A normal photo close retains camera and input ownership until the fade finishes.");
+                        BeginFadeSamples(report.photoExitAlphas);
+                        stage = 16; next = Time.unscaledTime + .3f; break;
+                    case 16:
+                        if (PhotoAlpha() > 0f) { next = Time.unscaledTime; break; }
+                        EndFadeSamples(false);
+                        report.checks.Add(CameraReferenceChecks.InspectAfterExit());
                         Require(!session.PhotoRig.Active && session.PlayerViewCamera.enabled && !player.JumpBlocked && !orbit.InputBlocked, "Photo exit restores gameplay camera and input.");
                         Require(player.MovementCameraOverride == movementCameraBefore && grassCameras.All(g => g.Key && g.Key.viewCamera == g.Value), "Photo exit restores the prior movement reference and every grass camera.");
                         Require(socialCameras.All(g => g.Key && g.Key.viewCamera == g.Value), "Photo exit restores every social bubble camera.");
@@ -269,11 +332,68 @@ namespace WeatherHousePrototype.Editor
         static void CloseTop() => typeof(GameplayHud).GetMethod("CloseTop", Private).Invoke(hud, null);
         static float Flat(Vector3 v) => new Vector2(v.x, v.z).magnitude;
         static void Capture(string name) { ScreenCapture.CaptureScreenshot(Path.Combine(Folder, name + ".png")); }
+        static float PhotoAlpha()
+        {
+            var group = hud ? (CanvasGroup)typeof(GameplayHud).GetField("cameraGroup", Private).GetValue(hud) : null;
+            return group ? group.alpha : 0f;
+        }
+        static void BeginFadeSamples(List<float> samples)
+        { fadeSamples = samples; fadeSamples.Clear(); fadeSamples.Add(PhotoAlpha()); fadeSampleFrame = Time.frameCount; }
+        static void SamplePhotoFade()
+        {
+            if (fadeSamples == null || fadeSampleFrame == Time.frameCount) return;
+            fadeSampleFrame = Time.frameCount; fadeSamples.Add(PhotoAlpha());
+        }
+        static void EndFadeSamples(bool opening)
+        {
+            var samples = fadeSamples; fadeSamples = null;
+            Require(samples != null && samples.Any(a => a > .001f && a < .999f), "Real rendered frames contain an intermediate photo fade alpha.");
+            Require(Mathf.Abs(samples[0] - (opening ? 0f : 1f)) < .001f && Mathf.Abs(PhotoAlpha() - (opening ? 1f : 0f)) < .001f,
+                "Photo fade reaches both authored endpoints across actual frames.");
+            for (int i = 1; i < samples.Count; i++)
+                Require(opening ? samples[i] >= samples[i - 1] - .0001f : samples[i] <= samples[i - 1] + .0001f,
+                    "Photo fade advances monotonically without resetting alpha between frames.");
+        }
+        static float GreetingAlpha()
+        {
+            var root = hud ? (RectTransform)typeof(GameplayHud).GetField("bubbleRoot", Private).GetValue(hud) : null;
+            return root && root.gameObject.activeInHierarchy ? root.GetComponent<CanvasGroup>().alpha : 0f;
+        }
+        static void BeginGreetingVisual()
+        {
+            greetingActor = session.Observed;
+            Require(greetingActor.UsesAutomaticGreeting, "The greeting visual fixture uses one actual ecology animal.");
+            greetingUntilBefore = (float)typeof(AnimalActor).GetField("greetingUntil", Private).GetValue(greetingActor);
+            nextGreetingBefore = (float)typeof(AnimalActor).GetField("nextGreeting", Private).GetValue(greetingActor);
+            SetGreetingClock(float.NegativeInfinity, float.NegativeInfinity);
+            Require(greetingActor.TryBeginAutomaticGreeting(Time.unscaledTime, 10f, 30f), "One temporary greeting begins without changing session or player settings.");
+            typeof(GameplayHud).GetMethod("ClearAnimalBubble", Private).Invoke(hud, null);
+            typeof(GameplayHud).GetMethod("UpdateAnimalBubble", Private).Invoke(hud, null);
+            BeginGreetingSamples(report.greetingEnterAlphas);
+        }
+        static void SetGreetingClock(float until, float ready)
+        {
+            typeof(AnimalActor).GetField("greetingUntil", Private).SetValue(greetingActor, until);
+            typeof(AnimalActor).GetField("nextGreeting", Private).SetValue(greetingActor, ready);
+        }
+        static void BeginGreetingSamples(List<float> samples)
+        { greetingSamples = samples; samples.Clear(); samples.Add(GreetingAlpha()); greetingSampleFrame = Time.frameCount; }
+        static void SampleGreetingFade()
+        {
+            if (greetingSamples == null || greetingSampleFrame == Time.frameCount) return;
+            greetingSampleFrame = Time.frameCount; greetingSamples.Add(GreetingAlpha());
+        }
+        static void RestoreGreetingVisual()
+        {
+            greetingSamples = null;
+            if (greetingActor) SetGreetingClock(greetingUntilBefore, nextGreetingBefore);
+            greetingActor = null;
+        }
         static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); report.checks.Add(message); }
         static void OnLog(string message, string stack, LogType type)
         { if (Active && !Ending && (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)) SessionState.SetString(Key + "runtimeError", message + "\n" + stack); }
         static void Cleanup()
-        { if (player) player.ReleaseScriptedInput(); if (hud && hud.CameraMode) hud.SetCameraMode(false); }
+        { fadeSamples = null; RestoreGreetingVisual(); if (player) player.ReleaseScriptedInput(); if (hud && hud.CameraMode) hud.SetCameraMode(false, true); }
         static void Finish(Exception error)
         {
             if (!Active || Ending) return;
@@ -336,7 +456,7 @@ namespace WeatherHousePrototype.Editor
                 if (!report.returnedToEdit) throw new InvalidOperationException("UI review must remain in confirmed Edit mode before cleanup can complete.");
                 report.sceneDirtyAfter = Enumerable.Range(0, SceneManager.sceneCount).Any(i => SceneManager.GetSceneAt(i).isDirty);
                 report.sceneFileUnchanged = Hash(report.scene) == report.sceneHash;
-                report.screenshotsWritten = new[] { "01_hud_observed", "02_original_reply_bubble", "03_original_album", "04_original_photo_mode" }.All(n => File.Exists(Path.Combine(Folder, n + ".png")) && new FileInfo(Path.Combine(Folder, n + ".png")).Length > 1024 && File.GetLastWriteTimeUtc(Path.Combine(Folder, n + ".png")) >= DateTime.Parse(report.startedUtc).ToUniversalTime());
+                report.screenshotsWritten = new[] { "01_hud_observed", "01a_greeting_enter_mid", "01b_greeting_exit_mid", "01c_greeting_cooldown", "02_original_reply_bubble", "03_original_album", "04_original_photo_mode" }.All(n => File.Exists(Path.Combine(Folder, n + ".png")) && new FileInfo(Path.Combine(Folder, n + ".png")).Length > 1024 && File.GetLastWriteTimeUtc(Path.Combine(Folder, n + ".png")) >= DateTime.Parse(report.startedUtc).ToUniversalTime());
                 report.status = SessionState.GetBool(Key + "success", false) && report.returnedToEdit && !report.sceneDirtyAfter && report.sceneFileUnchanged && report.notebookRestored && report.editorOptionsRestored && report.screenshotsWritten ? "PASS" : "FAIL";
                 report.finishedUtc = DateTime.UtcNow.ToString("O"); Save(); WriteReportOnce("checks.json");
                 SessionState.SetBool(Key + "active", false); SessionState.SetBool(Key + "ending", false);

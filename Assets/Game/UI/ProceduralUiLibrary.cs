@@ -5,6 +5,16 @@ namespace WeatherHousePrototype
 {
     public static class ProceduralUiLibrary
     {
+        public const float SpeechVisibleAlpha = .2f;
+        // Keep a visible transition after a slow frame instead of skipping straight to its endpoint.
+        public static float FadeFrameDelta(float deltaTime) => Mathf.Clamp(deltaTime, 0f, .05f);
+        public static float FadeAlpha(float alpha, bool visible, float deltaTime, float duration = .18f)
+        {
+            float target = visible ? 1f : 0f;
+            float next = Mathf.MoveTowards(alpha, target, Mathf.Max(0f, deltaTime) / Mathf.Max(.001f, duration));
+            return Mathf.Abs(next - target) < .0001f ? target : next;
+        }
+
         public static Color Cream => ProceduralUiStyle.ParseColor(ProceduralUiStyle.Current.cream);
         public static Color Grass => ProceduralUiStyle.ParseColor(ProceduralUiStyle.Current.player);
         public static Color Ink => ProceduralUiStyle.ParseColor(ProceduralUiStyle.Current.ink);

@@ -1,0 +1,14 @@
+2026-10-24 camera, speech and greeting delivery
+
+Implemented reference: full-screen cream rounded corner frame, bottom shutter and dot, centered photo hint. The user explicitly selected this design rather than the earlier physical-camera proposal.
+Normal HUD: remove WASD/move instruction, retain C/photo and J/notebook; lower the observed-animal E prompt. Its breathing glow peak is .375 instead of .50; minimum remains .18.
+Camera: .20-second authored UI/vignette fade, reversible in progress; keep input/camera ownership until a normal close finishes. Forced disable/journal cleanup restores immediately. The actual private photo Volume contains a soft .084 vignette and is also used by the recording camera. This does not claim a cross-dissolve between the two world cameras.
+Speech: use the existing animal bubble and glyph visuals. Fade is .18 seconds, speaker/glyph ownership remains attached to a retiring visible bubble, and observation requires visible alpha. Offscreen/occluded bubbles hide immediately.
+Slow frames: presentation progress is capped to .05 seconds per rendered frame, preventing one hitch from skipping the whole fade. Normal frame timing stays unchanged.
+Each ecology animal greets for 3.2 seconds, then waits 30 seconds after that greeting ends before another automatic greeting. Re-observing or disabling/re-enabling does not reset its clock. Explicit E conversation remains available. Social speech suppresses a simultaneous automatic greeting.
+
+Actual main Waterside Play: WatersideV3Review/gameplay-ui/play/runs/20261024_134813_191/checks.json PASS. Includes rendered intermediate alpha samples, camera close/reversal/live rebuild, hint layout, original E reply/J album, input blocking and release, player/grass/camera restoration, greeting expiry and re-observation during cooldown.
+Notebook and its temporary file restored byte-for-byte; scene file unchanged; Edit mode restored with no dirty scene. The live short greeting review uses controlled clock values; it is not a claim of waiting 30 real seconds. Separate interaction clock fixtures cover the authored cooldown boundary and independent animals.
+Viewed all seven resulting UI screenshots: the four-corner photo layout, lower normal E prompt, C/J controls, square single-glyph bubble, original reply and album are coherent. Frame alpha traces are the timing evidence; asynchronous screenshots are not exact alpha measurements.
+Earlier failures are retained locally: a real one-frame fade skip was repaired; test settling thresholds and inherited mesh-method reflection overload selection were then corrected before the final PASS.
+Final runtime/check source hashes: landed-source-hashes.json. Social and interaction edit checks also passed; source changes are scoped to these features.

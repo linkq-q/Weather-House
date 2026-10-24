@@ -41,6 +41,8 @@ namespace WeatherHousePrototype
         public Transform VisualRoot => herd ? Member?.visualRoot : agent ? (agent.visualRoot ? agent.visualRoot : agent.transform) : null;
         public bool HasAmbientSpeech => IsAvailable && herd && herd.social && herd.social.isActiveAndEnabled &&
             herd.social.ActiveConversation != null && herd.social.ActiveConversation.speakerId == memberId && herd.social.VisibleBubbleCount > 0;
+        public bool HasAmbientPresentation => IsAvailable && herd && herd.social && herd.social.isActiveAndEnabled &&
+            herd.social.HasPresentedBubbleFor(memberId);
         private JourneyConversation VisibleConversation => HasAmbientSpeech ? herd.social.ActiveConversation : null;
         // A greeting is a life exchange, not a weather quest or evidence that a word has been learned.
         public string[] CurrentGlyphIds

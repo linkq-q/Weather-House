@@ -24,6 +24,8 @@ namespace WeatherHousePrototype
         public Transform VisualRoot => ExternalPresentation ? (ecology ? ecology.VisualRoot : null) : transform.Find("Visual");
         public bool IsAvailableForObservation => isActiveAndEnabled && (!ExternalPresentation || (ecology && ecology.IsAvailable));
         public bool HasAmbientSpeech => ExternalPresentation && ecology && ecology.HasAmbientSpeech;
+        public bool HasAmbientPresentation => ExternalPresentation && ecology && ecology.HasAmbientPresentation;
+        public bool UsesAutomaticGreeting => ExternalPresentation;
         public Vector3 BubbleAnchor => ExternalPresentation ? (ecology ? ecology.BubbleAnchor : transform.position) :
             transform.TransformPoint(Vector3.up * (species == AnimalKind.Rabbit ? 1.6f : 1.35f));
         public string BehaviourDescription
@@ -55,6 +57,8 @@ namespace WeatherHousePrototype
         private Terrain terrain;
         private bool observed;
         private float phase;
+        private float greetingUntil = float.NegativeInfinity;
+        private float nextGreeting = float.NegativeInfinity;
         private Material runtimeMaterial;
         private MaterialPropertyBlock tintBlock;
         [SerializeField, HideInInspector] private bool externalPresentation;
@@ -88,6 +92,17 @@ namespace WeatherHousePrototype
         }
 
         public void SetObserved(bool value) { observed = value; }
+
+        public bool HasAutomaticGreetingAt(float now) => IsAvailableForObservation && now < greetingUntil;
+
+        public bool TryBeginAutomaticGreeting(float now, float duration, float cooldown)
+        {
+            if (!UsesAutomaticGreeting || !IsAvailableForObservation || HasAmbientPresentation || now < nextGreeting) return false;
+            greetingUntil = now + Mathf.Max(.2f, duration);
+            // Keep this on the animal: changing targets or rebuilding the HUD must not reset its cooldown.
+            nextGreeting = greetingUntil + Mathf.Max(0f, cooldown);
+            return true;
+        }
 
         public void BuildVisual()
         {

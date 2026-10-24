@@ -44,8 +44,15 @@ namespace WeatherHousePrototype
 
         private GameplaySession session;
         private Canvas canvas;
-        private RectTransform canvasRect, bubbleRoot, modalRoot, cameraRoot, echoRoot, focusMark;
+        private RectTransform canvasRect, controlsRoot, bubbleRoot, modalRoot, cameraRoot, echoRoot, focusMark;
         private float focusMarkUntil;
+        private const string PhotoGuide = "先把附近的一只动物和它的字语放进取景框。";
+        private float photoControlScale = -1f;
+        private int photoHintFontSize;
+        private CanvasGroup cameraGroup;
+        private float cameraBlend;
+        private bool cameraRequested;
+        private bool CanTakePhoto => CameraMode && cameraRequested && cameraBlend >= 1f;
         private Text statusLabel, captureLabel, playbackLabel;
         private RectTransform statusRoot;
         private BreathingTextGlow statusGlow;
@@ -57,6 +64,9 @@ namespace WeatherHousePrototype
         private RectTransform albumRoot;
         private AlbumBookOpening albumOpening;
         private AnimalActor bubbleAnimal;
+        private CanvasGroup bubbleGroup;
+        private bool bubbleWanted;
+        private readonly RaycastHit[] bubbleSightHits = new RaycastHit[16];
         private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "", replyDraft = "", lastReply;
         private int page, currentFrame;
         private int glyphPage;
@@ -67,7 +77,6 @@ namespace WeatherHousePrototype
         private RawImage expandedImage;
         private Texture2D expandedTexture;
         private readonly List<Texture2D> thumbnailTextures = new List<Texture2D>();
-        private readonly List<Outline> photoIconOutlines = new List<Outline>();
         private ProceduralUiStyle appliedStyle;
         private string lastStyleWarning;
         private static readonly Color Paper = new Color(.96f, .95f, .88f);
@@ -106,19 +115,17 @@ namespace WeatherHousePrototype
 
         private void BuildChrome()
         {
-            photoIconOutlines.Clear();
-            var controls = Rect(canvasRect, "Controls", Vector2.zero, new Vector2(560f, 64f));
+            var controls = controlsRoot = Rect(canvasRect, "Controls", Vector2.zero, new Vector2(340f, 64f));
             controls.anchorMin = controls.anchorMax = Vector2.zero;
-            controls.anchoredPosition = new Vector2(304f, 48f);
+            controls.anchoredPosition = new Vector2(184f, 48f);
             Color hint = new Color(.91f, .93f, .82f, .88f);
-            HudIcon(controls, "Movement keyboard", "Keyboard", new Vector2(-236f, 0f), new Vector2(76f, 52f), new Rect(.02f, .18f, .94f, .66f));
-            Label(controls, "Movement label", "移动", new Vector2(-166f, -4f), new Vector2(60f, 32f), 21, hint);
-            HudIcon(controls, "Photo icon", "Camera", new Vector2(-80f, 0f), new Vector2(44f, 34f), new Rect(.12f, .20f, .74f, .60f));
-            Label(controls, "Photo shortcut", "C 拍照", new Vector2(-14f, -4f), new Vector2(90f, 32f), 21, hint);
-            HudIcon(controls, "Journal icon", "Journal", new Vector2(80f, 0f), new Vector2(34f, 44f), new Rect(.18f, .08f, .63f, .82f));
-            Label(controls, "Journal shortcut", "J 手账", new Vector2(146f, -4f), new Vector2(90f, 32f), 21, hint);
+            HudIcon(controls, "Photo icon", "Camera", new Vector2(-140f, 0f), new Vector2(44f, 34f), new Rect(.12f, .20f, .74f, .60f));
+            Label(controls, "Photo shortcut", "C 拍照", new Vector2(-74f, -4f), new Vector2(90f, 32f), 21, hint);
+            HudIcon(controls, "Journal icon", "Journal", new Vector2(20f, 0f), new Vector2(34f, 44f), new Rect(.18f, .08f, .63f, .82f));
+            Label(controls, "Journal shortcut", "J 手账", new Vector2(86f, -4f), new Vector2(90f, 32f), 21, hint);
             statusRoot = Rect(canvasRect, "Bottom status", Vector2.zero, new Vector2(880f, 72f));
-            statusRoot.anchorMin = statusRoot.anchorMax = new Vector2(.5f, .2f);
+            statusRoot.anchorMin = statusRoot.anchorMax = new Vector2(.5f, 0f);
+            statusRoot.anchoredPosition = new Vector2(0f, 140f);
             statusLabel = Label(statusRoot, "Status", "", Vector2.zero, new Vector2(1120f, 72f), 33, Color.white);
             statusGlow = statusLabel.gameObject.AddComponent<BreathingTextGlow>();
             UpdateStatus();
@@ -137,7 +144,11 @@ namespace WeatherHousePrototype
             if (!session.Judging && !dialogueOpen && !CameraMode && session.Observed != null && !hasMessage)
                 text = session.Observed.displayName + "   ·   E 交谈";
             bool echoVisible = echoRoot != null && Time.unscaledTime < echoUntil && !hasMessage && !session.Judging;
-            statusRoot.gameObject.SetActive(!JournalOpen && !dialogueOpen && !echoVisible && !string.IsNullOrEmpty(text));
+            if (captureLabel != null)
+                captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
+                    ? "记录中  " + Mathf.RoundToInt(session.Recorder.CaptureProgress * 100f) + "%"
+                    : hasMessage && !displayedStatus.StartsWith("走近动物，观察") ? displayedStatus : PhotoGuide;
+            statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !dialogueOpen && !echoVisible && !string.IsNullOrEmpty(text));
             statusLabel.text = text;
             float width = Mathf.Min(1120f, canvasRect.rect.width - 48f);
             float height = Mathf.Clamp(Mathf.Ceil(text.Length * statusLabel.fontSize / (width - 24f)) * statusLabel.fontSize * 1.4f + 12f, 54f, 140f);
@@ -150,7 +161,7 @@ namespace WeatherHousePrototype
         {
             float breath = .5f + .5f * Mathf.Sin(time * Mathf.PI * .8f);
             statusLabel.color = new Color(1f, 1f, 1f, Mathf.Lerp(.78f, 1f, breath));
-            statusGlow.Intensity = Mathf.Lerp(.18f, .50f, breath);
+            statusGlow.Intensity = Mathf.Lerp(.18f, .375f, breath);
         }
 
         private void OnValidate() { inspectorDirty = true; }
@@ -218,10 +229,13 @@ namespace WeatherHousePrototype
             }
             bubbleRoot = modalRoot = cameraRoot = echoRoot = null;
             captureLabel = playbackLabel = null;
+            cameraGroup = null;
             bubbleAnimal = null;
+            bubbleGroup = null;
+            bubbleWanted = false;
             bubbleUtterance = null;
             BuildChrome();
-            SetCameraMode(CameraMode);
+            if (CameraMode) BuildCameraChrome();
             UpdateAnimalBubble();
             RebuildModal();
             if (!string.IsNullOrEmpty(lastReply) && Time.unscaledTime < echoUntil) BuildReplyEcho();
@@ -238,10 +252,8 @@ namespace WeatherHousePrototype
             if (inspectorDirty && !IsAlbumOpening) RebuildInspectorPreview();
             if (!string.IsNullOrEmpty(Input.compositionString)) lastCompositionFrame = Time.frameCount;
             UpdateStatus();
-            if (captureLabel != null)
-                captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
-                    ? "记录中  " + Mathf.RoundToInt(session.Recorder.CaptureProgress * 100f) + "%"
-                    : session.PhotoRig.FocalLength.ToString("F0") + " mm  ·  " + session.PhotoRig.FocusLabel + "\n滚轮变焦 · 点击对焦 · 空格拍照 · Esc 关闭";
+            UpdateCameraTransition(ProceduralUiLibrary.FadeFrameDelta(Time.unscaledDeltaTime));
+            UpdatePhotoLayout();
             if (focusMark != null) focusMark.gameObject.SetActive(Time.unscaledTime < focusMarkUntil);
             if (Input.GetKeyDown(KeyCode.Escape)) { CloseTop(); return; }
             if (dirty && !InputFocused() && !IsAlbumOpening)
@@ -251,7 +263,7 @@ namespace WeatherHousePrototype
             }
             UpdateAnimalBubble();
             UpdatePlayback();
-            if (echoRoot != null) echoRoot.gameObject.SetActive(!JournalOpen && !dialogueOpen && !statusRoot.gameObject.activeSelf && Time.unscaledTime < echoUntil);
+            if (echoRoot != null) echoRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !dialogueOpen && !statusRoot.gameObject.activeSelf && Time.unscaledTime < echoUntil);
             if (InputFocused()) return;
             if (Input.GetKeyDown(KeyCode.J)) { ToggleJournal(); return; }
             if (IsAlbumOpening) return;
@@ -260,18 +272,18 @@ namespace WeatherHousePrototype
                 if (Input.GetKeyDown(KeyCode.RightArrow)) { TurnJournalPage(1); return; }
                 if (Input.GetKeyDown(KeyCode.LeftArrow)) { TurnJournalPage(-1); return; }
             }
-            if (Input.GetKeyDown(KeyCode.C) && !JournalOpen && !dialogueOpen) SetCameraMode(!CameraMode);
+            if (Input.GetKeyDown(KeyCode.C) && !JournalOpen && !dialogueOpen) SetCameraMode(!cameraRequested);
             if (Input.GetKeyDown(KeyCode.E) && !JournalOpen && !CameraMode && session.Observed != null)
                 ToggleDialogue();
             if (JournalOpen || dialogueOpen) return;
-            if (CameraMode && Input.GetMouseButtonDown(0) && (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
+            if (CameraMode && cameraRequested && Input.GetMouseButtonDown(0) && (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
             {
                 session.PhotoRig.FocusAt(Input.mousePosition);
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, null, out Vector2 focusPosition);
                 focusMark.anchoredPosition = focusPosition;
                 focusMarkUntil = Time.unscaledTime + 1.5f;
             }
-            if (CameraMode && Input.GetKeyDown(KeyCode.Space)) session.TakePhoto();
+            if (CanTakePhoto && Input.GetKeyDown(KeyCode.Space)) session.TakePhoto();
             if (Input.GetKeyDown(KeyCode.Alpha1)) session.Cast(LocalWeather.Rain);
             if (Input.GetKeyDown(KeyCode.Alpha2)) session.Cast(LocalWeather.Sun);
             if (Input.GetKeyDown(KeyCode.Alpha3)) session.Cast(LocalWeather.Wind);
@@ -303,7 +315,7 @@ namespace WeatherHousePrototype
             dialogueOpen = false;
             expandedPhoto = null;
             glyphDetailOpen = false;
-            SetCameraMode(false);
+            SetCameraMode(false, true);
             ClearFocus();
             RebuildModal();
             dirty = false;
@@ -350,24 +362,96 @@ namespace WeatherHousePrototype
             session.RefreshInputBlocking();
         }
 
-        public void SetCameraMode(bool value)
+        public void SetCameraMode(bool value, bool immediate = false)
         {
             if (!value && CameraMode && session.Recorder.IsRecording) session.Recorder.CancelCapture();
-            session.PhotoRig.SetActive(value);
-            CameraMode = value;
-            foreach (Outline outline in photoIconOutlines) if (outline) outline.enabled = value;
+            cameraRequested = value;
+            if (!value && !CameraMode)
+            {
+                session.PhotoRig.SetActive(false);
+                session.RefreshInputBlocking();
+                return;
+            }
+            if (value && !CameraMode)
+            {
+                session.PhotoRig.SetActive(true);
+                CameraMode = true;
+                cameraBlend = 0f;
+                if (controlsRoot) controlsRoot.gameObject.SetActive(false);
+                session.RefreshInputBlocking();
+                BuildCameraChrome();
+            }
+            if (immediate) cameraBlend = value ? 1f : 0f;
+            UpdateCameraTransition(0f);
+        }
+
+        private void UpdateCameraTransition(float deltaTime)
+        {
+            if (!CameraMode) return;
+            cameraBlend = ProceduralUiLibrary.FadeAlpha(cameraBlend, cameraRequested, deltaTime, .2f);
+            float visibility = Mathf.SmoothStep(0f, 1f, cameraBlend);
+            if (cameraGroup)
+            {
+                cameraGroup.alpha = visibility;
+                cameraGroup.interactable = cameraGroup.blocksRaycasts = CanTakePhoto;
+            }
+            session.PhotoRig.SetVignetteVisibility(visibility);
+            if (cameraRequested || cameraBlend > 0f) return;
+            session.PhotoRig.SetActive(false);
+            CameraMode = false;
+            if (cameraRoot) { cameraRoot.gameObject.SetActive(false); Destroy(cameraRoot.gameObject); }
+            cameraRoot = null; cameraGroup = null; captureLabel = null; focusMark = null;
+            if (controlsRoot) controlsRoot.gameObject.SetActive(!JournalOpen);
             session.RefreshInputBlocking();
-            if (cameraRoot != null) { cameraRoot.gameObject.SetActive(false); Destroy(cameraRoot.gameObject); cameraRoot = null; }
-            if (!value || canvasRect == null) return;
-            cameraRoot = Rect(canvasRect, "Camera mode", Vector2.zero, new Vector2(1600f, 1000f));
-            ProceduralUiLibrary.Create(cameraRoot, "Viewfinder", UiMark.Viewfinder, new Vector2(0f, 45f), new Vector2(1240f, 720f), ProceduralUiLibrary.Cream, 7f);
-            ProceduralUiLibrary.Create(cameraRoot, "Camera dot", UiMark.Dot, new Vector2(0f, -334f), new Vector2(9f, 9f), ProceduralUiLibrary.Cream);
-            var shutter = ProceduralUiLibrary.Button(cameraRoot, "Shutter", UiMark.Shutter, new Vector2(0f, -395f), new Vector2(88f, 88f), ProceduralUiLibrary.Cream, 8f);
-            shutter.onClick.AddListener(() => session.TakePhoto());
-            captureLabel = Label(cameraRoot, "Capture hint", "", new Vector2(390f, -404f), new Vector2(530f, 76f), 18, ProceduralUiLibrary.Cream);
+            UpdateStatus();
+        }
+
+        private void BuildCameraChrome()
+        {
+            if (canvasRect == null) return;
+            cameraRoot = Rect(canvasRect, "Camera mode", Vector2.zero, Vector2.zero);
+            cameraGroup = cameraRoot.gameObject.AddComponent<CanvasGroup>();
+            cameraGroup.alpha = Mathf.SmoothStep(0f, 1f, cameraBlend);
+            cameraGroup.interactable = cameraGroup.blocksRaycasts = CanTakePhoto;
+            cameraRoot.anchorMin = Vector2.zero; cameraRoot.anchorMax = Vector2.one;
+            cameraRoot.offsetMin = cameraRoot.offsetMax = Vector2.zero;
+            var frame = ProceduralUiLibrary.Create(cameraRoot, "Viewfinder", UiMark.Viewfinder, Vector2.zero, Vector2.zero, ProceduralUiLibrary.Cream, 10f);
+            frame.rectTransform.anchorMin = new Vector2(.02f, .025f); frame.rectTransform.anchorMax = new Vector2(.98f, .975f);
+            frame.rectTransform.offsetMin = frame.rectTransform.offsetMax = Vector2.zero;
+            frame.cornerRadius = 40f; frame.viewfinderLegRatios = new Vector2(.23f, .19f);
+            var dot = ProceduralUiLibrary.Create(cameraRoot, "Camera dot", UiMark.Dot, Vector2.zero, Vector2.one * 10f, ProceduralUiLibrary.Cream).rectTransform;
+            dot.anchorMin = dot.anchorMax = new Vector2(.5f, .142f);
+            var shutter = ProceduralUiLibrary.Button(cameraRoot, "Shutter", UiMark.Shutter, Vector2.zero, Vector2.one * 96f, ProceduralUiLibrary.Cream, 8f);
+            var shutterRect = (RectTransform)shutter.transform;
+            shutterRect.anchorMin = shutterRect.anchorMax = new Vector2(.5f, .077f);
+            shutter.onClick.AddListener(() => { if (CanTakePhoto) session.TakePhoto(); });
+            captureLabel = Label(cameraRoot, "Capture hint", PhotoGuide, Vector2.zero, Vector2.zero, 28, ProceduralUiLibrary.Cream);
+            captureLabel.rectTransform.anchorMin = new Vector2(.08f, .17f); captureLabel.rectTransform.anchorMax = new Vector2(.92f, .23f);
+            captureLabel.rectTransform.offsetMin = captureLabel.rectTransform.offsetMax = Vector2.zero;
+            captureLabel.resizeTextForBestFit = true;
+            captureLabel.resizeTextMinSize = 18; captureLabel.resizeTextMaxSize = captureLabel.fontSize;
+            photoHintFontSize = captureLabel.fontSize;
+            photoControlScale = -1f;
             focusMark = ProceduralUiLibrary.Create(cameraRoot, "Focus indicator", UiMark.Viewfinder, Vector2.zero, new Vector2(60f, 60f), ProceduralUiLibrary.Cream, 2f).rectTransform;
             focusMark.gameObject.SetActive(false);
-            CloseButton(cameraRoot, new Vector2(696f, 406f), () => SetCameraMode(false), ProceduralUiLibrary.Cream);
+            UpdatePhotoLayout();
+            UpdateStatus();
+        }
+
+        private void UpdatePhotoLayout()
+        {
+            if (!cameraRoot || !captureLabel || cameraRoot.rect.height <= 0f) return;
+            float scale = Mathf.Min(1f, cameraRoot.rect.height / 1000f);
+            if (Mathf.Approximately(photoControlScale, scale)) return;
+            photoControlScale = scale;
+            var shutter = cameraRoot.Find("Shutter").GetComponent<ProceduralUiGraphic>();
+            shutter.rectTransform.sizeDelta = Vector2.one * (96f * scale);
+            shutter.lineWidth = 8f * ProceduralUiStyle.Current.lineScale * scale;
+            shutter.SetVerticesDirty();
+            ((RectTransform)cameraRoot.Find("Camera dot")).sizeDelta = Vector2.one * (10f * scale);
+            captureLabel.fontSize = Mathf.Max(1, Mathf.RoundToInt(photoHintFontSize * scale));
+            captureLabel.resizeTextMaxSize = captureLabel.fontSize;
+            captureLabel.resizeTextMinSize = Mathf.Clamp(Mathf.RoundToInt(18f * scale), 1, captureLabel.fontSize);
         }
 
         private void CloseTop()
@@ -384,8 +468,8 @@ namespace WeatherHousePrototype
 
         private void RebuildModal()
         {
-            canvasRect.Find("Controls").gameObject.SetActive(!JournalOpen);
-            statusRoot.gameObject.SetActive(!JournalOpen);
+            controlsRoot.gameObject.SetActive(!JournalOpen && !CameraMode);
+            statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode);
             ReleasePhotoTextures();
             playingPhoto = false;
             expandedImage = null;
@@ -662,31 +746,45 @@ namespace WeatherHousePrototype
         private void UpdateAnimalBubble()
         {
             AnimalActor animal = session.Observed;
+            if (!session.ShouldShowAnimalUtterance(animal)) animal = null;
             string utterance = animal == null ? "" : animal.UtteranceId;
-            if (animal == bubbleAnimal && utterance == bubbleUtterance) return;
+            bubbleWanted = animal != null && animal == bubbleAnimal && utterance == bubbleUtterance;
+            // Finish the old word on its original speaker before reusing the presentation slot.
+            if (bubbleRoot != null) return;
+            if (animal == null) return;
             bubbleAnimal = animal;
             bubbleUtterance = utterance;
-            if (bubbleRoot != null) { Destroy(bubbleRoot.gameObject); bubbleRoot = null; }
-            if (animal == null) return;
             string[] glyphs = animal.CurrentGlyphIds ?? Array.Empty<string>();
+            if (glyphs.Length == 0) return;
             Vector2 size = ProceduralUiLibrary.AnimalBubbleSize(animalBubbleSize, glyphs.Length, animalGlyphHeight, canvasRect.rect.size);
             bubbleRoot = Rect(canvasRect, "Animal utterance", Vector2.zero, size);
+            bubbleGroup = bubbleRoot.gameObject.AddComponent<CanvasGroup>();
+            bubbleGroup.alpha = 0f; bubbleGroup.interactable = bubbleGroup.blocksRaycasts = false;
+            bubbleWanted = true;
             ProceduralUiLibrary.Create(bubbleRoot, "Animal bubble", UiMark.AnimalBubble, Vector2.zero, size, ProceduralUiLibrary.Cream);
             GlyphLine(bubbleRoot, glyphs, new Vector2(0f, size.y * ProceduralUiStyle.Current.tailSize * .5f),
                 Mathf.Min(animalGlyphHeight, size.y * .48f), size.x * .78f);
             if (modalRoot != null) modalRoot.SetAsLastSibling();
         }
 
-        private void PositionAnimalBubble()
+        private void PositionAnimalBubble() => UpdateAnimalPresentation(ProceduralUiLibrary.FadeFrameDelta(Time.unscaledDeltaTime));
+
+        private void UpdateAnimalPresentation(float deltaTime)
         {
-            if (bubbleRoot == null || bubbleAnimal == null) return;
+            if (bubbleRoot == null) return;
             Camera view = session.CurrentView;
-            if (view == null) { bubbleRoot.gameObject.SetActive(false); return; }
-            Vector3 screen = view.WorldToScreenPoint(bubbleAnimal.BubbleAnchor);
             // Social's LateUpdate has already placed its world conversation; avoid a second bubble over it.
-            bool visible = screen.z > 0f && !JournalOpen && bubbleAnimal.IsAvailableForObservation && !bubbleAnimal.HasAmbientSpeech;
+            bool visible = BubbleAnchorVisible(view, bubbleAnimal) && !JournalOpen && !bubbleAnimal.HasAmbientPresentation;
             bubbleRoot.gameObject.SetActive(visible);
-            if (!visible) return;
+            if (!visible)
+            {
+                bubbleGroup.alpha = 0f;
+                if (!bubbleWanted || !bubbleAnimal) ClearAnimalBubble();
+                return;
+            }
+            bubbleGroup.alpha = ProceduralUiLibrary.FadeAlpha(bubbleGroup.alpha, bubbleWanted, deltaTime);
+            if (!bubbleWanted && bubbleGroup.alpha <= 0f) { ClearAnimalBubble(); return; }
+            Vector3 screen = view.WorldToScreenPoint(bubbleAnimal.BubbleAnchor);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out Vector2 local);
             local += Vector2.up * (bubbleRoot.sizeDelta.y * .5f + 34f);
             float half = bubbleRoot.sizeDelta.x * .5f;
@@ -694,6 +792,36 @@ namespace WeatherHousePrototype
             local.y = Mathf.Clamp(local.y, canvasRect.rect.yMin + bubbleRoot.sizeDelta.y * .5f + 42f,
                 canvasRect.rect.yMax - bubbleRoot.sizeDelta.y * .5f - 24f);
             bubbleRoot.anchoredPosition = local;
+        }
+
+        public bool IsAnimalSpeechVisible(AnimalActor animal)
+        {
+            if (!isActiveAndEnabled || !canvas || !canvas.enabled || JournalOpen || !animal) return false;
+            if (animal.HasAmbientSpeech) return true;
+            return bubbleAnimal == animal &&
+                bubbleUtterance == animal.UtteranceId && bubbleRoot && bubbleRoot.gameObject.activeInHierarchy &&
+                bubbleGroup && bubbleGroup.alpha >= ProceduralUiLibrary.SpeechVisibleAlpha && BubbleAnchorVisible(session.CurrentView, animal);
+        }
+
+        private bool BubbleAnchorVisible(Camera view, AnimalActor animal)
+        {
+            if (!view || !view.isActiveAndEnabled || !animal || !animal.IsAvailableForObservation) return false;
+            Vector3 anchor = animal.BubbleAnchor;
+            Vector3 screen = view.WorldToViewportPoint(anchor);
+            if (screen.z <= view.nearClipPlane || screen.x <= 0f || screen.x >= 1f || screen.y <= 0f || screen.y >= 1f) return false;
+            Vector3 ray = anchor - view.transform.position;
+            int count = Physics.RaycastNonAlloc(view.transform.position, ray.normalized, bubbleSightHits, ray.magnitude,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            if (count == bubbleSightHits.Length) return false;
+            for (int i = 0; i < count; i++)
+                if (!bubbleSightHits[i].transform.IsChildOf(animal.transform) && !bubbleSightHits[i].transform.IsChildOf(session.PlayerTransform)) return false;
+            return true;
+        }
+
+        private void ClearAnimalBubble()
+        {
+            if (bubbleRoot) { bubbleRoot.gameObject.SetActive(false); Destroy(bubbleRoot.gameObject); }
+            bubbleRoot = null; bubbleGroup = null; bubbleAnimal = null; bubbleUtterance = null; bubbleWanted = false;
         }
 
         private void GlyphLine(Transform parent, string[] ids, Vector2 center, float height, float maxWidth)
@@ -825,13 +953,6 @@ namespace WeatherHousePrototype
             icon.texture = Resources.Load<Texture2D>("HudIcons/" + resource);
             icon.color = new Color32(231, 226, 198, 240);
             icon.uvRect = uv;
-            // These authored icons are textures; thicken their existing silhouettes in photo mode.
-            var outline = icon.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(icon.color.r, icon.color.g, icon.color.b, 1f);
-            outline.effectDistance = Vector2.one * .45f;
-            outline.useGraphicAlpha = true;
-            outline.enabled = CameraMode;
-            photoIconOutlines.Add(outline);
         }
 
         private static bool InputFocused()
@@ -868,8 +989,9 @@ namespace WeatherHousePrototype
         private void OnDisable()
         {
             ClearFocus();
+            ClearAnimalBubble();
             JournalOpen = dialogueOpen = false; dialogueTarget = null;
-            if (session && session.PhotoRig) SetCameraMode(false);
+            if (session && session.PhotoRig) SetCameraMode(false, true);
             if (canvasRect) RebuildModal();
             if (canvas) canvas.enabled = false;
             if (session) session.RefreshInputBlocking();

@@ -96,7 +96,7 @@ namespace WeatherHousePrototype.Editor
                 Log("PASS disabled/destroyed target and destroyed driver cannot re-enable prototype geometry or Update");
                 Require(notebookBefore == null ? !File.Exists(NotebookPath) :
                     File.Exists(NotebookPath) && notebookBefore.SequenceEqual(File.ReadAllBytes(NotebookPath)), "Validation changed the user's notebook.");
-                Log("PASS no Session/Notebook/UI objects were created and the user's notebook bytes remain unchanged");
+                Log("PASS no Session was created, temporary presentation fixtures were cleaned, and the user's notebook bytes remain unchanged");
                 Finish(null);
             }
             catch (Exception error) { Finish(error); }
@@ -133,6 +133,7 @@ namespace WeatherHousePrototype.Editor
             f.population.enabled = f.herd.enabled = true;
             Require(Available(f.agentActor) && Available(f.sheepActor), "Enabled drivers were not observable.");
             CheckButterflyExclusion(f);
+            CheckGreetingCooldown(f);
             foreach (AnimalActor actor in actors)
             {
                 Require(actor.background && actor.region == null && !actor.RequestSatisfied, "Ecology binding fabricated a weather request.");
@@ -171,6 +172,32 @@ namespace WeatherHousePrototype.Editor
             CheckPrototype(f);
             CheckInactiveFirstAwake(f);
         }
+        private static void CheckGreetingCooldown(Fixture f)
+        {
+            // Reflection also lets this fixture demonstrate the missing behavior against the previous assembly.
+            MethodInfo start = typeof(AnimalActor).GetMethod("TryBeginAutomaticGreeting");
+            MethodInfo visible = typeof(AnimalActor).GetMethod("HasAutomaticGreetingAt");
+            Require(start != null && visible != null, "Automatic greetings have no per-animal cooldown.");
+            bool Begin(AnimalActor actor, float now) => (bool)start.Invoke(actor, new object[] { now, 4f, 30f });
+            bool Showing(AnimalActor actor, float now) => (bool)visible.Invoke(actor, new object[] { now });
+            Require(!Showing(f.agentActor, 99f) && Begin(f.agentActor, 100f) && Showing(f.agentActor, 100f),
+                "The first greeting did not begin visibly.");
+            Require(Begin(f.sheepActor, 102f), "One animal's greeting consumed another animal's cooldown.");
+            f.agentActor.SetObserved(false); f.agentActor.SetObserved(true);
+            f.agentActor.enabled = false; f.agentActor.enabled = true;
+            WildlifeInteractionTarget.BindScene(f.scene);
+            Require(Showing(f.agentActor, 103.9f) && !Showing(f.agentActor, 104f) && !Begin(f.agentActor, 104f) &&
+                !Begin(f.agentActor, 133.99f), "Leaving, disabling or rebinding reset the greeting cooldown, or it started before the greeting ended.");
+            Require(Begin(f.agentActor, 134f) && !Begin(f.sheepActor, 135f) && Begin(f.sheepActor, 136f),
+                "The per-animal cooldown did not expire at the expected boundary.");
+            string species = f.agent.speciesId;
+            try
+            {
+                f.agent.speciesId = "butterfly";
+                Require(!Begin(f.agentActor, 200f) && !Showing(f.agentActor, 135f), "An unavailable butterfly greeted the player.");
+            }
+            finally { f.agent.speciesId = species; }
+        }
         private static void CheckButterflyExclusion(Fixture f)
         {
             Transform body = f.Body("Non-conversational butterfly", new Vector3(2020, 0, 2020));
@@ -205,13 +232,32 @@ namespace WeatherHousePrototype.Editor
         private static void CheckAmbientOwnership(Fixture f)
         {
             var host = new GameObject("Ambient speech contract"); host.transform.SetParent(f.root.transform);
-            var bubble = new GameObject("Visible bubble state", typeof(RectTransform)); bubble.transform.SetParent(host.transform);
             JourneySocial social = host.AddComponent<JourneySocial>(); f.herd.social = social;
+            var listener = new GameObject("Social listener").transform; listener.SetParent(host.transform);
+            listener.position = f.sheep.position + Vector3.right * 1.5f;
+            var cameraRoot = new GameObject("Social presentation camera"); cameraRoot.transform.SetParent(host.transform);
+            Camera camera = cameraRoot.AddComponent<Camera>(); camera.aspect = 1.6f;
+            camera.transform.position = f.sheep.position + new Vector3(0f, 8f, -10f);
+            camera.transform.LookAt(f.sheep.position + Vector3.up);
+            social.viewCamera = camera; social.occlusionMask = 0;
+            social.Tick(0f, new[] {
+                new JourneySocialParticipant { id = f.member.id, root = f.sheep, head = f.head, available = true, radius = .3f },
+                new JourneySocialParticipant { id = 5002, root = listener, available = true, radius = .3f }
+            });
+            MethodInfo present = typeof(JourneySocial).GetMethod("UpdatePresentation", BindingFlags.Instance | BindingFlags.NonPublic);
+            void ShowFully()
+            {
+                present.Invoke(social, new object[] { 0f }); Canvas.ForceUpdateCanvases();
+                present.Invoke(social, new object[] { .18f });
+                present.Invoke(social, new object[] { .18f });
+                Canvas.ForceUpdateCanvases(); present.Invoke(social, new object[] { 0f });
+            }
             try
             {
-                var turn = new JourneyConversation { speakerId = f.member.id, listenerId = -1, sequenceId = 2, turnIndex = 1, glyphIds = new[] { "you" } };
+                var turn = new JourneyConversation { speakerId = f.member.id, listenerId = 5002, sequenceId = 2, turnIndex = 1, glyphIds = new[] { "you" } };
                 typeof(JourneySocial).GetProperty("ActiveConversation").SetValue(social, turn);
-                Set(social, "bubble", bubble.GetComponent<RectTransform>());
+                Require(!(bool)Property(f.sheepActor, "HasAmbientSpeech"), "A turn not yet presented claimed visible speech.");
+                ShowFully();
                 Require((bool)Property(f.sheepActor, "HasAmbientSpeech") && !(bool)Property(f.agentActor, "HasAmbientSpeech"),
                     "The visible social turn was not attributed exclusively to its speaker.");
                 string utterance = f.sheepActor.UtteranceId;
@@ -221,16 +267,21 @@ namespace WeatherHousePrototype.Editor
                 visibleGlyphs[0] = "not-a-word";
                 Require(turn.glyphIds[0] == "you" && f.sheepActor.CurrentGlyphIds[0] == "you", "Observation mutated the social turn's glyphs.");
                 turn.glyphIds = new[] { "hello" };
+                Require(!(bool)Property(f.sheepActor, "HasAmbientSpeech"), "A changed word inherited the previous word's visible alpha.");
+                ShowFully();
                 Require(f.sheepActor.UtteranceId != utterance, "A restarted social sequence reused the identity of a different word.");
                 turn.glyphIds = new[] { "you" };
                 turn.turnIndex++;
+                ShowFully();
                 Require(f.sheepActor.UtteranceId != utterance, "Two social turns reused one utterance identity.");
                 turn.speakerId = f.member.id + 1;
                 Require(!(bool)Property(f.sheepActor, "HasAmbientSpeech"), "A listener claimed the speaker's bubble.");
                 Require(f.sheepActor.CurrentGlyphIds.SequenceEqual(new[] { "hello" }), "A listener recorded a different animal's visible words.");
-                turn.speakerId = f.member.id; bubble.SetActive(false);
+                turn.speakerId = f.member.id; ShowFully();
+                var bubble = (RectTransform)typeof(JourneySocial).GetField("bubble", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(social);
+                bubble.gameObject.SetActive(false);
                 Require(!(bool)Property(f.sheepActor, "HasAmbientSpeech"), "An active but unpresented turn claimed a visible bubble.");
-                bubble.SetActive(true); social.enabled = false;
+                bubble.gameObject.SetActive(true); social.enabled = false;
                 Require(!(bool)Property(f.sheepActor, "HasAmbientSpeech"), "Disabled social presentation claimed a bubble.");
             }
             finally { f.herd.social = null; Object.DestroyImmediate(host); }
@@ -264,6 +315,7 @@ namespace WeatherHousePrototype.Editor
             {
                 root.transform.position = new Vector3(2500, 0, 2500);
                 AnimalActor actor = root.AddComponent<AnimalActor>(); actor.BuildVisual();
+                Require(!(bool)Property(actor, "UsesAutomaticGreeting"), "A weather-request prototype acquired automatic greeting behavior.");
                 int objects = root.GetComponentsInChildren<Transform>(true).Length;
                 actor.BuildVisual();
                 Require(root.transform.Find("Visual") && root.transform.Find("WeatherProps") && objects > 4 &&

@@ -17,6 +17,8 @@ namespace WeatherHousePrototype
         public ForestSpriteDemoController forestSprite;
         public AnimalActor[] animals;
         public WeatherRegion[] regions;
+        [Min(.2f)] public float automaticGreetingDuration = 3.2f;
+        [Min(0f)] public float automaticGreetingCooldown = 30f;
         public LanguageNotebook Notebook { get; private set; }
         public GlyphCatalog Catalog { get; private set; }
         public AnimalActor Observed { get; private set; }
@@ -110,7 +112,9 @@ namespace WeatherHousePrototype
                 lastUtterance = null;
                 Changed?.Invoke();
             }
-            if (Observed != null && lastUtterance != Observed.UtteranceId)
+            if (Observed && hud && hud.isActiveAndEnabled && !hud.JournalOpen && !hud.IsDialogueOpen)
+                Observed.TryBeginAutomaticGreeting(Time.unscaledTime, automaticGreetingDuration, automaticGreetingCooldown);
+            if (Observed != null && hud && hud.IsAnimalSpeechVisible(Observed) && lastUtterance != Observed.UtteranceId)
             {
                 lastUtterance = Observed.UtteranceId;
                 Notebook.Observe(Observed.animalId, Observed.UtteranceId, Observed.CurrentGlyphIds);
@@ -118,6 +122,10 @@ namespace WeatherHousePrototype
                 Changed?.Invoke();
             }
         }
+
+        public bool ShouldShowAnimalUtterance(AnimalActor animal) => animal && animal.IsAvailableForObservation &&
+            (!animal.UsesAutomaticGreeting || animal.HasAmbientSpeech || animal.HasAutomaticGreetingAt(Time.unscaledTime) ||
+             (hud && hud.isActiveAndEnabled && hud.DialogueTarget == animal));
 
         public void RefreshInputBlocking()
         {
@@ -145,10 +153,11 @@ namespace WeatherHousePrototype
             if (!PhotoRig.Active) { Notify("按 C 举起相机，再取景拍照。"); return; }
             if (Observed == null) { Notify("先把附近的一只动物和它的字语放进取景框。"); return; }
             var animal = Observed;
+            bool speechVisible = hud && hud.IsAnimalSpeechVisible(animal);
             Recorder.Capture(PhotoRig.CaptureCamera, new ObservationRecord
             {
-                animalId = animal.animalId, utteranceId = animal.UtteranceId,
-                glyphIds = (string[])animal.CurrentGlyphIds.Clone(),
+                animalId = animal.animalId, utteranceId = speechVisible ? animal.UtteranceId : "",
+                glyphIds = speechVisible ? (string[])animal.CurrentGlyphIds.Clone() : Array.Empty<string>(),
                 weather = animal.region == null ? "" : animal.region.Current.ToString()
             }, record =>
             {
