@@ -13,6 +13,8 @@ namespace WeatherHouse.Vegetation
         [Min(1f)] public float maxReflectionDistance = 120f;
         [Min(0.001f)] public float clipOffset = 0.04f;
         public LayerMask reflectionLayers = ~(1 << 4);
+        [Tooltip("URP renderer slot for reflections; -1 uses the pipeline default.")]
+        public int reflectionRendererIndex = -1;
 
         static bool renderingReflection;
         Camera reflectionCamera;
@@ -165,6 +167,7 @@ namespace WeatherHouse.Vegetation
             reflectionCamera.ResetProjectionMatrix();
             Matrix4x4 distanceProjection = reflectionCamera.projectionMatrix;
             var data = reflectionCamera.GetUniversalAdditionalCameraData();
+            data.SetRenderer(reflectionRendererIndex);
             data.renderType = CameraRenderType.Base;
             data.renderPostProcessing = false;
             data.renderShadows = false;

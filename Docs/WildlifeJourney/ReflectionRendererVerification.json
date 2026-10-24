@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "change": "Dedicated reflection-only URP renderer in slot 2 for each quality; main renderer and its AO unchanged. Reflection resolution/cadence/layers/shadows unchanged.",
+  "controlled_before_after": {
+    "ABBA_median_mean_ms": [
+      40.849,
+      32.753
+    ],
+    "BAAB_median_mean_ms": [
+      34.644,
+      29.908
+    ],
+    "draw_calls_percent_change": -25.6,
+    "evidence": "Reflection renderer resource isolation and skipping reflection AO both contribute. CPU submit timings are not GPU timings."
+  },
+  "visual": "Four identical-camera reflection comparisons plus final real Game movement/water/fence review; no obvious reflected-object loss in sampled views.",
+  "final_actual_main": {
+    "frames": 732,
+    "seconds": 20.011468600001535,
+    "focus": {
+      "True": 732
+    },
+    "metrics": {
+      "frameMs": {
+        "count": 732,
+        "mean": 27.8911,
+        "p50": 26.8987,
+        "p95": 33.7073,
+        "p99": 38.5459,
+        "max": 433.0771
+      },
+      "mainMs": {
+        "count": 732,
+        "mean": 27.276,
+        "p50": 26.8705,
+        "p95": 33.457,
+        "p99": 37.639,
+        "max": 61.5695
+      },
+      "renderMs": {
+        "count": 0,
+        "unavailable": true
+      },
+      "gcBytes": {
+        "count": 732,
+        "mean": 72179.0505,
+        "p50": 40370.5,
+        "p95": 301086.3,
+        "p99": 592323.32,
+        "max": 972200.0
+      },
+      "drawCalls": {
+        "count": 732,
+        "mean": 6541.0464,
+        "p50": 6540.0,
+        "p95": 6553.0,
+        "p99": 6554.0,
+        "max": 6555.0
+      },
+      "batches": {
+        "count": 732,
+        "mean": 5332.6462,
+        "p50": 5332.0,
+        "p95": 5344.0,
+        "p99": 5346.0,
+        "max": 5347.0
+      },
+      "contactsSampled": {
+        "count": 732,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "max": 0.0
+      }
+    },
+    "scope": "Final integration sample, not another controlled before/after. Residual spike retained; further investigation deferred by user."
+  },
+  "safe_landing": {
+    "scene_transform_unchanged": true,
+    "water_components": 16,
+    "main_returned_edit_clean": true,
+    "notebook_restored": true
+  },
+  "evidence": "PerformanceAuditReview/20261024/Optimization/ReflectionRenderer/MainLanding/"
+}

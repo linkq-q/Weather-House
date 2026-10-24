@@ -190,6 +190,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 water.AddComponent<MeshFilter>().sharedMesh = Store(mesh,folder + "/WaterSection" + part + ".asset");
                 var renderer = water.AddComponent<MeshRenderer>(); renderer.sharedMaterial=material; renderer.shadowCastingMode=ShadowCastingMode.Off;
                 var reflection = water.AddComponent<PainterlyWaterReflection>(); reflection.resolution=1024;reflection.resolutionScale=.5f;
+                reflection.reflectionRendererIndex = 2; // Dedicated reflection slot in each project URP quality asset.
                 var surface = water.AddComponent<WatersideWaterSurface>();surface.section=part-1;
                 var interaction=water.AddComponent<HillsideWaterInteraction>();interaction.terrain=terrain;interaction.waterRenderer=renderer;interaction.surface=surface;
                 interaction.simulationShader=AssetDatabase.LoadAssetAtPath<Shader>("Assets/Experiments/Vegetation/Shaders/WaterInteractionNormals.shader");
