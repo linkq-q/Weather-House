@@ -1,0 +1,223 @@
+{
+  "verifiedUtc": "2026-10-24T17:49:31.8265544Z",
+  "scope": "Existing fox rig: downloaded eating take, source-derived lying/rest/rise, retained skeleton/mesh/materials, bounded reachable flat rest sites within existing territory.",
+  "mainSceneSha256": "0843A40623E1AEE92DA5B808CA184B5D98AA153D3EFEFA5F6955563A0D2AD798",
+  "mainRun": "JourneyReview\\Revision_20261024\\AnimationInstall\\MainReview\\Runs\\20261024_174841_895_foxes",
+  "lifecycle": "JourneyReview\\Revision_20261024\\AnimationInstall\\MainReview\\Runs\\20261024_174824_792_lifecycle_fox-rest\\result-174931826.json",
+  "mainScenarios": "Eight seconds natural observation, then explicitly triggered needs and one startle; all travel uses production AI, no actor teleport.",
+  "foxes": [
+    {
+      "spawnId": 20,
+      "naturalSamples": 31,
+      "restSamples": 199,
+      "restCycles": 1,
+      "name": "fox",
+      "scenario": "normal-rest-exit",
+      "lastState": "Forage",
+      "lastDecision": "Forage：停留",
+      "lastPhase": "Standing",
+      "initialPosition": {
+        "x": -53.12075424194336,
+        "y": 6.693732261657715,
+        "z": 2.9999008178710938
+      },
+      "home": {
+        "x": -53.2667121887207,
+        "y": 6.890111923217773,
+        "z": 4.204851150512695
+      },
+      "restPosition": {
+        "x": -47.515968322753906,
+        "y": 7.997012138366699,
+        "z": 8.886178970336914
+      },
+      "sawDown": true,
+      "sawSleep": true,
+      "sawRise": true,
+      "roseBeforeMoving": true,
+      "sawForage": true,
+      "startleAccepted": false,
+      "originalRestSeconds": 12.0,
+      "minimumTerrainGap": -0.004122257232666016,
+      "maximumPawClearance": 0.0,
+      "maximumRestDrift": 0.0,
+      "maximumRestTurn": 0.0,
+      "rendererHeight": 0.8282384872436523,
+      "scaleTrueHeight": 0.5469856262207031,
+      "scaleFalseHeight": 61.75185775756836,
+      "maximumCpuSkinError": 1.1930462278542109e-05,
+      "terrainNeedsVisualReview": false
+    },
+    {
+      "spawnId": 21,
+      "naturalSamples": 31,
+      "restSamples": 271,
+      "restCycles": 2,
+      "name": "fox",
+      "scenario": "startled-rest-exit",
+      "lastState": "Forage",
+      "lastDecision": "Forage：停留",
+      "lastPhase": "Standing",
+      "initialPosition": {
+        "x": -50.46601104736328,
+        "y": 7.176756858825684,
+        "z": 3.402127742767334
+      },
+      "home": {
+        "x": -50.46601104736328,
+        "y": 7.176756858825684,
+        "z": 3.402127742767334
+      },
+      "restPosition": {
+        "x": -44.9189567565918,
+        "y": 8.000244140625,
+        "z": 8.294764518737793
+      },
+      "sawDown": true,
+      "sawSleep": true,
+      "sawRise": true,
+      "roseBeforeMoving": true,
+      "sawForage": true,
+      "startleAccepted": true,
+      "originalRestSeconds": 12.0,
+      "minimumTerrainGap": -0.010145187377929688,
+      "maximumPawClearance": 0.0001888275146484375,
+      "maximumRestDrift": 0.0,
+      "maximumRestTurn": 0.0,
+      "rendererHeight": 0.9451780319213867,
+      "scaleTrueHeight": 0.7864794731140137,
+      "scaleFalseHeight": 86.9328384399414,
+      "maximumCpuSkinError": 1.1483759408292826e-05,
+      "terrainNeedsVisualReview": false
+    }
+  ],
+  "isolatedRestSequence": "JourneyReview\\Revision_20261024\\AnimationInstall\\PostureV3\\Unity\\20261025-013608\\runtime-pass.json",
+  "logicChecks": "JourneyReview\\Revision_20261024\\AnimationInstall\\PersistentChecks",
+  "limitations": [
+    "Original rig has no eyelids: eyes-open lying rest, not closed-eye sleep.",
+    "Main screenshots retain tall grass, which partly occludes the paws; grounded contact is corroborated by independently calibrated CPU skinning.",
+    "Ordinary walking/foraging on all slopes is outside this rest-site fix."
+  ],
+  "files": [
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/APACHE-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/APACHE-2.0.txt.meta",
+      "sha256": "a7a2e2f5dfa16ad5f488dc26edf97f560334cf410bb237961c7f984422f424dc"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_eat.fbx",
+      "sha256": "b45e08c2133eb29297a0725009ffdf47cf0f4eef47d1c30af2f17c90e23e9ee4"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_eat.fbx.meta",
+      "sha256": "7b7ab2a9ed7cd386c14b8003210f3ce5f60a925bc36b2acfa421e0c7846a270c"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_restdown.fbx",
+      "sha256": "0124247d879a704fde8e398fbc0ce7f9229f1f745f332791306eb60b8b9855ef"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_restdown.fbx.meta",
+      "sha256": "f827be232a1347142474b6970dd03f3a7d5d729c5115b22206fc7c5a6c24d497"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_restsleep.fbx",
+      "sha256": "645c44e1fd81d5cb81ded4228b34fbc94d0cc9324ce253adeb86d035a50035d2"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_restsleep.fbx.meta",
+      "sha256": "5582bf7d2dd3ac67a8cd699e6c77088eeaf984920d67f9b3dc1121e9d319edcb"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_restup.fbx",
+      "sha256": "562a24486770b6be80e2ba185c85a83e91ec9597212808df14e59ec6913d5480"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/fox_restup.fbx.meta",
+      "sha256": "465fc7d632125a87c0c845f023405abc614bbcbb308c35d23cfc0ee2527c6c53"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/SOURCES.md",
+      "sha256": "a0d841298a7d1f1e15f8db0c4e0253f53c2d873781cd31fce6eaa0121da96702"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/SOURCES.md.meta",
+      "sha256": "3ef2d28b110d6eac5725174ad661b4203dc7c3cf7f165d5e7a43ae0f14ce5375"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/UPSTREAM-MODEL-LICENSE.md",
+      "sha256": "c03c9a686020bb1278b64ac193a3dca7da0d01a98250d7f2c5f8ddd94994bc11"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox/UPSTREAM-MODEL-LICENSE.md.meta",
+      "sha256": "e32eb7fc5c1449f816f170971b470a239c5e8edcf09405705c94f517d5512caa"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation/Fox.meta",
+      "sha256": "2711f85ee7b2c13724ed8e274a7ea261de102eb60228b792fe388c4714819d05"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Animation.meta",
+      "sha256": "0ea72ffa93c8a1df999a9e3bb1a08e36892045e5fc0a7834058e16b14bcb486b"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Editor/FoxRestImport.cs",
+      "sha256": "146d888682ee7b2ee6c5f34097625fad7a1b411c4d4fce0dd9efe519f0f5c56d"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Editor/FoxRestImport.cs.meta",
+      "sha256": "9c1eeccadee6c3dbdc7b91b500b0531706af20c976c115dea3ddf605f7077a0c"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs",
+      "sha256": "455b835dd65fb48a8d1b89c813d77d402cb3f91c2ff1415f085c78c6d57c8054"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs.meta",
+      "sha256": "219d39bd935699d7cbf113eecee1ba6f880cb6c2e903308373711550239c9d59"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAnimation.cs",
+      "sha256": "4ddbd679dae28f092aeee2cc82294b41d1a6f1c2f48b830f31a518e89827b405"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAnimation.cs.meta",
+      "sha256": "802dcae1d9e3d106792c04b75654bb90817e8f671ff8b69bcb40d5c7bf2c0f8c"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeRestSequence.cs",
+      "sha256": "34575f9dbdd28ceafa90cd910712615068d86cd4d95b3930edb4a69bd8c9bb95"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeRestSequence.cs.meta",
+      "sha256": "0fe0184967f3cdbf22d25cd2148376260d9d1237234ccc79dc18458f9a044f74"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeTypes.cs",
+      "sha256": "726540125fb78c6140e30051115790e875a1c33c2c10a32578eae1e5ab68c37f"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeTypes.cs.meta",
+      "sha256": "f08b61073fa0a0cdb98287b382c7492b27f79d5391c6ca224087e6ea2e439f6a"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeSolitaryRoutine.cs",
+      "sha256": "f3c753b75b63763175f9f1ad06335b6bedb5b4a4a92acc412a78ceaaebabb083"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Editor/WildlifeSolitaryStrategyChecks.cs",
+      "sha256": "670372b715ba8b0a914c303a2b702b29525f3d1067058c503c4ee478ad6fa8c1"
+    },
+    {
+      "path": "Assets/Game/World/Hillside/Editor/HillsideAnimalBuilder.cs",
+      "sha256": "3253a73c74eeffaca7d5055a37f6537e79cde16718b5891e655f0b1d4651a883"
+    },
+    {
+      "path": "Assets/Game/World/Hillside/Generated/fox.prefab",
+      "sha256": "b9e693b5996c41fb45180f213fba0e5369227ca791f46d76692a1f758f6f8c50"
+    }
+  ]
+}

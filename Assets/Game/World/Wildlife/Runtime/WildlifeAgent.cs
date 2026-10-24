@@ -33,10 +33,12 @@ namespace WeatherHouse.Hillside
         public Vector3 Destination => destination;
         public float AirHeight => population == null ? flightHeight : altitude;
         public WildlifeSolitaryRoutine SolitaryRoutine => solitary;
+        public WildlifeRestPhase RestPhase => restAnimation.Phase;
 
         private WildlifePopulation population;
         private WildlifeRandom random;
         private readonly WildlifeAnimation animationPlayer = new WildlifeAnimation();
+        private readonly WildlifeRestSequence restAnimation = new WildlifeRestSequence();
         private WildlifeAgent partner;
         private Vector3 baseVisualScale, baseVisualPosition, baseMotionPosition, destination, separation, threat;
         private float stateSince, stateUntil, nextGreeting, nextAlarm, nextDestination, speedVariation, altitude;
@@ -45,6 +47,7 @@ namespace WeatherHouse.Hillside
         private WildlifeSolitaryRoutine solitary;
         private SolitaryReachable solitaryReachable;
         private SolitaryWaterQuery solitaryWater;
+        private SolitaryRestQuery solitaryRest;
         private float solitaryHeading;
         private bool solitaryWasWorking;
         private Transform solitaryHead;
@@ -54,6 +57,7 @@ namespace WeatherHouse.Hillside
         public void Initialize(WildlifePopulation owner)
         {
             RestoreSolitaryPose();
+            restAnimation.Reset();
             ReleasePartner();
             population = owner;
             random = new WildlifeRandom(owner.worldSeed, spawnId, speciesId);
@@ -88,6 +92,7 @@ namespace WeatherHouse.Hillside
                     walkSpeed, solitaryProfile, habitatCenter)
                 : null;
             solitaryReachable = TrySolitaryPoint; solitaryWater = TrySolitaryWater;
+            solitaryRest = clips != null && clips.HasRestSequence ? IsRestSurface : (SolitaryRestQuery)null;
             solitaryWasWorking = false;
             solitaryHead = null;
             if (solitary != null)
@@ -307,7 +312,7 @@ namespace WeatherHouse.Hillside
 
         private void ApplySolitary(float now)
         {
-            solitary.Decide(now, transform.position, solitaryReachable, solitaryWater);
+            solitary.Decide(now, transform.position, solitaryReachable, solitaryWater, solitaryRest);
             bool working = solitary.IsWorking;
             if (working && !solitaryWasWorking) solitaryHeading = transform.eulerAngles.y;
             solitaryWasWorking = working;
@@ -321,6 +326,22 @@ namespace WeatherHouse.Hillside
 
         private bool TrySolitaryPoint(Vector3 requested, out Vector3 projected)
         { return population.TryMove(this, requested, out projected); }
+
+        private bool IsRestSurface(Vector3 point)
+        {
+            // The full body can finish within Arrival (18 cm) of its target and
+            // face any heading. Sample that swept footprint, not only its pivot.
+            float radius = BodyEnvelope.HorizontalRadius + .18f;
+            float low = population.GroundHeight(point), high = low;
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = i * Mathf.PI * .25f;
+                Vector3 edge = point + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
+                float height = population.GroundHeight(edge);
+                low = Mathf.Min(low, height); high = Mathf.Max(high, height);
+            }
+            return high - low <= .04f;
+        }
 
         private bool TrySolitaryWater(Vector3 standingPoint, out Vector3 waterPoint)
         {
@@ -340,6 +361,16 @@ namespace WeatherHouse.Hillside
 
         internal void Move(float dt, float now)
         {
+            bool resting = solitary != null && solitary.IsWorking && solitary.Activity == SolitaryActivity.Rest && State == WildlifeState.Idle;
+            restAnimation.Tick(resting, State == WildlifeState.Alert || State == WildlifeState.Flee, dt, clips, animationPlayer.HasReachedBoundary(restAnimation.Clip, restAnimation.Speed));
+            if (restAnimation.BlocksMovement)
+            {
+                ActualSpeed = 0f;
+                solitary?.Advance(dt, transform.position, resting, false);
+                animationPlayer.Play(restAnimation.Clip, restAnimation.Phase == WildlifeRestPhase.Sleeping, restAnimation.Speed, restAnimation.StartTime);
+                animationPlayer.Tick(dt);
+                return;
+            }
             if (State == WildlifeState.Takeoff)
                 altitude = Mathf.MoveTowards(altitude, flightHeight, flightHeight * dt / Mathf.Max(.1f, stateUntil - stateSince));
             else if (State == WildlifeState.Landing)
@@ -389,7 +420,7 @@ namespace WeatherHouse.Hillside
             {
                 bool available = State != WildlifeState.Alert && State != WildlifeState.Flee && State != WildlifeState.Greet;
                 solitary.Advance(dt, transform.position, available, ActualSpeed > .05f);
-                if (available && solitary.IsWorking)
+                if (available && solitary.IsWorking && !(solitary.Activity == SolitaryActivity.Forage && clips != null && clips.forage != null && clips.forage != clips.idle))
                 {
                     // Existing idle clips remain idle; small ground-preserving turns suggest looking/sniffing, not a new eating or sleeping animation.
                     float yaw = solitaryHeading + Mathf.Sin(now * .7f + spawnId) * (solitary.Activity == SolitaryActivity.Rest ? 3f : 8f);
@@ -429,7 +460,7 @@ namespace WeatherHouse.Hillside
 
         public bool CanGreet(float now)
         {
-            return isActiveAndEnabled && partner == null && sociability > 0f && now >= nextGreeting &&
+            return isActiveAndEnabled && !restAnimation.BlocksMovement && partner == null && sociability > 0f && now >= nextGreeting &&
                 State != WildlifeState.Alert && State != WildlifeState.Flee && State != WildlifeState.Takeoff && State != WildlifeState.Landing && State != WildlifeState.ReturnHome &&
                 (locomotion != WildlifeLocomotion.Flying || altitude < .01f);
         }
@@ -471,8 +502,8 @@ namespace WeatherHouse.Hillside
             // Robin clips bake travel into body. World flight owns that travel; retain the wing/leg pose only.
             if (locomotion == WildlifeLocomotion.Flying && motionRoot != null && capturedMotionPosition)
                 motionRoot.localPosition = baseMotionPosition;
-            if (solitaryHead && solitary != null && solitary.IsWorking && (State == WildlifeState.Forage || State == WildlifeState.Idle) &&
-                (solitary.Activity == SolitaryActivity.Forage || solitary.Activity == SolitaryActivity.Drink || solitary.Activity == SolitaryActivity.Watch))
+            if (!restAnimation.BlocksMovement && solitaryHead && solitary != null && solitary.IsWorking && (State == WildlifeState.Forage || State == WildlifeState.Idle) &&
+                ((solitary.Activity == SolitaryActivity.Forage && (clips == null || clips.forage == null || clips.forage == clips.idle)) || solitary.Activity == SolitaryActivity.Drink || solitary.Activity == SolitaryActivity.Watch))
             {
                 if (solitaryPoseApplied) RestoreSolitaryPose();
                 solitaryHeadPose = solitaryHead.localRotation; solitaryPoseApplied = true;
@@ -488,7 +519,7 @@ namespace WeatherHouse.Hillside
             if (population != null && Application.isPlaying)
                 animationPlayer.Initialize(animator, clips, 0f);
         }
-        private void OnDisable() { RestoreSolitaryPose(); ReleasePartner(); animationPlayer.Dispose(); }
+        private void OnDisable() { RestoreSolitaryPose(); restAnimation.Reset(); ReleasePartner(); animationPlayer.Dispose(); }
         private void OnDestroy() { animationPlayer.Dispose(); }
     }
 }

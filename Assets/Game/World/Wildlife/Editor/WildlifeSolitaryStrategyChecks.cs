@@ -8,10 +8,10 @@ namespace WeatherHouse.Hillside.Editor
     {
         public static string RunLogicChecks()
         {
-            CheckReplayAndRange(); CheckRecovery(); CheckWater(); CheckInterrupt(); CheckFailureCooldown(); CheckBlockedHome();
+            CheckReplayAndRange(); CheckRecovery(); CheckWater(); CheckInterrupt(); CheckFailureCooldown(); CheckBlockedHome(); CheckRestSurface();
             return "PASS solitary strategy: seeded replay and individual ranges\nPASS needs recover only at their activity target\n" +
                 "PASS verified water only; missing/lost water never restores thirst\nPASS threat interruption returns home and resumes decisions\n" +
-                "PASS stalled-target cooldown, bounded retry and live profile periods\nPASS blocked home uses safe intermediate destinations without restoring fatigue away from home";
+                "PASS stalled-target cooldown, bounded retry and live profile periods\nPASS blocked home uses safe intermediate destinations without restoring fatigue away from home\nPASS authored rest finds an 8m-territory bed, recovers only after arrival, caches it and bounds failed retries";
         }
 
         private static bool Reach(Vector3 requested, out Vector3 projected) { projected = requested; return true; }
@@ -163,6 +163,43 @@ namespace WeatherHouse.Hillside.Editor
                 }
                 Require(intermediate && home, "The animal stayed at a blocked home line instead of reaching home through safe intermediate points.");
             }
+        }
+
+        private static void CheckRestSurface()
+        {
+            // Main fox overrides use 8 m, with usable flat ground beyond 7.1 m.
+            var r = new WildlifeSolitaryRoutine(42, 20, Vector3.zero, 8, 1, null, new Vector3(4.6667f, 0, 4.7951f));
+            r.Fatigue = 1; r.Hunger = r.Thirst = 0;
+            int surfaces = 0;
+            bool Flat(Vector3 p) { surfaces++; return p.x > 4 && p.z > 2 && new Vector2(p.x, p.z).magnitude >= 7.1f; }
+            r.Decide(0, r.Home, Reach, null, Flat);
+            Require(r.HasTarget && r.Activity == SolitaryActivity.Rest && r.Contains(r.Target) && Flat(r.Target)
+                && Vector3.Distance(r.Target, r.Home) <= 7.5f, "The actual 8 m territory missed a valid outer rest site.");
+            Vector3 bed = r.Target; r.Fatigue = .8f; float tired = r.Fatigue;
+            r.Advance(.1f, r.Home, true, false);
+            Require(r.Fatigue >= tired, "Rest restored fatigue before reaching its chosen bed.");
+            r.Decide(1, bed, Reach, null, Flat); tired = r.Fatigue;
+            for (int i = 0; i < 20; i++) r.Advance(.1f, bed, true, false);
+            Require(r.IsWorking && !r.ReturningHome && r.Fatigue < tired - .1f, "Arriving at a bed away from Home failed to settle and recover.");
+            tired = r.Fatigue; r.Advance(.1f, r.Home, true, false);
+            Require(r.Fatigue >= tired, "A displaced resting animal kept recovering at its old bed.");
+            r.Interrupt(true); int before = surfaces; r.Decide(4, r.Home, Reach, null, Flat);
+            Require(r.Target == bed && surfaces - before <= 2, "A repeated rest need discarded the verified bed cache.");
+
+            var steep = Routine(); steep.Fatigue = 1; steep.Hunger = steep.Thirst = 0;
+            int rejected = 0, travel = 0;
+            bool Steep(Vector3 p) { rejected++; return false; }
+            bool CountTravel(Vector3 p, out Vector3 q) { travel++; q = p; return true; }
+            steep.Decide(0, steep.Home, CountTravel, null, Steep); before = rejected;
+            steep.Decide(3, steep.Home, CountTravel, null, Steep);
+            Require(!steep.HasTarget && !steep.IsWorking && travel == 0 && rejected == before && rejected <= 49,
+                "Unsuitable ground became a bed or its whole search ignored cooldown.");
+            var blocked = Routine(); blocked.Fatigue = 1; blocked.Hunger = blocked.Thirst = 0;
+            bool Blocked(Vector3 p, out Vector3 q) { travel++; q = p; return false; }
+            blocked.Decide(0, blocked.Home, Blocked, null, p => true); before = travel;
+            blocked.Decide(.1f, blocked.Home, Blocked, null, p => true);
+            Require(!blocked.HasTarget && !blocked.IsWorking && travel == before && travel <= 20,
+                "Unreachable rest ignored full movement checks or its retry interval.");
         }
 
         private static Vector3 Move(Vector3 from, Vector3 to, float distance)

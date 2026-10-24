@@ -167,6 +167,7 @@ namespace WeatherHouse.Hillside.Editor
                     idle = Find("idle") ?? Find("swim"), forage = Find("eat") ?? Find("look") ?? Find("sing") ?? Find("idle") ?? Find("swim"),
                     walk = Find("walk") ?? Find("swim"), run = Find("run") ?? Find("swim_fast") ?? Find("walk"),
                     greet = Find("sing") ?? Find("look") ?? Find("idle"), alert = Find("react") ?? Find("idle"), takeoff = Find("takeoff"), fly = Find("fly"), land = Find("land") };
+                if (species == "fox") FoxRestImport.Bind(agent);
                 if (species == "robin") agent.motionRoot = hips;
                 agent.locomotion = species == "robin" ? WildlifeLocomotion.Flying : species == "fish" ? WildlifeLocomotion.Swimming : WildlifeLocomotion.Ground;
                 agent.walkSpeed = species == "turtle" ? .22f : species == "fish" ? .65f : species == "robin" ? 3.2f : species == "deer" ? 1.1f : .65f;

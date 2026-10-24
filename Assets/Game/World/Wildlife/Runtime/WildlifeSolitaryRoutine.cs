@@ -13,6 +13,7 @@ namespace WeatherHouse.Hillside
         [Min(1f)] public float forageSeconds = 8f, drinkSeconds = 5f, restSeconds = 12f;
     }
     public delegate bool SolitaryReachable(Vector3 requested, out Vector3 projected);
+    public delegate bool SolitaryRestQuery(Vector3 restingPoint);
     public delegate bool SolitaryWaterQuery(Vector3 standingPoint, out Vector3 waterPoint);
 
     // Decisions only: WildlifeAgent remains the sole owner of movement, alarms and its animation graph.
@@ -41,14 +42,19 @@ namespace WeatherHouse.Hillside
         private const float Arrival = .18f;
         private float nextChoice, workUntil, travelUntil, progressAt, bestDistance, drinkSearchAt;
         private bool returnHome, returnWaypoint;
+        private Vector3 restDestination;
+        private bool restSiteCached;
+        private float restSearchAt;
+        private readonly float restSearchAngle;
 
         public WildlifeSolitaryRoutine(int seed, int id, Vector3 home, float range, float speed,
             WildlifeSolitaryProfile profile = null, Vector3? regionCenter = null)
         {
-            Home = Target = home; Range = Mathf.Max(1f, range); walkingSpeed = Mathf.Max(.1f, speed);
+            Home = Target = restDestination = home; Range = Mathf.Max(1f, range); walkingSpeed = Mathf.Max(.1f, speed);
             RegionCenter = regionCenter ?? home; Profile = profile ?? new WildlifeSolitaryProfile();
             random = new WildlifeRandom(seed, id, "solitary-routine");
             detourSide = (id & 1) == 0 ? 1f : -1f;
+            restSearchAngle = id * 2.39996323f;
             Hunger = random.Range(.35f, .7f); Thirst = random.Range(.2f, .55f); Fatigue = random.Range(.2f, .6f);
         }
 
@@ -61,7 +67,7 @@ namespace WeatherHouse.Hillside
             if (!available || !IsWorking || Distance(position, Target) > Arrival) return;
             if (Activity == SolitaryActivity.Forage) Hunger = Mathf.Max(0, Hunger - dt * .65f / Mathf.Max(1f, Profile.forageSeconds));
             if (Activity == SolitaryActivity.Drink) Thirst = Mathf.Max(0, Thirst - dt * .65f / Mathf.Max(1f, Profile.drinkSeconds));
-            if (Activity == SolitaryActivity.Rest && Distance(position, Home) <= .4f)
+            if (Activity == SolitaryActivity.Rest)
                 Fatigue = Mathf.Max(0, Fatigue - dt * .75f / Mathf.Max(1f, Profile.restSeconds));
         }
 
@@ -70,7 +76,7 @@ namespace WeatherHouse.Hillside
             HasTarget = IsWorking = returnWaypoint = false; returnHome |= seekHome; nextChoice = 0;
         }
 
-        public void Decide(float now, Vector3 position, SolitaryReachable reachable, SolitaryWaterQuery water)
+        public void Decide(float now, Vector3 position, SolitaryReachable reachable, SolitaryWaterQuery water, SolitaryRestQuery restSite = null)
         {
             if (HasTarget)
             {
@@ -83,7 +89,7 @@ namespace WeatherHouse.Hillside
                     if (distance <= Arrival)
                     {
                         IsWorking = true;
-                        if (Activity == SolitaryActivity.Rest && Distance(position, Home) <= .4f) returnHome = false;
+                        if (Activity == SolitaryActivity.Rest) returnHome = false;
                         float duration = Activity == SolitaryActivity.Rest ? Profile.restSeconds : Activity == SolitaryActivity.Forage ? Profile.forageSeconds :
                             Activity == SolitaryActivity.Drink ? Profile.drinkSeconds : 4f;
                         workUntil = now + Mathf.Max(1f, duration) * random.Range(.85f, 1.15f);
@@ -104,20 +110,24 @@ namespace WeatherHouse.Hillside
             SolitaryActivity choice = mustReturn || Fatigue >= Mathf.Max(.42f, Hunger) ? SolitaryActivity.Rest :
                 Thirst > Mathf.Max(.45f, Hunger) && now >= drinkSearchAt ? SolitaryActivity.Drink :
                 Hunger >= .4f ? SolitaryActivity.Forage : random.Value() < .72f ? SolitaryActivity.Patrol : SolitaryActivity.Watch;
-            if (TryPlan(choice, now, position, reachable, water)) return;
+            if (TryPlan(choice, now, position, reachable, water, restSite)) return;
             if (choice == SolitaryActivity.Drink)
             {
                 drinkSearchAt = now + 20f;
-                if (TryPlan(Fatigue > Hunger ? SolitaryActivity.Rest : SolitaryActivity.Forage, now, position, reachable, water)) return;
+                if (TryPlan(Fatigue > Hunger ? SolitaryActivity.Rest : SolitaryActivity.Forage, now, position, reachable, water, restSite)) return;
             }
             FailureCount++; nextChoice = now + random.Range(1.5f, 2.5f);
             HasTarget = IsWorking = false; Activity = SolitaryActivity.Watch;
         }
 
-        private bool TryPlan(SolitaryActivity activity, float now, Vector3 position, SolitaryReachable reachable, SolitaryWaterQuery water)
+        private bool TryPlan(SolitaryActivity activity, float now, Vector3 position, SolitaryReachable reachable, SolitaryWaterQuery water, SolitaryRestQuery restSite = null)
         {
             if (activity == SolitaryActivity.Drink && water == null) return false;
-            if (activity == SolitaryActivity.Rest) returnHome = true;
+            if (activity == SolitaryActivity.Rest)
+            {
+                returnHome = true;
+                if (restSite != null) return TryRestSite(now, position, reachable, restSite);
+            }
             int attempts = activity == SolitaryActivity.Rest || activity == SolitaryActivity.Watch ? 1 : 16;
             for (int i = 0; i < attempts; i++)
             {
@@ -135,10 +145,43 @@ namespace WeatherHouse.Hillside
             return activity == SolitaryActivity.Rest && TryReturnWaypoint(now, position, reachable);
         }
 
+        private bool TryRestSite(float now, Vector3 position, SolitaryReachable reachable, SolitaryRestQuery restSite)
+        {
+            if (restSiteCached && Contains(restDestination) && !Cooling(restDestination, now) && restSite(restDestination))
+            {
+                if (reachable(restDestination, out Vector3 bed) && Contains(bed) && !Cooling(bed, now) && restSite(bed))
+                { BeginTarget(SolitaryActivity.Rest, now, position, bed, default); return true; }
+                return TryReturnWaypoint(now, position, reachable);
+            }
+            restSiteCached = false;
+            if (now < restSearchAt) return false;
+            restSearchAt = now + 15f;
+            // Search once, then reuse a verified bed across rests and interruptions.
+            // Individual spoke offsets avoid giving every animal the same first bed.
+            // Reject unsuitable ground before the bounded whole-body travel checks.
+            bool foundSurface = false; int travelQueries = 0;
+            float radius = Mathf.Min(7.5f, Range - Arrival);
+            for (int i = 0; i < 49; i++)
+            {
+                int ring = (i - 1) / 16 + 1, spoke = (i - 1) % 16;
+                float angle = restSearchAngle + spoke * Mathf.PI / 8f + ring * Mathf.PI / 16f;
+                Vector3 request = i == 0 ? Home : Home + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (radius * ring / 3f);
+                if (!Contains(request) || Cooling(request, now) || !restSite(request)) continue;
+                if (!foundSurface) { restDestination = request; foundSurface = true; }
+                if (++travelQueries > 8) break;
+                if (!reachable(request, out Vector3 candidate) || !Contains(candidate) || Cooling(candidate, now) || !restSite(candidate)) continue;
+                restDestination = candidate; restSiteCached = true;
+                BeginTarget(SolitaryActivity.Rest, now, position, candidate, default);
+                return true;
+            }
+            restSiteCached = foundSurface;
+            return foundSurface && TryReturnWaypoint(now, position, reachable);
+        }
+
         private bool TryReturnWaypoint(float now, Vector3 position, SolitaryReachable reachable)
         {
-            Vector3 toward = Home - position; toward.y = 0;
-            float length = Distance(position, Home);
+            Vector3 toward = restDestination - position; toward.y = 0;
+            float length = Distance(position, restDestination);
             if (length < .4f) return false;
             toward *= 1f / length;
             Vector3 side = new Vector3(-toward.z, 0, toward.x);

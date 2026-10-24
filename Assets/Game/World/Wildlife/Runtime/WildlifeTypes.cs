@@ -26,6 +26,8 @@ namespace WeatherHouse.Hillside
     public sealed class WildlifeClips
     {
         public AnimationClip idle, forage, walk, run, greet, alert, takeoff, fly, land;
+        public AnimationClip restDown, restSleep, restUp;
+        public bool HasRestSequence => restDown && restSleep && restUp;
 
         public AnimationClip FirstAvailable => idle != null ? idle : walk != null ? walk : fly != null ? fly :
             forage != null ? forage : run != null ? run : greet != null ? greet : alert != null ? alert : takeoff != null ? takeoff : land;
