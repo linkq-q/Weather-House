@@ -1,0 +1,5 @@
+Root integration 2026-10-24.
+Landed JourneyNavigation SHA256 1139728BBDD917FB695B959EF2C09417142F59E8D657DBA5717B611821922AF8; 8 added lines and 1 removed line. Only the reviewed call-local directed-edge cache. The larger experimental bridge/navigation branch is not included.
+Actual main Unity Play lifecycle 20261024_154658_909_lifecycle_candidate passed (15:46:58-15:47:37 UTC), with 20-second normal runtime sampling. No runtime errors, scene FB35C73D unchanged, Notebook/editor options restored, returned to Edit clean. Independent worker activity was not controlled for this integration run; do not use it as a matched FPS benchmark.
+Root reviewed Trace/Connector/JoinClear/Assemble: cached edges are not mutated by the consumers; incoming-turn validation remains per arrival. Finite swimming distance and directed edge identity remain distinct; dictionary lifetime is one synchronous call. See verification.txt for actual RED/GREEN and matched isolated timing.
+Planning is not yet smooth: the clean paired isolated result is still 259 ms. Budgeted incremental planning and actual full-map departure correctness remain separate unfinished work.

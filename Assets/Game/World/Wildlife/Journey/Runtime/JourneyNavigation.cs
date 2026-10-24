@@ -328,6 +328,8 @@ namespace WeatherHouse.WildlifeJourney
                 profile == null || profile.walkSpeed <= 0 || nodes == null || links == null) return null;
             List<SearchState> states = Attachments(start, profile, initialSwimDistance), exits = Attachments(goal, profile, 0, true);
             if (states.Count == 0 || exits.Count == 0) return null;
+            // Reuse only inside this synchronous search; cross-frame reuse would miss scene or profile changes.
+            var tracedLinks = new Dictionary<(int node, int link, float swim), Edge>();
             JourneyRoute bestRoute = null;
             float bestCost = float.PositiveInfinity;
             float fastest = Mathf.Max(.01f, Mathf.Max(profile.walkSpeed, profile.canSwim ? profile.swimSpeed : 0));
@@ -355,7 +357,12 @@ namespace WeatherHouse.WildlifeJourney
                     if (link == null || (blockedLinks != null && blockedLinks.Contains(i))) continue;
                     int next = link.from == current.node ? link.to : link.bidirectional && link.to == current.node ? link.from : -1;
                     if (next < 0 || next >= nodes.Length || nodes[next] == null) continue;
-                    Edge edge = Trace(nodes[current.node].position, nodes[next].position, profile, i, link.bridgeId, current.swimDistance);
+                    var key = (current.node, i, current.swimDistance);
+                    if (!tracedLinks.TryGetValue(key, out Edge edge))
+                    {
+                        edge = Trace(nodes[current.node].position, nodes[next].position, profile, i, link.bridgeId, current.swimDistance);
+                        tracedLinks.Add(key, edge);
+                    }
                     if (edge == null || !JoinClear(profile, current, edge)) continue;
                     float cost = current.cost + edge.cost; bool dominated = false;
                     // A cheaper path with more swimming fatigue must not erase a viable rested arrival.

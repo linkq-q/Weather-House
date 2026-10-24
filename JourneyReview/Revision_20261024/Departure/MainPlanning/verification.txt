@@ -1,0 +1,36 @@
+Current-main directed-edge memo, 2026-10-24
+
+READY: one production file, no main scene/Assets/Unity changed by this worker.
+Candidate/Assets/Game/World/Wildlife/Journey/Runtime/JourneyNavigation.cs
+Baseline SHA256 0C16639509BD39A6029CEA8EAD73F8DEECEF5263382B5E72250FA237369FB6DF
+Candidate SHA256 1139728BBDD917FB695B959EF2C09417142F59E8D657DBA5717B611821922AF8
+JourneyEdgeMemoChecks.cs SHA256 22FBE63FF82A51938020F309650E9788D9033199276A2F2F0BDE7589A5BA1FA0
+LandEdgeMemoOnly.ps1 is a hash-guarded optional landing command; worker did NOT run it.
+edge-memo-only.patch is the exact two-hunk production diff. This is separate from Departure/Assets experimental bridge navigation.
+
+Cause: the heading-aware search reaches a graph node through several incoming edges and repeats identical directed outgoing Trace work. Trace depends on fixed profile, directed link and exact continuous swimming fatigue, whereas JoinClear additionally depends on incoming heading. Cache only Trace (including null) inside one synchronous FindRoute; retain JoinClear on every arrival. The why comment explicitly forbids carrying this cache across frames. Root independently reviewed the hunk and found no blocker.
+
+Actual Unity RED: edge-memo-red.log, PID62184, OS_EXIT=1.
+Unmodified main FindRoute compiles and runs; midpoint sampled 5 times, then the repeated-directed-edge behavioral assertion fails. No compatibility or behavior shim.
+Actual Unity GREEN: edge-memo-green.log, PID80372, OS_EXIT=0.
+Same midpoint sampled 2 times (once per direction). Different fatigue arrivals retain the rested alternative; blocked-link changes and new swimming profile take effect on the next call. Real collider insertion/removal and small/large body changes invalidate naturally because each call owns a new dictionary. Existing 18 navigation groups pass, including deep water, continuous fatigue, bank, bridge, dynamic surfaces and thin TerrainCollider triangles. Real rock/arrival-heading fixture keeps the longer safe approach; removing rock restores the shorter route. The only final source change after this GREEN was the requested explanatory comment; final hash compiled and ran in clean candidate timing below.
+
+Fixed current-main snapshot preserved in Baseline; sources recorded in source-manifest.json.
+Scene SHA256 FB35C73DB0EFEE1766DAD706C337C99BCC178B0E589761B4FE4214EF3690C584
+Water bool hunk SHA256 48D598D20028FC4894B3E3CA80B6A430AD975E5E44EA2E46C54B0082F6D31188
+Both sides use original 67 nodes / 70 links / 10 sheep, same terrain/population, identical all-10 initial positions and measured bounds. Actual natural Herd.Simulate first attempt at t=12.05003, not direct synthetic Plan call. Both retain the identical failed departure decision and Travelling=false.
+
+Diagnostic profile comparison (same wrappers):
+baseline-profile.log/result: 489.866 ms, IsWater 47716, repeated directed Trace 141 per attempt.
+candidate-profile.log/result: 295.029 ms, IsWater 26832, repeated Trace 3 per attempt (remaining connectors).
+All 4 attempts still fail first member23. Per-method instrumentation is diagnostic overhead, not clean cost.
+
+Clean comparison (no per-method Stopwatch wrappers; identical IsWater counter only):
+baseline-clean.log/result, PID38420, OS_EXIT=0: 457.957 ms, 47716 calls.
+candidate-clean.log/result, PID34820, OS_EXIT=0: 259.112 ms, 26832 calls.
+Saved 198.845 ms (43.42%) on this fixed snapshot; surface queries down 43.77%.
+This is one paired isolated Edit simulation measurement, not a distribution or main-editor Play/FPS result. The separate earlier D0DB scene water-only A/B is not used to claim this gain.
+
+Remaining: 259 ms is still a visible first-frame spike; no claim of smooth runtime or successful journey. Budgeted incremental planning must be a separate change with obstacle/profile/version invalidation and atomic all-member departure. Experimental bridge correctness work remains unlanded and independently incomplete.
+
+Cleanup: restore.txt verifies all 18 original Temp sources/scene by hash and restores the original Editor fixture folder. No owned Unity remains running. Main Unity, main Assets, notebook and scene saving were not used. Raw RED/GREEN/profile/timing logs retained; no user notebook data included.
