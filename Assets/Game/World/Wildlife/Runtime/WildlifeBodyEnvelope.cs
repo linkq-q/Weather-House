@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace WeatherHouse.Hillside
@@ -77,12 +78,82 @@ namespace WeatherHouse.Hillside
         { direction.y = 0; return direction.sqrMagnitude > .000001f ? Quaternion.LookRotation(direction) : fallback; }
     }
 
+    // Exact top-face height over a horizontal, heading-aligned footprint. Fixed storage is reused per owner.
+    public sealed class WildlifeDeckFootprint
+    {
+        private readonly Vector3[] polygon = new Vector3[12], clipped = new Vector3[12];
+        // A convex cast can report contact across a sub-millimetre empty gap. Prove separation
+        // against the entire swept footprint, never from a hit point or only the final pose.
+        public bool StrictlySeparatedVerticalBox(BoxCollider box, Vector3 center, Vector3 half, Quaternion heading)
+        {
+            if (!box) return false;
+            Transform transform = box.transform;
+            Vector3 vertical = transform.localToWorldMatrix.MultiplyVector(Vector3.up);
+            Vector3 up = transform.rotation * Vector3.up, bodyUp = heading * Vector3.up;
+            Vector3 scale = transform.lossyScale;
+            if (vertical.x != 0 || vertical.z != 0 || vertical.y <= 0 || up.x != 0 || up.z != 0 || up.y <= 0 ||
+                bodyUp.x != 0 || bodyUp.z != 0 || bodyUp.y <= 0 || scale.x == 0 || scale.y <= 0 || scale.z == 0) return false;
+            Vector3 right = heading * Vector3.right, forward = heading * Vector3.forward;
+            Vector3 boxCenter = transform.TransformPoint(box.center), size = box.size * .5f;
+            // Enclose both transformed vertices and the rotation/lossyScale physical box. This
+            // remains conservative when a rotated child inherits non-uniform parent scale.
+            float guard = .00001f + Mathf.Max(center.magnitude, boxCenter.magnitude) * .000002f;
+            for (int side = 0; side < 4; side++)
+            {
+                Vector3 axis = side == 0 ? right : side == 1 ? forward : transform.rotation * (side == 2 ? Vector3.right : Vector3.forward);
+                float bodyExtent = half.x * Mathf.Abs(Vector3.Dot(axis, right)) + half.z * Mathf.Abs(Vector3.Dot(axis, forward));
+                float min = float.PositiveInfinity, max = float.NegativeInfinity;
+                for (int corner = 0; corner < 4; corner++)
+                {
+                    Vector3 offset = new Vector3((corner & 1) == 0 ? -size.x : size.x, size.y, (corner & 2) == 0 ? -size.z : size.z);
+                    float affine = Vector3.Dot(axis, transform.TransformPoint(box.center + offset) - center);
+                    float physical = Vector3.Dot(axis, boxCenter + transform.rotation * Vector3.Scale(scale, offset) - center);
+                    min = Mathf.Min(min, Mathf.Min(affine, physical)); max = Mathf.Max(max, Mathf.Max(affine, physical));
+                }
+                if (min > bodyExtent + guard || max < -bodyExtent - guard) return true;
+            }
+            return false;
+        }
+        public bool HighestTop(BoxCollider box, Vector3 center, Vector3 half, Quaternion heading, out float top)
+        {
+            top = float.NegativeInfinity;
+            if (!box || box.transform.lossyScale.y <= 0 || box.transform.up.y <= .01f) return false;
+            Quaternion inverse = Quaternion.Inverse(heading); Vector3 size = box.size * .5f;
+            for (int corner = 0; corner < 4; corner++)
+            {
+                Vector3 local = box.center + new Vector3(corner == 0 || corner == 3 ? -size.x : size.x, size.y, corner < 2 ? -size.z : size.z);
+                polygon[corner] = inverse * (box.transform.TransformPoint(local) - center);
+            }
+            int vertices = 4;
+            for (int side = 0; side < 4 && vertices > 0; side++)
+            {
+                int output = 0; int axis = side < 2 ? 0 : 2; float sign = side % 2 == 0 ? 1 : -1;
+                float extent = axis == 0 ? half.x : half.z;
+                Vector3 previous = polygon[vertices - 1]; float oldDistance = extent - sign * previous[axis];
+                for (int v = 0; v < vertices; v++)
+                {
+                    Vector3 current = polygon[v]; float distance = extent - sign * current[axis];
+                    if ((distance >= 0) != (oldDistance >= 0)) clipped[output++] = Vector3.Lerp(previous, current, oldDistance / (oldDistance - distance));
+                    if (distance >= 0) clipped[output++] = current;
+                    previous = current; oldDistance = distance;
+                }
+                vertices = output; System.Array.Copy(clipped, polygon, output);
+            }
+            for (int v = 0; v < vertices; v++) top = Mathf.Max(top, (center + heading * polygon[v]).y);
+            return vertices > 0;
+        }
+    }
+
     // Shared obstacle test for placement, translation and turning. Supporting ground is not an obstacle;
     // a bridge rail remains an obstacle even when its deck supports the feet.
     public sealed class WildlifeBodyPhysics
     {
         private readonly Collider[] overlaps = new Collider[64];
         private readonly RaycastHit[] hits = new RaycastHit[64];
+        private readonly WildlifeDeckFootprint deckFootprint = new WildlifeDeckFootprint();
+        internal System.Action<Collider> ObstructionObserved;
+        internal bool Reject(Collider collider)
+        { ObstructionObserved?.Invoke(collider); return false; }
 
         public static bool ClearOfBody(WildlifeBodyEnvelope body, Vector3 from, Quaternion fromRotation,
             Vector3 to, Quaternion toRotation, WildlifeBodyEnvelope other, Vector3 otherPosition, Quaternion otherRotation)
@@ -135,9 +206,16 @@ namespace WeatherHouse.Hillside
 
         public bool Clear(WildlifeBodyEnvelope body, Vector3 from, Quaternion fromRotation,
             Vector3 to, Quaternion toRotation, LayerMask mask, Collider supportFrom = null, Collider supportTo = null,
-            Transform owner = null, WildlifePlayerCollision player = null, bool ignoreAnimals = false)
+            Transform owner = null, WildlifePlayerCollision player = null, bool ignoreAnimals = false,
+            IReadOnlyDictionary<Collider, int> supportingDecks = null)
         {
             if (!body.Valid || mask.value == 0) return true;
+            // Wildlife stays upright while turning. Only that contract permits a flat sole height;
+            // tilted bodies keep the original collision test without the deck-contact exemption.
+            float lowestBody = Vector3.Angle(fromRotation * Vector3.up, Vector3.up) <= .01f &&
+                Vector3.Angle(toRotation * Vector3.up, Vector3.up) <= .01f
+                ? Mathf.Min(from.y, to.y) + body.Bottom : float.NegativeInfinity;
+            bool upright = fromRotation.x == 0 && fromRotation.z == 0 && toRotation.x == 0 && toRotation.z == 0;
             float angle = Quaternion.Angle(fromRotation, toRotation);
             int steps = Mathf.Max(1, Mathf.CeilToInt(angle / 5f));
             for (int step = 0; step < steps; step++)
@@ -149,26 +227,34 @@ namespace WeatherHouse.Hillside
                 Vector3 half = body.half + new Vector3(arc, 0, arc);
                 Vector3 start = Vector3.Lerp(from, to, a) + facing * body.center;
                 Vector3 finish = Vector3.Lerp(from, to, b) + facing * body.center;
+                Vector3 localDelta = Quaternion.Inverse(facing) * (finish - start);
+                Vector3 sweptHalf = half + new Vector3(Mathf.Abs(localDelta.x), 0, Mathf.Abs(localDelta.z)) * .5f;
+                Vector3 sweptCenter = (start + finish) * .5f;
                 int count = Physics.OverlapBoxNonAlloc(start, half, overlaps, facing, mask, QueryTriggerInteraction.Ignore);
-                if (count == overlaps.Length) return false;
-                for (int i = 0; i < count; i++) if (Obstacle(overlaps[i], supportFrom, supportTo, owner, player, ignoreAnimals)) return false;
+                if (count == overlaps.Length) return Reject(null);
+                for (int i = 0; i < count; i++) if (Obstacle(overlaps[i], supportFrom, supportTo, owner, player, ignoreAnimals, supportingDecks, lowestBody, sweptCenter, sweptHalf, facing, upright)) return Reject(overlaps[i]);
                 Vector3 delta = finish - start;
                 if (delta.sqrMagnitude > .0000001f)
                 {
                     count = Physics.BoxCastNonAlloc(start, half, delta.normalized, hits, facing, delta.magnitude, mask, QueryTriggerInteraction.Ignore);
-                    if (count == hits.Length) return false;
-                    for (int i = 0; i < count; i++) if (Obstacle(hits[i].collider, supportFrom, supportTo, owner, player, ignoreAnimals)) return false;
+                    if (count == hits.Length) return Reject(null);
+                    for (int i = 0; i < count; i++) if (Obstacle(hits[i].collider, supportFrom, supportTo, owner, player, ignoreAnimals, supportingDecks, lowestBody, sweptCenter, sweptHalf, facing, upright)) return Reject(hits[i].collider);
                 }
             }
             return true;
         }
 
-        private static bool Obstacle(Collider hit, Collider supportFrom, Collider supportTo, Transform owner,
-            WildlifePlayerCollision player, bool ignoreAnimals)
+        private bool Obstacle(Collider hit, Collider supportFrom, Collider supportTo, Transform owner,
+            WildlifePlayerCollision player, bool ignoreAnimals, IReadOnlyDictionary<Collider, int> supportingDecks, float lowestBody,
+            Vector3 center, Vector3 half, Quaternion heading, bool upright)
         {
             return hit && !(hit is TerrainCollider) && hit != supportFrom && hit != supportTo &&
                 !(owner && hit.transform.IsChildOf(owner)) && !(player && player.Owns(hit)) &&
-                !(ignoreAnimals && hit.GetComponentInParent<WildlifeAgent>());
+                !(ignoreAnimals && hit.GetComponentInParent<WildlifeAgent>()) &&
+                // Coplanar registered slabs can touch the feet across a seam without occupying the body.
+                !(supportingDecks != null && supportingDecks.ContainsKey(hit) &&
+                    (hit.bounds.max.y <= lowestBody + .001f || deckFootprint.HighestTop(hit as BoxCollider, center, half, heading, out float top) && top <= lowestBody + .001f ||
+                        upright && deckFootprint.StrictlySeparatedVerticalBox(hit as BoxCollider, center, half, heading)));
         }
     }
 }

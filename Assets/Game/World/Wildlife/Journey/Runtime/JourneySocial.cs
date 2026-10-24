@@ -183,7 +183,7 @@ namespace WeatherHouse.WildlifeJourney
             lastParticipation[firstId] = lastParticipation[secondId] = now;
             sequence++;
             clue = sequence % 3 == 2;
-            CurrentIntent = clue ? "you" : new[] { "greeting", "sniff", "nuzzle" }[random.Next(3)];
+            CurrentIntent = clue ? "you" : new[] { "greeting", "sniff", "nuzzle", "rub" }[random.Next(4)];
             turn = 0;
             preparing = true;
             preparationUntil = now + 6f;
@@ -353,7 +353,8 @@ namespace WeatherHouse.WildlifeJourney
             return camera && camera.isActiveAndEnabled &&
                 TryFind(presentedSpeaker.id, out var speaker) && TryFind(presentedListener.id, out var listener) &&
                 speaker.root == presentedSpeaker.root && listener.root == presentedListener.root &&
-                CanParticipate(speaker) && CanParticipate(listener) && InView(camera, speaker, listener.root);
+                speaker.root && listener.root && speaker.root.gameObject.activeInHierarchy && listener.root.gameObject.activeInHierarchy &&
+                InView(camera, speaker, listener.root);
         }
 
         private void HidePresentation()
