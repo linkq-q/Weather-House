@@ -39,6 +39,7 @@ namespace WeatherHouse.WildlifeJourney
         [Min(0f)] public float participantCooldown = 18f, pairCooldown = 48f;
         public Vector2 conversationGap = new Vector2(5f, 9f);
         public LayerMask occlusionMask = ~0;
+        [Tooltip("参考画布中的最大宽度和高度；每轮单字气泡接近方形。")]
         public Vector2 bubbleSize = new Vector2(180f, 84f);
         [Range(16f, 80f)] public float glyphHeight = 43f;
         [Range(.5f, 14f)] public float glyphStrokeWidth = 9f;
@@ -338,10 +339,10 @@ namespace WeatherHouse.WildlifeJourney
                 glyph.raycastTarget = false;
             }
             canvas.worldCamera = camera; canvas.planeDistance = camera.nearClipPlane + .2f;
-            bubble.sizeDelta = new Vector2(Mathf.Max(120f, bubbleSize.x), Mathf.Max(64f, bubbleSize.y));
+            bubble.sizeDelta = ProceduralUiLibrary.AnimalBubbleSize(bubbleSize, 1, glyphHeight, ((RectTransform)canvas.transform).rect.size);
             var background = bubble.GetComponent<ProceduralUiGraphic>();
             background.color = ProceduralUiLibrary.Cream;
-            float height = Mathf.Min(glyphHeight, bubble.sizeDelta.y * .52f);
+            float height = Mathf.Min(glyphHeight, bubble.sizeDelta.y * .52f, bubble.sizeDelta.x * .78f / .95f);
             glyph.rectTransform.sizeDelta = new Vector2(height * 5f / 6f, height);
             glyph.rectTransform.anchoredPosition = Vector2.up * (bubble.sizeDelta.y * ProceduralUiStyle.Current.tailSize * .5f);
             glyph.color = ProceduralUiLibrary.Ink;

@@ -305,7 +305,8 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 social.GetComponentsInChildren<Image>(true).Length == 0,
                 "Social presentation did not reuse the game's procedural AnimalBubble, cream color and authored silhouette.");
             Require(glyph != null && glyph.color == ProceduralUiLibrary.Ink && glyph.rectTransform.sizeDelta.y >= 40f &&
-                background.rectTransform.sizeDelta.x >= 140f && background.rectTransform.sizeDelta.y >= 70f &&
+                Mathf.Abs(background.rectTransform.sizeDelta.x - background.rectTransform.sizeDelta.y) < 1f &&
+                background.rectTransform.sizeDelta.y >= 70f &&
                 canvas != null && canvas.worldCamera == camera &&
                 canvas.GetComponent<CanvasScaler>().referenceResolution == new Vector2(1600f, 1000f),
                 "The reused animal bubble lost readable glyph dimensions, shared ink or the normal gameplay canvas scale.");

@@ -1,0 +1,11 @@
+FAIL
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. ---> System.InvalidOperationException: A single actual HUD glyph is still in an elongated bubble.
+  at AnimalBubbleChecks+<>c.<RunChecks>b__4_0 (UnityEngine.Transform root) [0x00239] in <91cb8ac1176b4e0f93fab5a000420622>:0 
+  at AnimalBubbleChecks.Preview (System.Func`2[T,TResult] check) [0x00036] in <91cb8ac1176b4e0f93fab5a000420622>:0 
+  at AnimalBubbleChecks.RunChecks () [0x00009] in <91cb8ac1176b4e0f93fab5a000420622>:0 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <1071a2cb0cb3433aae80a793c277a048>:0 
+   --- End of inner exception stack trace ---
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00083] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.Reflection.MethodBase.Invoke (System.Object obj, System.Object[] parameters) [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at WeatherHouse.WatersideV2.Editor.WatersideReviewChecks.Poll () [0x000c7] in C:\unity project\Weather House\Assets\Game\World\WatersideV2\Editor\WatersideReviewChecks.cs:98 

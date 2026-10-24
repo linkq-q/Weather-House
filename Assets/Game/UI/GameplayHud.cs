@@ -15,7 +15,7 @@ namespace WeatherHousePrototype
 
         [Header("动物对话气泡")]
         [InspectorName("动物气泡尺寸")]
-        [Tooltip("1600×1000 参考画布中的宽、高；与人物气泡独立。过大时会按屏幕可用空间等比缩小。")]
+        [Tooltip("1600×1000 参考画布中的最大宽度和高度；单字接近方形，随字数加宽。过大时按屏幕可用空间等比缩小。")]
         public Vector2 animalBubbleSize = new Vector2(380f, 110f);
         [InspectorName("动物字语高度"), Range(16f, 120f)]
         [Tooltip("参考画布中的字形高度。气泡变小时，整句字语会继续等比缩小，避免挤出边缘。")]
@@ -669,7 +669,7 @@ namespace WeatherHousePrototype
             if (bubbleRoot != null) { Destroy(bubbleRoot.gameObject); bubbleRoot = null; }
             if (animal == null) return;
             string[] glyphs = animal.CurrentGlyphIds ?? Array.Empty<string>();
-            Vector2 size = FitBubbleSize(animalBubbleSize, new Vector2(120f, 64f));
+            Vector2 size = ProceduralUiLibrary.AnimalBubbleSize(animalBubbleSize, glyphs.Length, animalGlyphHeight, canvasRect.rect.size);
             bubbleRoot = Rect(canvasRect, "Animal utterance", Vector2.zero, size);
             ProceduralUiLibrary.Create(bubbleRoot, "Animal bubble", UiMark.AnimalBubble, Vector2.zero, size, ProceduralUiLibrary.Cream);
             GlyphLine(bubbleRoot, glyphs, new Vector2(0f, size.y * ProceduralUiStyle.Current.tailSize * .5f),
