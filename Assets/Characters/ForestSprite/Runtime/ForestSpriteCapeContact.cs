@@ -92,7 +92,7 @@ namespace ForestSpriteCharacter
         }
         static void SampleAll()
         {
-            foreach (var sampler in samplers) if (sampler && sampler.isActiveAndEnabled) sampler.SampleActualContacts();
+            foreach (var sampler in samplers) if (sampler && sampler.isActiveAndEnabled && sampler.cape != null && sampler.cape.CollectDiagnostics) sampler.SampleActualContacts();
         }
         static bool ContainsMarker(PlayerLoopSystem loop)
         {
@@ -196,7 +196,8 @@ namespace ForestSpriteCharacter
         {
             if (!Prepare()) return;
             var bones = skin.bones;
-            RefreshVolumes(); ReadTargets(bones); TargetDepth = MaximumTargetDepth();
+            bool diagnose = cape.CollectDiagnostics;
+            RefreshVolumes(); ReadTargets(bones); TargetDepth = diagnose ? MaximumTargetDepth() : 0;
             Array.Copy(targets, originalTargets, targets.Length);
             if (!isActiveAndEnabled || !responseEnabled) { ResetResponse(); UnresolvedTargetDepth = TargetDepth; return; }
             for (int i = 0; i < offsets.Length; i++)
@@ -245,7 +246,7 @@ namespace ForestSpriteCharacter
                 }
                 ApplyArcPreservingOffsets();
             }
-            ReadTargets(bones); UnresolvedTargetDepth = MaximumTargetDepth();
+            ReadTargets(bones); UnresolvedTargetDepth = diagnose ? MaximumTargetDepth() : 0;
             MaximumCorrection = MaximumTargetCorrection = MaximumResponseSpeed = GuideArcError = 0;
             foreach (int vertex in particleVertices) MaximumTargetCorrection = Mathf.Max(MaximumTargetCorrection,
                 Vector3.Distance(originalTargets[vertex], targets[vertex]));

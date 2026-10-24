@@ -252,6 +252,7 @@ namespace ForestSpriteCharacter.Editor
             Require(candidate != null && candidate.enabled, "Active demo controller exists");
             Validate(candidate);
             player = candidate;
+            restoreCapeDiagnostics = player.capeCloth.DiagnosticsEnabled;
             restorePosition = player.transform.position;
             restoreRotation = player.transform.rotation;
             restoreDemo = player.demonstration;
@@ -912,6 +913,7 @@ namespace ForestSpriteCharacter.Editor
         static void PrepareClothSampling()
         {
             var cape = player.capeCloth;
+            cape.DiagnosticsEnabled = true;
             clothSkin = cape.cloth.GetComponent<SkinnedMeshRenderer>();
             meshVertices = clothSkin.sharedMesh.vertices;
             meshWeights = clothSkin.sharedMesh.boneWeights;
@@ -1127,6 +1129,8 @@ namespace ForestSpriteCharacter.Editor
             return sphere.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
         }
 
+        static bool restoreCapeDiagnostics;
+
         static void FinishRuntime()
         {
             RestorePlayerLoop();
@@ -1149,6 +1153,7 @@ namespace ForestSpriteCharacter.Editor
                 player.capeCloth.settings = JsonUtility.FromJson<ForestSpriteCapeCloth.Settings>(restoreCapeSettings);
                 player.capeCloth.ApplySettings();
                 player.capeCloth.SetWindPreview(restoreWindPreview);
+                player.capeCloth.DiagnosticsEnabled = restoreCapeDiagnostics;
                 player.SetDemonstration(restoreDemo);
             }
             Debug.Log("Forest sprite live runtime checks: " + runtime.result + ". " + ForestSpriteDemoBuilder.Review + "/runtime.json");

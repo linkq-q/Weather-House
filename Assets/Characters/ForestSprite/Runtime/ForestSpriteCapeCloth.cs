@@ -76,6 +76,10 @@ namespace ForestSpriteCharacter
         public float GuideTargetStretchMaximum { get; private set; }
         public Settings settings = new Settings();
         public ForestSpriteCapeContact Contact { get; private set; }
+        // Opt-in for automated recording; the visible tuning panel and contact markers also request diagnostics.
+        public bool DiagnosticsEnabled { get; set; }
+        internal bool CollectDiagnostics => DiagnosticsEnabled || (Contact != null && Contact.ShowMarkers)
+            || ForestSpriteCapePanel.ShowsDiagnostics(this);
         public bool MotionEnabled => motionEnabled;
         public bool WindPreview => windPreview;
         public float FlowAmount => flowAmount;
@@ -307,7 +311,7 @@ namespace ForestSpriteCharacter
             LowerBendDegrees = GuideTangentDegrees[4] - UpperBendDegrees;
             guidePosed = true;
             if (Contact != null) Contact.ApplyGuideResponse(Time.deltaTime);
-            MeasureGuideTargetStretch();
+            if (CollectDiagnostics) MeasureGuideTargetStretch();
         }
 
         void MeasureGuideTargetStretch()

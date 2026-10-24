@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -15,11 +16,16 @@ namespace WeatherHouse.Vegetation
 
         static bool renderingReflection;
         Camera reflectionCamera;
-        RenderTexture reflectionTexture;
+        sealed class Capture
+        {
+            public RenderTexture texture;
+            public Matrix4x4 viewProjection;
+            public bool valid;
+        }
+        readonly Dictionary<Camera, Capture> captures = new Dictionary<Camera, Capture>();
+        readonly List<Camera> expiredSources = new List<Camera>();
         Renderer waterRenderer;
         MaterialPropertyBlock properties;
-        Matrix4x4 capturedViewProjection;
-        bool hasCapture;
         readonly Plane[] cameraFrustum = new Plane[6];
         static readonly int ReflectionTextureId = Shader.PropertyToID("_PlanarReflectionTex");
         static readonly int HasReflectionId = Shader.PropertyToID("_HasPlanarReflection");
@@ -44,11 +50,11 @@ namespace WeatherHouse.Vegetation
                 properties.SetTexture(ReflectionTextureId, Texture2D.blackTexture);
                 waterRenderer.SetPropertyBlock(properties);
             }
-            if (reflectionTexture) { reflectionTexture.Release(); Dispose(reflectionTexture); }
+            foreach (var capture in captures.Values) Release(capture);
+            captures.Clear();
+            expiredSources.Clear();
             if (reflectionCamera) Dispose(reflectionCamera.gameObject);
-            reflectionTexture = null;
             reflectionCamera = null;
-            hasCapture = false;
         }
 
         void RenderReflection(ScriptableRenderContext context, Camera source)
@@ -85,15 +91,40 @@ namespace WeatherHouse.Vegetation
                 reflectionCamera = go.GetComponent<Camera>();
                 reflectionCamera.enabled = false;
             }
+            Capture capture = GetCapture(source);
+
+            // Camera motion alone cannot detect moving characters or animation in the reflection.
+            CaptureReflection(context, source, capture);
+
+            waterRenderer.GetPropertyBlock(properties);
+            properties.SetTexture(ReflectionTextureId, capture.texture);
+            properties.SetFloat(HasReflectionId, capture.valid ? 1 : 0);
+            properties.SetFloat(HasSceneColorId, hasSceneColor ? 1 : 0);
+            properties.SetMatrix(ReflectionMatrixId, capture.viewProjection);
+            waterRenderer.SetPropertyBlock(properties);
+        }
+
+        Capture GetCapture(Camera source)
+        {
+            // A SceneView resize must not discard the Game camera's texture or projection.
+            expiredSources.Clear();
+            foreach (var entry in captures)
+                if (!entry.Key) { Release(entry.Value); expiredSources.Add(entry.Key); }
+            foreach (var expired in expiredSources) captures.Remove(expired);
+            if (!captures.TryGetValue(source, out Capture capture))
+            {
+                capture = new Capture();
+                captures.Add(source, capture);
+            }
             float aspect = Mathf.Max(0.1f, source.aspect);
             int longest = Mathf.RoundToInt(Mathf.Clamp(resolution, 256, 1536) * Mathf.Clamp(resolutionScale, 0.25f, 1f));
             int width = Mathf.Max(1, aspect >= 1 ? longest : Mathf.RoundToInt(longest * aspect));
             int height = Mathf.Max(1, aspect >= 1 ? Mathf.RoundToInt(longest / aspect) : longest);
-            if (!reflectionTexture || !reflectionTexture.IsCreated() || reflectionTexture.width != width || reflectionTexture.height != height)
+            if (!capture.texture || !capture.texture.IsCreated() || capture.texture.width != width || capture.texture.height != height)
             {
-                hasCapture = false;
-                if (reflectionTexture) { reflectionTexture.Release(); Dispose(reflectionTexture); }
-                reflectionTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGBHalf)
+                capture.valid = false;
+                Release(capture);
+                capture.texture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGBHalf)
                 {
                     name = "Painterly Pond Reflection",
                     hideFlags = HideFlags.HideAndDontSave,
@@ -102,28 +133,30 @@ namespace WeatherHouse.Vegetation
                     useMipMap = false,
                     autoGenerateMips = false
                 };
-                reflectionTexture.Create();
+                capture.texture.Create();
             }
 
-            // Camera motion alone cannot detect moving characters or animation in the reflection.
-            CaptureReflection(context, source);
-
-            waterRenderer.GetPropertyBlock(properties);
-            properties.SetTexture(ReflectionTextureId, reflectionTexture);
-            properties.SetFloat(HasReflectionId, hasCapture ? 1 : 0);
-            properties.SetFloat(HasSceneColorId, hasSceneColor ? 1 : 0);
-            properties.SetMatrix(ReflectionMatrixId, capturedViewProjection);
-            waterRenderer.SetPropertyBlock(properties);
+            return capture;
         }
 
-        void CaptureReflection(ScriptableRenderContext context, Camera source)
+        void Release(Capture capture)
         {
-            hasCapture = false;
+            capture.valid = false;
+            if (!capture.texture) return;
+            if (reflectionCamera && reflectionCamera.targetTexture == capture.texture) reflectionCamera.targetTexture = null;
+            capture.texture.Release();
+            Dispose(capture.texture);
+            capture.texture = null;
+        }
+
+        void CaptureReflection(ScriptableRenderContext context, Camera source, Capture capture)
+        {
+            capture.valid = false;
             reflectionCamera.CopyFrom(source);
             reflectionCamera.enabled = false;
             // URP 14 only reads UniversalAdditionalCameraData for Game/VR camera types.
             reflectionCamera.cameraType = CameraType.Game;
-            reflectionCamera.targetTexture = reflectionTexture;
+            reflectionCamera.targetTexture = capture.texture;
             reflectionCamera.rect = new Rect(0, 0, 1, 1);
             reflectionCamera.cullingMask = source.cullingMask & reflectionLayers.value & ~(1 << 4);
             reflectionCamera.useOcclusionCulling = false;
@@ -176,9 +209,9 @@ namespace WeatherHouse.Vegetation
             textureBias.m03 = 0.5f;
             textureBias.m11 = SystemInfo.graphicsUVStartsAtTop ? -0.5f : 0.5f;
             textureBias.m13 = 0.5f;
-            capturedViewProjection = textureBias * GL.GetGPUProjectionMatrix(reflectionCamera.projectionMatrix, true)
+            capture.viewProjection = textureBias * GL.GetGPUProjectionMatrix(reflectionCamera.projectionMatrix, true)
                 * reflectionCamera.worldToCameraMatrix;
-            hasCapture = true;
+            capture.valid = true;
         }
 
         static Matrix4x4 ReflectionMatrix(Vector4 plane)

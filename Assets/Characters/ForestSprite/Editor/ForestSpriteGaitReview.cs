@@ -176,6 +176,8 @@ namespace ForestSpriteCharacter.Editor
                 capeSettings = JsonUtility.ToJson(cape.settings), walkSpeed = player.walkSpeed, runSpeed = player.runSpeed,
                 captureFrameRate = speedMode ? 0 : CaptureFrameRate };
             SaveSnapshot();
+            savedCapeDiagnostics = cape.DiagnosticsEnabled;
+            cape.DiagnosticsEnabled = true;
             active = true; deadline = EditorApplication.timeSinceStartup + 600;
             Time.timeScale = 1; Time.captureFramerate = speedMode ? 60 : CaptureFrameRate; Time.fixedDeltaTime = 1f / 60;
             QualitySettings.vSyncCount = 0; Application.targetFrameRate = -1; Application.runInBackground = true;
@@ -480,6 +482,8 @@ namespace ForestSpriteCharacter.Editor
             SaveReport(); Respond(request, report.result, report.error ?? "Review complete; original runtime scene and controls restored.");
         }
 
+        static bool savedCapeDiagnostics;
+
         static void Restore()
         {
             if (installed)
@@ -487,6 +491,7 @@ namespace ForestSpriteCharacter.Editor
                 var loop = PlayerLoop.GetCurrentPlayerLoop(); RemoveMarker(ref loop); PlayerLoop.SetPlayerLoop(loop); installed = false;
             }
             if (!snapshotReady) return;
+            if (cape) cape.DiagnosticsEnabled = savedCapeDiagnostics;
             try
             {
                 foreach (var state in layers) if (state.gameObject) state.gameObject.layer = state.layer;

@@ -28,6 +28,9 @@ namespace ForestSpriteCharacter
             }
         }
 
+        internal static bool ShowsDiagnostics(ForestSpriteCapeCloth target) => activePanel != null
+            && activePanel.isActiveAndEnabled && activePanel.expanded && activePanel.cape == target;
+
         Rect PanelRect
         {
             get

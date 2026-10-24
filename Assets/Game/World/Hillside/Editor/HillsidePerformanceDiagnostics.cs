@@ -172,7 +172,11 @@ namespace WeatherHouse.Hillside.Editor
             Json(Folder + "/state.json", inventory);
         }
 
-        static Mesh MeshOf(Renderer renderer) => renderer is SkinnedMeshRenderer skin ? skin.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
+        static Mesh MeshOf(Renderer renderer)
+        {
+            if (renderer is SkinnedMeshRenderer skin) return skin.sharedMesh;
+            return renderer is MeshRenderer && renderer.TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;
+        }
         static long Triangles(Mesh mesh) { long total = 0; for (int i = 0; i < mesh.subMeshCount; i++) if (mesh.GetTopology(i) == MeshTopology.Triangles) total += (long)mesh.GetIndexCount(i) / 3; return total; }
         static void RunRepairCheck(string typeName, string reportName)
         {
