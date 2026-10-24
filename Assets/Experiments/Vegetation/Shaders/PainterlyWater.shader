@@ -7,6 +7,7 @@ Shader "Weather House/Painterly Water"
         _DeepColor ("Deep turquoise color", Color) = (0.55, 0.75, 0.74, 1)
         _DepthDistance ("Depth color distance (m)", Range(0.1, 8)) = 1.2
         _Opacity ("Water opacity", Range(0, 1)) = 0.70
+        _DeepBedOcclusion ("Deep ocean bed occlusion", Range(0, 1)) = 0
         _RefractionStrength ("Refraction strength", Range(0, 0.05)) = 0.012
         [Header(Reflections)]
         _ReflectionTint ("Reflection tint", Color) = (0.75, 0.86, 0.82, 1)
@@ -103,6 +104,7 @@ Shader "Weather House/Painterly Water"
                 half4 _RippleColor;
                 float _DepthDistance;
                 float _Opacity;
+                float _DeepBedOcclusion;
                 float _RefractionStrength;
                 float _ReflectionStrength;
                 float _ReflectionDistortion;
@@ -698,17 +700,18 @@ Shader "Weather House/Painterly Water"
                 waterColor = max(0, lerp(waterLuma.xxx, waterColor, _WaterSaturation));
                 waterColor = MixFog(waterColor, input.fogFactor);
                 // Very shallow pigment gradually enters the visible bed color, avoiding a pale solid rim.
-                // The final water-layer opacity remains the same 70/30 composition, exactly once.
+                // Default and shallow water retain the original opacity; only opted-in deep ocean hides the bed edge.
                 float shallowPigment = smoothstep(0.015, 0.32, waterDepth);
                 if (_HasSceneColor > 0.5) waterColor = lerp(bedColor, waterColor, shallowPigment);
-                half3 color = _HasSceneColor > 0.5 ? lerp(bedColor, waterColor, _Opacity) : waterColor;
+                float bedOpacity = lerp(_Opacity, 1.0, saturate(_DeepBedOcclusion) * smoothstep(2.0, 5.0, waterDepth));
+                half3 color = _HasSceneColor > 0.5 ? lerp(bedColor, waterColor, bedOpacity) : waterColor;
 
                 float edgeWeight = _ShoreStrength * ShorePaint(p, waterDepth, time);
                 half3 strokeColor = MixFog(_FoamColor.rgb, input.fogFactor);
                 color = lerp(color, strokeColor, saturate(edgeWeight));
                 float shorelineFade = smoothstep(0.0, 0.025, waterDepth);
                 // SceneView can omit OpaqueTexture in URP 14; fall back without reading stale camera data.
-                float alpha = _HasSceneColor > 0.5 ? shorelineFade : shorelineFade * max(_Opacity, saturate(edgeWeight));
+                float alpha = _HasSceneColor > 0.5 ? shorelineFade : shorelineFade * max(bedOpacity, saturate(edgeWeight));
                 return half4(color, alpha);
             }
             ENDHLSL

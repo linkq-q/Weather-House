@@ -53,29 +53,32 @@ namespace WeatherHouse.WatersideV2
         {
             public readonly Vector3 Center;
             public readonly Vector2 Radii;
-            public readonly float Depth;
-            public TidePool(float x, float z, float rx, float rz, float depth)
-            { Center = new Vector3(x, SeaLevel, z); Radii = new Vector2(rx, rz); Depth = depth; }
+            public readonly float Depth, Phase;
+            public TidePool(float x, float z, float rx, float rz, float depth, float phase = 0)
+            { Center = new Vector3(x, SeaLevel, z); Radii = new Vector2(rx, rz); Depth = depth; Phase = phase; }
             public float SignedDistance(float x, float z)
             {
                 float dx = (x - Center.x) / Radii.x, dz = (z - Center.z) / Radii.y;
-                return (Mathf.Sqrt(dx * dx + dz * dz) - 1) * Mathf.Min(Radii.x, Radii.y);
+                float angle = Mathf.Atan2(dz, dx);
+                float contour = 1 + .14f * Mathf.Sin(angle * 3 + Phase) + .07f * Mathf.Cos(angle * 5 - Phase);
+                float basin = (Mathf.Sqrt(dx * dx + dz * dz) - contour) * Mathf.Min(Radii.x, Radii.y);
+                if (basin > 1.2f) return basin;
+                // The main route and the stone spine between pools keep their current ground.
+                float protectedRoad = WalkableHalfWidth(x, z) + .7f - PathDistance(x, z);
+                return Mathf.Max(basin, Mathf.Max(protectedRoad, 1.65f - TrailDistance(x, z)));
             }
+            public static float TrailDistance(float x, float z)
+            { return RuralMapConfiguration.SpineDistance(x, z); }
         }
 
-        public static readonly TidePool[] TidePools =
-        {
-            new TidePool(55.2f, -27.4f, 1.6f, 1.4f, .45f),
-            new TidePool(61, -33, 2, 1.75f, .55f),
-            new TidePool(54.6f, -36, 1.9f, 1.6f, .4f)
-        };
+        public static readonly TidePool[] TidePools = RuralMapConfiguration.TidePools;
 
         public static readonly Vector3 Entry = At(24, 75, 3);
         public static readonly Vector3 OldTree = At(48, 56, 4.5f);
         public static readonly Vector3 LakeTerrace = At(63, 36, 10);
         public static readonly Vector3 RoundTerrace = At(65, 23, 17);
         public static readonly Vector3 Cape = At(81, 54, 4);
-        public static readonly Vector3 Harbor = At(77, 73, 1.5f);
+        public static readonly Vector3 Harbor = At(93, 85, 1.5f);
         public static readonly Vector3 MoonBay = At(45, 84, 1.2f);
         public static readonly Vector3 WesternGrove = At(29, 44, 8);
         public static readonly Vector3 PlayerStart = At(24, 78, 3);
@@ -155,12 +158,7 @@ namespace WeatherHouse.WatersideV2
         }
 
         // A single shoreline, open toward the east and south; the remaining edges are mountains.
-        public static readonly Vector3[] Coastline =
-        {
-            Design(85, 0), Design(88, 18), Design(84, 31), Design(88, 43), Design(86, 53),
-            Design(82, 65), Design(83, 71), Design(80, 79), Design(70, 84), Design(61, 91),
-            Design(47, 87), Design(34, 90), Design(22, 85), Design(0, 90)
-        };
+        public static readonly Vector3[] Coastline = RuralMapConfiguration.Coastline;
 
         public static readonly Crossing[] Crossings =
         {
@@ -179,13 +177,20 @@ namespace WeatherHouse.WatersideV2
         {
             new[] { Entry, At(27,70,3), At(31,67,2.4f), Crossings[0].Start, Crossings[0].End,
                 At(47,61,3.5f), OldTree, At(51,57,3.5f), Crossings[3].Start, Crossings[3].End,
-                At(67,51,4), At(64,44,7), LakeTerrace, At(69,39,9), At(73,46,6), Cape,
-                At(79,62,2.5f), Harbor, At(68,79,1.4f), Crossings[2].End, Crossings[2].Start,
+                At(67,51,4), At(64,44,7), LakeTerrace, At(69,42,8), At(72,49,5), At(74,55,3.4f),
+                At(73,61,2.5f), At(70,68,2), At(66,76,1.6f), Crossings[2].End, Crossings[2].Start,
                 MoonBay, At(35,82,2), Entry },
             new[] { LakeTerrace, At(56,38,8), Crossings[1].End, Crossings[1].Start,
                 WesternGrove, At(25,54,6), At(22,64,4), Entry },
             new[] { LakeTerrace, Steps[0].Start, Steps[0].End, RoundTerrace,
-                At(72,25,16), At(75,31,13), At(71,35,11), LakeTerrace }
+                At(72,25,16), At(75,31,13), At(71,35,11), LakeTerrace },
+            new[] { At(29f,44f,8f), At(22f,36f,12f), At(22f,26f,14f), At(29f,25f,14f), At(35f,26f,12f), At(33f,31f,10.5f), At(36f,34f,7.4f), At(39f,37f,6.2f) },
+            new[] { At(25f,54f,6f), At(20f,55f,6f), At(16f,44f,10f), At(17f,33f,13f), At(22f,26f,14f) },
+            new[] { At(39f,37f,6.2f), At(38f,42f,5f) },
+            new[] { At(69f,42f,8f), At(72f,37f,10f) },
+            new[] { At(74f,55f,3.4f), At(80f,53f,4f), At(82f,52f,4f) },
+            new[] { At(73f,61f,2.5f), At(82f,61f,2f), At(82f,69f,1.4f), At(85f,77f,1.5f), At(93f,85f,1.5f), At(84f,86f,1.5f), At(76f,84f,1.5f), At(66f,76f,1.6f) },
+            new[] { At(24f,75f,3f), At(19f,79f,2.5f), At(24f,83f,1.7f), At(34f,86f,1.3f), At(43f,92f,1.2f), At(48f,89f,1.2f), At(45f,84f,1.2f) }
         };
         public static readonly Vector3[][] Routes = SmoothRoutes();
         public static readonly Vector3[] ShoreSamples = MakeShoreSamples();
