@@ -1,0 +1,29 @@
+AuthorSpawn32V1 — initial scene placement only
+
+Original failure: main natural first Plan failed all four attempts because member32 CreateIntentSearch returned null after nine successful routes. Repeated Plan failed the same member. Main observer stopped with FAIL; no departure or complete main trip was claimed.
+Native read-only V2: recorded pose NoRoute,6768 work units,start attachments0,exit attachments9. All12 nearby direct start edges fail on slope31.17249 greater than unchanged29-degree limit. Initial heading/supportY hypothesis was excluded; no collider caused these failures.
+Finite strict connection diagnosis: V3 144 single-pivot candidates,33 safe first legs,0 safe complete connections. V4 4342 middle checks,1015 safe middle legs/turns,0 complete connections. These finite tests do not prove the entire terrain has no possible route. No radius/slope expansion or generic runtime search was added.
+
+Current-map authoring candidate (native report spawn32-candidate-20261024_231026756.json, SHA C40A4C997040F02F7152C3FC160662178479AEF042F61691093C014D084A7B57):
+- Original authored support (24.4453106,10.6664085,28.7483292): Intent NoRoute7541.
+- Closest candidate in the tested0.25m/16-direction sample set: X+1.000m, world(25.4453106,10.2370377,28.7483292).
+- Original yaw/scale and all8 capability fields unchanged. Original measured32 envelope matches within0.1mm.
+- All10 initialized support positions, all45 pairwise OBB checks with extra5cm horizontal clearance pass.
+- Complete strict CreateSearch to the exact original goal(-5.1003118,4.2765884,-13.1247759) Found26980work units,4158segments,total189.81924m. Ground/slope/water/body/turn gates were retained.
+- Main scene remained clean, same C8AC hash, serialized herd/nav and all10 root poses unchanged during diagnosis.
+
+Authored patch: only PrefabInstance285188279/sourceTransform2089215710328510706 localPosition.x24.44531→25.44531 and y10.677231→10.237038. Transform285188287, member32. Z/rotation/scale/other9 animals/profile/graph/terrain/interaction are unchanged.
+Before scene SHA C8AC74778F9F748DB7BDF61712D47F4971CE0894AD2F6FD40261189496F71739.
+Exact staged after SHA701F9BD27B0AAED153067743EDC4BFE163A99B1743204CFE8DF767FA64E69B80.
+prepare-spawn32-scene.py indexes YAML documents, edits only the identified PrefabInstance, writes staging only. scene.patch git apply --check exit0; no actual patch was applied by this agent.
+External Apply source compiled exit0. Root invoked it successfully at23:18:03UTC; latest-apply.json and Apply_20261024_231801771/result.json confirm exact701F saved scene, all10 pose checks, profile/navigation unchanged and cleanEdit. It requires clean C8AC, proof/terrain/candidate hashes, verifies a unique backup before mutation, sets only32.position, checks all10 pose contracts and complete herd/nav JSON, saves and requires exact after hash. Failure restores only its own position and retains verified backup/result for inspection.
+Post-save lifecycle boundary: a later read-only tree probe observed sceneDirtyBefore=true about28s after Apply. The non-destructive live export MotionReview/SceneSnapshots/memory-20261024_231942_828.unity and the saved scene both have exact701F SHA, proving no serialized content difference at that check. Root used the existing save-reviewed Flush/save path; at23:20:18UTC the scene was clean and still701F. Delayed Undo dirty marking is an inference, not a precisely established cause. The already-used Apply DLL and original receipt were preserved. Future authoring helpers should call Undo.FlushUndoRecordObjects before saving.
+Natural main departure confirmed in MapIntegrationPlan/MainPlayReview/Runs/20261024_232029_328_lifecycle_herd: original PlanJourney finished successfully at simulationTime30.6364;10 natural-commit events and the first one-second Travelling sample at31.3555 (observer wall27.5075s), targetSite1. At simulationTime99.646/wall96.789 all10 were actually walking, each had travelled23.88–32.86m (32:27.73m), with0 arrivals,0 planning cancellations and no recorded body-fail events. Frequent GroundSteps requests are local checks, not repeated whole-group plans. Complete actual migration/reunion and visual acceptance remain pending. No Play teleport/forced start/relaxed arrival rule is used.
+
+Historical origin boundary:
+87202931 replaced the scene Terrain GUID1b63da5c4cb25004a860d7e8eb2bdee7 with current2c3f700a9e3a34a4882704a0dd9a672d. VisualFollowup reported4569 height edits. Existing sheep spawn anchors were retained; RuralMapIntegration protections cover house/bridges/furniture/fox habitats, not sheep connection corridors.
+Old frozen Trip8 (scene0F1FED/Layout48D598, Edit Simulate—not main Play) used the same32 initial XZ. Its32 actually walked south through(24.33818,28.43999),(24.11636,28.27338),(23.94340,27.81033) and naturally departed at39.2s. Trip8 overall still FAIL0/10; it is only historical local departure evidence.
+No exact same-pose old-terrain counterfactual was run, so the unique first change causing isolation is not confirmed. The confirmed regression gap is that retained sheep initial placements were not validated for actual current-map connection after terrain integration.
+
+Rebuild boundary:
+Current RuralMapIntegration preserves existing sheep transforms and refuses duplicating an already-applied map root, so this saved authoring correction survives that workflow. Full WatersideSceneBuilder reconstructs random sheep on its earlier terrain/graph and could replace it. That separate from-scratch workflow must validate initial full-body placements and actual graph connections again after final terrain and graph integration. No future hardcoded rule or runtime relocation hook was added.
