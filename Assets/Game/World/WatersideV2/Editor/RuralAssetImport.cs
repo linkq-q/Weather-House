@@ -180,6 +180,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 var group = root.AddComponent<LODGroup>();
                 group.SetLODs(lods);
                 group.RecalculateBounds();
+                if(id=="A03")RuralA03EntrySteps.Ensure(root.transform);
                 if(id=="A06")RuralA06EntrySteps.Ensure(root.transform);
                 string prefab = PrefabPath(id);
                 if (!PrefabUtility.SaveAsPrefabAsset(root, prefab)) throw new InvalidOperationException("Failed to save " + prefab);
