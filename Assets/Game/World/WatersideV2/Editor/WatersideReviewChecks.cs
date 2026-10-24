@@ -98,6 +98,21 @@ namespace WeatherHouse.WatersideV2.Editor
                 else if(command=="verify") File.WriteAllText(Folder+"/scene-checks.txt",WatersideSceneBuilder.Verify());
                 else if(command=="checks") File.WriteAllText(Folder+"/integration-checks.txt",WatersideGrassMaskChecks.Run()+"\n"+WatersideGrassMaskChecks.VerifySceneWater());
                 else if(command=="soilchecks") File.WriteAllText(Folder+"/soil-checks.txt",WatersideSoilChecks.Run());
+                else if(command=="props-apply" || command=="props-restore")
+                {
+                    WatersideSceneBuilder.RequireSaved();
+                    string result=command=="props-apply" ? WatersideDDrivePropsTrial.Apply() : WatersideDDrivePropsTrial.Restore();
+                    Undo.FlushUndoRecordObjects();
+                    if(!EditorSceneManager.SaveScene(SceneManager.GetActiveScene())) throw new InvalidOperationException("Could not save the V2 wall trial.");
+                    File.WriteAllText(Folder+"/props-operation.txt",result+"\nSaved V2 scene after flushing the trial Undo records.");State();
+                }
+                else if(command=="props-check") File.WriteAllText(Folder+"/ancient-props-trial-checks.txt",WatersideDDrivePropsTrial.Verify());
+                else if(command=="props-save")
+                {
+                    WatersideDDrivePropsTrial.Verify();Undo.FlushUndoRecordObjects();
+                    if(!EditorSceneManager.SaveScene(SceneManager.GetActiveScene())) throw new InvalidOperationException("Could not save the checked V2 wall trial.");
+                    State();
+                }
                 else if(command=="plantscapture") File.WriteAllText(Folder+"/plant-preview-checks.txt",WatersidePlantPreview.Capture());
                 else if(command=="playcheck")
                 {

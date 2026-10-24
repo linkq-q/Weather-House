@@ -1,0 +1,28 @@
+{
+    "command": "verify",
+    "status": "PASS",
+    "startedUtc": "2026-10-24T02:07:17.2231567Z",
+    "finishedUtc": "2026-10-24T02:07:25.7794440Z",
+    "filesCopied": 0,
+    "filesRetained": 0,
+    "adaptedMaterials": 0,
+    "nativeMaterials": 0,
+    "assets": 2668,
+    "prefabs": 698,
+    "models": 831,
+    "meshes": 2513,
+    "materials": 327,
+    "sourceEmbeddedMaterials": 311,
+    "textures": 784,
+    "shaders": 13,
+    "terrainLayers": 50,
+    "animationClips": 2,
+    "issues": [
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Butterflies",
+            "message": "Butterflies are checked as static/skeletal resources. Missing flight/Idle animations and AnimatorControllers are expected pending later source recovery; no animation acceptance is claimed."
+        }
+    ],
+    "previews": []
+}

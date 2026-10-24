@@ -1,0 +1,132 @@
+{
+  "scope": "Imported Dreamscapes only; source cache and original staged copy retained",
+  "createdUtc": "2026-10-24T01:43:38.527508+00:00",
+  "sourceCache": "C:\\unity project\\Weather House\\Temp\\AssetIntake\\Dreamscapes-contents.json",
+  "sourceCacheSha256": "11789f1213dbcdceee05591240c11b1d99b0ce8c262b3b8c7333c17d933400c6",
+  "repair": {
+    "prefabTextAndRootMeta": 45,
+    "assetMetasNormalized": 214,
+    "malformedLineEnding": "CRCRLF -> LF",
+    "rootMainObject": "NativeFormatImporter.mainObjectFileID set to original m_RootGameObject",
+    "removedDanglingTreeComponents": 30,
+    "removedRenderers": 0,
+    "fbxLocalIdRewrites": 0,
+    "embeddedMaterialsAdapted": 60,
+    "targetShader": "Universal Render Pipeline/Lit",
+    "atlasUvColorAndLeafCutoff": "Preserved; leaves double-sided alpha clip; baked geometry only"
+  },
+  "sourceGeometryCheck": {
+    "meshes": 30,
+    "vertices": 92174,
+    "triangles": 58944,
+    "vertexStrideBytes": 72,
+    "indicesWithinBounds": true,
+    "currentMeshesWithExactSourceVertexAndIndexBytes": 30
+  },
+  "integrity": {
+    "manifestGuidsUnchanged": true,
+    "fbxFilesByteIdenticalToStaging": 21,
+    "remainingCRCRLFMetas": []
+  },
+  "unityEvidence": {
+    "report": "AssetIntakeReview/dreamscapes-report.json",
+    "status": "PASS",
+    "finishedUtc": "2026-10-24T01:41:07.0680539Z",
+    "note": "45 prefabs, 30 baked meshes / 92174 vertices, 60 URP atlas materials validated by root-controlled Unity Run; 15 external rock mesh references recovered after metadata normalization without localID changes"
+  },
+  "limitations": [
+    "Static library assets; legacy Tree Editor regeneration and wind not reproduced",
+    "Legacy packed bump/spec atlas kept serialized but not treated as a URP normal map",
+    "Full-library verify and visual preview owned by root; not claimed by this report"
+  ],
+  "standaloneMaterialRecovery": {
+    "restoredUtc": "2026-10-24T01:47:36.076481+00:00",
+    "count": 8,
+    "cause": "Generic URP conversion saved empty materials while malformed CRCRLF source YAML was still present. Original Standard colors and texture references are now restored from the C cache with LF and the existing GUID remap.",
+    "usesCustomOrTriplanarShader": false,
+    "nextRootCommand": "adapt, verify, preview",
+    "visualStatus": "Pending fresh Unity adaptation and preview; prior white previews rejected",
+    "materials": [
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/RockOrigin/Materials/pillar01A.mat",
+        "sourceColor": "{r: 1, g: 1, b: 1, a: 0.8627451}",
+        "sourceNonzeroTextureProperties": [
+          "_MainTex",
+          "_BumpMap",
+          "_DetailNormalMap",
+          "_EmissionMap"
+        ],
+        "restoredTextSha256": "8db7aa0beb51760632b42eb64190baea20700ce3930805bef7843d41c2666537"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock03a.mat",
+        "sourceColor": "{r: 0.89411765, g: 0.6666667, b: 0.49411765, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "0b3831f3eea927eb968bb593330ae6b8987874b0440acbdb25b6d69be23eb33d"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock05a.mat",
+        "sourceColor": "{r: 0.8235294, g: 0.6283379, b: 0.4783737, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "6cbd67adf4af985d279e08da5c05dc388d361e647474341a55cca65525e4d95f"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/pebbles01a.mat",
+        "sourceColor": "{r: 0.89411765, g: 0.6666667, b: 0.49411765, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "a37b659c45835cb41ecb2ac3424ecb7df5d7bcdc9386ca74c51d25fa4b0814f1"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock01a.mat",
+        "sourceColor": "{r: 0.89411765, g: 0.6666667, b: 0.49411765, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "7a3786034dfc164412f3c5cc8551eaa49d367e46f78021bd9c7a279a5f43f42a"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock02a.mat",
+        "sourceColor": "{r: 0.89411765, g: 0.6666667, b: 0.49411765, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "92f05cbbd32de07d5633853a8c4cf90b051a1e3850d8e583b2e08ecc4fb9b2b0"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock06a.mat",
+        "sourceColor": "{r: 0.89411765, g: 0.6666667, b: 0.49411765, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "4eef2b5130e40aaed1c3b7e1965465f6e14ad7e7865d6e7f4445a60f047326e7"
+      },
+      {
+        "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock04a.mat",
+        "sourceColor": "{r: 0.89411765, g: 0.6666667, b: 0.49411765, a: 1}",
+        "sourceNonzeroTextureProperties": [
+          "_BumpMap",
+          "_OcclusionMap"
+        ],
+        "restoredTextSha256": "1a5f0a9292bf9988c2cc917b3d824735d698a43e56a96339a5a3c840ef706dc3"
+      }
+    ],
+    "afterAdapt": {
+      "checkedUtc": "2026-10-24T01:50:40.216309+00:00",
+      "expectedSourceTextureBindingsPreserved": 18,
+      "sourceBaseColorsPreserved": 8,
+      "status": "PASS serialized properties; visual preview still pending"
+    }
+  }
+}

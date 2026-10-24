@@ -1,0 +1,23 @@
+{
+  "createdUtc": "2026-10-24T02:02:54.030447+00:00",
+  "status": "ACCEPTED",
+  "sameCameraAndMood": true,
+  "viewCount": 11,
+  "accepted": [
+    "V2 Terrain layer2 Rock_3: replaces pure-color slope with matte warm-gray rock detail",
+    "V2 Terrain layer3 Sand_1: replaces pure-color shore with matte fine sand and scattered gravel",
+    "View02 one low wall: AncientRuins SM_wall_stoneblocks_ruins_03, original collider and top-grass retained"
+  ],
+  "notReplaced": [
+    "Existing HIGHLANDS Mud_1 path: new Mud_2 was darker; path grass and interaction preserved",
+    "Main calibrated meadow/tree/water materials",
+    "Thin monolithic AncientRuins pillar: does not match reference block-built broken pillars"
+  ],
+  "limitations": [
+    "This is a local material and one-wall improvement, not 90 percent reconstruction acceptance.",
+    "Hollow old tree, moss roof cottage, map composition and further prop density remain a larger visual gap.",
+    "D drive Full Repair Needed prevents continued archive reading; missing source packages remain pending."
+  ],
+  "terrainEvidence": "terrain-candidates/apply-report.json",
+  "propsEvidence": "../WatersideV2Review/ancient-props-trial-checks.txt"
+}

@@ -1,0 +1,55 @@
+{
+  "timeUtc": "2026-10-24T01:24:44.625781+00:00",
+  "cause": "Original package contains an unused empty root SkinnedMeshRenderer. Visible geometry is provided by static LOD children; no FBX fileID substitution is needed.",
+  "repairs": [
+    {
+      "path": "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Ledge_01_Taper.prefab",
+      "removedEmptyRendererFileID": "4694824592764970849",
+      "visibleMeshFiltersPreserved": 5,
+      "visibleRenderersPreserved": 5,
+      "meshCollidersPreserved": 25,
+      "lodGroupsByteIdentical": 1,
+      "originalCacheEmptyComponentIdentical": true,
+      "stagedFileByteIdenticalBefore": true,
+      "allOtherSerializedBlocksUnchanged": true,
+      "beforeSha256": "ae3d886469a201da4d896f93b91ca475b563edcafce83e5b0a6c2daf6792eeee",
+      "afterSha256": "058220c6119c836e28cc104b5337157159ab1cc59e798cad78ce95230ded20af",
+      "metaSha256Unchanged": "c975bf2833dd9e40ff121341728989204318eee7bb987b4d7fc5ac5d8137d04d",
+      "bytesRemoved": 1418
+    },
+    {
+      "path": "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Cliff_Plateau_01_Taper.prefab",
+      "removedEmptyRendererFileID": "228148301066530240",
+      "visibleMeshFiltersPreserved": 8,
+      "visibleRenderersPreserved": 8,
+      "meshCollidersPreserved": 14,
+      "lodGroupsByteIdentical": 1,
+      "originalCacheEmptyComponentIdentical": true,
+      "stagedFileByteIdenticalBefore": true,
+      "allOtherSerializedBlocksUnchanged": true,
+      "beforeSha256": "543864f2b65049010a8c222e48dc9765b257d18b8be4b5a282b3aa364a44d34e",
+      "afterSha256": "9350639a3dccdb466935789509d5306a10709dc14039c0ca1eb576feae2f97c2",
+      "metaSha256Unchanged": "a9ff8d1753b4de4fcfc08ef96a0541814f91ba32cde8dc511af48a9025b4ec84",
+      "bytesRemoved": 1416
+    }
+  ],
+  "previousCastleErrors": 36,
+  "affectedPrefabs": [
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 01.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 07.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 09.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 10.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 13.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 14.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 15.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 16.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Plateau Formation 19.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Spire Formation 05.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Spire Formation 06.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Spire Formation 08.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Assemblies/Spire Formation 09.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Cliff_Plateau_01_Taper.prefab",
+    "Assets/Environment/DDriveLibrary/CastleValley/Prefabs/Ledge_01_Taper.prefab"
+  ],
+  "validation": "Offline serialized-data checks passed. Actual Unity reimport and verify are pending; no Unity API was called."
+}

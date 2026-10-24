@@ -1,0 +1,28 @@
+{
+    "command": "dreamscapes",
+    "status": "PASS",
+    "startedUtc": "2026-10-24T01:40:59.3002278Z",
+    "finishedUtc": "2026-10-24T01:41:07.0680539Z",
+    "filesCopied": 0,
+    "filesRetained": 0,
+    "adaptedMaterials": 0,
+    "nativeMaterials": 0,
+    "assets": 0,
+    "prefabs": 0,
+    "models": 0,
+    "meshes": 0,
+    "materials": 0,
+    "sourceEmbeddedMaterials": 0,
+    "textures": 0,
+    "shaders": 0,
+    "terrainLayers": 0,
+    "animationClips": 0,
+    "issues": [
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes",
+            "message": "Dreamscapes: 45 prefabs, 30 original baked meshes / 92174 vertices, 60 URP atlas materials. Static Tree Creator geometry; no procedural regeneration or legacy wind."
+        }
+    ],
+    "previews": []
+}

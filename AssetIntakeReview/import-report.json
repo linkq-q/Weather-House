@@ -1,0 +1,28 @@
+{
+    "command": "import",
+    "status": "PASS",
+    "startedUtc": "2026-10-24T01:08:35.3318162Z",
+    "finishedUtc": "2026-10-24T01:15:30.6854520Z",
+    "filesCopied": 5346,
+    "filesRetained": 0,
+    "adaptedMaterials": 0,
+    "nativeMaterials": 0,
+    "assets": 0,
+    "prefabs": 0,
+    "models": 0,
+    "meshes": 0,
+    "materials": 0,
+    "sourceEmbeddedMaterials": 0,
+    "textures": 0,
+    "shaders": 0,
+    "terrainLayers": 0,
+    "animationClips": 0,
+    "issues": [
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary",
+            "message": "Imported files and metas only. Run adapt, then verify and preview. No sourcePackage/sourceAsset path is read."
+        }
+    ],
+    "previews": []
+}

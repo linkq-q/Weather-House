@@ -1,0 +1,17 @@
+{
+    "operation": "apply",
+    "utc": "2026-10-24T01:50:47.4608700Z",
+    "terrain": "Assets/Game/World/WatersideV2/Generated/WatersideTerrain.asset",
+    "heightHash": "76aa6a74f9e377fd16931ef9cc67631cc44d5dcf4df5b01440b2d81618c87b40",
+    "alphamapHash": "07341dcd8077c16da167417fa5e83ef731503d78b68988667e49b7854c992818",
+    "geometryAndCoverageUnchanged": true,
+    "meadowAndPathUnchanged": true,
+    "sceneStateUnchanged": true,
+    "layerPaths": [
+        "Assets/Game/World/WatersideV2/Generated/Meadow.terrainlayer",
+        "Assets/Game/World/WatersideV2/Generated/Path.terrainlayer",
+        "Assets/Game/World/WatersideV2/Generated/TerrainMaterialAB/Rock_3.terrainlayer",
+        "Assets/Game/World/WatersideV2/Generated/TerrainMaterialAB/Sand_1.terrainlayer"
+    ],
+    "note": "Candidate only; visual acceptance requires same-camera screenshots. Rock_3: tile 4.5 m, normal .18, RGB multiplier 1.8/1.8/1.65. Sand_1: tile 3.5 m, normal .12, RGB multiplier .85/.95/1. Alpha is 20/255 in private copies; source RGB/normal assets and Path are unchanged."
+}

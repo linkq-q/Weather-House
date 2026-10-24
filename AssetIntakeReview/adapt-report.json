@@ -1,0 +1,63 @@
+{
+    "command": "adapt",
+    "status": "PASS",
+    "startedUtc": "2026-10-24T01:49:44.0148799Z",
+    "finishedUtc": "2026-10-24T01:49:45.5347529Z",
+    "filesCopied": 0,
+    "filesRetained": 0,
+    "adaptedMaterials": 8,
+    "nativeMaterials": 252,
+    "assets": 0,
+    "prefabs": 0,
+    "models": 0,
+    "meshes": 0,
+    "materials": 0,
+    "sourceEmbeddedMaterials": 0,
+    "textures": 0,
+    "shaders": 0,
+    "terrainLayers": 0,
+    "animationClips": 0,
+    "issues": [
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/RockOrigin/Materials/pillar01A.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock03a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock05a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/pebbles01a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock01a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock02a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock06a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        },
+        {
+            "severity": "info",
+            "path": "Assets/Environment/DDriveLibrary/Dreamscapes/Nature/Rocks/Materials/rock04a.mat",
+            "message": "Standard -> URP Lit. Original serialized properties remain; custom wind, subsurface, tessellation and HDRP remap features are not reproduced."
+        }
+    ],
+    "previews": []
+}
