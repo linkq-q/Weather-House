@@ -1,0 +1,4 @@
+PASS second backup corruption leaves BOTH live files unchanged, retains pending/backups and restores editor options; Tick stays blocked; repair plus explicit RetryRestore restores original bytes.
+PASS repeated checkpoints use SessionState while the disk report is occupied; Load prefers that checkpoint. Final-report creation conflict preserves existing bytes and pending/backups/options; Tick does not retry. Moving the conflicting file aside plus RetryRestore creates the final report once.
+PASS unconfirmed Edit mode cannot restore or clear pending; explicit EnteredEditMode callback completes restoration (synthetic lifecycle check, no real domain reload).
+PASS synthetic files only; no GameplaySession.SavePath, real notebook, Play entry or scene save was used.

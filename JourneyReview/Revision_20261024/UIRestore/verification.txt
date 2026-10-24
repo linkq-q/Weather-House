@@ -1,0 +1,29 @@
+UI restoration fixture handoff — 2026-10-24
+
+Production helper frozen:
+Assets/Game/Editor/WatersideGameplayPlayReview.cs
+SHA256 5629910364065215A1B30CB7667798B3A1C97B30FAA1EA7AFA16555D85DEDD09
+
+Fixture:
+WatersideUiRestoreChecks.cs
+SHA256 BE4D6A022A00EAE11AB0295014D474D8889F2F03275CF6F711E414332DB7BBCC
+Entry: WatersideUiRestoreChecks.Run
+Required marker: .wildlife-journey-validation at project root; Windows Editor; Edit mode; no pending UI review.
+It exits with code 0/1 and writes JourneyReview/ui-restore-fixture-<GUID>/results.txt.
+
+Scope: only synthetic notebook bytes under that unique result directory. It never reads GameplaySession.SavePath, enters Play, or saves a scene. Its lifecycle case calls EnteredEditMode synchronously; it does not claim a real domain reload.
+
+Cases:
+1. A corrupt second backup leaves both live files unchanged, retains pending state and originals, restores editor options, and blocks automatic retries. Fixing it and invoking the explicit RetryRestore completes restoration.
+2. A locked, occupied checks.json is unchanged by repeated SessionState checkpoints. Load uses the checkpoint despite invalid disk JSON. Final creation conflict retains pending state after restoring notebook/options. After moving the conflicting file aside, explicit RetryRestore creates the final report without overwrite.
+3. Unconfirmed Edit mode defers file restoration; the explicit EnteredEditMode callback completes. All completed synthetic cases must report UI FAIL because the fixture intentionally produces no screenshots.
+
+Dependency closure:
+The marked Temp project lacks the actual UI helper and much of its gameplay dependency chain. source-copy-list.txt lists 29 main-project source paths to copy, with their existing .meta files, preserving relative paths. Controller is the only pre-existing source that this list replaces; the latest main version supplies UI input/camera members. Add WatersideUiRestoreChecks.cs under Temp Assets/Editor. Do not copy the compilation DLLs.
+
+Verified offline using the Unity 2022.3.62f3c1 Roslyn compiler: the current Temp source tree plus this dependency list separately compiled as Runtime and Editor assemblies, both process exit 0. See closure-runtime.rsp/.log and closure-editor.rsp/.log. Only ordinary unassigned-serialization-field warnings. No Unity launch and no Temp writes by this reviewer.
+
+Actual Unity execution by the Temp owner: owned process 64036 exited with code 0. fixture-results.txt reports all three groups passed using synthetic files only; fixture-unity.log retains the actual run. This is an Edit-mode restoration check, not a Play or real domain-reload claim.
+
+Independent main UI visual review:
+Compared WatersideV3Review/gameplay-ui/play/runs/20261024_111530_375/04_original_photo_mode.png with JourneyReview/Revision_20261024/PhotoWeight/Before/photo.png. The four viewfinder corners and shutter outer ring are visibly thicker, continuous and unclipped. WASD letters, camera aperture and journal leaf cutout remain distinguishable at the final Outline distance .45. This screenshot passes the requested thickening visual review. Main run PASS and later clean Edit handoff are reported by root; this reviewer did not operate Unity.

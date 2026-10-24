@@ -21,7 +21,8 @@ namespace WeatherHousePrototype.Editor
     [InitializeOnLoad]
     public static class WatersideGameplayPlayReview
     {
-        const string Key = "Waterside.GameplayUiReview.", Folder = "WatersideV3Review/gameplay-ui/play";
+        const string Key = "Waterside.GameplayUiReview.", DefaultFolder = "WatersideV3Review/gameplay-ui/play";
+        static string Folder => SessionState.GetString(Key + "folder", DefaultFolder);
         const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         static GameplaySession session;
         static GameplayHud hud;
@@ -67,6 +68,7 @@ namespace WeatherHousePrototype.Editor
                 throw new InvalidOperationException("Save scene edits before the disposable UI review.");
             if (EditorSettings.enterPlayModeOptionsEnabled && (EditorSettings.enterPlayModeOptions & EnterPlayModeOptions.DisableSceneReload) != 0)
                 throw new InvalidOperationException("UI review requires ordinary scene reload; project setting was not changed.");
+            SessionState.SetString(Key + "folder", DefaultFolder + "/runs/" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff"));
             Directory.CreateDirectory(Folder);
             string profile = Object.FindObjectOfType<GameplaySession>().SavePath;
             report = new Report { scene = scene.path, sceneHash = Hash(scene.path), profilePath = profile,
@@ -75,33 +77,52 @@ namespace WeatherHousePrototype.Editor
             SessionState.SetString(Key + "startScene", AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
             SessionState.SetBool(Key + "background", Application.runInBackground); SessionState.SetBool(Key + "paused", EditorApplication.isPaused);
             SessionState.SetString(Key + "ticks", DateTime.UtcNow.Ticks.ToString()); SessionState.SetString(Key + "runtimeError", "");
-            SessionState.SetBool(Key + "active", true); SessionState.SetBool(Key + "ending", false); SessionState.SetBool(Key + "success", false); Save();
+            SessionState.SetBool(Key + "ending", false); SessionState.SetBool(Key + "success", false);
+            SessionState.SetBool(Key + "editConfirmed", true); SessionState.SetBool(Key + "restoreBlocked", false);
+            SessionState.SetString(Key + "checkpoint", "");
+            Save(); WriteReportOnce("running.json"); SessionState.SetBool(Key + "active", true);
             try
             {
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(scene.path);
             Application.runInBackground = true; EditorApplication.isPaused = false;
             EditorWindow.GetWindow(typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView")).Focus();
-            EditorApplication.isPlaying = true;
-            } catch (Exception error) { Finish(error); }
+            SessionState.SetBool(Key + "editConfirmed", false); EditorApplication.isPlaying = true;
+            } catch (Exception error)
+            {
+                if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling)
+                    SessionState.SetBool(Key + "editConfirmed", true);
+                Finish(error);
+            }
         }
 
         static void Changed(PlayModeStateChange change)
         {
             if (!Active) return;
             if (change == PlayModeStateChange.EnteredPlayMode)
-            { report = Load(); stage = 0; routeAttempt = 0; enteredAt = Time.unscaledTime; next = enteredAt + .6f; }
+            {
+                SessionState.SetBool(Key + "editConfirmed", false);
+                if (Ending) { EditorApplication.isPlaying = false; return; }
+                try { report = Load(); stage = 0; routeAttempt = 0; enteredAt = Time.unscaledTime; next = enteredAt + .6f; }
+                catch (Exception error) { Finish(error); }
+            }
             else if (change == PlayModeStateChange.ExitingPlayMode) Cleanup();
             else if (change == PlayModeStateChange.EnteredEditMode)
             {
-                if (!Ending) { report = Load(); report.error = "Play exited before the UI sequence completed."; Save(); }
-                Restore();
+                SessionState.SetBool(Key + "editConfirmed", true);
+                if (!Ending) Finish(new OperationCanceledException("Play exited before the UI sequence completed."));
+                else Restore();
             }
         }
 
         static void Tick()
         {
             if (!Active) return;
-            if (Ending) { if (!EditorApplication.isPlayingOrWillChangePlaymode) Restore(); return; }
+            if (Ending)
+            {
+                if (EditorApplication.isPlayingOrWillChangePlaymode || !SessionState.GetBool(Key + "editConfirmed", false)) EditorApplication.isPlaying = false;
+                else if (!SessionState.GetBool(Key + "restoreBlocked", false)) Restore();
+                return;
+            }
             if (!long.TryParse(SessionState.GetString(Key + "ticks", ""), out long ticks) || (DateTime.UtcNow.Ticks - ticks) / (double)TimeSpan.TicksPerSecond > 120)
             { Finish(new TimeoutException("UI review exceeded 120 seconds.")); return; }
             string logged = SessionState.GetString(Key + "runtimeError", "");
@@ -256,38 +277,115 @@ namespace WeatherHousePrototype.Editor
         static void Finish(Exception error)
         {
             if (!Active || Ending) return;
-            if (report == null) report = Load(); report.error = error?.ToString() ?? "";
-            report.status = "RETURNING_TO_EDIT"; SessionState.SetBool(Key + "ending", true); SessionState.SetBool(Key + "success", error == null);
-            Cleanup(); Save(); EditorApplication.isPaused = false;
-            if (EditorApplication.isPlayingOrWillChangePlaymode) EditorApplication.isPlaying = false; else Restore();
+            SessionState.SetBool(Key + "ending", true); SessionState.SetBool(Key + "success", error == null);
+            SessionState.SetString(Key + "runtimeError", error?.ToString() ?? "");
+            try
+            {
+                if (report == null) report = Load(); report.error = error?.ToString() ?? "";
+                report.status = "RETURNING_TO_EDIT";
+                Cleanup(); Save();
+            }
+            catch (Exception finishError)
+            {
+                SessionState.SetBool(Key + "success", false);
+                SessionState.SetString(Key + "runtimeError", SessionState.GetString(Key + "runtimeError", "") + "\n" + finishError);
+                Debug.LogError("UI review cleanup/report failed; Play exit is still requested. " + finishError);
+            }
+            finally
+            {
+                EditorApplication.isPaused = false;
+                if (EditorApplication.isPlayingOrWillChangePlaymode) EditorApplication.isPlaying = false; else Restore();
+            }
         }
         static void Restore()
         {
-            if (!Active) return; report = Load();
+            if (!Active || SessionState.GetBool(Key + "restoreBlocked", false)) return;
+            SessionState.SetBool(Key + "ending", true);
+            if (EditorApplication.isPlayingOrWillChangePlaymode) { EditorApplication.isPlaying = false; return; }
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating || !SessionState.GetBool(Key + "editConfirmed", false)) return;
+            Exception failure = null;
             try
             {
+                if (report == null) report = Load();
+                string retainedError = SessionState.GetString(Key + "runtimeError", "");
+                if (!string.IsNullOrEmpty(retainedError)) report.error = retainedError;
+                ValidateBackup("notebook", report.profileHash); ValidateBackup("notebook-temp", report.profileTempHash);
                 RestoreFile(report.profilePath, "notebook"); RestoreFile(report.profilePath + ".tmp", "notebook-temp");
-                Application.runInBackground = SessionState.GetBool(Key + "background", false); EditorApplication.isPaused = SessionState.GetBool(Key + "paused", false);
-                string original = SessionState.GetString(Key + "startScene", "");
-                EditorSceneManager.playModeStartScene = string.IsNullOrEmpty(original) ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(original);
-                report.returnedToEdit = !EditorApplication.isPlaying;
+                report.notebookRestored = Hash(report.profilePath) == report.profileHash && Hash(report.profilePath + ".tmp") == report.profileTempHash;
+                if (!report.notebookRestored) throw new IOException("Restored notebook bytes do not match the original backup hashes.");
+            }
+            catch (Exception error) { failure = error; }
+            finally
+            {
+                try
+                {
+                    Application.runInBackground = SessionState.GetBool(Key + "background", false); EditorApplication.isPaused = SessionState.GetBool(Key + "paused", false);
+                    string original = SessionState.GetString(Key + "startScene", "");
+                    EditorSceneManager.playModeStartScene = string.IsNullOrEmpty(original) ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(original);
+                    bool restored = Application.runInBackground == SessionState.GetBool(Key + "background", false) &&
+                        EditorApplication.isPaused == SessionState.GetBool(Key + "paused", false) && AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene) == original;
+                    if (report != null) report.editorOptionsRestored = restored;
+                    if (!restored) throw new InvalidOperationException("UI review editor options did not restore.");
+                }
+                catch (Exception error) { failure = failure == null ? error : new AggregateException(failure, error); }
+            }
+            try
+            {
+                if (failure != null) throw failure;
+                report.returnedToEdit = !EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling && !EditorApplication.isUpdating;
+                if (!report.returnedToEdit) throw new InvalidOperationException("UI review must remain in confirmed Edit mode before cleanup can complete.");
                 report.sceneDirtyAfter = Enumerable.Range(0, SceneManager.sceneCount).Any(i => SceneManager.GetSceneAt(i).isDirty);
                 report.sceneFileUnchanged = Hash(report.scene) == report.sceneHash;
-                report.notebookRestored = Hash(report.profilePath) == report.profileHash && Hash(report.profilePath + ".tmp") == report.profileTempHash;
                 report.screenshotsWritten = new[] { "01_hud_observed", "02_original_reply_bubble", "03_original_album", "04_original_photo_mode" }.All(n => File.Exists(Path.Combine(Folder, n + ".png")) && new FileInfo(Path.Combine(Folder, n + ".png")).Length > 1024 && File.GetLastWriteTimeUtc(Path.Combine(Folder, n + ".png")) >= DateTime.Parse(report.startedUtc).ToUniversalTime());
-                report.editorOptionsRestored = Application.runInBackground == SessionState.GetBool(Key + "background", false) &&
-                    EditorApplication.isPaused == SessionState.GetBool(Key + "paused", false) && AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene) == original;
                 report.status = SessionState.GetBool(Key + "success", false) && report.returnedToEdit && !report.sceneDirtyAfter && report.sceneFileUnchanged && report.notebookRestored && report.editorOptionsRestored && report.screenshotsWritten ? "PASS" : "FAIL";
-                report.finishedUtc = DateTime.UtcNow.ToString("O"); Save();
+                report.finishedUtc = DateTime.UtcNow.ToString("O"); Save(); WriteReportOnce("checks.json");
+                SessionState.SetBool(Key + "active", false); SessionState.SetBool(Key + "ending", false);
             }
-            finally { SessionState.SetBool(Key + "active", false); SessionState.SetBool(Key + "ending", false); }
+            catch (Exception error)
+            {
+                SessionState.SetBool(Key + "restoreBlocked", true);
+                if (report != null)
+                {
+                    report.status = "RESTORE_FAILED"; report.error += "\n" + error;
+                    try { Save(); WriteReportOnce("restore-error-" + Guid.NewGuid().ToString("N") + ".json"); }
+                    catch (Exception writeError) { Debug.LogWarning("Could not save UI restoration failure report: " + writeError.Message); }
+                }
+                Debug.LogError("UI review restoration is pending; original backups are retained in " + Folder +
+                    ". Resolve the file error, then call WatersideGameplayPlayReview.RetryRestore from Edit mode. " + error);
+            }
+        }
+        [MenuItem("Weather House/Waterside V2/Retry UI Review Restoration")]
+        public static void RetryRestore()
+        {
+            if (!Active || !Ending || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating)
+                throw new InvalidOperationException("Retry restoration only for a pending UI review in stable Edit mode.");
+            SessionState.SetBool(Key + "editConfirmed", true); SessionState.SetBool(Key + "restoreBlocked", false);
+            Restore();
+        }
+        static void ValidateBackup(string name, string expectedHash)
+        {
+            bool existed = SessionState.GetBool(Key + name + ".existed", false);
+            if (existed ? expectedHash == "<missing>" || Hash(Path.Combine(Folder, name + ".before")) != expectedHash : expectedHash != "<missing>")
+                throw new IOException("Original " + name + " backup is missing or does not match its captured hash; live files were not restored.");
         }
         static void Backup(string path, string name)
         { SessionState.SetBool(Key + name + ".existed", File.Exists(path)); if (File.Exists(path)) File.Copy(path, Path.Combine(Folder, name + ".before"), true); }
         static void RestoreFile(string path, string name)
         { if (SessionState.GetBool(Key + name + ".existed", false)) File.Copy(Path.Combine(Folder, name + ".before"), path, true); else if (File.Exists(path)) File.Delete(path); }
         static string Hash(string path) { if (!File.Exists(path)) return "<missing>"; using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(path))); }
-        static Report Load() => JsonUtility.FromJson<Report>(File.ReadAllText(Folder + "/checks.json"));
-        static void Save() => File.WriteAllText(Folder + "/checks.json", JsonUtility.ToJson(report, true));
+        static Report Load()
+        {
+            string checkpoint = SessionState.GetString(Key + "checkpoint", "");
+            if (string.IsNullOrEmpty(checkpoint))
+                checkpoint = File.ReadAllText(Path.Combine(Folder, File.Exists(Path.Combine(Folder, "checks.json")) ? "checks.json" : "running.json"));
+            return JsonUtility.FromJson<Report>(checkpoint);
+        }
+        static void Save() => SessionState.SetString(Key + "checkpoint", JsonUtility.ToJson(report, true));
+        static void WriteReportOnce(string name)
+        {
+            string path = Path.Combine(Folder, name), pending = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            File.WriteAllText(pending, JsonUtility.ToJson(report, true));
+            File.Move(pending, path);
+        }
     }
 }
