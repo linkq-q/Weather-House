@@ -331810,6 +331810,44 @@ MonoBehaviour:
     id: "\u6E56\u9636\u7F8A\u7FA4\u8349\u5730"
   - position: {x: -3.6, y: 4.324154, z: -10.8}
     id: "\u8001\u6811\u65C1\u8349\u5730"
+  - position: {x: 10.8, y: 8, z: 21.6}
+    id: Alternative source 7
+  - position: {x: -1.8, y: 6.2, z: 23.4}
+    id: Alternative source 14
+  - position: {x: -17.8, y: 6.2, z: 23.4}
+    id: Alternative source 22
+  - position: {x: -19.8, y: 6.2, z: 23.4}
+    id: Alternative source 23
+  - position: {x: -28.184671, y: 7.0574007, z: 18.480091}
+    id: Alternative source 28
+  - position: {x: -36.893917, y: 7.966642, z: 11.75477}
+    id: Alternative source 33
+  - position: {x: -39.39552, y: 7.82272, z: 8.098559}
+    id: Alternative source 36
+  - position: {x: -44.56026, y: 6.15266, z: -5.9038196}
+    id: Alternative source 43
+  - position: {x: -49.392357, y: 4.4887, z: -20.325417}
+    id: Alternative source 51
+  - position: {x: -50.4, y: 4, z: -25.2}
+    id: Alternative source 54
+  - position: {x: -48.562134, y: 3.3711493, z: -36.920963}
+    id: Alternative source 60
+  - position: {x: -46.8, y: 3, z: -45}
+    id: Alternative source 65
+  - position: {x: -41.4, y: 3, z: -36}
+    id: Alternative source 71
+  - position: {x: -34.2, y: 2.4, z: -30.6}
+    id: Alternative source 76
+  - position: {x: -28.32334, y: 2.0441842, z: -27.397657}
+    id: Alternative source 80
+  - position: {x: -25.2, y: 2, z: -27}
+    id: Alternative source 82
+  - position: {x: -10.400001, y: 2, z: -27}
+    id: Alternative source 90
+  - position: {x: -7.039317, y: 2.9037585, z: -22.8434}
+    id: Alternative source 93
+  - position: {x: -5.0054398, y: 3.6999998, z: -18.311039}
+    id: Alternative source 96
   links:
   - from: 0
     to: 1
@@ -332089,6 +332127,86 @@ MonoBehaviour:
     bidirectional: 1
   - from: 66
     to: 2
+    bridgeId: 0
+    bidirectional: 1
+  - from: 38
+    to: 67
+    bridgeId: 0
+    bidirectional: 1
+  - from: 67
+    to: 68
+    bridgeId: 2
+    bidirectional: 1
+  - from: 68
+    to: 69
+    bridgeId: 2
+    bidirectional: 1
+  - from: 69
+    to: 70
+    bridgeId: 0
+    bidirectional: 1
+  - from: 70
+    to: 71
+    bridgeId: 0
+    bidirectional: 1
+  - from: 71
+    to: 72
+    bridgeId: 0
+    bidirectional: 1
+  - from: 72
+    to: 73
+    bridgeId: 0
+    bidirectional: 1
+  - from: 73
+    to: 74
+    bridgeId: 0
+    bidirectional: 1
+  - from: 74
+    to: 75
+    bridgeId: 0
+    bidirectional: 1
+  - from: 75
+    to: 76
+    bridgeId: 0
+    bidirectional: 1
+  - from: 76
+    to: 77
+    bridgeId: 0
+    bidirectional: 1
+  - from: 77
+    to: 78
+    bridgeId: 0
+    bidirectional: 1
+  - from: 78
+    to: 79
+    bridgeId: 0
+    bidirectional: 1
+  - from: 79
+    to: 80
+    bridgeId: 0
+    bidirectional: 1
+  - from: 80
+    to: 81
+    bridgeId: 0
+    bidirectional: 1
+  - from: 81
+    to: 82
+    bridgeId: 1
+    bidirectional: 1
+  - from: 82
+    to: 83
+    bridgeId: 1
+    bidirectional: 1
+  - from: 83
+    to: 84
+    bridgeId: 0
+    bidirectional: 1
+  - from: 84
+    to: 85
+    bridgeId: 0
+    bidirectional: 1
+  - from: 85
+    to: 0
     bridgeId: 0
     bidirectional: 1
   terrain: {fileID: 129123977}
