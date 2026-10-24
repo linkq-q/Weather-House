@@ -1,0 +1,33 @@
+天气屋 v05 · Unity 导入包
+
+来源为用户已确认的“整体精修样板_20261024_v05/天气屋_山墙木构优化_v05.blend”。
+独立导出副本，原始 Blender 文件、旧 cottage 和此前版本保留。
+
+导入文件
+WeatherHouse_v05_LOD0.fbx：近景，完整保留天气窗几何，简化平墙内部共面网格与部分苔草表面。
+WeatherHouse_v05_LOD1.fbx：常规游戏距离。
+WeatherHouse_v05_LOD2.fbx：较远距离。
+WeatherHouse_v05_Collision.fbx：5 个盒状静态碰撞代理，共 60 个三角面。禁用代理的 MeshRenderer；按代理边界创建 BoxCollider。没有苔草碰撞。
+Textures：导入 material_manifest.json 的 texturesForUnity 清单；*_Mask.png 是 Blender 验证用粗糙度贴图，无需重复导入 Unity。
+
+材质
+5 个材质组：Architecture / WeatherWindow / RoofTiles / Moss / Foliage。
+URP/Lit，颜色乘数白色。BaseColor、Emission 按 sRGB 导入。
+Normal 设为 NormalMap，保留 +Y；MetallicSmoothness 按线性数据导入，R=金属度、A=光滑度。
+使用金属度/光滑度贴图时对应乘数设为 1。Foliage 双面，其他组常规背面剔除。
+只有 Architecture 有烘焙灯笼自发光，启用相应关键词。
+保留 FBX 法线；切线可用 Unity MikkTSpace 重算。贴图 Clamp，开启 Mipmap。
+显存预算与贴图文件大小不同，需在 Unity 的目标平台压缩设置下核查。
+
+落位
+每个 FBX 内有 WH_GroundOrigin、WH_DoorThreshold、WH_FrontStepGround、WH_FrontDirection 四个 Empty。
+Forward 锚点位于地面原点沿外向 1 米处。用导入后的锚点读取方向，避免猜测 FBX 轴转换。
+placement_anchors.json 保存 Blender 坐标；Blender Z 向上、+X 为前立面外向。
+不要沿用旧木屋 0.60786 的缩放值，需依据新门口、轮廓和现场地面高度放置。
+新屋仍保留加宽、加深后的比例；窗口相对屋身大小保持用户认可状态。
+
+复现顺序
+Blender 5.1 后台依次运行 制作脚本/prepare_unity.py、repair_joint_bake.py、finalize_package.py、verify_package.py。
+joint repair 在烘焙时分离共面的梁柱接点；finalize 在导出副本把该中柱外移 3 毫米，消除合并网格后的共面冲突。原始 v05 不变，天气窗几何不变。
+检查记录/export_verification.json 是实际 FBX 重导入检查；预览目录是 Blender 使用烘焙贴图的结果。
+Unity 场景摆放、材质显示、碰撞、LOD 和游戏机位另由地图集成对话验证，不以 Blender 图代替。

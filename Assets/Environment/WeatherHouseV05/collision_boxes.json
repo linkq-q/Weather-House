@@ -1,0 +1,72 @@
+{
+  "coordinateSystem": "Same Blender/FBX axes and units as visual meshes",
+  "proxyTriangles": 60,
+  "boxes": [
+    {
+      "name": "Collision_MainBody",
+      "center": [
+        0.0,
+        0.1793992519378662,
+        1.7306582927703857
+      ],
+      "size": [
+        6.048000335693359,
+        7.4724016189575195,
+        2.518916606903076
+      ]
+    },
+    {
+      "name": "Collision_Foundation",
+      "center": [
+        0.0,
+        0.062400102615356445,
+        0.29759998619556427
+      ],
+      "size": [
+        6.633600463867188,
+        7.88400053024292,
+        0.5579999387264252
+      ]
+    },
+    {
+      "name": "Collision_Step_0",
+      "center": [
+        3.6766375303268433,
+        2.265047937631607,
+        0.30409659445285797
+      ],
+      "size": [
+        1.2318775653839111,
+        2.6235987544059753,
+        0.6283967196941376
+      ]
+    },
+    {
+      "name": "Collision_Step_1",
+      "center": [
+        4.473423004150391,
+        2.265062093734741,
+        0.20448008179664612
+      ],
+      "size": [
+        0.4313497543334961,
+        3.036782741546631,
+        0.4307692050933838
+      ]
+    },
+    {
+      "name": "Collision_Step_2",
+      "center": [
+        4.881342649459839,
+        2.2641675174236298,
+        0.1061580628156662
+      ],
+      "size": [
+        0.49622392654418945,
+        3.430495798587799,
+        0.2320815920829773
+      ]
+    }
+  ],
+  "usage": "Use box colliders from proxy local mesh bounds; do not enable proxy MeshRenderers. Sealed exterior house, static collision; foliage is excluded."
+}

@@ -1,0 +1,216 @@
+{
+  "source": "C:\\Users\\31483\\Desktop\\天气屋\\整体精修样板_20261024_v05\\天气屋_山墙木构优化_v05.blend",
+  "sourceSha256": "98311e5a95f875430802d79fe39eece2c931948711b7b5af143e90252a76b65c",
+  "materials": [
+    {
+      "name": "WH05_Architecture",
+      "group": "Architecture",
+      "baseColor": "Architecture_BaseColor.png",
+      "normal": "Architecture_Normal.png",
+      "metallicSmoothness": "Architecture_MetallicSmoothness.png",
+      "emission": "Architecture_Emission.png",
+      "doubleSided": false,
+      "roughness": 0.95,
+      "sRGB_BaseColor": true,
+      "sRGB_MetallicSmoothness": false,
+      "normalConvention": "OpenGL +Y (Unity normal texture importer)"
+    },
+    {
+      "name": "WH05_WeatherWindow",
+      "group": "WeatherWindow",
+      "baseColor": "WeatherWindow_BaseColor.png",
+      "normal": "WeatherWindow_Normal.png",
+      "metallicSmoothness": "WeatherWindow_MetallicSmoothness.png",
+      "emission": null,
+      "doubleSided": false,
+      "roughness": 0.95,
+      "sRGB_BaseColor": true,
+      "sRGB_MetallicSmoothness": false,
+      "normalConvention": "OpenGL +Y (Unity normal texture importer)"
+    },
+    {
+      "name": "WH05_RoofTiles",
+      "group": "RoofTiles",
+      "baseColor": "RoofTiles_BaseColor.png",
+      "normal": "RoofTiles_Normal.png",
+      "metallicSmoothness": "RoofTiles_MetallicSmoothness.png",
+      "emission": null,
+      "doubleSided": false,
+      "roughness": 0.95,
+      "sRGB_BaseColor": true,
+      "sRGB_MetallicSmoothness": false,
+      "normalConvention": "OpenGL +Y (Unity normal texture importer)"
+    },
+    {
+      "name": "WH05_Moss",
+      "group": "Moss",
+      "baseColor": "Moss_BaseColor.png",
+      "normal": "Moss_Normal.png",
+      "metallicSmoothness": "Moss_MetallicSmoothness.png",
+      "emission": null,
+      "doubleSided": false,
+      "roughness": 0.95,
+      "sRGB_BaseColor": true,
+      "sRGB_MetallicSmoothness": false,
+      "normalConvention": "OpenGL +Y (Unity normal texture importer)"
+    },
+    {
+      "name": "WH05_Foliage",
+      "group": "Foliage",
+      "baseColor": "Foliage_BaseColor.png",
+      "normal": null,
+      "metallicSmoothness": null,
+      "emission": null,
+      "doubleSided": true,
+      "roughness": 0.95,
+      "sRGB_BaseColor": true,
+      "sRGB_MetallicSmoothness": false,
+      "normalConvention": "OpenGL +Y (Unity normal texture importer)"
+    }
+  ],
+  "lods": [
+    {
+      "level": 0,
+      "triangles": 545912,
+      "renderers": 5,
+      "materials": 5,
+      "bounds": {
+        "min": [
+          -4.132800102233887,
+          -4.862689018249512,
+          -0.01090383529663086
+        ],
+        "max": [
+          5.129455089569092,
+          4.9550886154174805,
+          7.858916282653809
+        ],
+        "center": [
+          0.49832749366760254,
+          0.046199798583984375,
+          3.924006223678589
+        ],
+        "size": [
+          9.262255191802979,
+          9.817777633666992,
+          7.8698201179504395
+        ]
+      }
+    },
+    {
+      "level": 1,
+      "triangles": 196521,
+      "renderers": 5,
+      "materials": 5,
+      "bounds": {
+        "min": [
+          -4.132850646972656,
+          -4.862835884094238,
+          -0.01090383529663086
+        ],
+        "max": [
+          5.129455089569092,
+          4.955235481262207,
+          7.859656810760498
+        ],
+        "center": [
+          0.4983022212982178,
+          0.046199798583984375,
+          3.9243764877319336
+        ],
+        "size": [
+          9.262305736541748,
+          9.818071365356445,
+          7.870560646057129
+        ]
+      }
+    },
+    {
+      "level": 2,
+      "triangles": 70710,
+      "renderers": 5,
+      "materials": 5,
+      "bounds": {
+        "min": [
+          -4.132794380187988,
+          -4.867556571960449,
+          -0.00037670135498046875
+        ],
+        "max": [
+          5.121099472045898,
+          4.953493118286133,
+          7.860840797424316
+        ],
+        "center": [
+          0.4941525459289551,
+          0.0429682731628418,
+          3.930232048034668
+        ],
+        "size": [
+          9.253893852233887,
+          9.821049690246582,
+          7.861217498779297
+        ]
+      }
+    }
+  ],
+  "windowSourceComponents": 98,
+  "excludedCollections": [
+    "05_原AI完整模型_隐藏参考",
+    "06_预览地面与灯光",
+    "07_固定对照相机"
+  ],
+  "blenderFrontAxis": "+X",
+  "blenderUpAxis": "+Z",
+  "elapsedSeconds": 279.9,
+  "jointExportClearanceMillimeters": 3,
+  "anchorsFile": "placement_anchors.json",
+  "collisionFile": "WeatherHouse_v05_Collision.fbx",
+  "texturesForUnity": [
+    "Architecture_BaseColor.png",
+    "Architecture_Emission.png",
+    "Architecture_MetallicSmoothness.png",
+    "Architecture_Normal.png",
+    "Foliage_BaseColor.png",
+    "Moss_BaseColor.png",
+    "Moss_MetallicSmoothness.png",
+    "Moss_Normal.png",
+    "RoofTiles_BaseColor.png",
+    "RoofTiles_MetallicSmoothness.png",
+    "RoofTiles_Normal.png",
+    "WeatherWindow_BaseColor.png",
+    "WeatherWindow_MetallicSmoothness.png",
+    "WeatherWindow_Normal.png"
+  ],
+  "textureBytesOnDisk": 39153243,
+  "sourceUnmodified": true,
+  "normalMapImport": "TextureImporterType.NormalMap; sRGB false; tangent calculation MikkTSpace; no green inversion.",
+  "urpMaterialSettings": "URP/Lit, BaseColor white, Metallic=1 with map, Smoothness=1 (map alpha is smoothness), Normal scale=1; foliage Cull Off. Emission map only Architecture; enable _EMISSION. Keep authored normals; calculate MikkTSpace tangents if missing.",
+  "recommendedLodScreenHeights": [
+    0.45,
+    0.2,
+    0.015
+  ],
+  "exportFiles": [
+    {
+      "name": "WeatherHouse_v05_Collision.fbx",
+      "bytes": 29948,
+      "sha256": "034301b547049ce9b38beea9f80f038e912c54540c1720ac434ad396e381459d"
+    },
+    {
+      "name": "WeatherHouse_v05_LOD0.fbx",
+      "bytes": 52065516,
+      "sha256": "a495b7e264d0ce638d7a5c724381f3ddac36176e4759c595b4492f77cb0a5488"
+    },
+    {
+      "name": "WeatherHouse_v05_LOD1.fbx",
+      "bytes": 22314220,
+      "sha256": "d5e2740495c16e9e61f8808a6c5efae7d43fe548a45a7348287e7e7258a0fb15"
+    },
+    {
+      "name": "WeatherHouse_v05_LOD2.fbx",
+      "bytes": 8984668,
+      "sha256": "1a0cf8aa92a68b2124a41f3027ecfa1f5fa2cb72299b474607da23a5c7f33125"
+    }
+  ]
+}

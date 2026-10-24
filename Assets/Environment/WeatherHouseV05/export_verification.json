@@ -1,0 +1,184 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "level": 0,
+      "triangles": 545912,
+      "zeroAreaFacesRemovedByFBX": 0,
+      "surfaceAreaError": 0.0,
+      "meshObjects": 5,
+      "materials": [
+        "WH05_Architecture",
+        "WH05_Foliage",
+        "WH05_Moss",
+        "WH05_RoofTiles",
+        "WH05_WeatherWindow"
+      ],
+      "anchorMaxError": 0.0,
+      "windowOriginalTriangleCount": 30468,
+      "windowWorldGeometryMaxError": 1.0392425338068279e-06
+    },
+    {
+      "level": 1,
+      "triangles": 196521,
+      "zeroAreaFacesRemovedByFBX": 0,
+      "surfaceAreaError": 0.0,
+      "meshObjects": 5,
+      "materials": [
+        "WH05_Architecture",
+        "WH05_Foliage",
+        "WH05_Moss",
+        "WH05_RoofTiles",
+        "WH05_WeatherWindow"
+      ],
+      "anchorMaxError": 0.0
+    },
+    {
+      "level": 2,
+      "triangles": 70710,
+      "zeroAreaFacesRemovedByFBX": 0,
+      "surfaceAreaError": 0.0,
+      "meshObjects": 5,
+      "materials": [
+        "WH05_Architecture",
+        "WH05_Foliage",
+        "WH05_Moss",
+        "WH05_RoofTiles",
+        "WH05_WeatherWindow"
+      ],
+      "anchorMaxError": 0.0
+    }
+  ],
+  "collisionMeshes": 5,
+  "collisionTriangles": 60,
+  "sourceHashUnchanged": true,
+  "textures": [
+    {
+      "name": "Architecture_BaseColor.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "bytes": 7244351,
+      "sha256": "463a13a7128fa90a4581f1ebd5980e43852b8ccdc7d27724608e24a9730a907c"
+    },
+    {
+      "name": "Architecture_Emission.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "bytes": 310259,
+      "sha256": "d164277c73564502880de1fade90d8e8cd1d656b568c59d1d261f8314a7889ae"
+    },
+    {
+      "name": "Architecture_MetallicSmoothness.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "bytes": 1070156,
+      "sha256": "07ef89a0cb117add9c14b2be1cd8e5dd6da08b2cb637391868606b62bd639483"
+    },
+    {
+      "name": "Architecture_Normal.png",
+      "size": [
+        4096,
+        4096
+      ],
+      "bytes": 11683984,
+      "sha256": "7a9c9e39ca202c08e0cd66d1d0f693132bc9cf289a8d9644e2d8f2e6816071c1"
+    },
+    {
+      "name": "Foliage_BaseColor.png",
+      "size": [
+        128,
+        128
+      ],
+      "bytes": 947,
+      "sha256": "0f8d064a7e855d454b49366ce56266310660c5b0d9cec1c2c6804374bfc66cc7"
+    },
+    {
+      "name": "Moss_BaseColor.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 3304930,
+      "sha256": "3d764837e9b4f2637c8500d90f2e4b959bac0cff6b405f01eb2263c57c4d61fe"
+    },
+    {
+      "name": "Moss_MetallicSmoothness.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 87084,
+      "sha256": "a3e80db3c3e7a4b82266682111c1e0ddc97ff07cf00f7a85c515347c4f51aec2"
+    },
+    {
+      "name": "Moss_Normal.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 8519633,
+      "sha256": "2fc279c2eca7b30380bc4f35600d36ccd35e47a8f1af43723e91236f14f5288b"
+    },
+    {
+      "name": "RoofTiles_BaseColor.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 400138,
+      "sha256": "1e824aac3923fad57618930abc39deab939dd12b664c3b6a4f86414c98523cd4"
+    },
+    {
+      "name": "RoofTiles_MetallicSmoothness.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 165573,
+      "sha256": "b5444c9c8a344aa97a5d6559d1b641b4822c4bcf678e415f8ee7211070bb6d23"
+    },
+    {
+      "name": "RoofTiles_Normal.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 2439236,
+      "sha256": "33442c57e448d289d01af1456276ae0aa0ece42a44f3ecb9a0b39b32e5086c91"
+    },
+    {
+      "name": "WeatherWindow_BaseColor.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 1388026,
+      "sha256": "252e51ae43141c6bead2d5aac78007ef62880a6ff3cacc5b8c7a0d37633e0031"
+    },
+    {
+      "name": "WeatherWindow_MetallicSmoothness.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 229464,
+      "sha256": "d4395fb706b48552833d18e5db99292a2d163f9d652858f04ae4d8d64f7ae029"
+    },
+    {
+      "name": "WeatherWindow_Normal.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "bytes": 2309462,
+      "sha256": "2007f24950a0134328696b0150255750230fa264f55d876aa0ff34b3683e0f71"
+    }
+  ],
+  "scope": "FBX roundtrip, finite geometry, one UV set, exact LOD0 weather-window geometry, anchors, texture files. Unity runtime and placement verified separately by map integration chat."
+}
