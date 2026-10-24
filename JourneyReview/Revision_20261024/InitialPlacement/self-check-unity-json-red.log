@@ -1,0 +1,364 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-31483" at "2026-10-24T08:30:40.6862037Z"
+[Licensing::Client] Code 1 while verifying Licensing Client signature (process Id: 4008, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.16.2'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-31483"
+[Licensing::IpcConnector] LicenseClient-31483 channel disconnected successfully.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-31483-2022.3.62" at "2026-10-24T08:30:40.7037187Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 35564, path: "C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.16.2+bdef8f5
+  Session Id:              e7ff0c7319b14510ad32758b770288b1
+  Correlation Id:          0922112ec699519e01844bd488a5cc4a
+  External correlation Id: 4485442983086330636
+  Machine Id:              3SMYWSGnFHA2r0/4NXpKFe+Wv1c=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-31483-2022.3.62" (connect: 0.00s, validation: 0.01s, handshake: 0.10s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-31483-2022.3.62-notifications" at "2026-10-24T08:30:40.8165246Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully updated license
+Built from '2022.3/china_unity/release' branch; Version is '2022.3.62f3c1 (1623fc0bbb97) revision 1451004'; Using compiler version '192829333'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) 64bit CoreCountrySpecific' Language: 'zh' Physical Memory: 32045 MB
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Serial number assigned to: "F4-U376-VH5B-PKKA-TT43-XXXX"
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 0
+[Licensing::Client] Successfully resolved entitlement details
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Unity.exe
+-batchmode
+-nographics
+-quit
+-projectPath
+C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221
+-executeMethod
+InitialPlacementAuditBatch.Run
+-logFile
+C:\unity project\Weather House\JourneyReview\Revision_20261024\InitialPlacement\self-check-unity.log
+Successfully changed project path to: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221
+C:/Users/31483/AppData/Local/Temp/WeatherHouseJourney-20261024-001221
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [77464]  Target information:
+
+Player connection [77464]  * "[IP] 172.21.48.1 [Port] 55505 [Flags] 2 [Guid] 2254137941 [EditorId] 2254137941 [Version] 1048832 [Id] WindowsEditor(7,cc) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [77464]  * "[IP] 10.81.22.79 [Port] 55505 [Flags] 2 [Guid] 2254137941 [EditorId] 2254137941 [Version] 1048832 [Id] WindowsEditor(7,cc) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [77464] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [77464] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+[Package Manager] UpmClient::Connect -- Connected to IPC stream "Upm-51744" after 1.0 seconds.
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 40 packages:
+  Built-in packages:
+    com.unity.modules.ai@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.ai@1.0.0)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.androidjni@1.0.0)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.animation@1.0.0)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.assetbundle@1.0.0)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.audio@1.0.0)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.cloth@1.0.0)
+    com.unity.modules.director@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.director@1.0.0)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.imageconversion@1.0.0)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.imgui@1.0.0)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.jsonserialize@1.0.0)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.particlesystem@1.0.0)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.physics@1.0.0)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.physics2d@1.0.0)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.screencapture@1.0.0)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.terrain@1.0.0)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.terrainphysics@1.0.0)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.tilemap@1.0.0)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.ui@1.0.0)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.uielements@1.0.0)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.umbra@1.0.0)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.unityanalytics@1.0.0)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.unitywebrequest@1.0.0)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle@1.0.0)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.unitywebrequestaudio@1.0.0)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.unitywebrequesttexture@1.0.0)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.unitywebrequestwww@1.0.0)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.vehicles@1.0.0)
+    com.unity.modules.video@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.video@1.0.0)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.vr@1.0.0)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.wind@1.0.0)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.xr@1.0.0)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Library\PackageCache\com.unity.modules.subsystems@1.0.0)
+  Local packages:
+    com.unity.burst@file:C:\unity project\Weather House\Library\PackageCache\com.unity.burst@1.8.21 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.burst@1.8.21)
+    com.unity.mathematics@file:C:\unity project\Weather House\Library\PackageCache\com.unity.mathematics@1.2.6 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.mathematics@1.2.6)
+    com.unity.render-pipelines.core@file:C:\unity project\Weather House\Library\PackageCache\com.unity.render-pipelines.core@14.0.12 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.render-pipelines.core@14.0.12)
+    com.unity.render-pipelines.universal-config@file:C:\unity project\Weather House\Library\PackageCache\com.unity.render-pipelines.universal-config@14.0.10 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.render-pipelines.universal-config@14.0.10)
+    com.unity.render-pipelines.universal@file:C:\unity project\Weather House\Library\PackageCache\com.unity.render-pipelines.universal@14.0.12 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.render-pipelines.universal@14.0.12)
+    com.unity.searcher@file:C:\unity project\Weather House\Library\PackageCache\com.unity.searcher@4.9.2 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.searcher@4.9.2)
+    com.unity.shadergraph@file:C:\unity project\Weather House\Library\PackageCache\com.unity.shadergraph@14.0.12 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.shadergraph@14.0.12)
+    com.unity.ugui@file:C:\unity project\Weather House\Library\PackageCache\com.unity.ugui@1.0.0 (location: C:\unity project\Weather House\Library\PackageCache\com.unity.ugui@1.0.0)
+[Subsystems] No new subsystems found in resolved package list.
+Package Manager log level set to [2]
+[Package Manager] Done registering packages in 0.45 seconds
+Refreshing native plugins compatible for Editor in 421.49 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 2022.3.62f3c1 (1623fc0bbb97)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/31483/AppData/Local/Temp/WeatherHouseJourney-20261024-001221/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; threaded=0; jobified=0
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Shader Hidden/ProbeVolume/VoxelizeScene is not supported: GPU does not support conservative rasterization
+[Licensing::Client] Successfully resolved entitlement details
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56744
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.488738 seconds.
+- Loaded All Assemblies, in  9.507 seconds
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.263 seconds
+Domain Reload Profiling: 9768ms
+	BeginReloadAssembly (7841ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (351ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (536ms)
+	LoadAllAssembliesAndSetupDomain (767ms)
+		LoadAssemblies (7849ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (754ms)
+			TypeCache.Refresh (753ms)
+				TypeCache.ScanAssembly (395ms)
+			ScanForSourceGeneratedMonoScriptInfo (0ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (263ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (219ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (13ms)
+			SetLoadedEditorAssemblies (5ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (2ms)
+			ProcessInitializeOnLoadAttributes (145ms)
+			ProcessInitializeOnLoadMethodAttributes (54ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Starting: C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/31483/AppData/Local/Temp/WeatherHouseJourney-20261024-001221
+DisplayProgressbar: Compiling Scripts
+ExitCode: 4 Duration: 0s185ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/1900b0aE-inputdata.json
+*** Tundra requires additional run (0.11 seconds), 0 items updated, 209 evaluated
+Starting: C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/31483/AppData/Local/Temp/WeatherHouseJourney-20261024-001221
+ExitCode: 0 Duration: 0s718ms
+Starting: C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\1900b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/31483/AppData/Local/Temp/WeatherHouseJourney-20261024-001221
+ExitCode: 0 Duration: 4s328ms
+Finished compiling graph: 346 nodes, 3737 flattened edges (3121 ToBuild, 46 ToUse), maximum node priority 303
+[209/343    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.rsp
+[275/343    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[339/343    1s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+[340/343    0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll, with 118 defines and 232 references
+
+processors: zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[341/343    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[342/343    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (4.23 seconds), 6 items updated, 343 evaluated
+AssetDatabase: script compilation time: 5.975306s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  7.254 seconds
+Refreshing native plugins compatible for Editor in 1.76 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Start importing Assets/Editor/InitialPlacementAuditBatch.cs using Guid(201cd0de18f69cf47b40e339f7f809d8) Importer(-1,00000000000000000000000000000000) [PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+ -> (artifact id: '74820e17aaf5356d4fa2f35497b6ed2d') in 0.026933 seconds
+Refreshing native plugins compatible for Editor in 1.55 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.084 seconds
+Domain Reload Profiling: 10329ms
+	BeginReloadAssembly (325ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (35ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (39ms)
+	RebuildCommonClasses (133ms)
+	RebuildNativeTypeToScriptingClass (32ms)
+	initialDomainReloadingComplete (95ms)
+	LoadAllAssembliesAndSetupDomain (6661ms)
+		LoadAssemblies (6712ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (118ms)
+			TypeCache.Refresh (90ms)
+				TypeCache.ScanAssembly (83ms)
+			ScanForSourceGeneratedMonoScriptInfo (19ms)
+			ResolveRequiredComponents (8ms)
+	FinalizeReload (3084ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (2392ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (9ms)
+			SetLoadedEditorAssemblies (3ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (33ms)
+			ProcessInitializeOnLoadAttributes (2241ms)
+			ProcessInitializeOnLoadMethodAttributes (94ms)
+			AfterProcessingInitializeOnLoad (11ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (10ms)
+Refreshing native plugins compatible for Editor in 1.37 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=b2461f453eca4114ba7effc163e8cdd1): Total: 35.904 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=5 ms, native=19236 ms
+		Asset DB Callback time: managed=167 ms, native=8 ms
+		Scripting: domain reloads=1, domain reload time=10482 ms, compile time=5978 ms, other=25 ms
+		Project Asset Count: scripts=2565, non-scripts=988
+		Asset File Changes: new=1, changed=1, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeBeforeRefreshCallbacks: 4.679ms
+	ApplyChangesToAssetFolders: 0.059ms
+	Scan: 224.780ms
+	OnSourceAssetsModified: 2.828ms
+	GetAllGuidsForCategorization: 0.617ms
+	CategorizeAssets: 81.674ms
+	ImportOutOfDateAssets: 3151.453ms (-2880.847ms without children)
+		ImportManagerImport: 37.882ms (8.841ms without children)
+			ImportInProcess: 29.002ms
+			UpdateCategorizedAssets: 0.040ms
+		CompileScripts: 5977.808ms
+		ReloadNativeAssets: 0.020ms
+		UnloadImportedAssets: 14.476ms
+		ReloadImportedAssets: 0.000ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.149ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.963ms
+	PostProcessAllAssets: 164.809ms
+	Hotreload: 3.397ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.000ms
+	UnloadStreamsBegin: 1.007ms
+	PersistCurrentRevisions: 0.297ms
+	UnloadStreamsEnd: 0.034ms
+	GenerateScriptTypeHashes: 3.592ms
+	Untracked: 32268.052ms
+Application.AssetDatabase Initial Refresh End
+Shader Hidden/ProbeVolume/VoxelizeScene is not supported: GPU does not support conservative rasterization
+Scanning for USB devices : 4.098ms
+Initializing Unity extensions:
+[Licensing::Client] Successfully resolved entitlement details
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-Weather House
+[PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+ProgressiveSceneManager::Cancel()
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 50 unused Assets / (480.7 KB). Loaded Objects now: 2695.
+Memory consumption went from 120.3 MB to 119.9 MB.
+Total: 5.579200 ms (FindLiveObjects: 0.366100 ms CreateObjectMapping: 0.070600 ms MarkObjects: 4.649500 ms  DeleteObjects: 0.491700 ms)
+
+[PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (0 B). Loaded Objects now: 2695.
+Memory consumption went from 119.8 MB to 119.8 MB.
+Total: 5.310500 ms (FindLiveObjects: 0.228500 ms CreateObjectMapping: 0.044100 ms MarkObjects: 5.025800 ms  DeleteObjects: 0.010800 ms)
+
+Start importing Assets/InitialPlacementSelfCheck.unity using Guid(2f341c1dc6a3b024b8354d90a40af206) Importer(-1,00000000000000000000000000000000) [PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+ -> (artifact id: '2801327a16487cc6ed9abc1d24209550') in 0.001733 seconds
+Refreshing native plugins compatible for Editor in 2.77 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=dff4a82023138d345979d929f775dc8d): Total: 0.056 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Initial placement audit: 1 ground animals; 0 queried static overlaps, 0 with runtime-mask blockers; transformsUnchanged=True; dirty False -> False; C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\JourneyReview\Revision_20261024\InitialPlacement\Reports\20261024_083154_391
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+WeatherHouse.Review.WildlifeInitialPlacementAudit:Run ()
+WeatherHouse.Review.WildlifeInitialPlacementSelfChecks:Run ()
+System.Reflection.RuntimeMethodInfo:Invoke (object,System.Reflection.BindingFlags,System.Reflection.Binder,object[],System.Globalization.CultureInfo)
+System.Reflection.MethodBase:Invoke (object,object[])
+InitialPlacementAuditBatch:Run () (at Assets/Editor/InitialPlacementAuditBatch.cs:6)
+
+(Filename: Assets/Editor/InitialPlacementAuditBatch.cs Line: 6)
+
+[PhysX] Initialized MultithreadedTaskDispatcher with 16 workers.
+Unloading 10 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 15 unused Assets / (27.2 KB). Loaded Objects now: 2696.
+Memory consumption went from 119.6 MB to 119.6 MB.
+Total: 6.469100 ms (FindLiveObjects: 0.285300 ms CreateObjectMapping: 0.070000 ms MarkObjects: 5.426400 ms  DeleteObjects: 0.686200 ms)
+
+NullReferenceException: Object reference not set to an instance of an object
+  at WeatherHouse.Review.WildlifeInitialPlacementSelfChecks.Run () [0x00721] in <8ad8fc66f51b4ffbb62671477eef863b>:0 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <1071a2cb0cb3433aae80a793c277a048>:0 
+Rethrow as TargetInvocationException: Exception has been thrown by the target of an invocation.
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00083] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.Reflection.MethodBase.Invoke (System.Object obj, System.Object[] parameters) [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at InitialPlacementAuditBatch.Run () [0x00000] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Editor\InitialPlacementAuditBatch.cs:6 
+
+(Filename: Assets/Editor/InitialPlacementAuditBatch.cs Line: 6)
+
+executeMethod method InitialPlacementAuditBatch.Run threw exception.
+Exiting without the bug reporter. Application will terminate with return code 1
