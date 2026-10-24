@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WeatherHouse.Hillside;
@@ -63,6 +64,34 @@ namespace WeatherHouse.WildlifeJourney
         public int RouteChanges { get; private set; }
         public string GroupDecision { get; private set; }
         public bool Paused { get; private set; }
+        [Range(.1f, 8f)] public float planningBudgetMilliseconds = 2f;
+        public bool IsPlanning => pending != null;
+        public double LastPlanningMilliseconds { get; private set; }
+        public double MaximumPlanningUnitMilliseconds { get; private set; }
+        public double MaximumRouteSampleMilliseconds { get; private set; }
+        public int PlanningRequests { get; private set; }
+        public int PlanningCompletions { get; private set; }
+        public int PlanningCancellations { get; private set; }
+
+        private sealed class Plan
+        {
+            public JourneyNavigation navigation;
+            public JourneyMember[] sourceMembers, members;
+            public JourneyProfile[] profiles;
+            public Vector3[] positions, scales;
+            public Quaternion[] rotations;
+            public JourneyMemberState[] states;
+            public JourneyTravelMode[] modes;
+            public bool[] live, arrived;
+            public int version, seed, site, member = -1;
+            public float time, radius;
+            public Vector3 center, destination;
+            public float spentSwimming;
+            public bool success, recovery, finished;
+        }
+        private Plan pending;
+        private IEnumerator planningSteps;
+        private double planningDeadline;
 
         private sealed class Gate
         {
@@ -72,7 +101,6 @@ namespace WeatherHouse.WildlifeJourney
             public float nextAdmission;
         }
         private readonly Dictionary<int, Gate> gates = new Dictionary<int, Gate>();
-        private readonly HashSet<int> excluded = new HashSet<int>();
         private readonly List<JourneyCrowdObstacle> crowdObstacles = new List<JourneyCrowdObstacle>();
         private JourneySocialParticipant[] participants;
         private WildlifeRandom random;
@@ -99,6 +127,9 @@ namespace WeatherHouse.WildlifeJourney
 
         public void Initialize()
         {
+            CancelPlanning();
+            PlanningRequests = PlanningCompletions = PlanningCancellations = 0;
+            MaximumPlanningUnitMilliseconds = MaximumRouteSampleMilliseconds = 0;
             UnregisterSurroundingBodies();
             if (!surroundingPopulation) surroundingPopulation = GetComponentInParent<WildlifePopulation>();
             if (navigation) navigation.playerCollision = surroundingPopulation ? surroundingPopulation.EnsurePlayerCollision() : null;
@@ -148,8 +179,115 @@ namespace WeatherHouse.WildlifeJourney
 
         public bool BeginJourney(int siteIndex)
         {
-            if (!initialized || siteIndex < 0 || siteIndex >= sites.Length) return false;
-            if (Travelling && HasMemberCrossing()) return false;
+            CancelPlanning();
+            if (!RequestJourney(siteIndex)) return false;
+            Plan plan = pending;
+            AdvancePlanning(double.PositiveInfinity);
+            return plan.success;
+        }
+
+        public bool RequestJourney(int siteIndex)
+        {
+            if (pending != null || !initialized || sites == null || siteIndex < 0 || siteIndex >= sites.Length || sites[siteIndex] == null ||
+                (Travelling && HasMemberCrossing())) return false;
+            pending = CapturePlan(siteIndex);
+            planningSteps = PlanJourneySteps(pending);
+            return true;
+        }
+
+        private Plan CapturePlan(int siteIndex, int memberIndex = -1)
+        {
+            PlanningRequests++;
+            int count = members.Length;
+            var plan = new Plan { navigation = navigation, version = navigation.Version, sourceMembers = members,
+                members = (JourneyMember[])members.Clone(), profiles = new JourneyProfile[count], positions = new Vector3[count],
+                rotations = new Quaternion[count], scales = new Vector3[count], states = new JourneyMemberState[count],
+                modes = new JourneyTravelMode[count], live = new bool[count], arrived = new bool[count], seed = seed,
+                site = siteIndex, member = memberIndex, time = SimulationTime,
+                center = sites[siteIndex].center, radius = sites[siteIndex].radius };
+            for (int i = 0; i < count; i++)
+            {
+                JourneyMember m = members[i]; plan.live[i] = Live(m);
+                if (!plan.live[i]) continue;
+                RefreshBody(m); plan.profiles[i] = JourneyNavigation.CopyProfile(m.profile);
+                plan.positions[i] = m.root.position; plan.rotations[i] = m.root.rotation; plan.scales[i] = m.root.lossyScale;
+                plan.states[i] = m.State; plan.modes[i] = m.Mode; plan.arrived[i] = m.Arrived;
+            }
+            if (memberIndex >= 0) { plan.destination = members[memberIndex].destination; plan.spentSwimming = members[memberIndex].ContinuousSwimDistance; }
+            return plan;
+        }
+
+        private bool PlanUnchanged(Plan plan)
+        {
+            if (!navigation || navigation != plan.navigation || navigation.Version != plan.version || members != plan.sourceMembers ||
+                seed != plan.seed || sites == null || plan.site >= sites.Length || sites[plan.site] == null ||
+                !sites[plan.site].center.Equals(plan.center) || sites[plan.site].radius != plan.radius) return false;
+            if (plan.member >= 0 && (members[plan.member] == null || !members[plan.member].destination.Equals(plan.destination) ||
+                members[plan.member].ContinuousSwimDistance != plan.spentSwimming)) return false;
+            for (int i = 0; i < members.Length; i++)
+            {
+                if (plan.member >= 0 && i != plan.member) continue;
+                JourneyMember m = members[i];
+                if (m != plan.members[i] || Live(m) != plan.live[i]) return false;
+                if (!plan.live[i]) continue;
+                if (!JourneyNavigation.SameProfile(m.profile, plan.profiles[i]) || !m.root.position.Equals(plan.positions[i]) ||
+                    !m.root.rotation.Equals(plan.rotations[i]) || !m.root.lossyScale.Equals(plan.scales[i]) ||
+                    m.State != plan.states[i] || m.Mode != plan.modes[i] || m.Arrived != plan.arrived[i] ||
+                    (social && social.IsParticipating(m.id))) return false;
+                // Release the planning hold immediately if the player approaches the body's personal space.
+                if (navigation.playerCollision && navigation.playerCollision.TryObstacle(m.root.position, m.profile.bodyRadius,
+                    out Vector3 playerCenter, out float playerRadius, m.profile.bodyEnvelope) &&
+                    FlatDistance(playerCenter, m.root.position) < m.profile.bodyEnvelope.ContactRadius(m.profile.bodyRadius) + playerRadius + .45f) return false;
+            }
+            return true;
+        }
+
+        public void CancelPlanning()
+        {
+            if (pending != null && !pending.finished) PlanningCancellations++;
+            (planningSteps as IDisposable)?.Dispose(); planningSteps = null; pending = null;
+        }
+
+        private static double PlanningClock => System.Diagnostics.Stopwatch.GetTimestamp() * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+        private double RemainingBudget => Math.Max(0, planningDeadline - PlanningClock);
+        private void AdvancePlanning(double budget)
+        {
+            LastPlanningMilliseconds = 0;
+            if (pending == null) return;
+            double started = PlanningClock;
+            planningDeadline = started + budget;
+            try
+            {
+                if (!PlanUnchanged(pending)) { CancelPlanning(); return; }
+                do
+                {
+                    double unitStarted = PlanningClock;
+                    bool more = planningSteps.MoveNext();
+                    MaximumPlanningUnitMilliseconds = Math.Max(MaximumPlanningUnitMilliseconds, PlanningClock - unitStarted);
+                    if (!more)
+                    {
+                        Plan finished = pending;
+                        finished.finished = true; PlanningCompletions++;
+                        CancelPlanning();
+                        if (!finished.success && finished.member < 0)
+                        {
+                            GroupDecision = "目的地容不下全群或并非每位成员可达，继续寻找可会合区域";
+                            stayUntil = SimulationTime + 5f;
+                            if (finished.recovery) journeyStarted = SimulationTime;
+                        }
+                        return;
+                    }
+                } while (RemainingBudget > 0);
+            }
+            catch { CancelPlanning(); throw; }
+            finally { LastPlanningMilliseconds = PlanningClock - started; }
+        }
+
+        private IEnumerator PlanJourneySteps(Plan plan)
+        {
+            int siteIndex = plan.site;
+            if (!initialized || siteIndex < 0 || siteIndex >= sites.Length) yield break;
+            if (Travelling && HasMemberCrossing()) yield break;
             var routes = new JourneyRoute[members.Length];
             var destinations = new Vector3[members.Length];
             int liveCount = 0; float spacing = .1f, bodyRadius = 0; JourneyProfile widest = null;
@@ -160,16 +298,19 @@ namespace WeatherHouse.WildlifeJourney
                 bodyRadius = Mathf.Max(bodyRadius, member.profile.bodyRadius, member.bodyLength * .5f);
                 if (widest == null || member.profile.bodyRadius > widest.bodyRadius) widest = member.profile;
             }
-            if (liveCount == 0) return false;
+            if (liveCount == 0) yield break;
             bool planned = false;
             // Place an irregular, evenly spaced group, then verify everyone's independent route before committing anyone.
             for (int attempt = 0; attempt < 4 && !planned; attempt++)
             {
-                int placementSeed = unchecked(seed + siteIndex * 73856093 + (int)(SimulationTime * 1000) + attempt * 19349663);
-                if (!JourneyScatter.TryCreate(sites[siteIndex].center, sites[siteIndex].radius, spacing,
-                    liveCount, placementSeed, out Vector3[] goals,
+                int placementSeed = unchecked(plan.seed + siteIndex * 73856093 + (int)(plan.time * 1000) + attempt * 19349663);
+                Vector3[] goals = null;
+                IEnumerator operation = JourneyScatter.CreateSteps(plan.center, plan.radius, spacing,
+                    liveCount, placementSeed, value => goals = value,
                     point => navigation.TryProject(widest, point, out Vector3 ground, out JourneyTravelMode groundMode) &&
-                        groundMode == JourneyTravelMode.Walk && ClearSurroundingPlace(ground, bodyRadius, widest.bodyEnvelope))) continue;
+                        groundMode == JourneyTravelMode.Walk && ClearSurroundingPlace(ground, bodyRadius, widest.bodyEnvelope));
+                while (operation.MoveNext()) yield return null;
+                if (goals == null) continue;
                 int selected = 0; planned = true;
                 for (int i = 0; i < members.Length; i++)
                 {
@@ -179,15 +320,37 @@ namespace WeatherHouse.WildlifeJourney
                     if (!navigation.TryProject(m.profile, goal, out goal, out JourneyTravelMode mode) || mode != JourneyTravelMode.Walk ||
                         !ClearSurroundingPlace(goal, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), m.profile.bodyEnvelope))
                     { planned = false; break; }
-                    routes[i] = navigation.FindRoute(m.root.position, goal, m.profile);
+                    using (JourneyNavigation.RouteSearch search = navigation.CreateSearch(plan.positions[i], goal, m.profile))
+                    {
+                        while (search.Status == JourneyNavigation.SearchStatus.Pending)
+                        { search.Advance(RemainingBudget); yield return null; }
+                        MaximumRouteSampleMilliseconds = Math.Max(MaximumRouteSampleMilliseconds, search.MaximumWorkUnitMilliseconds);
+                        routes[i] = search.Result;
+                    }
                     if (routes[i] == null) { planned = false; break; }
                     var original = new List<JourneySegment>(routes[i].segments);
-                    JourneyRouteVariation.Apply(navigation, m.profile, routes[i], (m.phase - .5f) * 2f * travelSpread, 0f, unchecked(seed * 397 ^ m.id));
-                    if (!navigation.BodyRouteClear(m.profile, routes[i])) routes[i].segments = original;
+                    operation = JourneyRouteVariation.ApplySteps(navigation, m.profile, routes[i], (m.phase - .5f) * 2f * travelSpread, 0f, unchecked(plan.seed * 397 ^ m.id));
+                    while (operation.MoveNext()) yield return null;
+                    bool clear = false;
+                    operation = navigation.ValidateRouteSteps(m.profile, routes[i], 0, value => clear = value);
+                    while (operation.MoveNext()) yield return null;
+                    if (!clear) routes[i].segments = original;
                     destinations[i] = goal;
                 }
             }
-            if (!planned) { GroupDecision = "目的地容不下全群或并非每位成员可达，继续寻找可会合区域"; return false; }
+            if (!planned) yield break;
+            // All proposed routes remain private until every member has passed the fresh checks.
+            for (int i = 0; i < members.Length; i++)
+            {
+                JourneyMember m = members[i]; if (!Live(m)) continue;
+                bool clear = false;
+                IEnumerator operation = navigation.ValidateRouteSteps(m.profile, routes[i], 0, value => clear = value);
+                while (operation.MoveNext()) yield return null;
+                if (!clear || !ClearSurroundingPlace(destinations[i], Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), m.profile.bodyEnvelope)) yield break;
+            }
+            if (!PlanUnchanged(plan)) yield break;
+            for (int i = 0; i < members.Length; i++)
+                if (Live(members[i]) && !CanStartRoute(members[i], routes[i])) yield break;
             previousSite = TargetSite; TargetSite = siteIndex;
             Travelling = true; journeyStarted = SimulationTime; gates.Clear();
             for (int i = 0; i < members.Length; i++)
@@ -202,7 +365,8 @@ namespace WeatherHouse.WildlifeJourney
                 m.LastDecision = m.profile.canSwim ? "比较水路与陆路后出发" : "沿可步行路线前往会合点";
             }
             GroupDecision = "前往 " + sites[siteIndex].name + "；允许分队，会合后再继续";
-            return true;
+            if (plan.recovery) { recovery = true; GroupDecision = "重新选择全员可达的会合地"; }
+            plan.success = true;
         }
 
         public void Simulate(float deltaTime)
@@ -212,18 +376,22 @@ namespace WeatherHouse.WildlifeJourney
             foreach (JourneyMember member in members) if (Live(member)) RefreshBody(member);
             SimulationTime += dt;
             RestoreBodyLanguage();
+            if (pending != null && !PlanUnchanged(pending))
+            { CancelPlanning(); stayUntil = Mathf.Max(stayUntil, SimulationTime + decisionInterval); }
             if (SimulationTime >= decisionAt)
             {
                 decisionAt = SimulationTime + Mathf.Max(.1f, decisionInterval);
                 Decide();
             }
+            AdvancePlanning(Mathf.Clamp(planningBudgetMilliseconds, .1f, 8f));
             for (int i = 0; i < members.Length; i++)
             {
                 JourneyMember m = members[i];
                 if (!Live(m)) continue;
                 m.hunger = Mathf.Clamp01(m.hunger + dt * (m.State == JourneyMemberState.Forage ? -.045f : .004f));
                 m.fatigue = Mathf.Clamp01(m.fatigue + dt * (m.ActualSpeed > .1f ? .007f : -.012f));
-                if (social && social.IsParticipating(m.id)) SocialMove(m, dt);
+                if (pending != null && (pending.member < 0 || members[pending.member] == m)) m.ActualSpeed = 0;
+                else if (social && social.IsParticipating(m.id)) SocialMove(m, dt);
                 else if (Travelling && !m.Arrived) Travel(m, dt);
                 else Loiter(m, dt);
                 Animate(m, dt);
@@ -241,6 +409,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private bool CanSocialize(JourneyMember member)
         {
+            if (pending != null && (pending.member < 0 || members[pending.member] == member)) return false;
             if (!Live(member) || member.sociability <= 0 || member.bridge != 0 ||
                 member.Mode != JourneyTravelMode.Walk || member.crowdPath != null) return false;
             if (member.Arrived) return true;
@@ -257,6 +426,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private void Decide()
         {
+            if (pending != null) return;
             foreach (Gate gate in gates.Values)
             {
                 gate.queue.RemoveAll(id => !IsLiveId(id));
@@ -280,7 +450,7 @@ namespace WeatherHouse.WildlifeJourney
                 else if (!recovery)
                 {
                     int fallback = previousSite;
-                    if (BeginJourney(fallback)) { recovery = true; GroupDecision = "重新选择全员可达的会合地"; }
+                    if (RequestJourney(fallback)) pending.recovery = true;
                     else { journeyStarted = SimulationTime; GroupDecision = "同伴受阻，留在安全处等待通路恢复"; }
                 }
                 else journeyStarted = SimulationTime;
@@ -299,7 +469,7 @@ namespace WeatherHouse.WildlifeJourney
                     FlatDistance(sites[i].center, sites[TargetSite].center) * .008f + random.Range(0, .15f);
                 if (score > bestScore) { bestScore = score; best = i; }
             }
-            if (best >= 0 && !BeginJourney(best)) stayUntil = SimulationTime + 5f;
+            if (best >= 0 && !RequestJourney(best)) stayUntil = SimulationTime + 5f;
         }
 
         private void Travel(JourneyMember m, float dt)
@@ -309,17 +479,11 @@ namespace WeatherHouse.WildlifeJourney
             if (m.route == null)
             {
                 m.State = JourneyMemberState.Regrouping;
-                if (SimulationTime < m.retryAt) return;
+                if (SimulationTime < m.retryAt || pending != null) return;
                 m.crowdPath = null;
-                excluded.Clear();
-                foreach (var pair in m.failures) if (pair.Value > SimulationTime) excluded.Add(pair.Key);
-                m.route = navigation.FindRoute(m.root.position, m.destination, m.profile, excluded, m.ContinuousSwimDistance);
-                m.retryAt = SimulationTime + 3f; m.segment = 0;
-                if (m.route == null) { m.LastDecision = "记住受阻路段，等待或寻找其他通路"; return; }
-                var original = new List<JourneySegment>(m.route.segments);
-                JourneyRouteVariation.Apply(navigation, m.profile, m.route, (m.phase - .5f) * 2f * travelSpread, m.ContinuousSwimDistance, unchecked(seed * 397 ^ m.id));
-                if (!navigation.BodyRouteClear(m.profile, m.route)) m.route.segments = original;
-                RouteChanges++; m.LastDecision = "找到新的可行路线";
+                pending = CapturePlan(TargetSite, Array.IndexOf(members, m));
+                planningSteps = ReplanSteps(pending);
+                return;
             }
             while (m.segment < m.route.segments.Count && (m.segment == m.route.segments.Count - 1
                 ? FlatDistance(m.root.position, m.route.segments[m.segment].to) < (m.route.segments[m.segment].surfaceBoundary ? .001f : .18f)
@@ -388,6 +552,53 @@ namespace WeatherHouse.WildlifeJourney
             Move(m, projected, dt);
             m.LastDecision = mode == JourneyTravelMode.Swim ? "保持水面浮泳，前往可上岸处" :
                 mode == JourneyTravelMode.Wade ? "脚踩浅水底缓慢涉水" : m.bridge != 0 ? "沿桥面依次通过" : "沿自己的路线跟进";
+        }
+
+        private IEnumerator ReplanSteps(Plan plan)
+        {
+            JourneyMember m = members[plan.member];
+            var blocked = new HashSet<int>();
+            foreach (var pair in m.failures) if (pair.Value > plan.time) blocked.Add(pair.Key);
+            JourneyRoute route;
+            using (JourneyNavigation.RouteSearch search = navigation.CreateSearch(plan.positions[plan.member], plan.destination, m.profile, blocked, plan.spentSwimming))
+            {
+                while (search.Status == JourneyNavigation.SearchStatus.Pending)
+                { search.Advance(RemainingBudget); yield return null; }
+                MaximumRouteSampleMilliseconds = Math.Max(MaximumRouteSampleMilliseconds, search.MaximumWorkUnitMilliseconds);
+                route = search.Result;
+            }
+            if (route != null)
+            {
+                var original = new List<JourneySegment>(route.segments);
+                IEnumerator operation = JourneyRouteVariation.ApplySteps(navigation, m.profile, route,
+                    (m.phase - .5f) * 2f * travelSpread, m.ContinuousSwimDistance, unchecked(plan.seed * 397 ^ m.id));
+                while (operation.MoveNext()) yield return null;
+                bool clear = false;
+                operation = navigation.ValidateRouteSteps(m.profile, route, m.ContinuousSwimDistance, value => clear = value);
+                while (operation.MoveNext()) yield return null;
+                if (!clear)
+                {
+                    route.segments = original;
+                    operation = navigation.ValidateRouteSteps(m.profile, route, m.ContinuousSwimDistance, value => clear = value);
+                    while (operation.MoveNext()) yield return null;
+                    if (!clear) route = null;
+                }
+            }
+            if (!PlanUnchanged(plan)) yield break;
+            if (route != null && !CanStartRoute(m, route)) route = null;
+            m.route = route; m.retryAt = SimulationTime + 3f; m.segment = 0;
+            if (route == null) { m.LastDecision = "记住受阻路段，等待或寻找其他通路"; yield break; }
+            RouteChanges++; m.LastDecision = "找到新的可行路线"; plan.success = true;
+        }
+
+        private bool CanStartRoute(JourneyMember member, JourneyRoute route)
+        {
+            if (route == null) return false;
+            if (route.segments.Count == 0) return true;
+            JourneySegment first = route.segments[0];
+            Quaternion heading = WildlifeBodyEnvelope.Heading(first.to - first.from, member.root.rotation);
+            return navigation.CanMoveBody(member.profile, member.root.position, member.root.rotation, member.root.position, heading) &&
+                navigation.TryStep(member.profile, member.root.position, first.to, out _, out _);
         }
 
         private bool AdmitBridge(JourneyMember m, JourneySegment segment)
@@ -921,7 +1132,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private void DisposeAnimations()
         { foreach (JourneyMember m in members) if (m != null && m.animation != null) { m.animation.Dispose(); m.animation = null; } }
-        private void OnDisable() { UnregisterSurroundingBodies(); RestoreBodyLanguage(); DisposeAnimations(); }
-        private void OnDestroy() { UnregisterSurroundingBodies(); DisposeAnimations(); }
+        private void OnDisable() { CancelPlanning(); UnregisterSurroundingBodies(); RestoreBodyLanguage(); DisposeAnimations(); }
+        private void OnDestroy() { CancelPlanning(); UnregisterSurroundingBodies(); DisposeAnimations(); }
     }
 }

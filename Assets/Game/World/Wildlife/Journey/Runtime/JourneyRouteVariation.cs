@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,19 +10,28 @@ namespace WeatherHouse.WildlifeJourney
         public static void Apply(JourneyNavigation navigation, JourneyProfile profile, JourneyRoute route, float lateral,
             float spentSwimming = 0, int noiseSeed = 0)
         {
-            if (route == null || route.segments.Count < 2 || Mathf.Abs(lateral) < .02f) return;
+            IEnumerator steps = ApplySteps(navigation, profile, route, lateral, spentSwimming, noiseSeed);
+            while (steps.MoveNext()) { }
+        }
+
+        internal static IEnumerator ApplySteps(JourneyNavigation navigation, JourneyProfile profile, JourneyRoute route, float lateral,
+            float spentSwimming = 0, int noiseSeed = 0)
+        {
+            if (route == null || route.segments.Count < 2 || Mathf.Abs(lateral) < .02f) yield break;
             var varied = new List<JourneySegment>(route.segments);
             for (int first = 0; first < varied.Count;)
             {
                 if (!OpenGround(varied[first])) { first++; continue; }
                 int end = first + 1;
                 while (end < varied.Count && OpenGround(varied[end])) end++;
-                VaryGround(navigation, profile, varied, first, end, lateral, noiseSeed);
+                IEnumerator operation = VaryGround(navigation, profile, varied, first, end, lateral, noiseSeed);
+                while (operation.MoveNext()) yield return null;
                 first = end;
             }
             float cost = 0;
             foreach (JourneySegment segment in varied)
             {
+                yield return null;
                 float speed = segment.mode == JourneyTravelMode.Swim ? profile.swimSpeed : profile.walkSpeed;
                 float penalty = 1 + Mathf.Max(0, profile.waterAversion) * (segment.mode == JourneyTravelMode.Swim ? 1 : segment.mode == JourneyTravelMode.Wade ? .5f : 0);
                 cost += Vector3.Distance(segment.from, segment.to) / Mathf.Max(.01f, speed) * penalty;
@@ -34,7 +44,7 @@ namespace WeatherHouse.WildlifeJourney
             return segment.mode == JourneyTravelMode.Walk && segment.bridgeId == 0 && !segment.surfaceBoundary;
         }
 
-        private static void VaryGround(JourneyNavigation nav, JourneyProfile profile, List<JourneySegment> segments,
+        private static IEnumerator VaryGround(JourneyNavigation nav, JourneyProfile profile, List<JourneySegment> segments,
             int first, int end, float lateral, int seed)
         {
             int count = end - first + 1;
@@ -46,17 +56,19 @@ namespace WeatherHouse.WildlifeJourney
             original[0] = segments[first].from;
             for (int i = 1; i < count; i++)
             {
+                yield return null;
                 original[i] = segments[first + i - 1].to;
                 distance[i] = distance[i - 1] + FlatDistance(original[i - 1], original[i]);
             }
             float length = distance[count - 1];
-            if (length < .1f) return;
+            if (length < .1f) yield break;
             float startPin = first > 0 && segments[first - 1].bridgeId != 0 ? 1.2f : 0;
             float endPin = end < segments.Count && segments[end].bridgeId != 0 ? 1.2f : 0;
             float ramp = Mathf.Min(3f, length * .25f);
             float noiseX = (uint)seed % 8191 * .17f, noiseY = ((uint)seed >> 13) * .013f;
             for (int i = 1; i < count - 1; i++)
             {
+                yield return null;
                 Vector3 heading = original[i + 1] - original[i - 1]; heading.y = 0;
                 float taper = Mathf.SmoothStep(0, 1, (distance[i] - startPin) / ramp) *
                     Mathf.SmoothStep(0, 1, (length - distance[i] - endPin) / ramp);
@@ -64,7 +76,8 @@ namespace WeatherHouse.WildlifeJourney
                 offsets[i] = Vector3.Cross(Vector3.up, heading.normalized) * (lateral * taper * noise);
                 scale[i] = 1;
                 // Verify the lateral corridor too, so an offset cannot jump across a thin water strip or obstacle.
-                while (scale[i] > .1f && !Walk(nav, profile, original[i], original[i] + offsets[i] * scale[i], out _)) scale[i] *= .5f;
+                while (scale[i] > .1f && !Walk(nav, profile, original[i], original[i] + offsets[i] * scale[i], out _))
+                { scale[i] *= .5f; yield return null; }
                 if (scale[i] <= .1f) scale[i] = 0;
             }
             // Narrow only around rejected points, spreading the contraction over nearby route distance.
@@ -73,14 +86,20 @@ namespace WeatherHouse.WildlifeJourney
                 SmoothCaps(scale, distance);
                 points[0] = original[0]; points[count - 1] = original[count - 1];
                 for (int i = 1; i < count - 1; i++)
+                {
+                    yield return null;
                     if (!nav.TryProject(profile, original[i] + offsets[i] * scale[i], out points[i], out JourneyTravelMode mode) || mode != JourneyTravelMode.Walk)
                     { scale[i] = 0; points[i] = original[i]; }
+                }
                 bool valid = true;
                 for (int i = 1; i < count; i++)
+                {
+                    yield return null;
                     if (!Forward(original[i - 1], original[i], points[i - 1], points[i]) ||
                         !Walk(nav, profile, points[i - 1], points[i], out _))
                     { scale[i - 1] = scale[i] = 0; valid = false; }
-                if (valid) { Commit(segments, first, points); return; }
+                }
+                if (valid) { Commit(segments, first, points); yield break; }
             }
             // Each accepted fallback keeps a verified escape to the next original point; failure stays local.
             points[0] = original[0];
@@ -89,6 +108,7 @@ namespace WeatherHouse.WildlifeJourney
                 float cap = scale[i]; bool accepted = false;
                 for (int attempt = 0; attempt < 5; attempt++)
                 {
+                    yield return null;
                     Vector3 candidate = original[i] + offsets[i] * cap;
                     if (Forward(original[i - 1], original[i], points[i - 1], candidate) &&
                         Walk(nav, profile, points[i - 1], candidate, out Vector3 projected) &&
@@ -97,7 +117,7 @@ namespace WeatherHouse.WildlifeJourney
                     { points[i] = projected; accepted = true; break; }
                     cap = attempt < 3 ? cap * .5f : 0;
                 }
-                if (!accepted) return;
+                if (!accepted) yield break;
             }
             Commit(segments, first, points);
         }

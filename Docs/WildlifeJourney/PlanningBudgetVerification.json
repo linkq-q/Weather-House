@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "Existing navigation algorithm advanced across frames; independent bridge/map corrections excluded.",
+  "logic": "Frozen logic-green-final, actual Unity physics, OS exit 0; water/bridge boundaries, dynamic obstacles, invalidation/cancellation, group atomicity, live replan, prior 18 navigation checks.",
+  "natural_fixed_scene": {
+    "baseline_peak_herd_ms": 272.888,
+    "candidate_peak_herd_ms": 4.028,
+    "candidate_total_planning_cpu_ms": 455.0,
+    "completed": 1,
+    "cancelled": 0,
+    "whole_group_route": "NoRoute, unchanged existing map issue"
+  },
+  "budget": "2 ms cooperative target; indivisible work may overshoot; no total CPU reduction claim.",
+  "main_play": {
+    "movement_water_fence": "20261024_165202_644_lifecycle_candidate PASS, 81 images; normal controller 2.925 m/s",
+    "runtime": "20261024_165311_498_lifecycle_candidate PASS, 20 s after warmup; actual saved scene, no source errors",
+    "scene_unchanged": true,
+    "notebook_restored": true,
+    "returned_edit_clean": true
+  },
+  "evidence": "JourneyReview/Revision_20261024/Departure/MainPlanning/Incremental/verification.txt"
+}

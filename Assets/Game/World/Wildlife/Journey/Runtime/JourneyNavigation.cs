@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WeatherHouse.Hillside;
@@ -296,7 +297,7 @@ namespace WeatherHouse.WildlifeJourney
                 rise / horizontal <= Mathf.Tan(Mathf.Clamp(maxSlope, 0, 89) * Mathf.Deg2Rad);
         }
 
-        private sealed class Edge
+        internal sealed class Edge
         {
             public List<JourneySegment> segments = new List<JourneySegment>();
             public float cost, swimDistance;
@@ -324,12 +325,130 @@ namespace WeatherHouse.WildlifeJourney
         // Graph links describe candidate connectivity. Their actual geometry is checked on every search.
         public JourneyRoute FindRoute(Vector3 start, Vector3 goal, JourneyProfile profile, ISet<int> blockedLinks = null, float initialSwimDistance = 0f)
         {
+            using (RouteSearch search = CreateSearch(start, goal, profile, blockedLinks, initialSwimDistance))
+            {
+                search.Advance(double.PositiveInfinity);
+                return search.Result;
+            }
+        }
+
+        public enum SearchStatus { Pending, Found, NoRoute, Invalidated }
+
+        public RouteSearch CreateSearch(Vector3 start, Vector3 goal, JourneyProfile profile, ISet<int> blockedLinks = null, float initialSwimDistance = 0f)
+        { return new RouteSearch(this, start, goal, profile, blockedLinks, initialSwimDistance); }
+
+        public sealed class RouteSearch : IDisposable
+        {
+            public SearchStatus Status { get; private set; } = SearchStatus.Pending;
+            public JourneyRoute Result { get; private set; }
+            public int WorkUnits { get; private set; }
+            public double LastAdvanceMilliseconds { get; private set; }
+            public double MaximumWorkUnitMilliseconds { get; private set; }
+            internal int slice;
+            internal bool sliced;
+            internal readonly Dictionary<(int node, int link, float swim), Edge> tracedLinks = new Dictionary<(int, int, float), Edge>();
+            private readonly JourneyNavigation navigation;
+            private readonly JourneyProfile source, profile;
+            private readonly ISet<int> sourceBlocked;
+            private readonly HashSet<int> blocked;
+            private readonly int version;
+            private readonly JourneyNode[] nodes;
+            private readonly JourneyLink[] links;
+            private readonly JourneyBridgeSurface[] bridges;
+            private readonly JourneyWaterArea[] waterAreas;
+            private readonly Terrain terrain;
+            private readonly WeatherHouse.WorldWaterSurface water;
+            private readonly Func<Vector3, JourneySurface> sampler;
+            private readonly Vector3 ownerPosition, ownerScale;
+            private readonly Quaternion ownerRotation;
+            private readonly bool hadOwner;
+            private readonly float spacing, slope, step, endpoint, immersion, probe;
+            private readonly int groundMask, obstacleMask;
+            private IEnumerator steps;
+
+            internal RouteSearch(JourneyNavigation navigation, Vector3 start, Vector3 goal, JourneyProfile source, ISet<int> blockedLinks, float initialSwimDistance)
+            {
+                this.navigation = navigation; this.source = source; sourceBlocked = blockedLinks;
+                profile = CopyProfile(source); blocked = blockedLinks == null ? null : new HashSet<int>(blockedLinks);
+                version = navigation.Version; nodes = navigation.nodes; links = navigation.links;
+                bridges = navigation.bridges; waterAreas = navigation.waterAreas; terrain = navigation.terrain;
+                water = navigation.worldWaterSurface; sampler = navigation.surfaceSampler;
+                spacing = navigation.sampleSpacing; slope = navigation.maxSlope; step = navigation.maxStepHeight;
+                endpoint = navigation.endpointConnectionRadius; immersion = navigation.floatOffset; probe = navigation.surfaceProbeHeight;
+                groundMask = navigation.groundMask; obstacleMask = navigation.obstacleMask;
+                hadOwner = source != null && source.bodyOwner;
+                if (hadOwner) { ownerPosition = source.bodyOwner.position; ownerRotation = source.bodyOwner.rotation; ownerScale = source.bodyOwner.lossyScale; }
+                steps = navigation.SearchSteps(start, goal, profile, blocked, initialSwimDistance, this);
+            }
+
+            public void Advance(double budgetMilliseconds)
+            {
+                if (Status != SearchStatus.Pending || budgetMilliseconds <= 0 || double.IsNaN(budgetMilliseconds)) return;
+                long started = System.Diagnostics.Stopwatch.GetTimestamp();
+                try
+                {
+                    if (!Unchanged()) { Cancel(); return; }
+                    // Physics results are reusable only inside this uninterrupted main-thread slice.
+                    slice++; tracedLinks.Clear();
+                    do
+                    {
+                        long unitStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+                        bool more = steps.MoveNext();
+                        MaximumWorkUnitMilliseconds = Math.Max(MaximumWorkUnitMilliseconds, Elapsed(unitStarted));
+                        if (!more) { if (Status == SearchStatus.Pending) Complete(null); return; }
+                        WorkUnits++;
+                    }
+                    while (Status == SearchStatus.Pending && Elapsed(started) < budgetMilliseconds);
+                    sliced = Status == SearchStatus.Pending;
+                }
+                finally { LastAdvanceMilliseconds = Elapsed(started); }
+            }
+
+            private bool Unchanged()
+            {
+                if (!navigation || navigation.Version != version || !SameProfile(source, profile) ||
+                    navigation.nodes != nodes || navigation.links != links || navigation.bridges != bridges || navigation.waterAreas != waterAreas ||
+                    navigation.terrain != terrain || navigation.worldWaterSurface != water || navigation.surfaceSampler != sampler ||
+                    navigation.sampleSpacing != spacing || navigation.maxSlope != slope || navigation.maxStepHeight != step ||
+                    navigation.endpointConnectionRadius != endpoint || navigation.floatOffset != immersion || navigation.surfaceProbeHeight != probe ||
+                    navigation.groundMask.value != groundMask || navigation.obstacleMask.value != obstacleMask ||
+                    (sourceBlocked != null && !blocked.SetEquals(sourceBlocked))) return false;
+                return !hadOwner || (source.bodyOwner && source.bodyOwner.position.Equals(ownerPosition) &&
+                    source.bodyOwner.rotation.Equals(ownerRotation) && source.bodyOwner.lossyScale.Equals(ownerScale));
+            }
+
+            internal void Complete(JourneyRoute route) { Result = route; Status = route == null ? SearchStatus.NoRoute : SearchStatus.Found; }
+            public void Cancel() { Result = null; Status = SearchStatus.Invalidated; DisposeSteps(); }
+            public void Dispose() { if (Status == SearchStatus.Pending) Cancel(); else DisposeSteps(); }
+            private void DisposeSteps() { (steps as IDisposable)?.Dispose(); steps = null; tracedLinks.Clear(); }
+            private static double Elapsed(long started) => (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+        }
+
+        internal static JourneyProfile CopyProfile(JourneyProfile value)
+        {
+            return value == null ? null : new JourneyProfile { bodyRadius = value.bodyRadius, wadeDepth = value.wadeDepth,
+                canSwim = value.canSwim, maxSwimDistance = value.maxSwimDistance, walkSpeed = value.walkSpeed,
+                swimSpeed = value.swimSpeed, waterAversion = value.waterAversion, waterlineHeight = value.waterlineHeight,
+                bodyEnvelope = value.bodyEnvelope, bodyHeading = value.bodyHeading, bodyOwner = value.bodyOwner };
+        }
+        internal static bool SameProfile(JourneyProfile a, JourneyProfile b)
+        {
+            return a == null || b == null ? a == b : a.bodyRadius == b.bodyRadius && a.wadeDepth == b.wadeDepth &&
+                a.canSwim == b.canSwim && a.maxSwimDistance == b.maxSwimDistance && a.walkSpeed == b.walkSpeed &&
+                a.swimSpeed == b.swimSpeed && a.waterAversion == b.waterAversion && a.waterlineHeight == b.waterlineHeight &&
+                a.bodyEnvelope.Equals(b.bodyEnvelope) && a.bodyHeading.Equals(b.bodyHeading) && a.bodyOwner == b.bodyOwner;
+        }
+
+        private IEnumerator SearchSteps(Vector3 start, Vector3 goal, JourneyProfile profile, ISet<int> blockedLinks, float initialSwimDistance, RouteSearch search)
+        {
             if (!Finite(start) || !Finite(goal) || !Finite(initialSwimDistance) || initialSwimDistance < 0 ||
-                profile == null || profile.walkSpeed <= 0 || nodes == null || links == null) return null;
-            List<SearchState> states = Attachments(start, profile, initialSwimDistance), exits = Attachments(goal, profile, 0, true);
-            if (states.Count == 0 || exits.Count == 0) return null;
-            // Reuse only inside this synchronous search; cross-frame reuse would miss scene or profile changes.
-            var tracedLinks = new Dictionary<(int node, int link, float swim), Edge>();
+                profile == null || profile.walkSpeed <= 0 || nodes == null || links == null) yield break;
+            var states = new List<SearchState>(); var exits = new List<SearchState>();
+            IEnumerator operation = AttachmentSteps(start, profile, initialSwimDistance, states);
+            while (operation.MoveNext()) yield return null;
+            operation = AttachmentSteps(goal, profile, 0, exits, true);
+            while (operation.MoveNext()) yield return null;
+            if (states.Count == 0 || exits.Count == 0) yield break;
             JourneyRoute bestRoute = null;
             float bestCost = float.PositiveInfinity;
             float fastest = Mathf.Max(.01f, Mathf.Max(profile.walkSpeed, profile.canSwim ? profile.swimSpeed : 0));
@@ -342,14 +461,27 @@ namespace WeatherHouse.WildlifeJourney
                     float score = candidate.cost + Horizontal(nodes[candidate.node].position, goal) / fastest;
                     if (score < best) { current = candidate; best = score; }
                 }
-                if (current == null || best >= bestCost) return bestRoute;
+                if (current == null || best >= bestCost)
+                {
+                    if (bestRoute != null && search.sliced)
+                    {
+                        bool valid = false;
+                        operation = ValidateRouteSteps(profile, bestRoute, initialSwimDistance, value => valid = value);
+                        while (operation.MoveNext()) yield return null;
+                        if (!valid) bestRoute = null;
+                    }
+                    search.Complete(bestRoute); yield break;
+                }
                 current.closed = true;
                 foreach (SearchState attachment in exits)
                 {
                     if (attachment.node != current.node) continue;
-                    Edge exit = Connector(nodes[current.node].position, goal, profile, current.swimDistance, attachment.edge.pivot);
+                    Edge exit = null;
+                    operation = ConnectorSteps(nodes[current.node].position, goal, profile, current.swimDistance, attachment.edge.pivot, value => exit = value);
+                    while (operation.MoveNext()) yield return null;
                     if (exit != null && JoinClear(profile, current, exit) && current.cost + exit.cost < bestCost)
                     { bestCost = current.cost + exit.cost; bestRoute = Assemble(current, exit); }
+                    yield return null;
                 }
                 for (int i = 0; i < links.Length; i++)
                 {
@@ -358,12 +490,16 @@ namespace WeatherHouse.WildlifeJourney
                     int next = link.from == current.node ? link.to : link.bidirectional && link.to == current.node ? link.from : -1;
                     if (next < 0 || next >= nodes.Length || nodes[next] == null) continue;
                     var key = (current.node, i, current.swimDistance);
-                    if (!tracedLinks.TryGetValue(key, out Edge edge))
+                    if (!search.tracedLinks.TryGetValue(key, out Edge edge))
                     {
-                        edge = Trace(nodes[current.node].position, nodes[next].position, profile, i, link.bridgeId, current.swimDistance);
-                        tracedLinks.Add(key, edge);
+                        int slice = search.slice;
+                        operation = TraceSteps(nodes[current.node].position, nodes[next].position, profile, i, link.bridgeId, current.swimDistance, value => edge = value);
+                        while (operation.MoveNext()) yield return null;
+                        if (slice == search.slice) search.tracedLinks[key] = edge;
                     }
-                    if (edge == null || !JoinClear(profile, current, edge)) continue;
+                    bool joined = edge != null && JoinClear(profile, current, edge);
+                    yield return null;
+                    if (!joined) continue;
                     float cost = current.cost + edge.cost; bool dominated = false;
                     // A cheaper path with more swimming fatigue must not erase a viable rested arrival.
                     foreach (SearchState seen in states)
@@ -374,13 +510,13 @@ namespace WeatherHouse.WildlifeJourney
                     foreach (SearchState seen in states)
                         if (seen.node == next && SameApproach(seen.edge, edge) && cost <= seen.cost && edge.swimDistance <= seen.swimDistance) seen.discarded = true;
                     states.Add(new SearchState { node = next, cost = cost, swimDistance = edge.swimDistance, parent = current, edge = edge });
+                    yield return null;
                 }
             }
         }
 
-        private List<SearchState> Attachments(Vector3 position, JourneyProfile profile, float initialSwimDistance, bool exit = false)
+        private IEnumerator AttachmentSteps(Vector3 position, JourneyProfile profile, float initialSwimDistance, List<SearchState> result, bool exit = false)
         {
-            var result = new List<SearchState>();
             int exact = -1;
             for (int i = 0; i < nodes.Length; i++)
                 if (nodes[i] != null && Horizontal(position, nodes[i].position) < .001f) { exact = i; break; }
@@ -388,12 +524,15 @@ namespace WeatherHouse.WildlifeJourney
             {
                 if (nodes[i] == null || (exact >= 0 && i != exact) ||
                     Horizontal(position, nodes[i].position) > Mathf.Max(0, endpointConnectionRadius)) continue;
-                Edge candidate = exit ? Trace(nodes[i].position, position, profile, -1, 0, initialSwimDistance) :
-                    Trace(position, nodes[i].position, profile, -1, 0, initialSwimDistance);
+                Edge candidate = null;
+                IEnumerator operation = TraceSteps(exit ? nodes[i].position : position, exit ? position : nodes[i].position,
+                    profile, -1, 0, initialSwimDistance, value => candidate = value);
+                while (operation.MoveNext()) yield return null;
                 if (candidate == null || (!exit && !StartTurnClear(profile, position, candidate))) continue;
                 result.Add(new SearchState { node = i, cost = candidate.cost, swimDistance = candidate.swimDistance, edge = candidate });
+                yield return null;
             }
-            if (result.Count > 0 || exact >= 0) return result;
+            if (result.Count > 0 || exact >= 0) yield break;
             // A newly blocked straight attachment may still have a safe local route around its corner.
             // Only a disconnected endpoint needs these bounded probes; explicit graph-node identity is retained.
             foreach (float radius in CornerRadii)
@@ -401,54 +540,76 @@ namespace WeatherHouse.WildlifeJourney
                     for (int i = 0; i < nodes.Length; i++)
                     {
                         if (nodes[i] == null || Horizontal(position, nodes[i].position) > Mathf.Max(0, endpointConnectionRadius)) continue;
-                        Edge edge = exit ? Connector(nodes[i].position, position, profile, initialSwimDistance, position + direction * radius) :
-                            Connector(position, nodes[i].position, profile, initialSwimDistance, position + direction * radius);
+                        Edge edge = null;
+                        IEnumerator operation = ConnectorSteps(exit ? nodes[i].position : position, exit ? position : nodes[i].position,
+                            profile, initialSwimDistance, position + direction * radius, value => edge = value);
+                        while (operation.MoveNext()) yield return null;
                         if (edge == null || (!exit && !StartTurnClear(profile, position, edge))) continue;
                         bool dominated = result.Exists(s => s.node == i && SameApproach(s.edge, edge) && s.cost <= edge.cost && s.swimDistance <= edge.swimDistance);
                         if (dominated) continue;
                         result.RemoveAll(s => s.node == i && SameApproach(s.edge, edge) && edge.cost <= s.cost && edge.swimDistance <= s.swimDistance);
                         result.Add(new SearchState { node = i, cost = edge.cost, swimDistance = edge.swimDistance, edge = edge });
+                        yield return null;
                     }
-            return result;
         }
 
-        private Edge Connector(Vector3 from, Vector3 to, JourneyProfile profile, float priorSwim, Vector3? pivot)
+        private IEnumerator ConnectorSteps(Vector3 from, Vector3 to, JourneyProfile profile, float priorSwim, Vector3? pivot, Action<Edge> complete)
         {
-            if (!pivot.HasValue) return Trace(from, to, profile, -1, 0, priorSwim);
+            if (!pivot.HasValue)
+            {
+                IEnumerator straight = TraceSteps(from, to, profile, -1, 0, priorSwim, complete);
+                while (straight.MoveNext()) yield return null;
+                yield break;
+            }
             // Distinct virtual legs stop following lookahead and route variation from cutting across this corner.
-            Edge first = Trace(from, pivot.Value, profile, -2, 0, priorSwim);
-            if (first == null) return null;
-            Edge second = Trace(pivot.Value, to, profile, -1, 0, first.swimDistance);
-            if (second == null || !TurnClear(profile, first, second, profile.bodyHeading)) return null;
+            Edge first = null, second = null;
+            IEnumerator operation = TraceSteps(from, pivot.Value, profile, -2, 0, priorSwim, value => first = value);
+            while (operation.MoveNext()) yield return null;
+            if (first == null) yield break;
+            operation = TraceSteps(pivot.Value, to, profile, -1, 0, first.swimDistance, value => second = value);
+            while (operation.MoveNext()) yield return null;
+            if (second == null || !TurnClear(profile, first, second, profile.bodyHeading)) yield break;
             first.segments.AddRange(second.segments); first.cost += second.cost;
             first.swimDistance = second.swimDistance; first.pivot = pivot;
-            return first;
+            complete(first);
         }
 
         private Edge Trace(Vector3 from, Vector3 to, JourneyProfile profile, int linkIndex, int bridgeId, float priorSwim)
         {
+            Edge result = null;
+            IEnumerator steps = TraceSteps(from, to, profile, linkIndex, bridgeId, priorSwim, value => result = value);
+            while (steps.MoveNext()) { }
+            return result;
+        }
+
+        private IEnumerator TraceSteps(Vector3 from, Vector3 to, JourneyProfile profile, int linkIndex, int bridgeId, float priorSwim, Action<Edge> complete)
+        {
+            yield return null;
             Quaternion heading = WildlifeBodyEnvelope.Heading(to - from, profile.bodyHeading);
-            if (!Project(profile, from, out Vector3 previous, out JourneyTravelMode previousMode, out JourneySurface previousSurface, heading)) return null;
-            if (!BuildSamples(from, to, profile)) return null;
+            if (!Project(profile, from, out Vector3 previous, out JourneyTravelMode previousMode, out JourneySurface previousSurface, heading)) yield break;
+            if (!BuildSamples(from, to, profile)) yield break;
+            // Movement queries can overwrite the navigation's scratch lists between these steps.
+            float[] times = sampleTimes.ToArray();
             var edge = new Edge { swimDistance = previousMode == JourneyTravelMode.Swim ? priorSwim : 0, arrivalLink = linkIndex };
             bool foundBridge = previousSurface.bridgeId == bridgeId && bridgeId > 0;
-            foreach (float t in sampleTimes)
+            yield return null;
+            foreach (float t in times)
             {
-                if (!Project(profile, Vector3.Lerp(from, to, t), out Vector3 point, out JourneyTravelMode mode, out JourneySurface surface, heading)) return null;
+                if (!Project(profile, Vector3.Lerp(from, to, t), out Vector3 point, out JourneyTravelMode mode, out JourneySurface surface, heading)) yield break;
                 float horizontal = Horizontal(previous, point);
                 bool swimming = mode == JourneyTravelMode.Swim || previousMode == JourneyTravelMode.Swim;
                 if (!SafeStep(previous, point, previousMode, mode) ||
-                    !BodyClear(profile, previous, heading, point, heading, previousSurface, surface)) return null;
+                    !BodyClear(profile, previous, heading, point, heading, previousSurface, surface)) yield break;
                 if (bridgeId > 0)
                 {
-                    if (surface.bridgeId > 0 && surface.bridgeId != bridgeId) return null;
-                    if (surface.hasWater && surface.waterY > surface.groundY + .01f && surface.bridgeId != bridgeId) return null;
+                    if (surface.bridgeId > 0 && surface.bridgeId != bridgeId) yield break;
+                    if (surface.hasWater && surface.waterY > surface.groundY + .01f && surface.bridgeId != bridgeId) yield break;
                     foundBridge |= surface.bridgeId == bridgeId;
                 }
                 if (swimming)
                 {
                     edge.swimDistance += horizontal;
-                    if (edge.swimDistance > profile.maxSwimDistance + .0001f) return null;
+                    if (edge.swimDistance > profile.maxSwimDistance + .0001f) yield break;
                 }
                 if (mode != JourneyTravelMode.Swim) edge.swimDistance = 0;
                 JourneyTravelMode travel = swimming ? JourneyTravelMode.Swim :
@@ -464,9 +625,50 @@ namespace WeatherHouse.WildlifeJourney
                         surfaceBoundary = previousMode != mode || previousSurface.bridgeId != surface.bridgeId });
                 }
                 previous = point; previousMode = mode; previousSurface = surface;
+                yield return null;
             }
-            return bridgeId > 0 && !foundBridge ? null : edge;
+            if (bridgeId == 0 || foundBridge) complete(edge);
         }
+
+        internal IEnumerator ValidateRouteSteps(JourneyProfile profile, JourneyRoute route, float priorSwim, Action<bool> complete)
+        {
+            Quaternion previousHeading = profile.bodyHeading;
+            Vector3? previousPoint = null; JourneyTravelMode previousMode = JourneyTravelMode.Walk;
+            foreach (JourneySegment segment in route.segments)
+            {
+                yield return null;
+                Quaternion heading = WildlifeBodyEnvelope.Heading(segment.to - segment.from, previousHeading);
+                // Replay the original terrain/water sample endpoints; subdividing them again changes boundary modes.
+                // Terrain/water structure edits require Rebuild. Dynamic colliders still receive a fresh continuous sweep.
+                if (!Project(profile, segment.from, out Vector3 from, out JourneyTravelMode fromMode, out JourneySurface start, heading) ||
+                    !Project(profile, segment.to, out Vector3 to, out JourneyTravelMode toMode, out JourneySurface finish, heading) ||
+                    !Near(from, segment.from) || !Near(to, segment.to) || !SafeStep(from, to, fromMode, toMode) ||
+                    !CanMoveBody(profile, previousPoint ?? from, previousHeading, from, heading) ||
+                    !BodyClear(profile, from, heading, to, heading, start, finish)) yield break;
+                bool swimming = fromMode == JourneyTravelMode.Swim || toMode == JourneyTravelMode.Swim;
+                JourneyTravelMode travel = swimming ? JourneyTravelMode.Swim :
+                    fromMode == JourneyTravelMode.Bridge || toMode == JourneyTravelMode.Bridge ? JourneyTravelMode.Bridge : toMode;
+                int bridgeId = finish.bridgeId > 0 ? finish.bridgeId : start.bridgeId;
+                bool boundary = fromMode != toMode || start.bridgeId != finish.bridgeId;
+                if (travel != segment.mode || bridgeId != segment.bridgeId || boundary != segment.surfaceBoundary) yield break;
+                // Trace omits sub-millimetre segments; charge an intervening swim gap before an exit resets fatigue.
+                if (previousPoint.HasValue && (previousMode == JourneyTravelMode.Swim || fromMode == JourneyTravelMode.Swim))
+                {
+                    priorSwim += Horizontal(previousPoint.Value, from);
+                    if (priorSwim > profile.maxSwimDistance + .0001f) yield break;
+                }
+                if (fromMode != JourneyTravelMode.Swim) priorSwim = 0;
+                if (swimming)
+                {
+                    priorSwim += Horizontal(from, to);
+                    if (priorSwim > profile.maxSwimDistance + .0001f) yield break;
+                }
+                if (toMode != JourneyTravelMode.Swim) priorSwim = 0;
+                previousHeading = heading; previousPoint = to; previousMode = toMode;
+            }
+            complete(true);
+        }
+        private static bool Near(Vector3 a, Vector3 b) => (a - b).sqrMagnitude < .000001f;
 
         private bool StartTurnClear(JourneyProfile profile, Vector3 start, Edge edge)
         {

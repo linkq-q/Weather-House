@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WeatherHouse.Hillside;
@@ -12,10 +13,19 @@ namespace WeatherHouse.WildlifeJourney
         public static bool TryCreate(Vector3 center, float radius, float minSpacing, int count, int seed,
             out Vector3[] points, Func<Vector3, bool> acceptPoint = null)
         {
-            points = Array.Empty<Vector3>();
+            Vector3[] result = null;
+            IEnumerator steps = CreateSteps(center, radius, minSpacing, count, seed, value => result = value, acceptPoint);
+            while (steps.MoveNext()) { }
+            points = result ?? Array.Empty<Vector3>();
+            return result != null;
+        }
+
+        internal static IEnumerator CreateSteps(Vector3 center, float radius, float minSpacing, int count, int seed,
+            Action<Vector3[]> complete, Func<Vector3, bool> acceptPoint = null)
+        {
             if (count < 0 || count > 1024 || !Finite(center.x) || !Finite(center.y) || !Finite(center.z) ||
-                !Finite(radius) || !Finite(minSpacing) || radius <= 0 || minSpacing <= 0) return false;
-            if (count == 0) return true;
+                !Finite(radius) || !Finite(minSpacing) || radius <= 0 || minSpacing <= 0) yield break;
+            if (count == 0) { complete(Array.Empty<Vector3>()); yield break; }
 
             var random = new WildlifeRandom(seed, 0, "journey-scatter");
             float noiseX = random.Range(20, 1000), noiseZ = random.Range(20, 1000);
@@ -24,6 +34,7 @@ namespace WeatherHouse.WildlifeJourney
             int budget = Mathf.Max(128, count * 64);
             for (int attempt = 0; attempt < budget && accepted.Count < count; attempt++)
             {
+                yield return null;
                 Vector2 offset = random.InCircle(radius);
                 Vector2 direction = offset.sqrMagnitude > 0 ? offset.normalized : Vector2.right;
                 // Sampling around a circle makes the noisy edge continuous across the angular seam.
@@ -37,9 +48,7 @@ namespace WeatherHouse.WildlifeJourney
                 if (!clear || (acceptPoint != null && !acceptPoint(point))) continue;
                 accepted.Add(point);
             }
-            if (accepted.Count != count) return false;
-            points = accepted.ToArray();
-            return true;
+            if (accepted.Count == count) complete(accepted.ToArray());
         }
 
         private static bool Finite(float value) { return !float.IsNaN(value) && !float.IsInfinity(value); }
