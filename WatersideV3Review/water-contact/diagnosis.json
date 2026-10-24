@@ -1,0 +1,66 @@
+{
+  "status": "CANDIDATE_READY_FOR_UNITY_AB",
+  "utc": "2026-10-24T03:51:35.7346720Z",
+  "material": "Assets/Game/World/WatersideV2/Generated/Nature/Water.mat",
+  "field": "_ShallowColor",
+  "before": [
+    0.19215687,
+    1,
+    0.8117647,
+    1
+  ],
+  "after": [
+    0.42,
+    0.64,
+    0.62,
+    1
+  ],
+  "singleMaterialFieldChanged": true,
+  "materialSceneReferences": "16",
+  "diagnosis": "Highly saturated shallow pigment is exposed by the shader as planar reflection fades near contact. It is the strongest causal candidate for cyan/green rims; same-camera A/B remains required.",
+  "sourceEvidence": [
+    "PainterlyWater.shader: reflectionWeight fades with smoothstep(.015,.24,waterDepth).",
+    "PainterlyWater.shader: shallowPigment enters with smoothstep(.015,.32,waterDepth).",
+    "FoamColor is near cream (.992,1,.906), not saturated cyan. No emissive color/property in the water shader.",
+    "Caustics add warm bed light with max strength .22 and fade in .03-.16m; they are a secondary candidate only if shallow-color A/B fails.",
+    "NatureBuilder copies the meadow water material and overrides only _ShoreStrength=.42 and _ShoreWidth=.11.",
+    "WatersideMood caches four palette colors in transient daylight and renderer property blocks; the editor-only Apply refreshes only shallow MPB and resets that transient snapshot."
+  ],
+  "unchanged": [
+    "Assets/Experiments/Vegetation/Shaders/PainterlyWater.shader",
+    "Assets/Experiments/Vegetation/Generated/PainterlyWater.mat",
+    "Assets/Game/World/WatersideV2/Runtime/WatersideMood.cs",
+    "Assets/Game/World/WatersideV2/Editor/WatersideNatureBuilder.cs"
+  ],
+  "checks": {
+    "sourceDiff": "PASS",
+    "unityCompile": "PENDING_ROOT",
+    "runtimePaletteTransition": "PENDING_ROOT_APPLY",
+    "visual": "PENDING_ROOT_AB"
+  },
+  "integration": {
+    "apply": "WeatherHouse.WatersideV2.Editor.WatersideWaterContactReview.Apply()",
+    "repeatedCaptureCheck": "WeatherHouse.WatersideV2.Editor.WatersideWaterContactReview.Check()",
+    "preconditions": "V2 active; edit mode; compilation complete; Mood Day restored from previous capture",
+    "report": "WatersideV3Review/water-contact/palette-checks.txt",
+    "protection": "No scene saves/reloads, no global shader or meadow water edits, no reflection/interaction MPB clearing."
+  },
+  "hashes": [
+    {
+      "path": "Assets/Experiments/Vegetation/Shaders/PainterlyWater.shader",
+      "sha256": "e968e0b530d599b29436f3dae662d8af85d93048740696f6bba8a3b564f46acc"
+    },
+    {
+      "path": "Assets/Experiments/Vegetation/Generated/PainterlyWater.mat",
+      "sha256": "d8774756ae9c813d05f9b65d7654fff0b416d14884b59f2b3b702f2c4da22324"
+    },
+    {
+      "path": "Assets/Game/World/WatersideV2/Runtime/WatersideMood.cs",
+      "sha256": "24f342479df0f35f8e816735b5c64d2164a28b42daaa5468a71e97b3485dfafc"
+    },
+    {
+      "path": "Assets/Game/World/WatersideV2/Editor/WatersideNatureBuilder.cs",
+      "sha256": "7f1c86606583033c4edbaeb2a9a37e6d892ed9bf4e73b82c042536d0da040056"
+    }
+  ]
+}
