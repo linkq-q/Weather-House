@@ -1,0 +1,16 @@
+2026-10-24 animal size change
+
+Scope: five existing turtles have their individual scale multiplied by 3; six squirrels by 0.5.
+Deterministic individual size variation, original root scale, movement speeds and animation bindings remain intact.
+New Waterside scene generation applies the same species multiplier once.
+
+Placement: preserve nine positions. Move squirrel 14 by 0.125 m and turtle 44 by 1.25 m to resolve reviewed pre-existing static overlaps. Rotation stays unchanged.
+Before applying: all 11 complete projected body footprints checked for world, ground slope and water constraints; full oriented bodies checked against static geometry and neighbours. Additional 0.12 m flatness bound applied to the two relocation candidates, not arbitrary corners of unmoved bodies on existing slopes.
+Six actual prefab initialization fixtures pass, including repeat initialization and exact radius/body/visual/foot-offset ratios.
+
+Actual main-scene Play: all 11 scale/radius/visual/body values match the pre-apply oracle, all roots project onto legal ground, full static body clearance passes; 20 butterflies reject conversation. See play-checks.json.
+Fourteen rendered views of IDs 14, 19, 43, 44, 45, 46, 47 were inspected. Turtles retain the authored pose on their slopes. Some sampled squirrel poses have airborne feet; their pre-existing turn.fbx remains the idle animation, so this size change does not claim to provide a planted-foot idle animation.
+Local images: WatersideV3Review/gameplay-ui/play/runs/20261024_133936_240/animal-size.
+
+The enclosing first UI run failed its separate greeting-fade frame test after this size check passed. That UI issue was repaired and a later complete UI run passed at 20261024_134813_191. Both runs restored the notebook and returned to Edit mode without scene changes.
+Only the size scene hunks are included in this unit. Later fence edits and unrelated scene-builder ecology changes are excluded.
