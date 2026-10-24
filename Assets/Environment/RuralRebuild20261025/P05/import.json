@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 1,
+  "id": "P05",
+  "name": "折叠种籽晾架",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\P05_折叠种籽晾架\\P05_重建.glb",
+  "sourceSha256": "75221E7148D7CBA78D06C641F21BEAA5621CEF7606D420EF5DA0C1137C7686D0",
+  "lods": [
+    "P05_LOD0.fbx",
+    "P05_LOD1.fbx",
+    "P05_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    10088,
+    4035,
+    1513
+  ],
+  "bounds": {
+    "min": [
+      -0.5860990285873413,
+      -1.1920928955078125e-07,
+      -0.36078914999961853
+    ],
+    "max": [
+      0.5860990285873413,
+      1.2455275058746338,
+      0.36078882217407227
+    ],
+    "dimensions": [
+      1.1721980571746826,
+      1.2455276250839233,
+      0.7215779721736908
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -0.5860990285873413,
+        -1.1920928955078125e-07,
+        -0.36078914999961853
+      ],
+      "max": [
+        0.5860990285873413,
+        1.2455275058746338,
+        0.36078882217407227
+      ],
+      "dimensions": [
+        1.1721980571746826,
+        1.2455276250839233,
+        0.7215779721736908
+      ]
+    },
+    {
+      "min": [
+        -0.5867359638214111,
+        -1.1920928955078125e-07,
+        -0.36078914999961853
+      ],
+      "max": [
+        0.5860990285873413,
+        1.2485474348068237,
+        0.36267849802970886
+      ],
+      "dimensions": [
+        1.1728349924087524,
+        1.2485475540161133,
+        0.7234676480293274
+      ]
+    },
+    {
+      "min": [
+        -0.5860987901687622,
+        0.0006352501804940403,
+        -0.3607502281665802
+      ],
+      "max": [
+        0.5860990285873413,
+        1.2451640367507935,
+        0.3607887923717499
+      ],
+      "dimensions": [
+        1.1721978187561035,
+        1.2445287865702994,
+        0.7215390205383301
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "P05_M000",
+      "sourceMaterialName": "P05_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "P05_Texture00.png",
+      "metallicSmoothnessTexture": "P05_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "P05_Tray2_BaseSlat_4_proxy0",
+      "sourceName": "P05_Tray2_BaseSlat_4",
+      "center": [
+        0.36000001430511475,
+        0.8815275430679321,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.29499998688697815
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray2_BaseSlat_3_proxy0",
+      "sourceName": "P05_Tray2_BaseSlat_3",
+      "center": [
+        0.18000000715255737,
+        0.8815275430679321,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.29499998688697815
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray2_BaseSlat_2_proxy0",
+      "sourceName": "P05_Tray2_BaseSlat_2",
+      "center": [
+        0.0,
+        0.8815275430679321,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.29499998688697815
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray2_BaseSlat_1_proxy0",
+      "sourceName": "P05_Tray2_BaseSlat_1",
+      "center": [
+        -0.18000000715255737,
+        0.8815275430679321,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.29499998688697815
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray2_BaseSlat_0_proxy0",
+      "sourceName": "P05_Tray2_BaseSlat_0",
+      "center": [
+        -0.36000001430511475,
+        0.8815275430679321,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.29499998688697815
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray1_BaseSlat_4_proxy0",
+      "sourceName": "P05_Tray1_BaseSlat_4",
+      "center": [
+        0.36000001430511475,
+        0.5515275001525879,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.4050000011920929
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray1_BaseSlat_3_proxy0",
+      "sourceName": "P05_Tray1_BaseSlat_3",
+      "center": [
+        0.18000000715255737,
+        0.5515275001525879,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.4050000011920929
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray1_BaseSlat_2_proxy0",
+      "sourceName": "P05_Tray1_BaseSlat_2",
+      "center": [
+        0.0,
+        0.5515275001525879,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.4050000011920929
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray1_BaseSlat_1_proxy0",
+      "sourceName": "P05_Tray1_BaseSlat_1",
+      "center": [
+        -0.18000000715255737,
+        0.5515275001525879,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.4050000011920929
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray1_BaseSlat_0_proxy0",
+      "sourceName": "P05_Tray1_BaseSlat_0",
+      "center": [
+        -0.36000001430511475,
+        0.5515275001525879,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.4050000011920929
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray0_BaseSlat_4_proxy0",
+      "sourceName": "P05_Tray0_BaseSlat_4",
+      "center": [
+        0.36000001430511475,
+        0.22152754664421082,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.5249999761581421
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray0_BaseSlat_3_proxy0",
+      "sourceName": "P05_Tray0_BaseSlat_3",
+      "center": [
+        0.18000000715255737,
+        0.22152754664421082,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.5249999761581421
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray0_BaseSlat_2_proxy0",
+      "sourceName": "P05_Tray0_BaseSlat_2",
+      "center": [
+        0.0,
+        0.22152754664421082,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.5249999761581421
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray0_BaseSlat_1_proxy0",
+      "sourceName": "P05_Tray0_BaseSlat_1",
+      "center": [
+        -0.18000000715255737,
+        0.22152754664421082,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.5249999761581421
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_Tray0_BaseSlat_0_proxy0",
+      "sourceName": "P05_Tray0_BaseSlat_0",
+      "center": [
+        -0.36000001430511475,
+        0.22152754664421082,
+        0.0
+      ],
+      "size": [
+        0.17599999904632568,
+        0.02500000037252903,
+        0.5249999761581421
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "P05_AFrameLeg_1_1_proxy0",
+      "sourceName": "P05_AFrameLeg_1_1",
+      "center": [
+        0.4950000047683716,
+        0.6140275001525879,
+        -0.16899999976158142
+      ],
+      "size": [
+        0.08299999684095383,
+        1.2552008628845215,
+        0.07599999755620956
+      ],
+      "rotation": [
+        0.1252206563949585,
+        -0.14315083622932434,
+        0.018261900171637535,
+        0.9815773963928223
+      ]
+    },
+    {
+      "name": "P05_AFrameLeg_1_-1_proxy0",
+      "sourceName": "P05_AFrameLeg_1_-1",
+      "center": [
+        0.4950000047683716,
+        0.6140275001525879,
+        0.16899999976158142
+      ],
+      "size": [
+        0.08299999684095383,
+        1.2552008628845215,
+        0.07599999755620956
+      ],
+      "rotation": [
+        0.01826181262731552,
+        -0.9815773963928223,
+        0.12522047758102417,
+        0.14315080642700195
+      ]
+    },
+    {
+      "name": "P05_AFrameLeg_-1_1_proxy0",
+      "sourceName": "P05_AFrameLeg_-1_1",
+      "center": [
+        -0.4950000047683716,
+        0.6140275001525879,
+        -0.16899999976158142
+      ],
+      "size": [
+        0.08299999684095383,
+        1.2552008628845215,
+        0.07599999755620956
+      ],
+      "rotation": [
+        0.1252206563949585,
+        0.14315083622932434,
+        -0.018261900171637535,
+        0.9815773963928223
+      ]
+    },
+    {
+      "name": "P05_AFrameLeg_-1_-1_proxy0",
+      "sourceName": "P05_AFrameLeg_-1_-1",
+      "center": [
+        -0.4950000047683716,
+        0.6140275001525879,
+        0.16899999976158142
+      ],
+      "size": [
+        0.08299999684095383,
+        1.2552008628845215,
+        0.07599999755620956
+      ],
+      "rotation": [
+        0.01826181262731552,
+        0.9815773963928223,
+        -0.12522047758102417,
+        0.14315080642700195
+      ]
+    }
+  ],
+  "collisionStatus": "Native named structural parts only; oriented boxes; modeled door-plank openings subtracted; no roof/decor or enclosing building collider.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "P05_LOD0.fbx",
+      "sha256": "D9F1E51374F978D3965552B3939293E50C7B6073C05ECF7BD7C678B8038FB240"
+    },
+    {
+      "path": "P05_LOD1.fbx",
+      "sha256": "600EA72103ABDFC3F90838F1C9FF2D79D7F8187E6B1C224484ABED4851535433"
+    },
+    {
+      "path": "P05_LOD2.fbx",
+      "sha256": "E88BFE513348AA16325C06F97B45FA18C1AF3FE5106827E3DD3A3D1BD515684F"
+    },
+    {
+      "path": "P05_MetallicSmoothness01_00.png",
+      "sha256": "B25FF7082CD1F2B44D75D83F4DAE4123CAB58009FC80C55A8B5291CBD87050B0"
+    },
+    {
+      "path": "P05_Texture00.png",
+      "sha256": "8ED780594EB1AED525F0107C9B757495D74615D429DF60D33DEC0CE4F2118999"
+    },
+    {
+      "path": "P05_Texture01.png",
+      "sha256": "89949FFC0A8737E158CD5F2041CD1833A017A0D1A1EA816D133FA46F895468ED"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 10088,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 4035,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 1513,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  }
+}

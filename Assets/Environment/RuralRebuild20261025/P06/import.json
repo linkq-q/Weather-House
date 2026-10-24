@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "id": "P06",
+  "name": "苔石矮路灯",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\P06_苔石矮路灯\\P06_重建.glb",
+  "sourceSha256": "F0B9A4F3E7E8D6CC4DB2A97535C71BF6795869E680AD9F4C99F0CC4E01476CD5",
+  "lods": [
+    "P06_LOD0.fbx",
+    "P06_LOD1.fbx",
+    "P06_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    4464,
+    1785,
+    1339
+  ],
+  "bounds": {
+    "min": [
+      -0.4715318977832794,
+      0.0,
+      -0.2565290331840515
+    ],
+    "max": [
+      0.56435227394104,
+      1.7151212692260742,
+      0.25842922925949097
+    ],
+    "dimensions": [
+      1.0358841717243195,
+      1.7151212692260742,
+      0.5149582624435425
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -0.4715318977832794,
+        0.0,
+        -0.2565290331840515
+      ],
+      "max": [
+        0.56435227394104,
+        1.7151212692260742,
+        0.25842922925949097
+      ],
+      "dimensions": [
+        1.0358841717243195,
+        1.7151212692260742,
+        0.5149582624435425
+      ]
+    },
+    {
+      "min": [
+        -0.4715318977832794,
+        0.0,
+        -0.2565290331840515
+      ],
+      "max": [
+        0.5645692944526672,
+        1.7151212692260742,
+        0.25842922925949097
+      ],
+      "dimensions": [
+        1.0361011922359467,
+        1.7151212692260742,
+        0.5149582624435425
+      ]
+    },
+    {
+      "min": [
+        -0.4715318977832794,
+        0.0,
+        -0.2565290331840515
+      ],
+      "max": [
+        0.563450038433075,
+        1.7151212692260742,
+        0.25842922925949097
+      ],
+      "dimensions": [
+        1.0349819362163544,
+        1.7151212692260742,
+        0.5149582624435425
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "P06_M000",
+      "sourceMaterialName": "P06_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "P06_Texture00.png",
+      "metallicSmoothnessTexture": "P06_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "central_post",
+      "center": [
+        0.04641018807888031,
+        0.6,
+        0.0009500980377197266
+      ],
+      "size": [
+        0.16,
+        1.2,
+        0.16
+      ]
+    }
+  ],
+  "collisionStatus": "Only explicit simple structural proxies; no enclosing solid boxes. Empty list requires entrance-aware collider review.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "P06_LOD0.fbx",
+      "sha256": "6919735EB7959D1077444833EA8B2027A4FE93FAB63A6CBD57CB47A74408CABC"
+    },
+    {
+      "path": "P06_LOD1.fbx",
+      "sha256": "793C20E2033C435154D11E61632D3DD17D279CF13C21F216DC4A22A6968EAEA4"
+    },
+    {
+      "path": "P06_LOD2.fbx",
+      "sha256": "F03277C9A72B10D61C29A1A9761773AF0C1A8BBB385E96F1AA44C8BF7892C88F"
+    },
+    {
+      "path": "P06_MetallicSmoothness01_00.png",
+      "sha256": "6E3BD2F4EE708947705EAC04699866299C1D12FBB87594E9AE3EBAD8BB47B706"
+    },
+    {
+      "path": "P06_Texture00.png",
+      "sha256": "C52C31AD714D38488B0B4FA9B5B910107D860C62190DD68D20935E4B95FEBD76"
+    },
+    {
+      "path": "P06_Texture01.png",
+      "sha256": "F2D41836B007ADF94FC34308DABEA90F3D4536EC4073F6B5A749E8883A95A8E5"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 4464,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 1785,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 1339,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  }
+}

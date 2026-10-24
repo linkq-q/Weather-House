@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 1,
+  "id": "B01",
+  "name": "岸边木划艇",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\B01_岸边木划艇\\B01_重建.glb",
+  "sourceSha256": "721115724EA3549C7B444A303AA76B1D7FEA6EB211A2875F778E5497EB05129F",
+  "lods": [
+    "B01_LOD0.fbx",
+    "B01_LOD1.fbx",
+    "B01_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    26460,
+    10584,
+    3969
+  ],
+  "bounds": {
+    "min": [
+      -0.9240000247955322,
+      0.05999999865889549,
+      -2.484999895095825
+    ],
+    "max": [
+      0.9240000247955322,
+      1.230733036994934,
+      2.502999782562256
+    ],
+    "dimensions": [
+      1.8480000495910645,
+      1.1707330383360386,
+      4.987999677658081
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -0.9240000247955322,
+        0.05999999865889549,
+        -2.484999895095825
+      ],
+      "max": [
+        0.9240000247955322,
+        1.230733036994934,
+        2.502999782562256
+      ],
+      "dimensions": [
+        1.8480000495910645,
+        1.1707330383360386,
+        4.987999677658081
+      ]
+    },
+    {
+      "min": [
+        -0.9240000247955322,
+        0.06007453799247742,
+        -2.484999895095825
+      ],
+      "max": [
+        0.9254791140556335,
+        1.2315542697906494,
+        2.5034823417663574
+      ],
+      "dimensions": [
+        1.8494791388511658,
+        1.171479731798172,
+        4.988482236862183
+      ]
+    },
+    {
+      "min": [
+        -0.9240000247955322,
+        0.052046433091163635,
+        -2.484999895095825
+      ],
+      "max": [
+        0.9226000308990479,
+        1.230733036994934,
+        2.506852626800537
+      ],
+      "dimensions": [
+        1.84660005569458,
+        1.1786866039037704,
+        4.991852521896362
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "B01_M000",
+      "sourceMaterialName": "B01_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "B01_Texture00.png",
+      "metallicSmoothnessTexture": "B01_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "B01_seat_2_proxy0",
+      "sourceName": "B01_seat_2",
+      "center": [
+        0.0,
+        0.7639999985694885,
+        -1.350000023841858
+      ],
+      "size": [
+        1.3880001306533813,
+        0.0949999988079071,
+        0.28999999165534973
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_seat_1_proxy0",
+      "sourceName": "B01_seat_1",
+      "center": [
+        0.0,
+        0.7160000205039978,
+        0.15000000596046448
+      ],
+      "size": [
+        1.5582056045532227,
+        0.0949999988079071,
+        0.28999999165534973
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_seat_0_proxy0",
+      "sourceName": "B01_seat_0",
+      "center": [
+        0.0,
+        0.7692000269889832,
+        1.4800000190734863
+      ],
+      "size": [
+        1.2666499614715576,
+        0.0949999988079071,
+        0.28999999165534973
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_floor_plank_05_proxy0",
+      "sourceName": "B01_floor_plank_05",
+      "center": [
+        0.3333333134651184,
+        0.27932488918304443,
+        0.0009049177169799805
+      ],
+      "size": [
+        0.11533334851264954,
+        0.08864977955818176,
+        2.7910473346710205
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_floor_plank_04_proxy0",
+      "sourceName": "B01_floor_plank_04",
+      "center": [
+        0.20000000298023224,
+        0.30206409096717834,
+        -0.12771236896514893
+      ],
+      "size": [
+        0.11533334851264954,
+        0.1341281533241272,
+        3.555424690246582
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_floor_plank_03_proxy0",
+      "sourceName": "B01_floor_plank_03",
+      "center": [
+        0.06666667014360428,
+        0.30206409096717834,
+        -0.12771236896514893
+      ],
+      "size": [
+        0.11533333733677864,
+        0.1341281533241272,
+        3.555424690246582
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_floor_plank_02_proxy0",
+      "sourceName": "B01_floor_plank_02",
+      "center": [
+        -0.06666667014360428,
+        0.30206409096717834,
+        -0.12771236896514893
+      ],
+      "size": [
+        0.11533333733677864,
+        0.1341281533241272,
+        3.555424690246582
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_floor_plank_01_proxy0",
+      "sourceName": "B01_floor_plank_01",
+      "center": [
+        -0.20000000298023224,
+        0.30206409096717834,
+        -0.12771236896514893
+      ],
+      "size": [
+        0.11533334851264954,
+        0.1341281533241272,
+        3.555424690246582
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B01_floor_plank_00_proxy0",
+      "sourceName": "B01_floor_plank_00",
+      "center": [
+        -0.3333333134651184,
+        0.27932488918304443,
+        0.0009049177169799805
+      ],
+      "size": [
+        0.11533334851264954,
+        0.08864977955818176,
+        2.7910473346710205
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "collisionStatus": "Native named structural parts only; oriented boxes; modeled door-plank openings subtracted; no roof/decor or enclosing building collider.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "B01_LOD0.fbx",
+      "sha256": "20BD479FE0F1AB4189416C420E888DB1A6CE31D12DF70D9D0A55097FCCE5EF3B"
+    },
+    {
+      "path": "B01_LOD1.fbx",
+      "sha256": "0B02D29C48EE34EEA9EF01230AE058F0A334A4D5552CFFDA0A5482722F6A7293"
+    },
+    {
+      "path": "B01_LOD2.fbx",
+      "sha256": "050AFAFCA4D7694B11561BA4A2E82C9FE11CDD9493E1CA7A9598E9DE3C23130E"
+    },
+    {
+      "path": "B01_MetallicSmoothness01_00.png",
+      "sha256": "052388E14B586C555A56599558717E182E53B110A75081DDC9A831A6D2F1FFAA"
+    },
+    {
+      "path": "B01_Texture00.png",
+      "sha256": "EEE76B17ADD2301374483EF6E4B40DCF740640D4E3D88456E015C23658277A6D"
+    },
+    {
+      "path": "B01_Texture01.png",
+      "sha256": "E19447E4D36F589E287CC6B7B381314CBA9BC5669CA7B3641F0F3E114D3EB531"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 26460,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 10584,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 3969,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  }
+}

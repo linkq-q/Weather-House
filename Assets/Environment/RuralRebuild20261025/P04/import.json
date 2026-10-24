@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "id": "P04",
+  "name": "苔石动物饮水槽",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\P04_苔石动物饮水槽\\P04_重建.glb",
+  "sourceSha256": "B1E6D27480ADA69AEDEB2617FB3ABDC60D0FA704D12C1F2D033C30909D11E93D",
+  "lods": [
+    "P04_LOD0.fbx",
+    "P04_LOD1.fbx",
+    "P04_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    7912,
+    3164,
+    2373
+  ],
+  "bounds": {
+    "min": [
+      -1.2490253448486328,
+      0.0,
+      -0.42500001192092896
+    ],
+    "max": [
+      1.2490253448486328,
+      1.044118046760559,
+      0.4275706708431244
+    ],
+    "dimensions": [
+      2.4980506896972656,
+      1.044118046760559,
+      0.8525706827640533
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -1.2490253448486328,
+        0.0,
+        -0.42500001192092896
+      ],
+      "max": [
+        1.2490253448486328,
+        1.044118046760559,
+        0.4275706708431244
+      ],
+      "dimensions": [
+        2.4980506896972656,
+        1.044118046760559,
+        0.8525706827640533
+      ]
+    },
+    {
+      "min": [
+        -1.2522786855697632,
+        0.0,
+        -0.43324029445648193
+      ],
+      "max": [
+        1.2522786855697632,
+        1.044118046760559,
+        0.428381085395813
+      ],
+      "dimensions": [
+        2.5045573711395264,
+        1.044118046760559,
+        0.8616213798522949
+      ]
+    },
+    {
+      "min": [
+        -1.2530330419540405,
+        0.0,
+        -0.43324029445648193
+      ],
+      "max": [
+        1.2526971101760864,
+        1.044118046760559,
+        0.4294319450855255
+      ],
+      "dimensions": [
+        2.505730152130127,
+        1.044118046760559,
+        0.8626722395420074
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "P04_M000",
+      "sourceMaterialName": "P04_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "P04_Texture00.png",
+      "metallicSmoothnessTexture": "P04_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "trough_side",
+      "center": [
+        0.0,
+        0.36544131636619565,
+        -0.325000011920929
+      ],
+      "size": [
+        2.4980506896972656,
+        0.7308826327323913,
+        0.18
+      ]
+    },
+    {
+      "name": "trough_side",
+      "center": [
+        0.0,
+        0.36544131636619565,
+        0.3275706708431244
+      ],
+      "size": [
+        2.4980506896972656,
+        0.7308826327323913,
+        0.18
+      ]
+    }
+  ],
+  "collisionStatus": "Only explicit simple structural proxies; no enclosing solid boxes. Empty list requires entrance-aware collider review.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "P04_LOD0.fbx",
+      "sha256": "815AFB5E2D414320543D7B303FBD64B096508943E013DC4605B5085136F63776"
+    },
+    {
+      "path": "P04_LOD1.fbx",
+      "sha256": "CF87AB6638DDFB6C377375F9F4DD50B7C3628524AE69CA73496269DD105B0498"
+    },
+    {
+      "path": "P04_LOD2.fbx",
+      "sha256": "C407CC90A1830DA29D2FEE13A5F872549B5DFB56D3BDF8F22DBB853FEB671E66"
+    },
+    {
+      "path": "P04_MetallicSmoothness01_00.png",
+      "sha256": "F5A30D373647B343AA78BB2C0029BF698A24FF3FC69B221C49C852B8383532C6"
+    },
+    {
+      "path": "P04_Texture00.png",
+      "sha256": "0AB82797A33587C5CEB75199D9C6B5689B6739E3A3511A96986C0B6965A6728C"
+    },
+    {
+      "path": "P04_Texture01.png",
+      "sha256": "DDA31F0BCE48285F5E56B6E2DEEBFD20DCABC90A1E4A1E1AF72420D678FC8D0E"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 7912,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 3164,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 2373,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  }
+}

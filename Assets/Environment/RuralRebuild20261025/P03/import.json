@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "id": "P03",
+  "name": "双桩系船柱",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\P03_双桩系船柱\\P03_重建.glb",
+  "sourceSha256": "34443B2C6FF8F7D0F2186DC4FFCF9B8716289288DBA511E6C2A9005288E2701C",
+  "lods": [
+    "P03_LOD0.fbx",
+    "P03_LOD1.fbx",
+    "P03_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    15296,
+    6117,
+    2293
+  ],
+  "bounds": {
+    "min": [
+      -0.6950514316558838,
+      0.0,
+      -0.3393993675708771
+    ],
+    "max": [
+      0.6316639184951782,
+      1.010030746459961,
+      0.3400000035762787
+    ],
+    "dimensions": [
+      1.326715350151062,
+      1.010030746459961,
+      0.6793993711471558
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -0.6950514316558838,
+        0.0,
+        -0.3393993675708771
+      ],
+      "max": [
+        0.6316639184951782,
+        1.010030746459961,
+        0.3400000035762787
+      ],
+      "dimensions": [
+        1.326715350151062,
+        1.010030746459961,
+        0.6793993711471558
+      ]
+    },
+    {
+      "min": [
+        -0.6950514316558838,
+        0.0,
+        -0.3393993675708771
+      ],
+      "max": [
+        0.6316639184951782,
+        1.0102949142456055,
+        0.3400000035762787
+      ],
+      "dimensions": [
+        1.326715350151062,
+        1.0102949142456055,
+        0.6793993711471558
+      ]
+    },
+    {
+      "min": [
+        -0.6950514316558838,
+        0.0,
+        -0.3393993675708771
+      ],
+      "max": [
+        0.6316639184951782,
+        1.010235071182251,
+        0.35444262623786926
+      ],
+      "dimensions": [
+        1.326715350151062,
+        1.010235071182251,
+        0.6938419938087463
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "P03_M000",
+      "sourceMaterialName": "P03_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "P03_Texture00.png",
+      "metallicSmoothnessTexture": "P03_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "mooring_post",
+      "center": [
+        -0.5150514316558839,
+        0.4242129135131836,
+        0.00030031800270080566
+      ],
+      "size": [
+        0.22,
+        0.8484258270263672,
+        0.22
+      ]
+    },
+    {
+      "name": "mooring_post",
+      "center": [
+        0.45166391849517823,
+        0.4242129135131836,
+        0.00030031800270080566
+      ],
+      "size": [
+        0.22,
+        0.8484258270263672,
+        0.22
+      ]
+    }
+  ],
+  "collisionStatus": "Only explicit simple structural proxies; no enclosing solid boxes. Empty list requires entrance-aware collider review.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "P03_LOD0.fbx",
+      "sha256": "796F90AC55F2F6C3C628D882AAEFCC1D7E3BC182805AE363C35CB518C1140309"
+    },
+    {
+      "path": "P03_LOD1.fbx",
+      "sha256": "39538E9FB214FCCF55E8078447C924F063A615EAAA34720F9DD1D4FADF5E4728"
+    },
+    {
+      "path": "P03_LOD2.fbx",
+      "sha256": "B13DBF33A39BC70DBD4CB1F38C4478228BFBB59A31AD54FBA5031A95EC30B262"
+    },
+    {
+      "path": "P03_MetallicSmoothness01_00.png",
+      "sha256": "FCCA7AD34B5B4C598F2F5C63A79B4FDA89DAA5FE13919F3BA505809A7038D5D0"
+    },
+    {
+      "path": "P03_Texture00.png",
+      "sha256": "4FF16368F2B8A5FC0939D3AD3A78C96D1AED77199CCBA46FF458DDC9D6FA89FF"
+    },
+    {
+      "path": "P03_Texture01.png",
+      "sha256": "6DAD6870057449F9229A70BD3C681016EF73C0F43EC8993D2ADFC87CADEE02EE"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 15296,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 6117,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 2293,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "verifiedUtc": "2026-10-24T18:08:38Z",
+  "scope": "Import the 17 approved rural assets and review their Unity prefabs; main map placement is a separate change.",
+  "source": "C:/Users/31483/Desktop/天气屋/十七款场景资产重建_20261024",
+  "assetIds": ["A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08", "A09", "B01", "B02", "P01", "P02", "P03", "P04", "P05", "P06"],
+  "excluded": "T01 unfinished tree",
+  "payload": {"fbxFiles": 51, "verifiedSourceFiles": 106, "materialSlots": 281, "boxColliderProxies": 432},
+  "unity": {"structuralPassed": 16, "failed": 1, "renderedPreviews": 17, "mainSceneStatePreserved": true},
+  "a03Repair": "Restore only the original copper-drain material group's LOD0 geometry in LOD1/2. Decimation had left loose top vertices that Unity stripped, shrinking the imported height by 17.74 cm. Original dimension tolerances unchanged; all three imported LODs now pass.",
+  "remainingRestriction": "B02 sampled doorway overlaps three deck-plank proxies. The approved integration treats both boats as static visual berths with colliders disabled, not as validated boarding routes. Full player doorway traversal is not proven by this prefab review.",
+  "evidence": "JourneyReview/Revision_20261024/MapIntegrationPlan/PrefabReview_20261025/review-all.json",
+  "visualEvidence": "JourneyReview/Revision_20261024/MapIntegrationPlan/PrefabReview_20261025/all-imported-assets.jpg",
+  "mainMapNotModifiedByImport": true
+}

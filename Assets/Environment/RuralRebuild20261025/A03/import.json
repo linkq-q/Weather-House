@@ -1,0 +1,1460 @@
+{
+  "schemaVersion": 1,
+  "id": "A03",
+  "name": "海岬避雨驿",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\A03_海岬避雨驿\\A03_重建.glb",
+  "sourceSha256": "9C6B6BEEB3BEBE82FB2DE3C25038C318DFB12A72847CD504A57920A40A0F6455",
+  "lods": [
+    "A03_LOD0.fbx",
+    "A03_LOD1.fbx",
+    "A03_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    187796,
+    100232,
+    80277
+  ],
+  "bounds": {
+    "min": [
+      -2.7657926082611084,
+      -0.00926944613456726,
+      -2.18497633934021
+    ],
+    "max": [
+      2.7657926082611084,
+      5.585000038146973,
+      2.946608781814575
+    ],
+    "dimensions": [
+      5.531585216522217,
+      5.59426948428154,
+      5.131585121154785
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -2.7657926082611084,
+        -0.00926944613456726,
+        -2.18497633934021
+      ],
+      "max": [
+        2.7657926082611084,
+        5.585000038146973,
+        2.946608781814575
+      ],
+      "dimensions": [
+        5.531585216522217,
+        5.59426948428154,
+        5.131585121154785
+      ]
+    },
+    {
+      "min": [
+        -2.7657926082611084,
+        -0.009393739514052868,
+        -2.184976100921631
+      ],
+      "max": [
+        2.7657926082611084,
+        5.585000038146973,
+        2.961494207382202
+      ],
+      "dimensions": [
+        5.531585216522217,
+        5.5943937776610255,
+        5.146470308303833
+      ],
+      "center": [
+        0.0,
+        2.78780314931646,
+        0.38825905323028564
+      ]
+    },
+    {
+      "min": [
+        -2.7657926082611084,
+        -0.026919927448034286,
+        -2.184976100921631
+      ],
+      "max": [
+        2.7657926082611084,
+        5.585000038146973,
+        2.980403423309326
+      ],
+      "dimensions": [
+        5.531585216522217,
+        5.611919965595007,
+        5.165379524230957
+      ],
+      "center": [
+        0.0,
+        2.779040055349469,
+        0.39771366119384766
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "A03_M000",
+      "sourceMaterialName": "A03_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "A03_Texture00.png",
+      "metallicSmoothnessTexture": "A03_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M001",
+      "sourceMaterialName": "建筑_石缝与背衬_SubpixelPBR",
+      "baseColorFactor": [
+        0.18447498977184296,
+        0.2015562504529953,
+        0.14126329123973846,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9800000190734863,
+      "smoothness": 0.019999980926513672,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M002",
+      "sourceMaterialName": "建筑_手凿石_00_SubpixelPBR",
+      "baseColorFactor": [
+        0.3598910868167877,
+        0.36647871136665344,
+        0.2640431523323059,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M003",
+      "sourceMaterialName": "建筑_手凿石_01_SubpixelPBR",
+      "baseColorFactor": [
+        0.4124167859554291,
+        0.39392346143722534,
+        0.27412545680999756,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M004",
+      "sourceMaterialName": "建筑_手凿石_02_SubpixelPBR",
+      "baseColorFactor": [
+        0.4793495535850525,
+        0.4449869394302368,
+        0.30839425325393677,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M005",
+      "sourceMaterialName": "建筑_手凿石_03_SubpixelPBR",
+      "baseColorFactor": [
+        0.32466572523117065,
+        0.3502112030982971,
+        0.2644493877887726,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M006",
+      "sourceMaterialName": "建筑_手凿石_04_SubpixelPBR",
+      "baseColorFactor": [
+        0.5336570143699646,
+        0.45870885252952576,
+        0.31776827573776245,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M007",
+      "sourceMaterialName": "建筑_手凿石_05_SubpixelPBR",
+      "baseColorFactor": [
+        0.27944833040237427,
+        0.31870904564857483,
+        0.23850560188293457,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M008",
+      "sourceMaterialName": "建筑_木作边缘与浅榫_SubpixelPBR",
+      "baseColorFactor": [
+        0.28712624311447144,
+        0.1622287929058075,
+        0.06028367578983307,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.8500000238418579,
+      "smoothness": 0.1499999761581421,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M009",
+      "sourceMaterialName": "木檐_暖胡桃_顺纹理_SubpixelPBR",
+      "baseColorFactor": [
+        0.17631728947162628,
+        0.1018923819065094,
+        0.044281139969825745,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.7900000214576721,
+      "smoothness": 0.20999997854232788,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M010",
+      "sourceMaterialName": "建筑_门缝与雕线_SubpixelPBR",
+      "baseColorFactor": [
+        0.02955683507025242,
+        0.027320891618728638,
+        0.017641954123973846,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9700000286102295,
+      "smoothness": 0.029999971389770508,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M011",
+      "sourceMaterialName": "建筑_旧黄铜_SubpixelPBR",
+      "baseColorFactor": [
+        0.45055145025253296,
+        0.278511643409729,
+        0.0654338002204895,
+        1
+      ],
+      "metallicFactor": 0.6200000047683716,
+      "roughnessFactor": 0.4399999976158142,
+      "smoothness": 0.5600000023841858,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M012",
+      "sourceMaterialName": "建筑_彩玻璃_02_SubpixelPBR",
+      "baseColorFactor": [
+        0.2462013214826584,
+        0.4507857859134674,
+        0.4910208582878113,
+        1
+      ],
+      "metallicFactor": 0.18000000715255737,
+      "roughnessFactor": 0.2800000011920929,
+      "smoothness": 0.7199999988079071,
+      "isGlass": true,
+      "opacity": 0.2,
+      "alphaMode": "BLEND",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M013",
+      "sourceMaterialName": "WeatherCraft_amber_SubpixelPBR",
+      "baseColorFactor": [
+        0.7011018991470337,
+        0.47353148460388184,
+        0.16202937066555023,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.550000011920929,
+      "smoothness": 0.44999998807907104,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M014",
+      "sourceMaterialName": "建筑_旧铜排水_SubpixelPBR",
+      "baseColorFactor": [
+        0.27365103363990784,
+        0.15655429661273956,
+        0.054071180522441864,
+        1
+      ],
+      "metallicFactor": 0.5,
+      "roughnessFactor": 0.5199999809265137,
+      "smoothness": 0.48000001907348633,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M015",
+      "sourceMaterialName": "灰绿旧瓦_00_SubpixelPBR",
+      "baseColorFactor": [
+        0.14126329123973846,
+        0.16826939582824707,
+        0.12477181851863861,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M016",
+      "sourceMaterialName": "灰绿旧瓦_01_SubpixelPBR",
+      "baseColorFactor": [
+        0.16826939582824707,
+        0.1946178376674652,
+        0.1384316086769104,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M017",
+      "sourceMaterialName": "灰绿旧瓦_02_SubpixelPBR",
+      "baseColorFactor": [
+        0.15896083414554596,
+        0.19120168685913086,
+        0.1384316086769104,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M018",
+      "sourceMaterialName": "灰绿旧瓦_03_SubpixelPBR",
+      "baseColorFactor": [
+        0.12743768095970154,
+        0.16202937066555023,
+        0.11443537473678589,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M019",
+      "sourceMaterialName": "灰绿旧瓦_04_SubpixelPBR",
+      "baseColorFactor": [
+        0.1946178376674652,
+        0.2158605009317398,
+        0.1441284716129303,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M020",
+      "sourceMaterialName": "灰绿旧瓦_05_SubpixelPBR",
+      "baseColorFactor": [
+        0.17144110798835754,
+        0.19120168685913086,
+        0.12477181851863861,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M021",
+      "sourceMaterialName": "灰绿旧瓦_06_SubpixelPBR",
+      "baseColorFactor": [
+        0.20863686501979828,
+        0.21952620148658752,
+        0.15292614698410034,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M022",
+      "sourceMaterialName": "苔草主材质_可调色阶与细节_SubpixelPBR",
+      "baseColorFactor": [
+        0.2115100622177124,
+        0.2525631785392761,
+        0.04245328903198242,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.949999988079071,
+      "smoothness": 0.050000011920928955,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M023",
+      "sourceMaterialName": "WeatherCraft_moss_light_SubpixelPBR",
+      "baseColorFactor": [
+        0.35640013217926025,
+        0.4019777774810791,
+        0.03560131415724754,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9599999785423279,
+      "smoothness": 0.04000002145767212,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "A03_M024",
+      "sourceMaterialName": "WeatherCraft_moss_dark_SubpixelPBR",
+      "baseColorFactor": [
+        0.14126329123973846,
+        0.19806931912899017,
+        0.02955683507025242,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9599999785423279,
+      "smoothness": 0.04000002145767212,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "A03_rear_wall_continuous_infill_proxy0",
+      "sourceName": "A03_rear_wall_continuous_infill",
+      "center": [
+        1.1920928955078125e-07,
+        1.809999942779541,
+        -1.5500000715255737
+      ],
+      "size": [
+        4.199999988079071,
+        2.6399999856948853,
+        0.20000000298023224
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        7.549790126404332e-08
+      ]
+    },
+    {
+      "name": "A03_foundation_core_proxy0",
+      "sourceName": "A03_foundation_core",
+      "center": [
+        0.0,
+        0.24500000476837158,
+        0.0
+      ],
+      "size": [
+        4.619999885559082,
+        0.49000000953674316,
+        3.6500000953674316
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.011_proxy0",
+      "sourceName": "A03_entry_stone_step.011",
+      "center": [
+        0.8950533270835876,
+        0.24757301807403564,
+        2.092592716217041
+      ],
+      "size": [
+        0.5922122597694397,
+        0.5049842596054077,
+        0.38005058467388153
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.010_proxy0",
+      "sourceName": "A03_entry_stone_step.010",
+      "center": [
+        0.29994240403175354,
+        0.24901750683784485,
+        2.0947678089141846
+      ],
+      "size": [
+        0.5892921686172485,
+        0.4994588941335678,
+        0.38514985144138336
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.009_proxy0",
+      "sourceName": "A03_entry_stone_step.009",
+      "center": [
+        -0.2962355613708496,
+        0.24102813005447388,
+        2.098792552947998
+      ],
+      "size": [
+        0.5993537902832031,
+        0.5005951672792435,
+        0.3741174191236496
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.008_proxy0",
+      "sourceName": "A03_entry_stone_step.008",
+      "center": [
+        -0.8961109519004822,
+        0.24916741251945496,
+        2.090223550796509
+      ],
+      "size": [
+        0.581423431634903,
+        0.49398811161518097,
+        0.37676991522312164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.007_proxy0",
+      "sourceName": "A03_entry_stone_step.007",
+      "center": [
+        0.8920581936836243,
+        0.16145360469818115,
+        2.426128625869751
+      ],
+      "size": [
+        0.5962677597999573,
+        0.34130537509918213,
+        0.38194508850574493
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.006_proxy0",
+      "sourceName": "A03_entry_stone_step.006",
+      "center": [
+        0.2966359853744507,
+        0.16460081934928894,
+        2.4218783378601074
+      ],
+      "size": [
+        0.6012357473373413,
+        0.340762659907341,
+        0.37631745636463165
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.005_proxy0",
+      "sourceName": "A03_entry_stone_step.005",
+      "center": [
+        -0.2973710894584656,
+        0.1644306480884552,
+        2.424976110458374
+      ],
+      "size": [
+        0.5983045995235443,
+        0.3381822258234024,
+        0.38563814759254456
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.004_proxy0",
+      "sourceName": "A03_entry_stone_step.004",
+      "center": [
+        -0.886920154094696,
+        0.16246557235717773,
+        2.4250950813293457
+      ],
+      "size": [
+        0.5863625109195709,
+        0.3394600600004196,
+        0.38393718004226685
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.003_proxy0",
+      "sourceName": "A03_entry_stone_step.003",
+      "center": [
+        0.8955287933349609,
+        0.08239073306322098,
+        2.75773549079895
+      ],
+      "size": [
+        0.5884719789028168,
+        0.1691705733537674,
+        0.37774619460105896
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.002_proxy0",
+      "sourceName": "A03_entry_stone_step.002",
+      "center": [
+        0.2963252663612366,
+        0.07983696460723877,
+        2.7560033798217773
+      ],
+      "size": [
+        0.5952752530574799,
+        0.16342636197805405,
+        0.3748857378959656
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step.001_proxy0",
+      "sourceName": "A03_entry_stone_step.001",
+      "center": [
+        -0.29541003704071045,
+        0.0799223780632019,
+        2.7547738552093506
+      ],
+      "size": [
+        0.5802240669727325,
+        0.16594423353672028,
+        0.38036830723285675
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_entry_stone_step_proxy0",
+      "sourceName": "A03_entry_stone_step",
+      "center": [
+        -0.8921951651573181,
+        0.08466210961341858,
+        2.7533316612243652
+      ],
+      "size": [
+        0.5822142362594604,
+        0.16562426835298538,
+        0.37719006836414337
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_timber.004_proxy0",
+      "sourceName": "A03_column_timber.004",
+      "center": [
+        2.0999999046325684,
+        2.265000104904175,
+        -1.5499999523162842
+      ],
+      "size": [
+        0.23000000417232513,
+        1.9700000286102295,
+        0.23000000417232513
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_timber.003_proxy0",
+      "sourceName": "A03_column_timber.003",
+      "center": [
+        -2.0999999046325684,
+        2.265000104904175,
+        -1.5499999523162842
+      ],
+      "size": [
+        0.23000000417232513,
+        1.9700000286102295,
+        0.23000000417232513
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_timber.002_proxy0",
+      "sourceName": "A03_column_timber.002",
+      "center": [
+        2.0999999046325684,
+        2.265000104904175,
+        1.5499999523162842
+      ],
+      "size": [
+        0.23000000417232513,
+        1.9700000286102295,
+        0.23000000417232513
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_timber.001_proxy0",
+      "sourceName": "A03_column_timber.001",
+      "center": [
+        0.0,
+        2.265000104904175,
+        1.5499999523162842
+      ],
+      "size": [
+        0.23000000417232513,
+        1.9700000286102295,
+        0.23000000417232513
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_timber_proxy0",
+      "sourceName": "A03_column_timber",
+      "center": [
+        -2.0999999046325684,
+        2.265000104904175,
+        1.5499999523162842
+      ],
+      "size": [
+        0.23000000417232513,
+        1.9700000286102295,
+        0.23000000417232513
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_stone_foot.004_proxy0",
+      "sourceName": "A03_column_stone_foot.004",
+      "center": [
+        2.102290630340576,
+        1.080784559249878,
+        -1.554870367050171
+      ],
+      "size": [
+        0.4195754677057266,
+        0.24927648156881332,
+        0.419199138879776
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_stone_foot.003_proxy0",
+      "sourceName": "A03_column_stone_foot.003",
+      "center": [
+        -2.0976414680480957,
+        1.0786186456680298,
+        -1.5547488927841187
+      ],
+      "size": [
+        0.42906706035137177,
+        0.2511307820677757,
+        0.4194735437631607
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_stone_foot.002_proxy0",
+      "sourceName": "A03_column_stone_foot.002",
+      "center": [
+        2.102926731109619,
+        1.0803272724151611,
+        1.5501967668533325
+      ],
+      "size": [
+        0.4155167490243912,
+        0.24826624989509583,
+        0.4258569926023483
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_stone_foot.001_proxy0",
+      "sourceName": "A03_column_stone_foot.001",
+      "center": [
+        -0.000149652361869812,
+        1.0793832540512085,
+        1.5468846559524536
+      ],
+      "size": [
+        0.4257239103317261,
+        0.2521182894706726,
+        0.4196552634239197
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_column_stone_foot_proxy0",
+      "sourceName": "A03_column_stone_foot",
+      "center": [
+        -2.101306200027466,
+        1.0807654857635498,
+        1.553549885749817
+      ],
+      "size": [
+        0.41350139677524567,
+        0.24656853824853897,
+        0.42451098561286926
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "A03_back_sidewall_continuous_infill.001_proxy0",
+      "sourceName": "A03_back_sidewall_continuous_infill.001",
+      "center": [
+        2.0299999713897705,
+        1.8050000667572021,
+        -0.8700000047683716
+      ],
+      "size": [
+        1.3600000143051147,
+        2.630000114440918,
+        0.20000000298023224
+      ],
+      "rotation": [
+        0.0,
+        -0.7071066498756409,
+        0.0,
+        0.70710688829422
+      ]
+    },
+    {
+      "name": "A03_back_sidewall_continuous_infill_proxy0",
+      "sourceName": "A03_back_sidewall_continuous_infill",
+      "center": [
+        -2.0299999713897705,
+        1.8050000667572021,
+        -0.8700000047683716
+      ],
+      "size": [
+        1.3600000143051147,
+        2.630000114440918,
+        0.20000000298023224
+      ],
+      "rotation": [
+        0.0,
+        0.7071065902709961,
+        0.0,
+        0.7071069478988647
+      ]
+    }
+  ],
+  "collisionStatus": "Native named structural parts only; oriented boxes; modeled door-plank openings subtracted; no roof/decor or enclosing building collider.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "A03_LOD0.fbx",
+      "sha256": "20B9772A2C3BC3BB799466E2C2F9D2C83F1F18A9B085D0F8AD86F6F5FD6C6B3A"
+    },
+    {
+      "path": "A03_LOD1.fbx",
+      "sha256": "A73F848533067435037E209DDD1E939238D7606B2FFD2D9593C51023D604FFF1"
+    },
+    {
+      "path": "A03_LOD2.fbx",
+      "sha256": "B831B62DE6EC7F7218BE1BB32B5092B177B2104BDA479835EEB062E462362210"
+    },
+    {
+      "path": "A03_MetallicSmoothness01_00.png",
+      "sha256": "C4E0F3EB0409CD6F3887A0EA8CC76F171F6BB2E848D2CF76CCC0D732DF6C6D97"
+    },
+    {
+      "path": "A03_Texture00.png",
+      "sha256": "9A8FD080D4B229BF17486331329F864525D0E5A59B85DDEEE74374FF1AE1E900"
+    },
+    {
+      "path": "A03_Texture01.png",
+      "sha256": "2784D19E7A23F9345905B9BA625308F4CB0964842E77F9034E5C0B7C17394AE9"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 187796,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 100232,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 80277,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ],
+    "a03SilhouetteRepair": {
+      "part": "A03_M014",
+      "method": "Retain LOD0 mesh for this material only; preserve transform and original material mapping.",
+      "surfaceBoundsVerified": true,
+      "unityReimportPending": true
+    }
+  }
+}

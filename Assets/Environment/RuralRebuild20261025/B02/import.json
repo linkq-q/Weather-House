@@ -1,0 +1,1566 @@
+{
+  "schemaVersion": 1,
+  "id": "B02",
+  "name": "苔檐远行大船",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\B02_苔檐远行大船\\B02_重建.glb",
+  "sourceSha256": "0062793B2C3C267F05C40667EE29E91EB1C7888A075972DD62EAED4E074EDBDB",
+  "lods": [
+    "B02_LOD0.fbx",
+    "B02_LOD1.fbx",
+    "B02_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    189420,
+    77681,
+    33367
+  ],
+  "bounds": {
+    "min": [
+      -2.1849164962768555,
+      0.05002495273947716,
+      -6.928452968597412
+    ],
+    "max": [
+      2.1849164962768555,
+      9.318500518798828,
+      6.988690376281738
+    ],
+    "dimensions": [
+      4.369832992553711,
+      9.268475566059351,
+      13.91714334487915
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -2.1849164962768555,
+        0.05002495273947716,
+        -6.928452968597412
+      ],
+      "max": [
+        2.1849164962768555,
+        9.318500518798828,
+        6.988690376281738
+      ],
+      "dimensions": [
+        4.369832992553711,
+        9.268475566059351,
+        13.91714334487915
+      ]
+    },
+    {
+      "min": [
+        -2.187225580215454,
+        0.0484733060002327,
+        -6.928452968597412
+      ],
+      "max": [
+        2.184812545776367,
+        9.318500518798828,
+        6.988690376281738
+      ],
+      "dimensions": [
+        4.372038125991821,
+        9.270027212798595,
+        13.91714334487915
+      ]
+    },
+    {
+      "min": [
+        -2.1901721954345703,
+        0.035929836332798004,
+        -6.928452968597412
+      ],
+      "max": [
+        2.1901700496673584,
+        9.318500518798828,
+        6.990291118621826
+      ],
+      "dimensions": [
+        4.380342245101929,
+        9.28257068246603,
+        13.918744087219238
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "B02_M000",
+      "sourceMaterialName": "B02_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "B02_Texture00.png",
+      "metallicSmoothnessTexture": "B02_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M001",
+      "sourceMaterialName": "建筑_门缝与雕线_SubpixelPBR",
+      "baseColorFactor": [
+        0.02955683507025242,
+        0.027320891618728638,
+        0.017641954123973846,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9700000286102295,
+      "smoothness": 0.029999971389770508,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M002",
+      "sourceMaterialName": "木檐_暖胡桃_顺纹理_SubpixelPBR",
+      "baseColorFactor": [
+        0.17631728947162628,
+        0.1018923819065094,
+        0.044281139969825745,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.7900000214576721,
+      "smoothness": 0.20999997854232788,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M003",
+      "sourceMaterialName": "建筑_木作边缘与浅榫_SubpixelPBR",
+      "baseColorFactor": [
+        0.28712624311447144,
+        0.1622287929058075,
+        0.06028367578983307,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.8500000238418579,
+      "smoothness": 0.1499999761581421,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M004",
+      "sourceMaterialName": "建筑_旧黄铜_SubpixelPBR",
+      "baseColorFactor": [
+        0.45055145025253296,
+        0.278511643409729,
+        0.0654338002204895,
+        1
+      ],
+      "metallicFactor": 0.6200000047683716,
+      "roughnessFactor": 0.4399999976158142,
+      "smoothness": 0.5600000023841858,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M005",
+      "sourceMaterialName": "建筑_旧铜排水_SubpixelPBR",
+      "baseColorFactor": [
+        0.27365103363990784,
+        0.15655429661273956,
+        0.054071180522441864,
+        1
+      ],
+      "metallicFactor": 0.5,
+      "roughnessFactor": 0.5199999809265137,
+      "smoothness": 0.48000001907348633,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M006",
+      "sourceMaterialName": "建筑_暖石灰抹墙_SubpixelPBR",
+      "baseColorFactor": [
+        0.6110794544219971,
+        0.5387648344039917,
+        0.38191312551498413,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9800000190734863,
+      "smoothness": 0.019999980926513672,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M007",
+      "sourceMaterialName": "建筑_彩玻璃_02_SubpixelPBR",
+      "baseColorFactor": [
+        0.2462013214826584,
+        0.4507857859134674,
+        0.4910208582878113,
+        1
+      ],
+      "metallicFactor": 0.18000000715255737,
+      "roughnessFactor": 0.2800000011920929,
+      "smoothness": 0.7199999988079071,
+      "isGlass": true,
+      "opacity": 0.2,
+      "alphaMode": "BLEND",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M008",
+      "sourceMaterialName": "建筑_锻铁_SubpixelPBR",
+      "baseColorFactor": [
+        0.05232657864689827,
+        0.07917162775993347,
+        0.06988276541233063,
+        1
+      ],
+      "metallicFactor": 0.6499999761581421,
+      "roughnessFactor": 0.5299999713897705,
+      "smoothness": 0.4700000286102295,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M009",
+      "sourceMaterialName": "灰绿旧瓦_00_SubpixelPBR",
+      "baseColorFactor": [
+        0.14126329123973846,
+        0.16826939582824707,
+        0.12477181851863861,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M010",
+      "sourceMaterialName": "灰绿旧瓦_06_SubpixelPBR",
+      "baseColorFactor": [
+        0.20863686501979828,
+        0.21952620148658752,
+        0.15292614698410034,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M011",
+      "sourceMaterialName": "灰绿旧瓦_02_SubpixelPBR",
+      "baseColorFactor": [
+        0.15896083414554596,
+        0.19120168685913086,
+        0.1384316086769104,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M012",
+      "sourceMaterialName": "灰绿旧瓦_05_SubpixelPBR",
+      "baseColorFactor": [
+        0.17144110798835754,
+        0.19120168685913086,
+        0.12477181851863861,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M013",
+      "sourceMaterialName": "灰绿旧瓦_03_SubpixelPBR",
+      "baseColorFactor": [
+        0.12743768095970154,
+        0.16202937066555023,
+        0.11443537473678589,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M014",
+      "sourceMaterialName": "灰绿旧瓦_01_SubpixelPBR",
+      "baseColorFactor": [
+        0.16826939582824707,
+        0.1946178376674652,
+        0.1384316086769104,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M015",
+      "sourceMaterialName": "灰绿旧瓦_04_SubpixelPBR",
+      "baseColorFactor": [
+        0.1946178376674652,
+        0.2158605009317398,
+        0.1441284716129303,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9100000262260437,
+      "smoothness": 0.0899999737739563,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M016",
+      "sourceMaterialName": "苔草主材质_可调色阶与细节_SubpixelPBR",
+      "baseColorFactor": [
+        0.2115100622177124,
+        0.2525631785392761,
+        0.04245328903198242,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.949999988079071,
+      "smoothness": 0.050000011920928955,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M017",
+      "sourceMaterialName": "WeatherCraft_moss_dark_SubpixelPBR",
+      "baseColorFactor": [
+        0.14126329123973846,
+        0.19806931912899017,
+        0.02955683507025242,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9599999785423279,
+      "smoothness": 0.04000002145767212,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M018",
+      "sourceMaterialName": "WeatherCraft_moss_light_SubpixelPBR",
+      "baseColorFactor": [
+        0.35640013217926025,
+        0.4019777774810791,
+        0.03560131415724754,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9599999785423279,
+      "smoothness": 0.04000002145767212,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M019",
+      "sourceMaterialName": "WeatherCraft_amber_SubpixelPBR",
+      "baseColorFactor": [
+        0.7011018991470337,
+        0.47353148460388184,
+        0.16202937066555023,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.550000011920929,
+      "smoothness": 0.44999998807907104,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M020",
+      "sourceMaterialName": "WeatherCraft_teal_SubpixelPBR",
+      "baseColorFactor": [
+        0.05951123684644699,
+        0.1946178376674652,
+        0.20507873594760895,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.8199999928474426,
+      "smoothness": 0.18000000715255737,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M021",
+      "sourceMaterialName": "WeatherCraft_rope_SubpixelPBR",
+      "baseColorFactor": [
+        0.42869049310684204,
+        0.3277781009674072,
+        0.16202937066555023,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9599999785423279,
+      "smoothness": 0.04000002145767212,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M022",
+      "sourceMaterialName": "WeatherCraft_sail_SubpixelPBR",
+      "baseColorFactor": [
+        0.6795424818992615,
+        0.6104955673217773,
+        0.4564110338687897,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9800000190734863,
+      "smoothness": 0.019999980926513672,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    },
+    {
+      "name": "B02_M023",
+      "sourceMaterialName": "WeatherCraft_cream_SubpixelPBR",
+      "baseColorFactor": [
+        0.6514056324958801,
+        0.577580451965332,
+        0.423267662525177,
+        1
+      ],
+      "metallicFactor": 0,
+      "roughnessFactor": 0.9399999976158142,
+      "smoothness": 0.06000000238418579,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "",
+      "metallicSmoothnessTexture": "",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "B02_quarterdeck_plank_14_proxy0",
+      "sourceName": "B02_quarterdeck_plank_14",
+      "center": [
+        1.6068185567855835,
+        3.4574999809265137,
+        -4.630666732788086
+      ],
+      "size": [
+        0.22563719749450684,
+        0.06500005722045898,
+        1.381333351135254
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_13_proxy0",
+      "sourceName": "B02_quarterdeck_plank_13",
+      "center": [
+        1.3612499237060547,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.2294999361038208,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_12_proxy0",
+      "sourceName": "B02_quarterdeck_plank_12",
+      "center": [
+        1.1137499809265137,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_11_proxy0",
+      "sourceName": "B02_quarterdeck_plank_11",
+      "center": [
+        0.8662500381469727,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_10_proxy0",
+      "sourceName": "B02_quarterdeck_plank_10",
+      "center": [
+        0.6187499761581421,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_09_proxy0",
+      "sourceName": "B02_quarterdeck_plank_09",
+      "center": [
+        0.3712500035762787,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_08_proxy0",
+      "sourceName": "B02_quarterdeck_plank_08",
+      "center": [
+        0.1237500011920929,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999943375587,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_07_proxy0",
+      "sourceName": "B02_quarterdeck_plank_07",
+      "center": [
+        -0.1237500011920929,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999943375587,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_06_proxy0",
+      "sourceName": "B02_quarterdeck_plank_06",
+      "center": [
+        -0.3712500035762787,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_05_proxy0",
+      "sourceName": "B02_quarterdeck_plank_05",
+      "center": [
+        -0.6187499761581421,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_04_proxy0",
+      "sourceName": "B02_quarterdeck_plank_04",
+      "center": [
+        -0.8662500381469727,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_03_proxy0",
+      "sourceName": "B02_quarterdeck_plank_03",
+      "center": [
+        -1.1137499809265137,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.22949999570846558,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_02_proxy0",
+      "sourceName": "B02_quarterdeck_plank_02",
+      "center": [
+        -1.3612499237060547,
+        3.4574999809265137,
+        -5.059999942779541
+      ],
+      "size": [
+        0.2294999361038208,
+        0.06500005722045898,
+        2.239999771118164
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_quarterdeck_plank_01_proxy0",
+      "sourceName": "B02_quarterdeck_plank_01",
+      "center": [
+        -1.6068185567855835,
+        3.4574999809265137,
+        -4.630666732788086
+      ],
+      "size": [
+        0.22563719749450684,
+        0.06500005722045898,
+        1.381333351135254
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_14_proxy0",
+      "sourceName": "B02_main_deck_plank_14",
+      "center": [
+        1.8480000495910645,
+        2.5039987564086914,
+        -0.03804433345794678
+      ],
+      "size": [
+        0.24599993228912354,
+        0.3079392910003662,
+        7.748450040817261
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_13_proxy0",
+      "sourceName": "B02_main_deck_plank_13",
+      "center": [
+        1.5839999914169312,
+        2.633575916290283,
+        -0.3496129512786865
+      ],
+      "size": [
+        0.24600005149841309,
+        0.5670938491821289,
+        10.049360752105713
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_12_proxy0",
+      "sourceName": "B02_main_deck_plank_12",
+      "center": [
+        1.3199999332427979,
+        2.6967594623565674,
+        -0.5554463863372803
+      ],
+      "size": [
+        0.24599993228912354,
+        0.6934609413146973,
+        11.303921222686768
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_11_proxy0",
+      "sourceName": "B02_main_deck_plank_11",
+      "center": [
+        1.055999994277954,
+        2.6967594623565674,
+        -0.3459632396697998
+      ],
+      "size": [
+        0.2459999918937683,
+        0.6934609413146973,
+        11.722887516021729
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_10_proxy0",
+      "sourceName": "B02_main_deck_plank_10",
+      "center": [
+        0.7920000553131104,
+        2.6967594623565674,
+        -0.13546204566955566
+      ],
+      "size": [
+        0.2459999918937683,
+        0.6934609413146973,
+        12.143889904022217
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_09_proxy0",
+      "sourceName": "B02_main_deck_plank_09",
+      "center": [
+        0.527999997138977,
+        2.6967594623565674,
+        -0.03023219108581543
+      ],
+      "size": [
+        0.2460000216960907,
+        0.6934609413146973,
+        12.354349613189697
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_08_proxy0",
+      "sourceName": "B02_main_deck_plank_08",
+      "center": [
+        0.2639999985694885,
+        2.6967594623565674,
+        0.0760352611541748
+      ],
+      "size": [
+        0.2459999918937683,
+        0.6934609413146973,
+        12.566884517669678
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_07_proxy0",
+      "sourceName": "B02_main_deck_plank_07",
+      "center": [
+        0.0,
+        2.6967594623565674,
+        0.0760354995727539
+      ],
+      "size": [
+        0.2460000067949295,
+        0.6934609413146973,
+        12.566884994506836
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_06_proxy0",
+      "sourceName": "B02_main_deck_plank_06",
+      "center": [
+        -0.2639999985694885,
+        2.6967594623565674,
+        0.0760352611541748
+      ],
+      "size": [
+        0.2459999918937683,
+        0.6934609413146973,
+        12.566884517669678
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_05_proxy0",
+      "sourceName": "B02_main_deck_plank_05",
+      "center": [
+        -0.527999997138977,
+        2.6967594623565674,
+        -0.03023219108581543
+      ],
+      "size": [
+        0.2460000216960907,
+        0.6934609413146973,
+        12.354349613189697
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_04_proxy0",
+      "sourceName": "B02_main_deck_plank_04",
+      "center": [
+        -0.7920000553131104,
+        2.6967594623565674,
+        -0.13546204566955566
+      ],
+      "size": [
+        0.2459999918937683,
+        0.6934609413146973,
+        12.143889904022217
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_03_proxy0",
+      "sourceName": "B02_main_deck_plank_03",
+      "center": [
+        -1.055999994277954,
+        2.6967594623565674,
+        -0.3459632396697998
+      ],
+      "size": [
+        0.2459999918937683,
+        0.6934609413146973,
+        11.722887516021729
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_02_proxy0",
+      "sourceName": "B02_main_deck_plank_02",
+      "center": [
+        -1.3199999332427979,
+        2.6967594623565674,
+        -0.5554463863372803
+      ],
+      "size": [
+        0.24599993228912354,
+        0.6934609413146973,
+        11.303921222686768
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_01_proxy0",
+      "sourceName": "B02_main_deck_plank_01",
+      "center": [
+        -1.5839999914169312,
+        2.633575916290283,
+        -0.3496129512786865
+      ],
+      "size": [
+        0.24600005149841309,
+        0.5670938491821289,
+        10.049360752105713
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_main_deck_plank_00_proxy0",
+      "sourceName": "B02_main_deck_plank_00",
+      "center": [
+        -1.8480000495910645,
+        2.5039987564086914,
+        -0.03804433345794678
+      ],
+      "size": [
+        0.24599993228912354,
+        0.3079395294189453,
+        7.748450040817261
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_cabin_arch_infill_3.95_proxy0",
+      "sourceName": "B02_cabin_arch_infill_3.95",
+      "center": [
+        0.0,
+        4.627499580383301,
+        -3.950000047683716
+      ],
+      "size": [
+        2.640000104904175,
+        0.434999942779541,
+        0.1100001335144043
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_cabin_arch_infill_0.31_proxy0",
+      "sourceName": "B02_cabin_arch_infill_0.31",
+      "center": [
+        -0.893500030040741,
+        4.627499580383301,
+        -0.3100000023841858
+      ],
+      "size": [
+        0.8530000579357147,
+        0.434999942779541,
+        0.11000001430511475
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_cabin_arch_infill_0.31_proxy1",
+      "sourceName": "B02_cabin_arch_infill_0.31",
+      "center": [
+        0.893500030040741,
+        4.627499580383301,
+        -0.3100000023841858
+      ],
+      "size": [
+        0.8530000579357147,
+        0.434999942779541,
+        0.11000001430511475
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "B02_cabin_arch_infill_0.31_proxy2",
+      "sourceName": "B02_cabin_arch_infill_0.31",
+      "center": [
+        0.0,
+        4.561009883880615,
+        -0.3100000023841858
+      ],
+      "size": [
+        0.9339999890327454,
+        0.5679797363281249,
+        0.11000001430511475
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "collisionStatus": "Native named structural parts only; oriented boxes; modeled door-plank openings subtracted; no roof/decor or enclosing building collider.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "B02_LOD0.fbx",
+      "sha256": "DADFA96FD438777B7D4C7AB7B9E3A691DF75E301C446407F5EB5F81D7C2259FB"
+    },
+    {
+      "path": "B02_LOD1.fbx",
+      "sha256": "56201D2DD714EDFC099B92799D6E5C63EBAD1159C53FBEAC7FB62D44E37FCB37"
+    },
+    {
+      "path": "B02_LOD2.fbx",
+      "sha256": "E4B4D384B7BC08E111DF2E416B8C2AE0EDF2CC05253A416C9A2E7CBF196868F7"
+    },
+    {
+      "path": "B02_MetallicSmoothness01_00.png",
+      "sha256": "9FED3B828C966715F1E28A879D752CBE8E652FAA92CBF2B2463AC8291C8DD823"
+    },
+    {
+      "path": "B02_Texture00.png",
+      "sha256": "5C01FE2DD4A73804A30620DCE6286172F4514EA6943AB8FFA271B95778DC5962"
+    },
+    {
+      "path": "B02_Texture01.png",
+      "sha256": "8390ECE1CD74F0B9FCB8D9089D13C6506D9F5C6A1CA476F0E8193D8BC5A777C5"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "doorCenterUnblocked": true,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 189420,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 77681,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 33367,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  },
+  "doorOpeningBounds": {
+    "min": [
+      -0.3869999945163727,
+      2.609999895095825,
+      -0.20499999821186066
+    ],
+    "max": [
+      0.3869999945163727,
+      4.197020053863525,
+      -0.16500000655651093
+    ]
+  }
+}

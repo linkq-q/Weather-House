@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "id": "P01",
+  "name": "雨量筒立柱",
+  "sourcePath": "C:\\Users\\31483\\Desktop\\天气屋\\十七款场景资产重建_20261024\\模型\\P01_雨量筒立柱\\P01_重建.glb",
+  "sourceSha256": "7187C5EA8D18DFB2B1B8340F08AA2F25B097340C920EEC6CC90C5DEF8C452A30",
+  "lods": [
+    "P01_LOD0.fbx",
+    "P01_LOD1.fbx",
+    "P01_LOD2.fbx"
+  ],
+  "lodTriangles": [
+    6828,
+    2731,
+    1024
+  ],
+  "bounds": {
+    "min": [
+      -0.2903812527656555,
+      0.0,
+      -0.27152183651924133
+    ],
+    "max": [
+      0.26464179158210754,
+      1.6083334684371948,
+      0.3460000157356262
+    ],
+    "dimensions": [
+      0.5550230443477631,
+      1.6083334684371948,
+      0.6175218522548676
+    ]
+  },
+  "lodBounds": [
+    {
+      "min": [
+        -0.2903812527656555,
+        0.0,
+        -0.27152183651924133
+      ],
+      "max": [
+        0.26464179158210754,
+        1.6083334684371948,
+        0.3460000157356262
+      ],
+      "dimensions": [
+        0.5550230443477631,
+        1.6083334684371948,
+        0.6175218522548676
+      ]
+    },
+    {
+      "min": [
+        -0.2905937433242798,
+        0.0,
+        -0.27152183651924133
+      ],
+      "max": [
+        0.26464179158210754,
+        1.6075842380523682,
+        0.3473074734210968
+      ],
+      "dimensions": [
+        0.5552355349063873,
+        1.6075842380523682,
+        0.6188293099403381
+      ]
+    },
+    {
+      "min": [
+        -0.2905937433242798,
+        0.0,
+        -0.27152183651924133
+      ],
+      "max": [
+        0.26464179158210754,
+        1.607215404510498,
+        0.3593361973762512
+      ],
+      "dimensions": [
+        0.5552355349063873,
+        1.607215404510498,
+        0.6308580338954926
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "P01_M000",
+      "sourceMaterialName": "P01_Baked",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "metallicFactor": 1,
+      "roughnessFactor": 1,
+      "smoothness": 0,
+      "isGlass": false,
+      "opacity": 1,
+      "alphaMode": "OPAQUE",
+      "alphaCutoff": 0.5,
+      "doubleSided": true,
+      "baseColorTexture": "P01_Texture00.png",
+      "metallicSmoothnessTexture": "P01_MetallicSmoothness01_00.png",
+      "normalTexture": "",
+      "emissionTexture": "",
+      "emissionFactor": [
+        0,
+        0,
+        0
+      ],
+      "normalScale": 1,
+      "occlusionTexture": "",
+      "occlusionStrength": 1,
+      "packedFactorsBaked": true
+    }
+  ],
+  "colliders": [
+    {
+      "name": "central_post",
+      "center": [
+        -0.012869730591773987,
+        0.6,
+        0.037239089608192444
+      ],
+      "size": [
+        0.16,
+        1.2,
+        0.16
+      ]
+    }
+  ],
+  "collisionStatus": "Only explicit simple structural proxies; no enclosing solid boxes. Empty list requires entrance-aware collider review.",
+  "coordinateConvention": "FBX baked Y up, forward -Z. Unity expected x=Blender x,y=Blender z,z=-Blender y; no pivot recenter.",
+  "forwardAxis": "Expected Unity +Z for Blender source front -Y; per-asset entrance yaw still requires Unity preview calibration.",
+  "files": [
+    {
+      "path": "P01_LOD0.fbx",
+      "sha256": "AD1D5CDB1825C60F4746E960650471FA709D10BB87E3A50516CA4ACB508C9B04"
+    },
+    {
+      "path": "P01_LOD1.fbx",
+      "sha256": "52F4C126595EEF769C31AE32290EADDFB0A3B84AD48BC0B33463F1935DBFBD8E"
+    },
+    {
+      "path": "P01_LOD2.fbx",
+      "sha256": "245D54FFB4140F26E3A23BEECAAEC3A31AD329A2463361072070BFD2618EF44A"
+    },
+    {
+      "path": "P01_MetallicSmoothness01.png",
+      "sha256": "D889CBF4D354D720D30DBECA5876C94CAE4FD96B85912B1570F5B2DF85CA31C8"
+    },
+    {
+      "path": "P01_MetallicSmoothness01_00.png",
+      "sha256": "D889CBF4D354D720D30DBECA5876C94CAE4FD96B85912B1570F5B2DF85CA31C8"
+    },
+    {
+      "path": "P01_Texture00.png",
+      "sha256": "9D1E3B05591FF05CA45A17CACBAAB9FF6CD470EFF53C032AFEF6747568532344"
+    },
+    {
+      "path": "P01_Texture01.png",
+      "sha256": "24D64949F3AB4FE9FF138EAB1FF7C00E99AF70EF2ACFDBD821C7B62ECF51B7E5"
+    }
+  ],
+  "verification": {
+    "sourceHashUnchanged": true,
+    "sourceTriangleCountExact": true,
+    "boundsToleranceMeters": 0.02,
+    "unityImported": false,
+    "fbxRoundtrip": [
+      {
+        "lod": 0,
+        "triangles": 6828,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 1,
+        "triangles": 2731,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      },
+      {
+        "lod": 2,
+        "triangles": 1024,
+        "boundsMatch": true,
+        "materialNamesMatch": true,
+        "glassRenderersSeparated": true
+      }
+    ]
+  }
+}
