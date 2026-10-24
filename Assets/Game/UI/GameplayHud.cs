@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace WeatherHousePrototype
 {
-    [DisallowMultipleComponent]
+    [DisallowMultipleComponent, DefaultExecutionOrder(200)]
     public sealed class GameplayHud : MonoBehaviour
     {
         [Header("控件样式 · 运行时修改立即预览")]
@@ -35,6 +35,9 @@ namespace WeatherHousePrototype
         public bool useAlbumDesignSamples = true;
 
         public bool CameraMode { get; private set; }
+        public AnimalActor DialogueTarget => dialogueOpen ? dialogueTarget : null;
+        public bool IsDialogueOpen => dialogueOpen;
+        private AnimalActor dialogueTarget;
         public bool JournalOpen { get; private set; }
         public bool IsAlbumOpening => albumOpening != null && albumOpening.IsPlaying;
         public bool BlocksMovement => JournalOpen || dialogueOpen || InputFocused();
@@ -236,7 +239,7 @@ namespace WeatherHousePrototype
             if (captureLabel != null)
                 captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
                     ? "记录中  " + Mathf.RoundToInt(session.Recorder.CaptureProgress * 100f) + "%"
-                    : session.PhotoRig.FocalLength.ToString("F0") + " mm  ·  " + session.PhotoRig.FocusLabel + "\n滚轮变焦 · 点击对焦 · 空格拍照 · ESC 返回";
+                    : session.PhotoRig.FocalLength.ToString("F0") + " mm  ·  " + session.PhotoRig.FocusLabel + "\n滚轮变焦 · 点击对焦 · 空格拍照 · Esc 关闭";
             if (focusMark != null) focusMark.gameObject.SetActive(Time.unscaledTime < focusMarkUntil);
             if (Input.GetKeyDown(KeyCode.Escape)) { CloseTop(); return; }
             if (dirty && !InputFocused() && !IsAlbumOpening)
@@ -257,10 +260,7 @@ namespace WeatherHousePrototype
             }
             if (Input.GetKeyDown(KeyCode.C) && !JournalOpen && !dialogueOpen) SetCameraMode(!CameraMode);
             if (Input.GetKeyDown(KeyCode.E) && !JournalOpen && !CameraMode && session.Observed != null)
-            {
-                dialogueOpen = !dialogueOpen;
-                RebuildModal();
-            }
+                ToggleDialogue();
             if (JournalOpen || dialogueOpen) return;
             if (CameraMode && Input.GetMouseButtonDown(0) && (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
             {
@@ -306,6 +306,23 @@ namespace WeatherHousePrototype
             RebuildModal();
             dirty = false;
             if (albumOpening != null) albumOpening.Play();
+            session.RefreshInputBlocking();
+        }
+
+        public void ToggleDialogue()
+        {
+            if (JournalOpen || CameraMode || session == null || session.Observed == null || !session.Observed.IsAvailableForObservation) return;
+            dialogueOpen = !dialogueOpen;
+            dialogueTarget = dialogueOpen ? session.Observed : null;
+            RebuildModal();
+            session.RefreshInputBlocking();
+        }
+
+        public void CloseDialogue()
+        {
+            dialogueOpen = false; dialogueTarget = null; ClearFocus();
+            if (canvasRect) RebuildModal();
+            if (session) session.RefreshInputBlocking();
         }
 
         private void CloseJournal()
@@ -328,15 +345,15 @@ namespace WeatherHousePrototype
             JournalOpen = false;
             RebuildModal();
             dirty = false;
+            session.RefreshInputBlocking();
         }
 
         public void SetCameraMode(bool value)
         {
             if (!value && CameraMode && session.Recorder.IsRecording) session.Recorder.CancelCapture();
             session.PhotoRig.SetActive(value);
-            session.walker.CameraInputBlocked = value;
-            session.walker.JumpBlocked = value;
             CameraMode = value;
+            session.RefreshInputBlocking();
             if (cameraRoot != null) { cameraRoot.gameObject.SetActive(false); Destroy(cameraRoot.gameObject); cameraRoot = null; }
             if (!value || canvasRect == null) return;
             cameraRoot = Rect(canvasRect, "Camera mode", Vector2.zero, new Vector2(1600f, 1000f));
@@ -359,6 +376,7 @@ namespace WeatherHousePrototype
             else if (dialogueOpen) dialogueOpen = false;
             else if (CameraMode) { SetCameraMode(false); return; }
             RebuildModal();
+            session.RefreshInputBlocking();
         }
 
         private void RebuildModal()
@@ -388,7 +406,7 @@ namespace WeatherHousePrototype
             float scale = Mathf.Min(size.x / 900f, size.y / 190f);
             var bubble = ProceduralUiLibrary.Create(modalRoot, "Player reply bubble", UiMark.PlayerBubble,
                 PlayerBubblePosition(size), size, ProceduralUiLibrary.Grass);
-            replyInput = InputBox(bubble.transform, "Chinese reply", replyDraft, "写下你想说的话，回车回应……",
+            replyInput = InputBox(bubble.transform, "Chinese reply", replyDraft, "写下你想说的话，Enter 发送…",
                 Vector2.zero, new Vector2(size.x * .82f, size.y * .68f), scale, true);
             replyInput.lineType = InputField.LineType.SingleLine;
             replyInput.characterLimit = 240;
@@ -413,6 +431,7 @@ namespace WeatherHousePrototype
             dialogueOpen = false;
             ClearFocus();
             RebuildModal();
+            session.RefreshInputBlocking();
             echoUntil = Time.unscaledTime + 8f;
             BuildReplyEcho();
         }
@@ -661,7 +680,8 @@ namespace WeatherHousePrototype
             Camera view = session.CurrentView;
             if (view == null) { bubbleRoot.gameObject.SetActive(false); return; }
             Vector3 screen = view.WorldToScreenPoint(bubbleAnimal.BubbleAnchor);
-            bool visible = screen.z > 0f && !JournalOpen;
+            // Social's LateUpdate has already placed its world conversation; avoid a second bubble over it.
+            bool visible = screen.z > 0f && !JournalOpen && bubbleAnimal.IsAvailableForObservation && !bubbleAnimal.HasAmbientSpeech;
             bubbleRoot.gameObject.SetActive(visible);
             if (!visible) return;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out Vector2 local);
@@ -826,6 +846,23 @@ namespace WeatherHousePrototype
             thumbnailTextures.Clear();
             if (expandedTexture != null) Destroy(expandedTexture);
             expandedTexture = null;
+        }
+
+        private void OnEnable()
+        {
+            if (canvas) canvas.enabled = true;
+            if (session) session.RefreshInputBlocking();
+            dirty = true;
+        }
+
+        private void OnDisable()
+        {
+            ClearFocus();
+            JournalOpen = dialogueOpen = false; dialogueTarget = null;
+            if (session && session.PhotoRig) SetCameraMode(false);
+            if (canvasRect) RebuildModal();
+            if (canvas) canvas.enabled = false;
+            if (session) session.RefreshInputBlocking();
         }
 
         private void OnDestroy()

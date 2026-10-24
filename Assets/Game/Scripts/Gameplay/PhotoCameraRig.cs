@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using WeatherHouse.Hillside;
+using WeatherHouse.WildlifeJourney;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using ForestSpriteCharacter;
 
 namespace WeatherHousePrototype
 {
@@ -18,13 +22,25 @@ namespace WeatherHousePrototype
                 ? string.Empty : " · 景深暂不可用");
 
         private PrototypeWalker walker;
+        private ForestSpriteDemoController forestSprite;
+        private float photoYaw, photoPitch;
+        private Camera previousMovementCamera;
+        private readonly Dictionary<JourneySocial, Camera> socialCameras = new Dictionary<JourneySocial, Camera>();
+        private readonly Dictionary<HillsideGrassRenderer, Camera> grassCameras = new Dictionary<HillsideGrassRenderer, Camera>();
+        private Transform PlayerTransform => forestSprite ? forestSprite.transform : walker ? walker.transform : null;
+        private Camera ViewCamera => forestSprite ? forestSprite.demoCamera : walker ? walker.viewCamera : null;
+        private Camera MapCamera => walker ? walker.mapCamera : null;
+        private Transform VisualRoot => forestSprite ? forestSprite.transform : walker ? walker.visualRoot : null;
+        private bool InputBlocked => forestSprite ? forestSprite.InputBlocked : walker && walker.InputBlocked;
+        private float Yaw { get => forestSprite ? photoYaw : walker.yaw; set { if (forestSprite) photoYaw = value; else walker.yaw = value; } }
+        private float Pitch { get => forestSprite ? photoPitch : walker.pitch; set { if (forestSprite) photoPitch = value; else walker.pitch = value; } }
         private Camera photoCamera;
         private AudioListener photoListener, viewListener, mapListener;
         private Volume focusVolume;
         private VolumeProfile focusProfile;
         private DepthOfField focusEffect;
         private Renderer[] playerRenderers;
-        private bool[] rendererEnabled;
+        private bool[] rendererForcedOff;
         private bool previousViewEnabled, previousMapEnabled, previousViewAudio, previousMapAudio;
         private float previousYaw, previousPitch;
         private bool focusedOnSurface = true;
@@ -33,11 +49,22 @@ namespace WeatherHousePrototype
         {
             if (player == null || player.viewCamera == null || player.mapCamera == null)
                 throw new ArgumentException("PhotoCameraRig needs a player with walking and map cameras.", nameof(player));
-            if (walker != player)
+            if (walker != player || forestSprite)
             {
                 SetActive(false);
                 ReleaseResources();
                 walker = player;
+                forestSprite = null;
+            }
+            EnsureCamera();
+        }
+
+        public void Initialize(ForestSpriteDemoController player)
+        {
+            if (!player || !player.demoCamera) throw new ArgumentException("PhotoCameraRig needs the ForestSprite player and its existing view camera.", nameof(player));
+            if (forestSprite != player || walker)
+            {
+                SetActive(false); ReleaseResources(); walker = null; forestSprite = player;
             }
             EnsureCamera();
         }
@@ -46,9 +73,9 @@ namespace WeatherHousePrototype
         {
             if (photoCamera != null) return;
             var cameraObject = new GameObject("Photo Camera (runtime)") { hideFlags = HideFlags.DontSave };
-            cameraObject.transform.SetParent(walker.transform, false);
+            cameraObject.transform.SetParent(PlayerTransform, false);
             photoCamera = cameraObject.AddComponent<Camera>();
-            photoCamera.CopyFrom(walker.viewCamera);
+            photoCamera.CopyFrom(ViewCamera);
             photoCamera.enabled = false;
             photoCamera.orthographic = false;
             photoCamera.usePhysicalProperties = true;
@@ -62,7 +89,7 @@ namespace WeatherHousePrototype
             photoListener.enabled = false;
 
             var data = cameraObject.AddComponent<UniversalAdditionalCameraData>();
-            var sourceData = walker.viewCamera.GetComponent<UniversalAdditionalCameraData>();
+            var sourceData = ViewCamera.GetComponent<UniversalAdditionalCameraData>();
             data.renderType = CameraRenderType.Base;
             data.renderPostProcessing = true;
             data.requiresDepthTexture = true;
@@ -100,29 +127,36 @@ namespace WeatherHousePrototype
             if (value == Active) return;
             if (value)
             {
-                if (walker == null) throw new InvalidOperationException("Initialize PhotoCameraRig before entering photo mode.");
+                if (!PlayerTransform) throw new InvalidOperationException("Initialize PhotoCameraRig before entering photo mode.");
                 EnsureCamera();
-                previousYaw = walker.yaw;
-                previousPitch = walker.pitch;
-                previousViewEnabled = walker.viewCamera.enabled;
-                previousMapEnabled = walker.mapCamera.enabled;
-                viewListener = walker.viewCamera.GetComponent<AudioListener>();
-                mapListener = walker.mapCamera.GetComponent<AudioListener>();
+                if (forestSprite) { photoYaw = ViewCamera.transform.eulerAngles.y; photoPitch = Mathf.Clamp(forestSprite.cameraPitch, -10f, 15f); }
+                previousYaw = Yaw;
+                previousPitch = Pitch;
+                previousViewEnabled = ViewCamera.enabled;
+                previousMapEnabled = MapCamera && MapCamera.enabled;
+                viewListener = ViewCamera.GetComponent<AudioListener>();
+                mapListener = MapCamera ? MapCamera.GetComponent<AudioListener>() : null;
                 previousViewAudio = viewListener != null && viewListener.enabled;
                 previousMapAudio = mapListener != null && mapListener.enabled;
-                walker.SetOverview(false);
-                walker.viewCamera.enabled = false;
-                walker.mapCamera.enabled = false;
+                if (walker) walker.SetOverview(false);
+                ViewCamera.enabled = false;
+                if (MapCamera) MapCamera.enabled = false;
                 if (viewListener != null) viewListener.enabled = false;
                 if (mapListener != null) mapListener.enabled = false;
-                playerRenderers = walker.visualRoot != null ? walker.visualRoot.GetComponentsInChildren<Renderer>(true) : Array.Empty<Renderer>();
-                rendererEnabled = new bool[playerRenderers.Length];
+                // Cape Cloth is a sibling of the model under ForestSprite; hide renderers without suspending its simulation.
+                playerRenderers = VisualRoot ? VisualRoot.GetComponentsInChildren<Renderer>(true) : Array.Empty<Renderer>();
+                rendererForcedOff = new bool[playerRenderers.Length];
                 for (int i = 0; i < playerRenderers.Length; i++)
                 {
-                    rendererEnabled[i] = playerRenderers[i].enabled;
-                    playerRenderers[i].enabled = false;
+                    rendererForcedOff[i] = playerRenderers[i].forceRenderingOff;
+                    playerRenderers[i].forceRenderingOff = true;
                 }
                 Active = true;
+                if (forestSprite) { previousMovementCamera = forestSprite.MovementCameraOverride; forestSprite.MovementCameraOverride = photoCamera; }
+                foreach (var grass in FindObjectsOfType<HillsideGrassRenderer>(true))
+                    if (grass.gameObject.scene == gameObject.scene) { grassCameras[grass] = grass.viewCamera; grass.viewCamera = photoCamera; }
+                foreach (var social in FindObjectsOfType<JourneySocial>(true))
+                    if (social.gameObject.scene == gameObject.scene) { socialCameras[social] = social.viewCamera; social.viewCamera = photoCamera; }
                 UpdatePose();
                 focusVolume.enabled = true;
                 photoCamera.enabled = true;
@@ -131,34 +165,39 @@ namespace WeatherHousePrototype
             else
             {
                 Active = false;
+                if (forestSprite) forestSprite.MovementCameraOverride = previousMovementCamera;
+                foreach (var entry in grassCameras) if (entry.Key) entry.Key.viewCamera = entry.Value;
+                grassCameras.Clear();
+                foreach (var entry in socialCameras) if (entry.Key) entry.Key.viewCamera = entry.Value;
+                socialCameras.Clear();
                 if (photoCamera != null) photoCamera.enabled = false;
                 if (photoListener != null) photoListener.enabled = false;
                 if (focusVolume != null) focusVolume.enabled = false;
-                if (walker != null)
+                if (PlayerTransform)
                 {
-                    walker.yaw = previousYaw;
-                    walker.pitch = previousPitch;
-                    walker.SetOverview(previousMapEnabled && !previousViewEnabled);
-                    if (walker.viewCamera != null) walker.viewCamera.enabled = previousViewEnabled;
-                    if (walker.mapCamera != null) walker.mapCamera.enabled = previousMapEnabled;
+                    Yaw = previousYaw;
+                    Pitch = previousPitch;
+                    if (walker) walker.SetOverview(previousMapEnabled && !previousViewEnabled);
+                    if (ViewCamera) ViewCamera.enabled = previousViewEnabled;
+                    if (MapCamera) MapCamera.enabled = previousMapEnabled;
                 }
                 if (viewListener != null) viewListener.enabled = previousViewAudio;
                 if (mapListener != null) mapListener.enabled = previousMapAudio;
                 if (playerRenderers != null)
                     for (int i = 0; i < playerRenderers.Length; i++)
-                        if (playerRenderers[i] != null) playerRenderers[i].enabled = rendererEnabled[i];
+                        if (playerRenderers[i] != null) playerRenderers[i].forceRenderingOff = rendererForcedOff[i];
                 playerRenderers = null;
-                rendererEnabled = null;
+                rendererForcedOff = null;
             }
         }
 
         private void Update()
         {
-            if (!Active || walker == null || walker.InputBlocked) return;
+            if (!Active || !PlayerTransform || InputBlocked) return;
             if (Input.GetMouseButton(1))
             {
-                walker.yaw += Input.GetAxis("Mouse X") * 3f;
-                walker.pitch = Mathf.Clamp(walker.pitch - Input.GetAxis("Mouse Y") * 3f, -60f, 75f);
+                Yaw += Input.GetAxis("Mouse X") * 3f;
+                Pitch = Mathf.Clamp(Pitch - Input.GetAxis("Mouse Y") * 3f, -60f, 75f);
             }
             if (Mathf.Abs(Input.mouseScrollDelta.y) > .001f) Zoom(Input.mouseScrollDelta.y);
         }
@@ -170,9 +209,10 @@ namespace WeatherHousePrototype
 
         private void UpdatePose()
         {
-            if (walker == null || photoCamera == null) return;
-            Quaternion rotation = Quaternion.Euler(walker.pitch, walker.yaw, 0f);
-            photoCamera.transform.SetPositionAndRotation(walker.transform.position + Vector3.up * 1.55f +
+            if (!PlayerTransform || photoCamera == null) return;
+            Quaternion rotation = Quaternion.Euler(Pitch, Yaw, 0f);
+            float height = forestSprite ? Mathf.Max(.2f, forestSprite.cameraHeight) : 1.55f;
+            photoCamera.transform.SetPositionAndRotation(PlayerTransform.position + Vector3.up * height +
                 rotation * Vector3.forward * .2f, rotation);
         }
 
@@ -194,7 +234,7 @@ namespace WeatherHousePrototype
             focusedOnSurface = false;
             foreach (RaycastHit hit in Physics.RaycastAll(ray, 150f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             {
-                if (hit.transform.IsChildOf(walker.transform) || hit.distance >= nearest) continue;
+                if (hit.transform.IsChildOf(PlayerTransform) || hit.distance >= nearest) continue;
                 nearest = hit.distance;
                 focusPoint = hit.point;
                 focusedOnSurface = true;
@@ -215,7 +255,7 @@ namespace WeatherHousePrototype
         internal static bool TryGetAnimalBounds(AnimalActor animal, out Bounds bounds)
         {
             bounds = default;
-            Transform visual = animal.transform.Find("Visual");
+            Transform visual = animal.VisualRoot;
             if (visual == null) return false;
             bool found = false;
             foreach (Renderer renderer in visual.GetComponentsInChildren<Renderer>())

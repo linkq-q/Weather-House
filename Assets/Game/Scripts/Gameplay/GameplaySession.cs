@@ -3,6 +3,9 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using ForestSpriteCharacter;
+using WeatherHouse.Vegetation;
+using WeatherHouse.WatersideV2;
 
 namespace WeatherHousePrototype
 {
@@ -11,6 +14,7 @@ namespace WeatherHousePrototype
     public sealed class GameplaySession : MonoBehaviour
     {
         public PrototypeWalker walker;
+        public ForestSpriteDemoController forestSprite;
         public AnimalActor[] animals;
         public WeatherRegion[] regions;
         public LanguageNotebook Notebook { get; private set; }
@@ -18,7 +22,10 @@ namespace WeatherHousePrototype
         public AnimalActor Observed { get; private set; }
         public MotionPhotoRecorder Recorder { get; private set; }
         public PhotoCameraRig PhotoRig { get; private set; }
-        public Camera CurrentView => PhotoRig != null && PhotoRig.Active ? PhotoRig.CaptureCamera : walker.viewCamera;
+        public Transform PlayerTransform => forestSprite ? forestSprite.transform : walker ? walker.transform : null;
+        public Camera PlayerViewCamera => forestSprite ? forestSprite.demoCamera : walker ? walker.viewCamera : null;
+        public Transform PlayerVisualRoot => forestSprite ? forestSprite.visual : walker ? walker.visualRoot : null;
+        public Camera CurrentView => PhotoRig != null && PhotoRig.Active ? PhotoRig.CaptureCamera : PlayerViewCamera;
         public bool Judging { get; private set; }
         public string Status { get; private set; } = "走近动物，观察它的动作与字语。C 拍照留证，J 打开手账。";
         public event Action Changed;
@@ -27,6 +34,7 @@ namespace WeatherHousePrototype
         private GameplayHud hud;
         private float nextObservation;
         private string lastUtterance;
+        private VegetationTopDownCamera orbit;
 
         private void Awake()
         {
@@ -45,40 +53,52 @@ namespace WeatherHousePrototype
                 // Keep an unreadable save intact while the player uses a new session.
                 saveBlocked = true;
             }
-            if (walker == null) walker = FindObjectOfType<PrototypeWalker>();
+            if (!walker && !forestSprite) forestSprite = FindObjectOfType<ForestSpriteDemoController>();
+            if (!walker && !forestSprite) walker = FindObjectOfType<PrototypeWalker>();
+            if (!PlayerTransform || !PlayerViewCamera) throw new InvalidOperationException("GameplaySession needs the scene's player and view camera.");
+            if (forestSprite)
+            {
+                forestSprite.GameplayInputManaged = true;
+                orbit = PlayerViewCamera.GetComponent<VegetationTopDownCamera>();
+            }
             PhotoRig = GetComponent<PhotoCameraRig>();
             if (PhotoRig == null) PhotoRig = gameObject.AddComponent<PhotoCameraRig>();
-            PhotoRig.Initialize(walker);
-            walker.ShowLegacyHint = false;
+            if (forestSprite) PhotoRig.Initialize(forestSprite); else PhotoRig.Initialize(walker);
+            if (walker) walker.ShowLegacyHint = false;
         }
 
         private bool saveBlocked;
         private void OnEnable()
         {
             if (walker != null) walker.ShowLegacyHint = false;
+            if (forestSprite) forestSprite.GameplayInputManaged = true;
         }
         private void Update()
         {
-            walker.InputBlocked = hud.BlocksMovement;
-            walker.JumpBlocked = hud.CameraMode;
-            walker.CameraInputBlocked = hud.CameraMode;
+            RefreshInputBlocking();
             if (Time.unscaledTime < nextObservation) return;
             nextObservation = Time.unscaledTime + .2f;
             AnimalActor next = null;
             float best = 10f;
             Camera view = CurrentView;
-            if (view.enabled)
-                foreach (var animal in animals)
+            AnimalActor dialogueTarget = hud && hud.isActiveAndEnabled ? hud.DialogueTarget : null;
+            if (hud && hud.isActiveAndEnabled && hud.IsDialogueOpen)
+            {
+                if (dialogueTarget && dialogueTarget.IsAvailableForObservation && Vector3.Distance(PlayerTransform.position, dialogueTarget.transform.position) < 12f) next = dialogueTarget;
+                else hud.CloseDialogue();
+            }
+            if (next == null && view && view.enabled)
+                foreach (var animal in animals ?? Array.Empty<AnimalActor>())
                 {
-                    if (animal == null) continue;
-                    float distance = Vector3.Distance(walker.transform.position, animal.transform.position);
+                    if (animal == null || !animal.IsAvailableForObservation) continue;
+                    float distance = Vector3.Distance(PlayerTransform.position, animal.transform.position);
                     Vector3 sightPoint = PhotoRig.Active && PhotoCameraRig.TryGetAnimalBounds(animal, out Bounds bounds)
                         ? bounds.center : animal.BubbleAnchor;
                     Vector3 screen = view.WorldToViewportPoint(sightPoint);
                     if (distance >= best || screen.z <= 0f || screen.x < .03f || screen.x > .97f || screen.y < .04f || screen.y > .95f) continue;
                     Vector3 origin = view.transform.position;
                     if (Physics.Linecast(origin, sightPoint, out RaycastHit hit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore) &&
-                        !hit.transform.IsChildOf(animal.transform) && !hit.transform.IsChildOf(walker.transform)) continue;
+                        !hit.transform.IsChildOf(animal.transform) && !hit.transform.IsChildOf(PlayerTransform)) continue;
                     next = animal;
                     best = distance;
                 }
@@ -97,6 +117,19 @@ namespace WeatherHousePrototype
                 Save();
                 Changed?.Invoke();
             }
+        }
+
+        public void RefreshInputBlocking()
+        {
+            bool movement = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.BlocksMovement;
+            bool photo = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.CameraMode;
+            if (walker) { walker.InputBlocked = movement; walker.JumpBlocked = photo; walker.CameraInputBlocked = photo; }
+            if (forestSprite)
+            {
+                forestSprite.InputBlocked = movement; forestSprite.JumpBlocked = photo;
+                forestSprite.CameraInputBlocked = movement || photo;
+            }
+            if (orbit) orbit.InputBlocked = movement || photo;
         }
 
         public void SaveGuess(string id, string guess)
@@ -129,9 +162,13 @@ namespace WeatherHousePrototype
         {
             WeatherRegion target = Observed != null ? Observed.region : null;
             if (target == null)
-                target = regions.Where(r => r != null && r.Contains(walker.transform.position))
-                    .OrderBy(r => (r.transform.position - walker.transform.position).sqrMagnitude).FirstOrDefault();
-            if (target == null) { Notify("走近一处动物生活区域，再试着改变天气。"); return; }
+                target = (regions ?? Array.Empty<WeatherRegion>()).Where(r => r != null && r.Contains(PlayerTransform.position))
+                    .OrderBy(r => (r.transform.position - PlayerTransform.position).sqrMagnitude).FirstOrDefault();
+            if (target == null)
+            {
+                Notify(FindObjectOfType<WatersideMood>() ? "这张地图使用 F8 切换白天、晨雾、黄昏、阴天与夜晚氛围。" : "走近一处动物生活区域，再试着改变天气。");
+                return;
+            }
             target.SetWeather(weather);
             if (animals.Where(a => !a.background).All(a => a.RequestSatisfied))
             {
@@ -145,10 +182,12 @@ namespace WeatherHousePrototype
         public void Reply(string chinese)
         {
             if (Judging) return;
-            if (Observed == null) { Notify("靠近动物后再回答。"); return; }
-            if (Observed.background || Observed.RequestSatisfied) { Notify("它正在分享眼前的生活。换一只有请求的动物试试。"); return; }
-            if (string.IsNullOrWhiteSpace(chinese)) { Notify("写下你对它请求的理解。"); return; }
-            var animal = Observed;
+            var animal = hud && hud.DialogueTarget ? hud.DialogueTarget : Observed;
+            if (!animal || !animal.IsAvailableForObservation || Vector3.Distance(PlayerTransform.position, animal.transform.position) >= 12f)
+            { if (hud) hud.CloseDialogue(); Notify("它已经走远了，靠近后再继续交谈。"); return; }
+            if (string.IsNullOrWhiteSpace(chinese)) { Notify("写下你想对它说的话。"); return; }
+            if (animal.background) { Notify("你的话已经说出。它正在分享眼前的生活，可以继续观察它的动作和字语。"); return; }
+            if (animal.RequestSatisfied) { Notify("它的请求已经得到回应。可以继续观察它的生活，把新发现留进手账。"); return; }
             var ids = (string[])animal.CurrentGlyphIds.Clone();
             string context = animal.BehaviourDescription + "。当前天气：" + animal.region.Current + "。本句字义边界：" +
                 string.Join("；", Catalog.glyphs.Where(g => Array.IndexOf(ids, g.id) >= 0).Select(g => g.id + "=" + g.meaning + " " + g.boundary));
@@ -205,6 +244,8 @@ namespace WeatherHousePrototype
             if (Judging) StopAllCoroutines();
             if (PhotoRig != null) PhotoRig.SetActive(false);
             if (walker != null) { walker.InputBlocked = false; walker.JumpBlocked = false; walker.CameraInputBlocked = false; walker.ShowLegacyHint = true; }
+            if (forestSprite) { forestSprite.InputBlocked = false; forestSprite.JumpBlocked = false; forestSprite.CameraInputBlocked = false; forestSprite.GameplayInputManaged = false; }
+            if (orbit) orbit.InputBlocked = false;
             Judging = false;
         }
     }

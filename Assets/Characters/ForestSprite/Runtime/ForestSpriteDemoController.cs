@@ -36,6 +36,11 @@ namespace ForestSpriteCharacter
             Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.16f, .38f, JumpPhase)) *
             (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.78f, 1f, JumpPhase))) : 0f;
         public bool ScriptedInput { get; private set; }
+        public bool InputBlocked { get; set; }
+        public bool JumpBlocked { get; set; }
+        public bool CameraInputBlocked { get; set; }
+        public bool GameplayInputManaged { get; set; }
+        public Camera MovementCameraOverride { get; set; }
         public System.Func<Vector3, Vector3> ConstrainDisplacement { get; set; }
         public System.Func<Vector3, Vector3> ConstrainAnimalDisplacement { get; set; }
         public System.Action<float> RefreshAnimalContacts { get; set; }
@@ -78,10 +83,14 @@ namespace ForestSpriteCharacter
             animator.SetFloat("WalkCadence", Mathf.Max(0f, walkSpeed) /
                 Mathf.Max(.01f, Mathf.Lerp(originalWalkCycleDistance, walkCycleDistance, stride)));
             animator.SetFloat("RunCadence", Mathf.Max(0f, runSpeed) / Mathf.Max(.01f, runCycleDistance));
-            if (Input.GetKeyDown(KeyCode.R)) ResetPosition();
-            if (Input.GetKeyDown(KeyCode.P)) ToggleSecondaryMotion();
-            for (int i = 0; i <= 5; i++)
-                if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) SetDemonstration((Demonstration)i);
+            if (!InputBlocked)
+            {
+                if (Input.GetKeyDown(KeyCode.R)) ResetPosition();
+                if (Input.GetKeyDown(KeyCode.P)) ToggleSecondaryMotion();
+                if (!GameplayInputManaged)
+                    for (int i = 0; i <= 5; i++)
+                        if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i))) SetDemonstration((Demonstration)i);
+            }
 
             var movement = new Vector2((Input.GetKey(KeyCode.D) ? 1 : 0) - (Input.GetKey(KeyCode.A) ? 1 : 0),
                 (Input.GetKey(KeyCode.W) ? 1 : 0) - (Input.GetKey(KeyCode.S) ? 1 : 0));
@@ -98,9 +107,12 @@ namespace ForestSpriteCharacter
                 demonstration = Demonstration.Manual;
             else if (demonstration != Demonstration.Manual)
                 DemoInput(out movement, out running, out jump);
+            if (InputBlocked) { movement = Vector2.zero; running = false; jump = false; }
+            else if (JumpBlocked) jump = false;
 
-            Vector3 forward = demoCamera != null
-                ? Vector3.ProjectOnPlane(demoCamera.transform.forward, Vector3.up).normalized : Vector3.forward;
+            Camera movementCamera = MovementCameraOverride ? MovementCameraOverride : demoCamera;
+            Vector3 forward = movementCamera != null
+                ? Vector3.ProjectOnPlane(movementCamera.transform.forward, Vector3.up).normalized : Vector3.forward;
             Vector3 direction = forward * movement.y + Vector3.Cross(Vector3.up, forward) * movement.x;
             direction = Vector3.ClampMagnitude(direction, 1f);
             AdvanceMovement(direction, running, jump, Time.deltaTime);
@@ -110,7 +122,7 @@ namespace ForestSpriteCharacter
             SwitchState(state);
             if (transform.position.y < -4f) ResetPosition();
 
-            if (demoCamera != null && !ScriptedInput && !externalCameraControl)
+            if (demoCamera != null && !ScriptedInput && !externalCameraControl && !CameraInputBlocked)
             {
                 bool overPanel = (Input.mousePosition.x < 320f && Screen.height - Input.mousePosition.y < 310f)
                     || ForestSpriteCapePanel.PointerOverPanel;

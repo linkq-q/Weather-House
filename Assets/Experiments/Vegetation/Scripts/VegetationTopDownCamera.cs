@@ -21,6 +21,7 @@ namespace WeatherHouse.Vegetation
         public float followResponse = 8;
         public float mouseSensitivity = 2;
         public float keyboardTurnSpeed = 55;
+        public KeyCode turnLeftKey = KeyCode.Q, turnRightKey = KeyCode.E;
         public float zoomSpeed = 1;
         [HideInInspector] public bool pointerOverPanel;
 
@@ -28,17 +29,18 @@ namespace WeatherHouse.Vegetation
         Vector3 followedPosition;
         bool hasPosition;
         public float Yaw => baseYaw + yawOffset;
+        public bool InputBlocked { get; set; }
 
         void Awake() { viewCamera = GetComponent<Camera>(); }
         void OnEnable() { hasPosition = false; }
 
         void Update()
         {
-            if (!player || player.ScriptedInput) return;
+            if (!player || player.ScriptedInput || InputBlocked) return;
             bool overControls = player.showControls && Input.mousePosition.x < 320 &&
                 Screen.height - Input.mousePosition.y < 310;
             if (pointerOverPanel || overControls || ForestSpriteCapePanel.PointerOverPanel) return;
-            float keyboard = (Input.GetKey(KeyCode.E) ? 1 : 0) - (Input.GetKey(KeyCode.Q) ? 1 : 0);
+            float keyboard = (Input.GetKey(turnRightKey) ? 1 : 0) - (Input.GetKey(turnLeftKey) ? 1 : 0);
             float horizontal = keyboard * keyboardTurnSpeed * Time.unscaledDeltaTime;
             float vertical = 0;
             if (Input.GetMouseButton(1))
