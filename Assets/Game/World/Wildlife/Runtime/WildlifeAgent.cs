@@ -113,7 +113,7 @@ namespace WeatherHouse.Hillside
                 Vector3 away = transform.position - other.transform.position;
                 away.y = 0f;
                 float distance = away.magnitude;
-                float spacing = Radius + other.Radius + .45f;
+                float spacing = population.BodySpacing(this, other, -away) + .45f;
                 if (distance < spacing && distance > .01f) separation += away.normalized * (1f - distance / spacing);
                 if (timidity > .15f && other.startlesOthers && other.ActualSpeed > Mathf.Max(.4f, other.walkSpeed * .65f) && distance < 2.8f &&
                     other.locomotion == locomotion && (string.IsNullOrEmpty(other.speciesId) || other.speciesId != speciesId) && now >= nextAlarm)
@@ -387,7 +387,8 @@ namespace WeatherHouse.Hillside
             {
                 direction = partner.transform.position - transform.position;
                 direction.y = 0f;
-                moving = direction.magnitude > Radius + partner.Radius + .35f;
+                float gap = locomotion == WildlifeLocomotion.Ground ? .025f : .35f;
+                moving = direction.magnitude > population.BodySpacing(this, partner, direction) + gap;
             }
             float speed = (State == WildlifeState.Flee ? runSpeed : walkSpeed) * speedVariation;
             Quaternion proposedRotation = transform.rotation;
@@ -400,7 +401,12 @@ namespace WeatherHouse.Hillside
                 if (steering.sqrMagnitude < .001f) steering = direction.normalized;
                 Vector3 displacement = steering.normalized * Mathf.Min(speed * dt, direction.magnitude);
                 Vector3 before = transform.position;
-                if (population.TryMove(this, before + displacement, out Vector3 next, proposedRotation))
+                bool accepted = population.TryMove(this, before + displacement, out Vector3 next, proposedRotation);
+                // A neighbour may block turning while a short step without turning can safely back out.
+                if (!accepted && locomotion == WildlifeLocomotion.Ground && proposedRotation != transform.rotation &&
+                    population.TryMove(this, before + displacement, out next, transform.rotation))
+                { accepted = true; proposedRotation = transform.rotation; }
+                if (accepted)
                 {
                     transform.position = next;
                     transform.rotation = proposedRotation;

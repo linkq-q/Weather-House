@@ -1,0 +1,96 @@
+{
+  "status": "PASS native fixtures and observed natural main window",
+  "change": "Use measured oriented bodies for ordinary ground-animal spacing, turning and movement; preserve nose greeting access and safe escape from existing overlap.",
+  "sources": [
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs",
+      "baselineSha256": "25698cc59d25d0a0d733c657da28371679010585b0527b81e5a048998fca348e",
+      "candidateSha256": "85DDFC9A94BBF7CB08B86D63C954C407C12A590D13025B3E43BD479722A8DD80",
+      "mainStillBaseline": true,
+      "candidatePath": "C:\\unity project\\Weather House\\JourneyReview\\Revision_20261024\\PopulationContact\\Assets\\Game\\World\\Wildlife\\Runtime\\WildlifeAgent.cs",
+      "currentMainSha256": "25698CC59D25D0A0D733C657DA28371679010585B0527B81E5A048998FCA348E"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifePopulation.cs",
+      "baselineSha256": "111af3b4c022dbd2816d11b21573b2b447530a150e4cbc123e7ef011197df44c",
+      "candidateSha256": "0BED5898E183204A9771CA2E362ADAFB667022B413FFBBD331F6F7D7755762A7",
+      "mainStillBaseline": true,
+      "candidatePath": "C:\\unity project\\Weather House\\JourneyReview\\Revision_20261024\\PopulationContact\\Assets\\Game\\World\\Wildlife\\Runtime\\WildlifePopulation.cs",
+      "currentMainSha256": "111AF3B4C022DBD2816D11B21573B2B447530A150E4CBC123E7EF011197DF44C"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeBodyEnvelope.cs",
+      "baselineSha256": "1c6fe200472518729d97fc766941f658cc76b108bce9e3c0c62204ec4f3054dc",
+      "candidateSha256": "412DE67801F51A7661576E50852039E7ED4EDC2BA7726B56F96E828C0DB6C467",
+      "mainStillBaseline": true,
+      "candidatePath": "C:\\unity project\\Weather House\\JourneyReview\\Revision_20261024\\PopulationContact\\Assets\\Game\\World\\Wildlife\\Runtime\\WildlifeBodyEnvelope.cs",
+      "currentMainSha256": "1C6FE200472518729D97FC766941F658CC76B108BCE9E3C0C62204EC4F3054DC"
+    }
+  ],
+  "fixture": "JourneyReview/Revision_20261024/PopulationContact/green-reviewed.txt",
+  "fixtureGroups": 10,
+  "isolatedCases": [
+    "Original crowded three dogs: 24 dangerous moves and25 dangerous rotations rejected; safe moves retained",
+    "Existing overlap0.466522m exits through19 normal3cm steps",
+    "Swept-turn midpoint and third-animal blockers respected",
+    "25mm nose gap social path and stationary Forage remain valid"
+  ],
+  "mainRun": "JourneyReview/Revision_20261024/AnimationInstall/AdditionalSources/DogEating/CandidateV3/MainRuns/20261024_204534_631",
+  "mainSceneSha256": "931CAA82988EEB24DDE877A7C193EA73BCB4B14EEA53124B5B834FFE61480EDD",
+  "rawEvidence": [
+    {
+      "path": "JourneyReview/Revision_20261024/AnimationInstall/AdditionalSources/DogEating/CandidateV3/MainRuns/20261024_204534_631/body-contact.csv",
+      "sha256": "6EC221B551CD239A3F304034760C7245981BF98E656596988B33A503E1C357F2"
+    },
+    {
+      "path": "JourneyReview/Revision_20261024/AnimationInstall/AdditionalSources/DogEating/CandidateV3/MainRuns/20261024_204534_631/sample.json",
+      "sha256": "2170BA5DE968F5A536734DD2038DA270497C4CEDB953BEF1BDB7397D058D8FE2"
+    },
+    {
+      "path": "JourneyReview/Revision_20261024/AnimationInstall/MainReview/Runs/20261024_204515_282_lifecycle_dog-eating/result-204555860.json",
+      "sha256": "2C9A33E8B94DBB630BDC23E9C255103472277141F3E27126AC65FE06CDD00F1D"
+    }
+  ],
+  "pairFrames": 930,
+  "pairs": [
+    {
+      "first": 0,
+      "second": 1,
+      "samples": 930,
+      "initialDepth": 0.0,
+      "maximumDepth": 0.0,
+      "maximumIncreaseFromBest": 0,
+      "mutualGreetingPartnerSamples": 103
+    },
+    {
+      "first": 0,
+      "second": 2,
+      "samples": 930,
+      "initialDepth": 0.0,
+      "maximumDepth": 0.0,
+      "maximumIncreaseFromBest": 0,
+      "mutualGreetingPartnerSamples": 63
+    },
+    {
+      "first": 1,
+      "second": 2,
+      "samples": 930,
+      "initialDepth": 0.0,
+      "maximumDepth": 0.0,
+      "maximumIncreaseFromBest": 0,
+      "mutualGreetingPartnerSamples": 0
+    }
+  ],
+  "naturalForageAllThree": true,
+  "maximumForageRootDrift": 0,
+  "bodyOracle": "Native Physics.ComputePenetration of full cached measured BodyEnvelope boxes; test colliders live in a separate local physics scene. Initial means first probe observation after host warm-up, not scene birth. 2 mm tolerance; every observed frame, not an animation-mesh intersection proof.",
+  "limitation": [
+    "Initial means first sample after warm-up, not birth; no initial overlap occurred, so recovery time is not exercised here.",
+    "Finite 20-second sample does not prove every future encounter or between-frame motion.",
+    "Native oracle measures cached full body boxes, not every animated mesh triangle or paw-ground contact.",
+    "Current run does not replace earlier RED/GREEN fixtures for seeded overlap exit and rotation midpoint cases."
+  ],
+  "visualReview": "Root inspected three unmodified main Game captures: separate natural feeding and nearby standing poses. Grass obscures some paws; native paw measurements are separate evidence. Legacy idle paw penetration is not corrected by this body-spacing unit.",
+  "lifecycle": "PASS: Edit clean, scene unchanged, notebook/options restored.",
+  "combinedJourneyStatus": "Only independent PopulationContact body installed in this unit. Later Journey body additions require exact merge and rerun."
+}

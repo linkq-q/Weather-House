@@ -304,7 +304,33 @@ namespace WeatherHouse.Hillside
 
         private bool HasClearSocialPath(WildlifeAgent first, WildlifeAgent second)
         {
-            return TryMove(first, second.transform.position, out _);
+            // This checks access to a partner, not permission to walk through its body.
+            return TryMoveCore(first, second.transform.position, out _, first.transform.rotation, second);
+        }
+
+        internal float BodySpacing(WildlifeAgent first, WildlifeAgent second, Vector3 toward)
+        {
+            if (first.locomotion != WildlifeLocomotion.Ground || second.locomotion != WildlifeLocomotion.Ground)
+                return first.Radius + second.Radius;
+            return first.BodyEnvelope.Reach(toward, first.transform.rotation, first.Radius) +
+                second.BodyEnvelope.Reach(-toward, second.transform.rotation, second.Radius);
+        }
+
+        private bool GroundBodiesAllowMove(WildlifeAgent agent, Vector3 from, Quaternion fromRotation,
+            Vector3 to, Quaternion toRotation, WildlifeAgent socialTarget = null)
+        {
+            if (agent.locomotion != WildlifeLocomotion.Ground) return true;
+            foreach (WildlifeAgent other in agents)
+            {
+                if (!other || other == agent || other == socialTarget || !other.isActiveAndEnabled ||
+                    other.locomotion != WildlifeLocomotion.Ground) continue;
+                float reach = agent.BodyEnvelope.HorizontalRadius + other.BodyEnvelope.HorizontalRadius + Vector3.Distance(from, to);
+                Vector3 delta = other.transform.position - from; delta.y = 0;
+                if (delta.sqrMagnitude > reach * reach) continue;
+                if (!WildlifeBodyPhysics.ClearOfBody(agent.BodyEnvelope, from, fromRotation, to, toRotation,
+                    other.BodyEnvelope, other.transform.position, other.transform.rotation)) return false;
+            }
+            return true;
         }
 
         public bool TryProjectPosition(WildlifeAgent agent, Vector3 requested, out Vector3 projected)
@@ -364,12 +390,16 @@ namespace WeatherHouse.Hillside
 
         public bool CanRotate(WildlifeAgent agent, Quaternion rotation)
         {
-            return agent.locomotion != WildlifeLocomotion.Ground || bodyPhysics.Clear(agent.BodyEnvelope,
+            return agent.locomotion != WildlifeLocomotion.Ground || (bodyPhysics.Clear(agent.BodyEnvelope,
                 agent.transform.position, agent.transform.rotation, agent.transform.position, rotation, obstacleMask,
-                owner: agent.transform, player: PlayerCollision, ignoreAnimals: true);
+                owner: agent.transform, player: PlayerCollision, ignoreAnimals: true) &&
+                GroundBodiesAllowMove(agent, agent.transform.position, agent.transform.rotation, agent.transform.position, rotation));
         }
 
         public bool TryMove(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing = null)
+        { return TryMoveCore(agent, requested, out projected, facing, null); }
+
+        private bool TryMoveCore(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing, WildlifeAgent socialTarget)
         {
             Vector3 origin = agent.transform.position;
             projected = origin;
@@ -392,6 +422,7 @@ namespace WeatherHouse.Hillside
                 Quaternion rotation = facing.HasValue ? Quaternion.Slerp(agent.transform.rotation, heading, (float)i / steps) : heading;
                 if (groundBody && !bodyPhysics.Clear(agent.BodyEnvelope, previous, previousRotation, sample, rotation, obstacleMask,
                     owner: agent.transform, player: PlayerCollision, ignoreAnimals: true)) return false;
+                if (groundBody && !GroundBodiesAllowMove(agent, previous, previousRotation, sample, rotation, socialTarget)) return false;
                 previousRotation = rotation;
                 previous = sample;
             }
