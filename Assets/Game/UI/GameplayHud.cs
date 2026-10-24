@@ -67,6 +67,7 @@ namespace WeatherHousePrototype
         private RawImage expandedImage;
         private Texture2D expandedTexture;
         private readonly List<Texture2D> thumbnailTextures = new List<Texture2D>();
+        private readonly List<Outline> photoIconOutlines = new List<Outline>();
         private ProceduralUiStyle appliedStyle;
         private string lastStyleWarning;
         private static readonly Color Paper = new Color(.96f, .95f, .88f);
@@ -105,6 +106,7 @@ namespace WeatherHousePrototype
 
         private void BuildChrome()
         {
+            photoIconOutlines.Clear();
             var controls = Rect(canvasRect, "Controls", Vector2.zero, new Vector2(560f, 64f));
             controls.anchorMin = controls.anchorMax = Vector2.zero;
             controls.anchoredPosition = new Vector2(304f, 48f);
@@ -353,13 +355,14 @@ namespace WeatherHousePrototype
             if (!value && CameraMode && session.Recorder.IsRecording) session.Recorder.CancelCapture();
             session.PhotoRig.SetActive(value);
             CameraMode = value;
+            foreach (Outline outline in photoIconOutlines) if (outline) outline.enabled = value;
             session.RefreshInputBlocking();
             if (cameraRoot != null) { cameraRoot.gameObject.SetActive(false); Destroy(cameraRoot.gameObject); cameraRoot = null; }
             if (!value || canvasRect == null) return;
             cameraRoot = Rect(canvasRect, "Camera mode", Vector2.zero, new Vector2(1600f, 1000f));
-            ProceduralUiLibrary.Create(cameraRoot, "Viewfinder", UiMark.Viewfinder, new Vector2(0f, 45f), new Vector2(1240f, 720f), ProceduralUiLibrary.Cream, 3.5f);
+            ProceduralUiLibrary.Create(cameraRoot, "Viewfinder", UiMark.Viewfinder, new Vector2(0f, 45f), new Vector2(1240f, 720f), ProceduralUiLibrary.Cream, 7f);
             ProceduralUiLibrary.Create(cameraRoot, "Camera dot", UiMark.Dot, new Vector2(0f, -334f), new Vector2(9f, 9f), ProceduralUiLibrary.Cream);
-            var shutter = ProceduralUiLibrary.Button(cameraRoot, "Shutter", UiMark.Shutter, new Vector2(0f, -395f), new Vector2(88f, 88f), ProceduralUiLibrary.Cream, 4f);
+            var shutter = ProceduralUiLibrary.Button(cameraRoot, "Shutter", UiMark.Shutter, new Vector2(0f, -395f), new Vector2(88f, 88f), ProceduralUiLibrary.Cream, 8f);
             shutter.onClick.AddListener(() => session.TakePhoto());
             captureLabel = Label(cameraRoot, "Capture hint", "", new Vector2(390f, -404f), new Vector2(530f, 76f), 18, ProceduralUiLibrary.Cream);
             focusMark = ProceduralUiLibrary.Create(cameraRoot, "Focus indicator", UiMark.Viewfinder, Vector2.zero, new Vector2(60f, 60f), ProceduralUiLibrary.Cream, 2f).rectTransform;
@@ -816,12 +819,19 @@ namespace WeatherHousePrototype
             return image;
         }
 
-        private static void HudIcon(Transform parent, string name, string resource, Vector2 position, Vector2 size, Rect uv)
+        private void HudIcon(Transform parent, string name, string resource, Vector2 position, Vector2 size, Rect uv)
         {
             var icon = Raw(parent, name, position, size);
             icon.texture = Resources.Load<Texture2D>("HudIcons/" + resource);
             icon.color = new Color32(231, 226, 198, 240);
             icon.uvRect = uv;
+            // These authored icons are textures; thicken their existing silhouettes in photo mode.
+            var outline = icon.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(icon.color.r, icon.color.g, icon.color.b, 1f);
+            outline.effectDistance = Vector2.one * .45f;
+            outline.useGraphicAlpha = true;
+            outline.enabled = CameraMode;
+            photoIconOutlines.Add(outline);
         }
 
         private static bool InputFocused()
