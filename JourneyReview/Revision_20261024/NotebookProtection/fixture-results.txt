@@ -1,0 +1,7 @@
+Only synthetic notebook files under the isolated project are read/written.
+PASS all four initial notebook/tmp presence combinations; binary bytes and absence restored, both review outputs retained
+PASS locked original fails backup before Play; original bytes remain intact
+PASS corrupt second backup blocks all live-file changes, retains cleanup/manifest, restores editor options and supports retry; expected FAIL log above
+PASS real Finish/PlayChanged method routing for normal, exception and manual-exit cases (callbacks invoked in Edit fixture)
+PASS actual Unity domain reload recovered pending cleanup using SessionState plus disk manifest; Play=False
+PASS complete. No real player notebook, scene, request file, 210-second run or main Unity was touched.

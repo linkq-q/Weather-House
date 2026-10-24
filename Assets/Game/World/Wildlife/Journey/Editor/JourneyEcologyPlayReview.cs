@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
     {
         const string Key = "WeatherHouse.EcologyReview.";
         const string Request = "JourneyReview/Revision_20261024/ecology-play-request.txt";
+        const string MissingFile = "<missing>";
         static JourneyHerd herd;
         static WildlifePopulation population;
         static WildlifeAgent[] foxes;
@@ -36,6 +38,12 @@ namespace WeatherHouse.WildlifeJourney.Editor
         static readonly HashSet<int> fixedSpeakers = new HashSet<int>();
         static readonly HashSet<string> capturedTurns = new HashSet<string>();
         static bool Running => SessionState.GetBool(Key + "running", false);
+        static bool notebookRecoveryAttempted;
+
+        [Serializable] sealed class NotebookBackup
+        {
+            public string path, notebookHash, temporaryHash;
+        }
 
         static JourneyEcologyPlayReview()
         {
@@ -49,8 +57,15 @@ namespace WeatherHouse.WildlifeJourney.Editor
             nextPoll = EditorApplication.timeSinceStartup + .08;
             try
             {
+                if (SessionState.GetBool(Key + "cleanup", false) && !EditorApplication.isPlayingOrWillChangePlaymode)
+                {
+                    if (!notebookRecoveryAttempted) CompleteCleanup();
+                    return;
+                }
                 if (Running)
                 {
+                    if (!EditorApplication.isPlayingOrWillChangePlaymode)
+                    { Finish("FAIL", "Play ended or could not start; recovering the notebook from Edit mode.", false); CompleteCleanup(); return; }
                     if (EditorApplication.isPlaying)
                     {
                         if (string.IsNullOrEmpty(folder))
@@ -81,19 +96,29 @@ namespace WeatherHouse.WildlifeJourney.Editor
         public static void Begin()
         {
             var scene = SceneManager.GetActiveScene();
+            if (Running || SessionState.GetBool(Key + "cleanup", false) || !string.IsNullOrEmpty(SessionState.GetString(Key + "notebookManifest", "")))
+                throw new InvalidOperationException("Finish or recover the previous ecology review before starting another one.");
             if (EditorApplication.isPlayingOrWillChangePlaymode || scene.isDirty || scene.path != "Assets/Scenes/WeatherHouse_WatersideV2.unity")
                 throw new InvalidOperationException("Review the saved Waterside scene from clean Edit mode.");
-            folder = "JourneyReview/Revision_20261024/MapPlay_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+            folder = "JourneyReview/Revision_20261024/MapPlay_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff");
+            if (Directory.Exists(folder)) throw new IOException("The review directory already exists; preserve its backups and retry later.");
             Directory.CreateDirectory(folder);
             File.WriteAllText(folder + "/summary.txt", "RUNNING\nReal Update; unchanged animal parameters and clocks; temporary observation camera.\n");
             File.WriteAllText("JourneyReview/Revision_20261024/latest-map-play.txt", folder);
+            string manifest;
+            try { manifest = BackupNotebook(Path.Combine(Application.persistentDataPath, "language-notebook.json"), folder); }
+            catch (Exception error)
+            { File.AppendAllText(folder + "/summary.txt", "FAIL notebook backup; Play was not started.\n" + error + "\n"); throw; }
             SessionState.SetString(Key + "folder", folder);
+            SessionState.SetString(Key + "notebookManifest", manifest);
             SessionState.SetBool(Key + "background", Application.runInBackground);
             SessionState.SetBool(Key + "paused", EditorApplication.isPaused);
             SessionState.SetBool(Key + "running", true);
             SessionState.SetBool(Key + "cleanup", false);
             SessionState.SetBool(Key + "entered", false);
-            EditorApplication.isPlaying = true;
+            notebookRecoveryAttempted = false;
+            try { EditorApplication.isPlaying = true; }
+            catch (Exception error) { Finish("FAIL", error.ToString(), false); CompleteCleanup(); throw; }
         }
 
         static void PlayChanged(PlayModeStateChange state)
@@ -115,12 +140,107 @@ namespace WeatherHouse.WildlifeJourney.Editor
             if (state == PlayModeStateChange.ExitingPlayMode && Running)
                 Finish("FAIL", "Play mode was stopped before the 210-second observation completed.", false);
             if (state == PlayModeStateChange.EnteredEditMode && SessionState.GetBool(Key + "cleanup", false))
+                CompleteCleanup();
+        }
+
+        static string BackupNotebook(string path, string reviewFolder)
+        {
+            path = Path.GetFullPath(path); reviewFolder = Path.GetFullPath(reviewFolder);
+            var backup = new NotebookBackup { path = path, notebookHash = FileHash(path), temporaryHash = FileHash(path + ".tmp") };
+            string[] paths = { path, path + ".tmp" }, hashes = { backup.notebookHash, backup.temporaryHash };
+            for (int i = 0; i < paths.Length; i++)
+            {
+                if (hashes[i] == MissingFile) continue;
+                string copy = Path.Combine(reviewFolder, i == 0 ? "notebook.before" : "notebook-temp.before");
+                File.Copy(paths[i], copy, false);
+                if (FileHash(copy) != hashes[i] || FileHash(paths[i]) != hashes[i]) throw new IOException("Notebook backup verification failed: " + paths[i]);
+            }
+            string manifest = Path.Combine(reviewFolder, "notebook-backup.json");
+            using (var writer = new StreamWriter(new FileStream(manifest, FileMode.CreateNew, FileAccess.Write)))
+                writer.Write(JsonUtility.ToJson(backup, true));
+            File.AppendAllText(Path.Combine(reviewFolder, "summary.txt"), "NOTEBOOK_BACKUP path=" + path + "\nnotebook=" + backup.notebookHash + "\ntemporary=" + backup.temporaryHash + "\n");
+            return manifest;
+        }
+
+        static string RestoreNotebook(string manifest)
+        {
+            if (string.IsNullOrEmpty(manifest)) throw new IOException("Notebook recovery manifest is missing; no profile files were changed.");
+            var backup = JsonUtility.FromJson<NotebookBackup>(File.ReadAllText(manifest));
+            if (backup == null || string.IsNullOrEmpty(backup.path) || Path.GetFileName(backup.path) != "language-notebook.json" ||
+                !ValidHash(backup.notebookHash) || !ValidHash(backup.temporaryHash)) throw new IOException("Invalid notebook recovery manifest; no profile files were changed.");
+            string reviewFolder = Path.GetDirectoryName(manifest);
+            string[] paths = { backup.path, backup.path + ".tmp" }, hashes = { backup.notebookHash, backup.temporaryHash };
+            string[] copies = { Path.Combine(reviewFolder, "notebook.before"), Path.Combine(reviewFolder, "notebook-temp.before") };
+            // Validate both originals before changing either live file, including restoring an originally absent file.
+            for (int i = 0; i < paths.Length; i++)
+                if (hashes[i] != MissingFile && FileHash(copies[i]) != hashes[i])
+                    throw new IOException("Notebook backup is missing or damaged; live files were not changed: " + copies[i]);
+            var evidence = new List<string>();
+            for (int i = 0; i < paths.Length; i++)
+            {
+                string current = FileHash(paths[i]);
+                if (current != hashes[i])
+                {
+                    string retained = Path.Combine(reviewFolder, (i == 0 ? "notebook" : "notebook-temp") + ".during-review-" + Guid.NewGuid().ToString("N"));
+                    if (hashes[i] == MissingFile)
+                        File.Move(paths[i], retained); // Preserve review-created data while restoring the original absence.
+                    else
+                    {
+                        if (current != MissingFile)
+                        {
+                            File.Copy(paths[i], retained, false);
+                            if (FileHash(retained) != current) throw new IOException("Could not preserve the review's notebook output: " + paths[i]);
+                        }
+                        string staging = paths[i] + ".ecology-restore-" + Guid.NewGuid().ToString("N");
+                        File.Copy(copies[i], staging, false);
+                        if (FileHash(staging) != hashes[i]) throw new IOException("Notebook restore staging verification failed: " + staging);
+                        if (current == MissingFile) File.Move(staging, paths[i]);
+                        else File.Replace(staging, paths[i], null);
+                    }
+                }
+                string restored = FileHash(paths[i]);
+                if (restored != hashes[i]) throw new IOException("Notebook restore verification failed: " + paths[i]);
+                evidence.Add("NOTEBOOK_RESTORE path=" + paths[i] + " original=" + hashes[i] + " review=" + current + " restored=" + restored);
+            }
+            return string.Join("\n", evidence) + "\n";
+        }
+
+        static bool ValidHash(string value) => value == MissingFile || value != null && value.Length == 64 && value.All(Uri.IsHexDigit);
+        static string FileHash(string path)
+        {
+            try
+            {
+                if ((File.GetAttributes(path) & FileAttributes.Directory) != 0) throw new IOException("A directory occupies the notebook file path: " + path);
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+            }
+            catch (FileNotFoundException) { return MissingFile; }
+            catch (DirectoryNotFoundException) { return MissingFile; }
+        }
+
+        static void CompleteCleanup()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            notebookRecoveryAttempted = true;
+            string reviewFolder = SessionState.GetString(Key + "folder", "");
+            try
+            {
+                string evidence = RestoreNotebook(SessionState.GetString(Key + "notebookManifest", ""));
+                File.AppendAllText(Path.Combine(reviewFolder, "summary.txt"), evidence + "HANDOFF Play=False dirty=" + SceneManager.GetActiveScene().isDirty + "\n");
+                SessionState.SetBool(Key + "cleanup", false);
+                SessionState.EraseString(Key + "notebookManifest");
+            }
+            catch (Exception error)
+            {
+                string message = "FAIL notebook restore; backups and recovery manifest retained for retry.\n" + error + "\n";
+                try { File.AppendAllText(Path.Combine(reviewFolder, "summary.txt"), message); }
+                catch (Exception reportError) { Debug.LogError("Could not write notebook recovery failure report: " + reportError); }
+                Debug.LogError(message);
+            }
+            finally
             {
                 Application.runInBackground = SessionState.GetBool(Key + "background", false);
                 EditorApplication.isPaused = SessionState.GetBool(Key + "paused", false);
-                SessionState.SetBool(Key + "cleanup", false);
-                File.AppendAllText(SessionState.GetString(Key + "folder", "") + "/summary.txt",
-                    "\nHANDOFF Play=False dirty=" + SceneManager.GetActiveScene().isDirty + "\n");
             }
         }
 
