@@ -128,7 +128,9 @@ namespace WeatherHouse.WildlifeJourney.Editor
         {
             if (!camera)
             {
-                herd = Object.FindObjectOfType<JourneyHerd>(); population = Object.FindObjectOfType<WildlifePopulation>();
+                Scene scene = SceneManager.GetActiveScene();
+                herd = Object.FindObjectsOfType<JourneyHerd>().SingleOrDefault(h => h.gameObject.scene == scene);
+                population = WeatherHouse.Hillside.Editor.WildlifeSolitaryIntegration.FindFoxPopulation(scene);
                 if (!herd || !population || !population.Initialized || !Camera.main) return;
                 if (!herd.social) throw new InvalidOperationException("Saved herd has no animal speech controller.");
                 foxes = population.agents.Where(a => a && a.speciesId == "fox").OrderBy(a => a.spawnId).ToArray();

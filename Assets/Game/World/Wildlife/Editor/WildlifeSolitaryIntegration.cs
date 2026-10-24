@@ -2,6 +2,7 @@ using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace WeatherHouse.Hillside.Editor
 {
@@ -9,7 +10,29 @@ namespace WeatherHouse.Hillside.Editor
     {
         [MenuItem("Weather House/Wildlife/Enable Waterside Fox Routines")]
         public static void ApplyCurrentScene()
-        { Debug.Log(ApplyCurrentFoxes(UnityEngine.Object.FindObjectOfType<WildlifePopulation>())); }
+        { Debug.Log(ApplyCurrentFoxes(FindFoxPopulation(SceneManager.GetActiveScene()))); }
+
+        public static WildlifePopulation FindFoxPopulation(Scene scene)
+        {
+            if (!scene.IsValid() || !scene.isLoaded) throw new InvalidOperationException("Expected a loaded scene containing fox 20 and 21.");
+            WildlifePopulation found = null;
+            foreach (GameObject root in scene.GetRootGameObjects())
+                foreach (WildlifePopulation population in root.GetComponentsInChildren<WildlifePopulation>(true))
+                {
+                    bool first = false, second = false;
+                    if (population.agents == null) continue;
+                    foreach (WildlifeAgent agent in population.agents)
+                    {
+                        if (!agent || agent.gameObject.scene != scene || agent.speciesId != "fox") continue;
+                        first |= agent.spawnId == 20; second |= agent.spawnId == 21;
+                    }
+                    if (!first || !second) continue;
+                    if (found) throw new InvalidOperationException("More than one population contains fox 20 and 21 in this scene.");
+                    found = population;
+                }
+            if (!found) throw new InvalidOperationException("No population contains both fox 20 and 21 in this scene.");
+            return found;
+        }
 
         public static string ApplyCurrentFoxes(WildlifePopulation population)
         {
