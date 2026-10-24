@@ -1,0 +1,71 @@
+{
+    "status": "PASS",
+    "error": "",
+    "startedUtc": "2026-10-24T06:49:39.5371427Z",
+    "finishedUtc": "2026-10-24T06:49:57.9284703Z",
+    "playSeconds": 10.02821159362793,
+    "frames": 135,
+    "alarmAccepted": true,
+    "sawTakeoff": true,
+    "sawFlee": true,
+    "returnedToEdit": true,
+    "sceneDirtyAfter": false,
+    "originalRunInBackground": false,
+    "originalPause": false,
+    "restoredRunInBackground": false,
+    "restoredPause": false,
+    "bird": {
+        "name": "robin",
+        "spawnId": 48,
+        "rawDelta": 0.2238319367170334,
+        "referenceSpan": 0.6881000995635986,
+        "ratio": 0.325289785861969,
+        "requiredRatio": 0.05000000074505806,
+        "initialBakedBoundsSize": {
+            "x": 0.6881000995635986,
+            "y": 0.20290690660476685,
+            "z": 0.47904497385025027
+        },
+        "skinLossyScale": {
+            "x": 0.894701361656189,
+            "y": 0.8947008848190308,
+            "z": 0.894701361656189
+        },
+        "states": [
+            "Fly"
+        ],
+        "screenshots": [
+            "bird_01.png",
+            "bird_02.png"
+        ]
+    },
+    "butterfly": {
+        "name": "蝴蝶 1-2",
+        "spawnId": 5001,
+        "rawDelta": 0.18214009702205659,
+        "referenceSpan": 0.24665126204490663,
+        "ratio": 0.7384518980979919,
+        "requiredRatio": 0.05000000074505806,
+        "initialBakedBoundsSize": {
+            "x": 0.16900227963924409,
+            "y": 0.09443623572587967,
+            "z": 0.24665126204490663
+        },
+        "skinLossyScale": {
+            "x": 0.08515289425849915,
+            "y": 0.08515289425849915,
+            "z": 0.08515289425849915
+        },
+        "states": [
+            "Idle",
+            "Alert",
+            "Takeoff",
+            "Flee",
+            "Fly"
+        ],
+        "screenshots": [
+            "butterfly_01.png",
+            "butterfly_02.png"
+        ]
+    }
+}

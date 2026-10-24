@@ -249,9 +249,18 @@ namespace WeatherHouse.Hillside
                 Vector3 candidate;
                 if (locomotion == WildlifeLocomotion.Flying)
                 {
-                    // A flock keeps a shared broad direction while individual birds cross region boundaries.
-                    Vector2 offset = random.InCircle(Mathf.Max(12f, habitatRadius));
-                    candidate = center + new Vector3(offset.x, 0f, offset.y);
+                    if (speciesId == "robin")
+                    {
+                        var slot = new WildlifeRandom(population.worldSeed, spawnId, "robin_flock_slot");
+                        Vector2 offset = slot.InCircle(1.7f);
+                        if (attempt > 0) offset += random.InCircle(1);
+                        candidate = population.RobinFlightWaypoint(groupId, habitatCenter) + new Vector3(offset.x, 0f, offset.y);
+                    }
+                    else
+                    {
+                        Vector2 offset = random.InCircle(Mathf.Max(12f, habitatRadius));
+                        candidate = center + new Vector3(offset.x, 0f, offset.y);
+                    }
                     candidate.x = Mathf.Clamp(candidate.x, population.worldBounds.min.x + 2f, population.worldBounds.max.x - 2f);
                     candidate.z = Mathf.Clamp(candidate.z, population.worldBounds.min.z + 2f, population.worldBounds.max.z - 2f);
                 }

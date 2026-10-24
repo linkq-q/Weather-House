@@ -35,7 +35,13 @@ namespace WeatherHouse.Hillside
         private float decisionClock, nextAmbientAlarm;
         private Vector3 previousPlayerPosition;
 
-        private sealed class Group { public Vector3 center; public int count; }
+        private sealed class Group
+        {
+            public Vector3 center, robinWaypoint;
+            public int count, robinFlightLeg;
+            public float robinWaypointUntil;
+            public bool hasRobinWaypoint;
+        }
         private struct ExternalBody { public UnityEngine.Object owner; public Transform root; public float radius; public bool grounded; }
 
         // Bodies driven by another controller share physical space without joining this population's decisions or animation.
@@ -194,6 +200,26 @@ namespace WeatherHouse.Hillside
 
         public Vector3 GroupCenter(int groupId, Vector3 fallback)
         { return groups.TryGetValue(groupId, out Group group) && group.count > 0 ? group.center : fallback; }
+
+        // Only robin cruise calls this; landing and alarm escape remain individual decisions.
+        public Vector3 RobinFlightWaypoint(int groupId, Vector3 fallback)
+        {
+            if (!groups.TryGetValue(groupId, out Group group)) groups.Add(groupId, group = new Group());
+            if (!group.hasRobinWaypoint || SimulationTime >= group.robinWaypointUntil)
+            {
+                Vector3 center = group.count > 0 ? group.center : fallback;
+                var random = new WildlifeRandom(worldSeed, groupId * 977 + group.robinFlightLeg++, "robin_flock_route");
+                Vector2 travel = random.InCircle(1);
+                if (travel.sqrMagnitude < .001f) travel = Vector2.up;
+                travel = travel.normalized * random.Range(12, 17);
+                group.robinWaypoint = center + new Vector3(travel.x, 0, travel.y);
+                group.robinWaypoint.x = Mathf.Clamp(group.robinWaypoint.x, worldBounds.min.x + 4, worldBounds.max.x - 4);
+                group.robinWaypoint.z = Mathf.Clamp(group.robinWaypoint.z, worldBounds.min.z + 4, worldBounds.max.z - 4);
+                group.robinWaypointUntil = SimulationTime + random.Range(8, 11);
+                group.hasRobinWaypoint = true;
+            }
+            return group.robinWaypoint;
+        }
 
         public bool TryAmbientAlarm(Vector3 origin, float radius, float intensity)
         {
