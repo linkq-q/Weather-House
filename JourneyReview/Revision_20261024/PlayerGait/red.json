@@ -1,0 +1,12 @@
+{
+  "result": "EXPECTED_FAIL",
+  "actualSpeed": 2.25,
+  "requiredSpeed": 2.9250000000000003,
+  "actualCycleDistance": 0.7599999904632568,
+  "requiredCycleDistance": 0.95,
+  "source": "before/pose.json, before/native/result.json",
+  "assertions": [
+    "Actual current walk speed does not meet 1.3x request",
+    "Existing maximum foot separation is 0.380m, below new 0.475m target"
+  ]
+}

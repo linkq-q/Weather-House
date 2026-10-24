@@ -12,11 +12,11 @@ namespace ForestSpriteCharacter
         public bool showControls = true;
         public ForestSpriteSecondaryMotion secondaryMotion;
         public ForestSpriteCapeCloth capeCloth;
-        public float walkSpeed = 2.25f;
+        public float walkSpeed = 2.925f;
         [Range(0f, 1f)] public float walkStride = 1f;
         public float runSpeed = 4.5f;
         [HideInInspector] public float originalWalkCycleDistance = .264f;
-        [HideInInspector] public float walkCycleDistance = .72f;
+        [HideInInspector] public float walkCycleDistance = .95f;
         [HideInInspector] public float runCycleDistance = 1.230769f;
         public float jumpHeight = .48f;
         public float gravity = -8f;

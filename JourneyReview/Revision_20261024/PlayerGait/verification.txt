@@ -1,0 +1,12 @@
+Player gait verification / 2026-10-24
+
+Actual main Waterside scene Play: MotionReview/Runs/20261024_144058_608_lifecycle_baseline/result-144132860.json.
+Controller persisted walkSpeed=2.92499995, walkCycleDistance=.94999999. Actual horizontal velocity mean=2.92500377 m/s; travelled 6.35152 m. Scene file and Notebook bytes unchanged, all editor options restored, returned to clean Edit.
+Root viewed actual main walk frame 004 with dynamic cape and the in-game HUD. Full phase before/after side comparison reviewed separately. This does not claim user visual acceptance.
+
+Isolated native Play before/after: 2.24999142 -> 2.92498875 m/s, ratio 1.29999996. Running 4.5 m/s and jump height .483521 m unchanged; input lock, movement constraint and physical wall tests passed.
+Imported 121-phase bone sampling: foot fore/aft span .413441 -> .516801 m; maximum foot separation .380002 -> .475002 m. Mean planted-foot world slip .0000334 m/s, maximum .0001144 m/s.
+Authoring verification: only Walk action changed, rig/mesh/UV/skin hashes unchanged. The 31.6 cm leg reach requires 5.64 cm lower walking hips for the 25% longer stride; no sole penetration or knee reversal found in sampled views. Idle/Run/Jump/WalkShort retained.
+
+Saved user settings migrated once under exact hash guard, changing only walkSpeed 2.25 -> 2.925. Private backup remains local and is excluded from Git.
+Existing prefab source NaN bounds were restored independently to the preexisting HEAD values, but recurred after the Unity import/Play lifecycle. That separate persistence issue remains under investigation. No bounds change is included in this gait commit; imported Cloth-derived bounds were finite in the read-only checks.

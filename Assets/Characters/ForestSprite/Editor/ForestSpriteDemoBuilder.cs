@@ -225,7 +225,7 @@ namespace ForestSpriteCharacter.Editor
             out float originalCycleDistance, out float cycleDistance)
         {
             originalCycleDistance = .52f;
-            cycleDistance = running ? .34f / .22f : .38f / .5f;
+            cycleDistance = running ? .34f / .22f : .475f / .5f;
             string path = Generated + "/" + (running ? "Run" : "Walk") + "_LongStride.anim";
             var result = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
             if (result == null)
