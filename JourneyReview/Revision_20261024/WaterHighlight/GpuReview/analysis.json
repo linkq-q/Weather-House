@@ -1,0 +1,174 @@
+{
+  "evidence": "Isolated Unity Editor URP Camera.Render GPU readback; copied actual Waterside material and atlas; fixed water time; not main-scene Play.",
+  "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+  "atlasWidth": 1024,
+  "maxProductionLod": 5.0,
+  "temporal": {
+    "Before": {
+      "frames": 65,
+      "fixedWorldPoints": 150,
+      "meanFrameDelta": 0.0007730534367708333,
+      "p99FrameDelta": 0.014017336560000012,
+      "maxFrameDelta": 0.05666789999999999,
+      "p99SecondDifference": 0.014349474190000015,
+      "maxSecondDifference": 0.05709314300000001,
+      "changesAbove3Percent": 18
+    },
+    "After": {
+      "frames": 65,
+      "fixedWorldPoints": 150,
+      "meanFrameDelta": 0.0007498623109374999,
+      "p99FrameDelta": 0.013136790950000001,
+      "maxFrameDelta": 0.058431656000000026,
+      "p99SecondDifference": 0.012451512280000012,
+      "maxSecondDifference": 0.05842617100000003,
+      "changesAbove3Percent": 15
+    }
+  },
+  "diagnostic": [
+    {
+      "name": "Before atlas LOD 1",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "Before atlas LOD 2",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "Before atlas LOD 3",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "Before atlas LOD 4",
+      "max": 0.048675537109375,
+      "mean": 4.430144326761365e-05,
+      "changed": 396
+    },
+    {
+      "name": "Before pigment threshold 1",
+      "max": 0.018157958984375,
+      "mean": 0.018157958984375,
+      "changed": 4096
+    },
+    {
+      "name": "Before pigment threshold 2",
+      "max": 0.04779052734375,
+      "mean": 0.04779052734375,
+      "changed": 4096
+    },
+    {
+      "name": "Before pigment threshold 3",
+      "max": 0.0662841796875,
+      "mean": 0.0662841796875,
+      "changed": 4096
+    },
+    {
+      "name": "Before pigment threshold 4",
+      "max": 0.07177734375,
+      "mean": 0.07177734375,
+      "changed": 4096
+    },
+    {
+      "name": "Before pigment threshold 5",
+      "max": 0.08251953125,
+      "mean": 0.08251953125,
+      "changed": 4096
+    },
+    {
+      "name": "Before pigment threshold 6",
+      "max": 0.09765625,
+      "mean": 0.09765625,
+      "changed": 4096
+    },
+    {
+      "name": "Before pigment threshold 7",
+      "max": 0.11279296875,
+      "mean": 0.11279296875,
+      "changed": 4096
+    },
+    {
+      "name": "After atlas LOD 1",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "After atlas LOD 2",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "After atlas LOD 3",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "After atlas LOD 4",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 1",
+      "max": 0.000274658203125,
+      "mean": 0.000274658203125,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 2",
+      "max": 0.00048828125,
+      "mean": 0.00048828125,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 3",
+      "max": 0.0006103515625,
+      "mean": 0.0006103515625,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 4",
+      "max": 0.000732421875,
+      "mean": 0.000732421875,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 5",
+      "max": 0.000732421875,
+      "mean": 0.000732421875,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 6",
+      "max": 0.00048828125,
+      "mean": 0.00048828125,
+      "changed": 0
+    },
+    {
+      "name": "After pigment threshold 7",
+      "max": 0.00146484375,
+      "mean": 0.00146484375,
+      "changed": 0
+    },
+    {
+      "name": "After fixed camera and fixed time",
+      "max": 0.0,
+      "mean": 0.0,
+      "changed": 0
+    },
+    {
+      "name": "After real water time 0 to 3.2s",
+      "max": 0.277313232421875,
+      "mean": 0.0015250258147716522,
+      "changed": 16010
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+Independent read-only review: /root/player_gait_stride, 2026-10-24.
+Reviewed the five-line shader change and both helper call chains; no new blocker found.
+
+The continuous padding is >= the original ceil(lod) bound. For the actual imported
+1024 atlas, maxLod = log2(1024 * .5) - 4 = 5; maximum inset is .06348, below .5.
+Trilinear taps remain within their quadrant. No extra texture fetch or RenderTexture.
+
+floor(scaledLightness) + smoothstep(.35, .65, frac(scaledLightness)) has matching
+left/right limits and zero derivative at integers; the old half-step threshold
+is now continuous. Existing .6-1.4 pigment ratio clamp is preserved.
+
+Existing nearest-stamp/step spatial edges remain. Main-scene moving-camera review
+is still required for occlusion and reflection-capture interactions. Fixed-time
+off-screen proof does not establish that every possible water flicker is gone.

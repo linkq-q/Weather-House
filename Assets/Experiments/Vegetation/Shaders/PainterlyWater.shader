@@ -233,8 +233,8 @@ Shader "Weather House/Painterly Water"
 
             float WaterStampInk(float2 uv, float tile, float lod)
             {
-                // Mip-aware padding keeps every filtered tap inside its own atlas quadrant.
-                float2 inset = (exp2(ceil(lod)) + 1.0) * _WaterBrushAtlas_TexelSize.xy;
+                // A continuous upper bound covers both trilinear mips without moving the stamp edge at integer LODs.
+                float2 inset = (exp2(lod + 1.0) + 1.0) * _WaterBrushAtlas_TexelSize.xy;
                 float2 origin = float2(fmod(tile, 2.0), floor(tile * 0.5)) * 0.5;
                 float2 atlasUV = origin + clamp(uv, inset, 1.0 - inset) * 0.5;
                 float ink = SAMPLE_TEXTURE2D_LOD(_WaterBrushAtlas, sampler_WaterBrushAtlas, atlasUV, lod).r;
@@ -319,7 +319,9 @@ Shader "Weather House/Painterly Water"
             {
                 float luminance = max(dot(source, float3(0.2126, 0.7152, 0.0722)), 0.0001);
                 float levels = max(_ReflectionColorSteps, 3.0);
-                float lightness = floor(sqrt(luminance) * levels + 0.5) / levels;
+                // Retain pigment plateaus but blend across their boundaries as reflected lighting changes.
+                float scaledLightness = sqrt(luminance) * levels;
+                float lightness = (floor(scaledLightness) + smoothstep(0.35, 0.65, frac(scaledLightness))) / levels;
                 float ratio = clamp(lightness * lightness / luminance, 0.6, 1.4);
                 half3 color = source * lerp(1.0, ratio, _ReflectionPosterize);
                 float pigment = (seed * 2.0 - 1.0) * _ReflectionBrushStrength * footprint;
