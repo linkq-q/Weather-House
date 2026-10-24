@@ -1,0 +1,13 @@
+动物生态 E 交互适配验证（2026-10-24）
+
+已冻结的 5 个交付文件及完整 SHA256：final-sha256.txt。Actor 78E790077E3E…；Target 2BB484D9CE17…；Checks E03706612993…。
+
+RED：interaction-play-red.log / red-results.txt。真实 Unity Play，原 Actor 在 AddComponent/Awake 当场改动已有动物 hierarchy/renderers，断言失败；不是编译失败。Baseline/AnimalActor.cs 仅补 BindExternalPresentation 的空方法签名，原 Awake、BuildVisual、Update 行为保留。退出为 Play=False、dirty=False。
+
+GREEN：interaction-play-green.log / green-results.txt，最终 PID 63356。真实 Play 通过：Agent 和已无 Agent 的 Herd 成员绑定；重复绑定与身份稳定；模型/材质/属性块/Animator 保护；真实头骨和 bounds 锚点；现存普通 Actor 原型行为；inactive→绑定→删除 marker→首次 Awake；成员替换、禁用/删除 target、禁用驱动和销毁 Agent；原 Population/Herd 模拟仍能移动；两个阶段各 5 个真实 Unity 帧未被 Actor.Update 接管。Notebook 文件前后字节相同，结束 Play=False、dirty=False。
+
+Edit：interaction-edit-green.log，PID 31820，RunEditChecks 实际通过，进程 exit 0。三文件外部 C# 编译也 exit 0。测试首轮曾因缩放父骨骼下的局部/世界位移预期错误失败，已按 parent.TransformVector 修正期望，容差仍为 0.001；原失败日志保留为 interaction-play-head-fixture-failure.log。
+
+接口：BindScene(Scene) 返回原生态根上的 AnimalActor[]；VisualRoot、IsAvailableForObservation、BubbleAnchor、BehaviourDescription 只读转接。HasAmbientSpeech 仅在自身为当前可见 Social speaker 时为 true；CurrentGlyphIds 返回该轮词的独立副本，UtteranceId 含 sequence/turn/词内容；隐藏、换人或禁用后恢复 hello/.greeting。已有状态契约用例覆盖 you、数组隔离、重复读取、换词、换回合与隐藏/禁用，不改 Social 调度或 observed。
+
+边界：本轮未验证真实 E 键、主图 HUD 视觉或 Photo/Notebook 全输入链，由主图 owner 接续。HasAmbientSpeech 的首帧显示次序需要 HUD 在定位/显示阶段再次检查。测试中的社交气泡状态使用临时 RectTransform 注入，只证明适配契约；日志中“no UI objects”指未创建实际游戏 HUD，并非视觉验收。此子任务只写 staged 与带 marker 的隔离 Temp，未操作主 Assets/主 Unity/主场景。

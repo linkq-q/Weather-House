@@ -1,0 +1,6 @@
+RUNNING actual Play: active AddComponent/Awake, native Update and original ecology simulation.
+FAIL System.InvalidOperationException: Immediate active AddComponent/Awake modified the existing animal geometry: hierarchy/renderers changed.
+  at WeatherHousePrototype.Editor.WildlifeInteractionChecks+Geometry.AssertUnchanged (System.String message) [0x001e8] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\Editor\WildlifeInteractionChecks.cs:305 
+  at WeatherHousePrototype.Editor.WildlifeInteractionChecks.CheckBinding (WeatherHousePrototype.Editor.WildlifeInteractionChecks+Fixture f) [0x00028] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\Editor\WildlifeInteractionChecks.cs:119 
+  at WeatherHousePrototype.Editor.WildlifeInteractionChecks.StartPlay () [0x00033] in C:\Users\31483\AppData\Local\Temp\WeatherHouseJourney-20261024-001221\Assets\Game\Editor\WildlifeInteractionChecks.cs:66 
+HANDOFF Play=False dirty=False

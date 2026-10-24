@@ -16,14 +16,21 @@ namespace WeatherHousePrototype
         [TextArea] public string requestMeaning;
         public bool background;
         public Material visualMaterial;
-        public bool RequestSatisfied => region != null && region.Current == requestedWeather;
-        public string[] CurrentGlyphIds => RequestSatisfied ? satisfiedGlyphIds : requestGlyphIds;
-        public string UtteranceId => animalId + (RequestSatisfied ? ".satisfied" : ".request");
-        public Vector3 BubbleAnchor => transform.TransformPoint(Vector3.up * (species == AnimalKind.Rabbit ? 1.6f : 1.35f));
+        public bool RequestSatisfied => !ExternalPresentation && region != null && region.Current == requestedWeather;
+        public string[] CurrentGlyphIds => ExternalPresentation ? (ecology ? ecology.CurrentGlyphIds : System.Array.Empty<string>()) :
+            RequestSatisfied ? satisfiedGlyphIds : requestGlyphIds;
+        public string UtteranceId => ExternalPresentation ? (ecology ? ecology.UtteranceId : animalId + ".unavailable") :
+            animalId + (RequestSatisfied ? ".satisfied" : ".request");
+        public Transform VisualRoot => ExternalPresentation ? (ecology ? ecology.VisualRoot : null) : transform.Find("Visual");
+        public bool IsAvailableForObservation => isActiveAndEnabled && (!ExternalPresentation || (ecology && ecology.IsAvailable));
+        public bool HasAmbientSpeech => ExternalPresentation && ecology && ecology.HasAmbientSpeech;
+        public Vector3 BubbleAnchor => ExternalPresentation ? (ecology ? ecology.BubbleAnchor : transform.position) :
+            transform.TransformPoint(Vector3.up * (species == AnimalKind.Rabbit ? 1.6f : 1.35f));
         public string BehaviourDescription
         {
             get
             {
+                if (ExternalPresentation) return ecology ? ecology.BehaviourDescription : "暂时不在这里";
                 if (region == null) return "在林间四处张望";
                 if (region.Current == LocalWeather.Rain)
                     return species == AnimalKind.Frog ? "蹲在湿地里，一下一下地鼓起肚子" : "缩在叶子下面，时不时探头看雨";
@@ -50,9 +57,29 @@ namespace WeatherHousePrototype
         private float phase;
         private Material runtimeMaterial;
         private MaterialPropertyBlock tintBlock;
+        [SerializeField, HideInInspector] private bool externalPresentation;
+        private WildlifeInteractionTarget ecology;
+        private bool ExternalPresentation
+        {
+            get
+            {
+                if (!ecology) ecology = GetComponent<WildlifeInteractionTarget>();
+                // The marker is installed before AddComponent, so even its immediate Awake is safe.
+                if (ecology) externalPresentation = true;
+                return externalPresentation;
+            }
+        }
+
+        internal void BindExternalPresentation(WildlifeInteractionTarget target)
+        {
+            // Inactive bodies may lose their marker before their first Awake; keep ownership latched.
+            ecology = target;
+            externalPresentation = true;
+        }
 
         private void Awake()
         {
+            if (ExternalPresentation) return;
             anchor = transform.position;
             anchorRotation = transform.rotation;
             terrain = Terrain.activeTerrain;
@@ -64,6 +91,7 @@ namespace WeatherHousePrototype
 
         public void BuildVisual()
         {
+            if (ExternalPresentation) return;
             visual = transform.Find("Visual");
             if (visual == null)
             {
@@ -141,6 +169,7 @@ namespace WeatherHousePrototype
 
         private void Update()
         {
+            if (ExternalPresentation) return;
             if (visual == null) return;
             LocalWeather weather = region == null ? LocalWeather.Sun : region.Current;
             float time = Time.time + phase;
