@@ -36,6 +36,7 @@ namespace ForestSpriteCharacter
             Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.16f, .38f, JumpPhase)) *
             (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.78f, 1f, JumpPhase))) : 0f;
         public bool ScriptedInput { get; private set; }
+        public System.Func<Vector3, Vector3> ConstrainDisplacement { get; set; }
 
         CharacterController controller;
         Vector3 startPosition;
@@ -165,7 +166,9 @@ namespace ForestSpriteCharacter
                 if (direction.sqrMagnitude > .001f)
                     transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 540f * dt);
                 verticalSpeed += gravity * dt;
-                var collision = controller.Move((direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt);
+                Vector3 displacement = (direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt;
+                if (ConstrainDisplacement != null) displacement = ConstrainDisplacement(displacement);
+                var collision = controller.Move(displacement);
                 if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
                 if (controller.isGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
                 {
