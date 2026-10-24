@@ -20,6 +20,8 @@ namespace WeatherHouse.Hillside
         public float flightHeight = 5f, swimDepth = .4f;
         [Range(0f, 1f)] public float timidity = .6f, sociability = .5f;
         public bool startlesOthers, friendlyAcrossSpecies;
+        public WildlifeRoutineMode routineMode;
+        public WildlifeSolitaryProfile solitaryProfile = new WildlifeSolitaryProfile();
         public WildlifeState State { get; private set; }
         public float StateAge => population == null ? 0f : population.SimulationTime - stateSince;
         public float ScaleFactor { get; private set; } = 1f;
@@ -29,6 +31,7 @@ namespace WeatherHouse.Hillside
         public WildlifeAgent GreetingPartner => partner;
         public Vector3 Destination => destination;
         public float AirHeight => population == null ? flightHeight : altitude;
+        public WildlifeSolitaryRoutine SolitaryRoutine => solitary;
 
         private WildlifePopulation population;
         private WildlifeRandom random;
@@ -38,9 +41,18 @@ namespace WeatherHouse.Hillside
         private float stateSince, stateUntil, nextGreeting, nextAlarm, nextDestination, speedVariation, altitude;
         private int lastAlarm;
         private bool capturedScale, capturedMotionPosition, landingApproach, fleeAfterTakeoff;
+        private WildlifeSolitaryRoutine solitary;
+        private SolitaryReachable solitaryReachable;
+        private SolitaryWaterQuery solitaryWater;
+        private float solitaryHeading;
+        private bool solitaryWasWorking;
+        private Transform solitaryHead;
+        private Quaternion solitaryHeadPose;
+        private bool solitaryPoseApplied;
 
         public void Initialize(WildlifePopulation owner)
         {
+            RestoreSolitaryPose();
             ReleasePartner();
             population = owner;
             random = new WildlifeRandom(owner.worldSeed, spawnId, speciesId);
@@ -69,6 +81,17 @@ namespace WeatherHouse.Hillside
             if (owner.TryProjectPosition(this, transform.position, out Vector3 initial)) transform.position = initial;
             destination = transform.position;
             nextDestination = 0f;
+            solitary = locomotion == WildlifeLocomotion.Ground && routineMode == WildlifeRoutineMode.Solitary
+                ? new WildlifeSolitaryRoutine(owner.worldSeed, spawnId, solitary == null ? transform.position : solitary.Home, habitatRadius,
+                    walkSpeed, solitaryProfile, habitatCenter)
+                : null;
+            solitaryReachable = TrySolitaryPoint; solitaryWater = TrySolitaryWater;
+            solitaryWasWorking = false;
+            solitaryHead = null;
+            if (solitary != null)
+                foreach (Transform bone in GetComponentsInChildren<Transform>(true))
+                    if (bone.name == "Head" || bone.name == "head" || (speciesId == "fox" && bone.name == "bone_1"))
+                    { solitaryHead = bone; break; }
         }
 
         internal void Think(float now, List<WildlifeAgent> neighbours)
@@ -106,6 +129,7 @@ namespace WeatherHouse.Hillside
             {
                 if (now >= stateUntil)
                 {
+                    if (solitary != null) { ApplySolitary(now); return; }
                     SetState(locomotion == WildlifeLocomotion.Ground ? WildlifeState.ReturnHome : CruiseState(), now, random.Range(4f, 7f));
                     ChooseDestination(now, true);
                 }
@@ -136,6 +160,14 @@ namespace WeatherHouse.Hillside
             {
                 if (now >= stateUntil)
                 { altitude = 0f; SetState(random.Value() < .7f ? WildlifeState.Forage : WildlifeState.Idle, now, random.Range(4f, 9f)); }
+                return;
+            }
+            if (solitary != null)
+            {
+                if (CanGreet(now) && random.Value() < sociability * .04f)
+                    foreach (WildlifeAgent other in neighbours)
+                        if (population.TryGreet(this, other)) return;
+                ApplySolitary(now);
                 return;
             }
             if (locomotion == WildlifeLocomotion.Ground && HorizontalDistance(transform.position, habitatCenter) > habitatRadius * 1.15f)
@@ -207,6 +239,7 @@ namespace WeatherHouse.Hillside
 
         private void ChooseDestination(float now, bool home)
         {
+            if (solitary != null) { ApplySolitary(now); return; }
             nextDestination = now + random.Range(3.5f, 7f);
             Vector3 center = home ? habitatCenter : population.GroupCenter(groupId, habitatCenter);
             if (locomotion == WildlifeLocomotion.Ground)
@@ -252,12 +285,46 @@ namespace WeatherHouse.Hillside
             {
                 float angle = i == 0 ? 0f : ((i + 1) / 2) * 22f * (i % 2 == 0 ? -1f : 1f);
                 Vector3 candidate = transform.position + Quaternion.Euler(0f, angle, 0f) * away * random.Range(2.5f, 6f);
-                if (locomotion == WildlifeLocomotion.Ground && HorizontalDistance(candidate, habitatCenter) > habitatRadius * 1.4f) continue;
+                if (locomotion == WildlifeLocomotion.Ground && (solitary == null
+                    ? HorizontalDistance(candidate, habitatCenter) > habitatRadius * 1.4f : !solitary.Contains(candidate, 1.4f))) continue;
                 if (!population.TryMove(this, candidate, out Vector3 valid)) continue;
                 destination = valid; nextDestination = now + 1.5f;
                 return;
             }
             destination = transform.position; nextDestination = now + .5f;
+        }
+
+        private void ApplySolitary(float now)
+        {
+            solitary.Decide(now, transform.position, solitaryReachable, solitaryWater);
+            bool working = solitary.IsWorking;
+            if (working && !solitaryWasWorking) solitaryHeading = transform.eulerAngles.y;
+            solitaryWasWorking = working;
+            destination = solitary.HasTarget ? solitary.Target : transform.position;
+            WildlifeState state = !solitary.HasTarget || working
+                ? solitary.Activity == SolitaryActivity.Forage ? WildlifeState.Forage : WildlifeState.Idle
+                : solitary.Activity == SolitaryActivity.Rest ? WildlifeState.ReturnHome : WildlifeState.Wander;
+            if (State != state) SetState(state, now, 1000f);
+            nextDestination = now + 1000f;
+        }
+
+        private bool TrySolitaryPoint(Vector3 requested, out Vector3 projected)
+        { return population.TryMove(this, requested, out projected); }
+
+        private bool TrySolitaryWater(Vector3 standingPoint, out Vector3 waterPoint)
+        {
+            waterPoint = default;
+            if (!population.waterSurface || population.waterSurface.Contains(standingPoint, Radius + .08f)) return false;
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = i * Mathf.PI * .25f;
+                Vector3 point = standingPoint + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * .65f;
+                if (!population.waterSurface.Contains(point)) continue;
+                point.y = population.waterSurface.Height(point);
+                if (Mathf.Abs(point.y - standingPoint.y) > .4f) continue;
+                waterPoint = point; return true;
+            }
+            return false;
         }
 
         internal void Move(float dt, float now)
@@ -303,6 +370,22 @@ namespace WeatherHouse.Hillside
             }
             if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), dt * (State == WildlifeState.Flee ? 300f : 150f));
+            if (solitary != null)
+            {
+                bool available = State != WildlifeState.Alert && State != WildlifeState.Flee && State != WildlifeState.Greet;
+                solitary.Advance(dt, transform.position, available, ActualSpeed > .05f);
+                if (available && solitary.IsWorking)
+                {
+                    // Existing idle clips remain idle; small ground-preserving turns suggest looking/sniffing, not a new eating or sleeping animation.
+                    float yaw = solitaryHeading + Mathf.Sin(now * .7f + spawnId) * (solitary.Activity == SolitaryActivity.Rest ? 3f : 8f);
+                    if (solitary.Activity == SolitaryActivity.Drink)
+                    {
+                        Vector3 towardWater = solitary.WaterPoint - transform.position; towardWater.y = 0;
+                        if (towardWater.sqrMagnitude > .001f) yaw = Quaternion.LookRotation(towardWater).eulerAngles.y;
+                    }
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0, yaw, 0), dt * 25f);
+                }
+            }
             AnimationClip clip = clips == null ? null : clips.ForState(State, locomotion);
             bool repeat = State != WildlifeState.Alert && State != WildlifeState.Takeoff && State != WildlifeState.Landing;
             float clipSpeed = State == WildlifeState.Flee && locomotion != WildlifeLocomotion.Flying && clips != null &&
@@ -321,6 +404,7 @@ namespace WeatherHouse.Hillside
             nextAlarm = now + random.Range(7f, 11f);
             threat = alarm.origin;
             landingApproach = false;
+            solitary?.Interrupt(true); solitaryWasWorking = false;
             ReleasePartner();
             SetState(WildlifeState.Alert, now, random.Range(.25f, .65f));
             return true;
@@ -336,7 +420,8 @@ namespace WeatherHouse.Hillside
         internal void BeginGreeting(WildlifeAgent other, float now)
         {
             partner = other;
-            nextGreeting = now + random.Range(10f, 18f);
+            solitary?.Interrupt(false); solitaryWasWorking = false;
+            nextGreeting = now + (solitary == null ? random.Range(10f, 18f) : random.Range(30f, 55f));
             SetState(WildlifeState.Greet, now, 1.8f);
         }
 
@@ -356,11 +441,29 @@ namespace WeatherHouse.Hillside
         private void SetState(WildlifeState state, float now, float duration)
         { State = state; stateSince = now; stateUntil = now + duration; }
 
+        private void Update() { RestoreSolitaryPose(); }
+
+        private void RestoreSolitaryPose()
+        {
+            if (solitaryPoseApplied && solitaryHead) solitaryHead.localRotation = solitaryHeadPose;
+            solitaryPoseApplied = false;
+        }
+
         private void LateUpdate()
         {
             // Robin clips bake travel into body. World flight owns that travel; retain the wing/leg pose only.
             if (locomotion == WildlifeLocomotion.Flying && motionRoot != null && capturedMotionPosition)
                 motionRoot.localPosition = baseMotionPosition;
+            if (solitaryHead && solitary != null && solitary.IsWorking && (State == WildlifeState.Forage || State == WildlifeState.Idle) &&
+                (solitary.Activity == SolitaryActivity.Forage || solitary.Activity == SolitaryActivity.Drink || solitary.Activity == SolitaryActivity.Watch))
+            {
+                if (solitaryPoseApplied) RestoreSolitaryPose();
+                solitaryHeadPose = solitaryHead.localRotation; solitaryPoseApplied = true;
+                float sway = Mathf.Sin(population.SimulationTime * 1.7f + spawnId);
+                float pitch = solitary.Activity == SolitaryActivity.Watch ? 0 : (solitary.Activity == SolitaryActivity.Drink ? 10f : 6f) + sway * 2f;
+                float yaw = solitary.Activity == SolitaryActivity.Watch ? sway * 6f : sway * 2f;
+                solitaryHead.rotation = Quaternion.AngleAxis(pitch, transform.right) * Quaternion.AngleAxis(yaw, transform.up) * solitaryHead.rotation;
+            }
         }
 
         private void OnEnable()
@@ -368,7 +471,7 @@ namespace WeatherHouse.Hillside
             if (population != null && Application.isPlaying)
                 animationPlayer.Initialize(animator, clips, 0f);
         }
-        private void OnDisable() { ReleasePartner(); animationPlayer.Dispose(); }
+        private void OnDisable() { RestoreSolitaryPose(); ReleasePartner(); animationPlayer.Dispose(); }
         private void OnDestroy() { animationPlayer.Dispose(); }
     }
 }

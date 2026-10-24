@@ -18,8 +18,19 @@ namespace WeatherHouse.WildlifeJourney.Editor
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new InvalidOperationException("Run isolated steering checks outside Play mode.");
-            return CheckLookaheadChord() + "\n" + CheckNearCornerProgression() + "\n" + CheckBlockedNextLeg() + "\n" +
+            return CheckRoundedBendProgression() + "\n" + CheckLookaheadChord() + "\n" + CheckNearCornerProgression() + "\n" + CheckBlockedNextLeg() + "\n" +
                 CheckShortBankRest() + "\n" + CheckShortFinalBoundary();
+        }
+
+        private static string CheckRoundedBendProgression()
+        {
+            Vector3[] line = { Point(0, 0), Point(.4f, 0), Point(.4f, .4f), Point(0, .4f), Point(0, 2.2f) };
+            using (var fixture = new Fixture(line, line[0], .7f, true))
+            {
+                Require(fixture.navigation.TryStep(fixture.member.profile, line[0], line[3], out _, out _),
+                    "The rounded bend fixture must allow its safe lookahead shortcut.");
+                return "PASS safe lookahead advances its route cursor through a rounded bend without zero-speed stalling; " + AdvanceToArrival(fixture);
+            }
         }
 
         private static string CheckLookaheadChord()

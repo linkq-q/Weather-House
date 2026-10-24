@@ -355,7 +355,9 @@ namespace WeatherHouse.WildlifeJourney.Editor
             {
                 JourneyHerd herd = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<JourneyHerd>()).Single();
                 string report = "PASS " + DateTime.UtcNow.ToString("O") + "\n" + JourneyScatterChecks.RunLogicChecks() + "\n" + JourneyNavigationChecks.RunLogicChecks() + "\n" + JourneyCrowdPathChecks.RunLogicChecks() + "\n" + JourneyAvoidanceChecks.RunLogicChecks() + "\n" + JourneyHerdChecks.RunLogicChecks() + "\n" +
-                    JourneySteeringChecks.RunLogicChecks() + "\n" + JourneyExternalBodiesChecks.RunLogicChecks() + "\n" + JourneySocialChecks.RunLogicChecks() + "\n" + JourneyHerdChecks.RunSceneChecks(herd);
+                    JourneySteeringChecks.RunLogicChecks() + "\n" + JourneyExternalBodiesChecks.RunLogicChecks() + "\n" + JourneySocialChecks.RunLogicChecks() + "\n" +
+                    JourneyFormationChecks.RunLogicChecks() + "\n" + JourneyBridgeMergeChecks.RunLogicChecks() + "\n" + JourneyEcologyChecks.RunLogicChecks() + "\n" +
+                    WeatherHouse.Hillside.Editor.WildlifeSolitaryChecks.RunLogicChecks() + "\n" + JourneyHerdChecks.RunSceneChecks(herd);
                 File.WriteAllText(reportPath, report);
                 Debug.Log(report);
             }

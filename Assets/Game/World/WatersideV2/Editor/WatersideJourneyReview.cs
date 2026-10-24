@@ -109,7 +109,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 Type variation = typeof(JourneyHerd).Assembly.GetType("WeatherHouse.WildlifeJourney.JourneyRouteVariation", true);
                 MethodInfo apply = variation.GetMethod("Apply", BindingFlags.Public | BindingFlags.Static);
                 if (apply == null) throw new MissingMethodException(variation.FullName, "Apply");
-                apply.Invoke(null, new object[] { nav, profile, varied, lateral, 0f });
+                apply.Invoke(null, new object[] { nav, profile, varied, lateral, 0f, 0 });
                 bool changed = raw.segments.Where((s, i) => s.from != varied.segments[i].from || s.to != varied.segments[i].to).Any();
                 report.AppendLine("Variation invoked on a fresh route copy using the exact replayed phase; geometryChanged=" + changed + ". A false value may mean the variation rejected its candidate or made no eligible offset.");
                 Describe("VARIED", varied);

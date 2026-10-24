@@ -55,6 +55,7 @@ namespace WeatherHouse.WildlifeJourney
         public int seed = 20261023;
         public bool autoAdvance = true;
         public float decisionInterval = .25f, minimumStay = 16f, rendezvousTimeout = 120f;
+        [Range(0f, 5f)] public float travelSpread = 2.8f;
         public float SimulationTime { get; private set; }
         public int CompletedJourneys { get; private set; }
         public bool Travelling { get; private set; }
@@ -175,7 +176,7 @@ namespace WeatherHouse.WildlifeJourney
                     { planned = false; break; }
                     routes[i] = navigation.FindRoute(m.root.position, goal, m.profile);
                     if (routes[i] == null) { planned = false; break; }
-                    JourneyRouteVariation.Apply(navigation, m.profile, routes[i], (m.phase - .5f) * 2.2f);
+                    JourneyRouteVariation.Apply(navigation, m.profile, routes[i], (m.phase - .5f) * 2f * travelSpread, 0f, unchecked(seed * 397 ^ m.id));
                     destinations[i] = goal;
                 }
             }
@@ -224,12 +225,26 @@ namespace WeatherHouse.WildlifeJourney
                 JourneyMember m = members[i];
                 participants[i] = new JourneySocialParticipant { id = m == null ? -1 : m.id, root = m == null ? null : m.root,
                     radius = m == null ? .3f : m.profile.bodyRadius, head = m == null ? null : m.headBone, bodyLength = m == null ? 0 : m.bodyLength,
-                    available = Live(m) && m.sociability > 0 && m.Arrived &&
-                        ((m.ActualSpeed < .08f && FlatDistance(m.root.position, m.localTarget) < .1f) || (social && social.IsParticipating(m.id))) &&
-                        m.bridge == 0 && m.Mode != JourneyTravelMode.Swim };
+                    available = CanSocialize(m) };
             }
             if (social) social.Tick(SimulationTime, participants);
             RegisterSurroundingBodies();
+        }
+
+        private bool CanSocialize(JourneyMember member)
+        {
+            if (!Live(member) || member.sociability <= 0 || member.bridge != 0 ||
+                member.Mode != JourneyTravelMode.Walk || member.crowdPath != null) return false;
+            if (member.Arrived) return true;
+            if (!Travelling || member.route == null || member.segment >= member.route.segments.Count || UpcomingBridge(member)) return false;
+            // A pair may pause on open ground; nobody stops to chat while entering water or a narrow crossing.
+            for (int i = member.segment; i < member.route.segments.Count; i++)
+            {
+                JourneySegment part = member.route.segments[i];
+                if (FlatDistance(member.root.position, part.from) > 3.5f) break;
+                if (part.surfaceBoundary || part.mode != JourneyTravelMode.Walk || part.bridgeId != 0) return false;
+            }
+            return true;
         }
 
         private void Decide()
@@ -263,6 +278,7 @@ namespace WeatherHouse.WildlifeJourney
                 else journeyStarted = SimulationTime;
             }
             if (Travelling || !autoAdvance || SimulationTime < stayUntil || sites.Length < 2) return;
+            if (social && social.FirstParticipantId >= 0) return;
             float hunger = 0, fatigue = 0; int count = 0;
             foreach (JourneyMember m in members) if (Live(m)) { hunger += m.hunger; fatigue += m.fatigue; count++; }
             if (count == 0) return;
@@ -292,7 +308,7 @@ namespace WeatherHouse.WildlifeJourney
                 m.route = navigation.FindRoute(m.root.position, m.destination, m.profile, excluded, m.ContinuousSwimDistance);
                 m.retryAt = SimulationTime + 3f; m.segment = 0;
                 if (m.route == null) { m.LastDecision = "记住受阻路段，等待或寻找其他通路"; return; }
-                JourneyRouteVariation.Apply(navigation, m.profile, m.route, (m.phase - .5f) * 2.2f, m.ContinuousSwimDistance);
+                JourneyRouteVariation.Apply(navigation, m.profile, m.route, (m.phase - .5f) * 2f * travelSpread, m.ContinuousSwimDistance, unchecked(seed * 397 ^ m.id));
                 RouteChanges++; m.LastDecision = "找到新的可行路线";
             }
             while (m.segment < m.route.segments.Count && (m.segment == m.route.segments.Count - 1
@@ -324,6 +340,7 @@ namespace WeatherHouse.WildlifeJourney
             float speed = (segment.mode == JourneyTravelMode.Swim ? m.profile.swimSpeed : m.profile.walkSpeed) * m.pace;
             if (segment.mode == JourneyTravelMode.Wade) speed *= .7f;
             Vector3 target = segment.to;
+            int targetSegment = m.segment;
             // Smooth fine samples only when the entire shortcut is safe on this same surface.
             for (int ahead = m.segment + 1; !segment.surfaceBoundary && ahead < m.route.segments.Count; ahead++)
             {
@@ -331,9 +348,13 @@ namespace WeatherHouse.WildlifeJourney
                 if (candidate.surfaceBoundary || candidate.mode != segment.mode || candidate.bridgeId != segment.bridgeId || candidate.linkIndex != segment.linkIndex ||
                     FlatDistance(m.root.position, candidate.to) > 1.3f) break;
                 target = candidate.to;
+                targetSegment = ahead;
             }
             if (target != segment.to && !navigation.TryStep(m.profile, m.root.position, target, out _, out _, segment.mode, segment.bridgeId))
                 target = segment.to;
+            else if (m.crowdPath == null)
+                // The validated shortcut replaces those legs; keep the cursor on the endpoint we actually pursue.
+                m.segment = targetSegment;
             if (m.crowdPath != null && m.crowdStep < m.crowdPath.Count) target = m.crowdPath[m.crowdStep];
             Vector3 next = Vector3.MoveTowards(m.root.position, target, speed * dt);
             if (!navigation.TryStep(m.profile, m.root.position, next, out Vector3 projected, out JourneyTravelMode mode))
@@ -458,8 +479,15 @@ namespace WeatherHouse.WildlifeJourney
                 m.crowdPath = null;
             }
             if (ClearOfOthers(m, desired, null, mode)) return true;
+            if (mode == JourneyTravelMode.Walk && SimulationTime >= m.crowdRetryAt && TryYieldAtBridge(m))
+            { m.crowdRetryAt = SimulationTime + .7f; return false; }
             // Narrow crossings and swimmers retain their queue; open land can plan around a neighbour.
-            if (m.bridge != 0 || mode != JourneyTravelMode.Walk || FollowingSameRoute(m) || SimulationTime < m.crowdRetryAt) return false;
+            if (m.bridge != 0 || mode != JourneyTravelMode.Walk || (UpcomingBridge(m, 3f) && FollowingSameRoute(m)))
+            {
+                if (SimulationTime >= m.crowdRetryAt) m.crowdRetryAt = SimulationTime + .7f;
+                return false;
+            }
+            if (SimulationTime < m.crowdRetryAt) return false;
             m.crowdRetryAt = SimulationTime + .6f + m.phase * .2f;
             Vector3 target = m.localTarget;
             int resume = -1;
@@ -493,6 +521,74 @@ namespace WeatherHouse.WildlifeJourney
             if (!JourneyCrowdPath.TryFindPath(m.root.position, target, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), crowdObstacles,
                 (from, to) => SafeCrowdStep(m, from, to), out List<Vector3> path)) { RequestRoom(m); return false; }
             m.crowdPath = path; m.crowdStep = 1; m.crowdResume = resume;
+            return false;
+        }
+
+        private bool TryYieldAtBridge(JourneyMember member)
+        {
+            if (member.Arrived || member.Mode != JourneyTravelMode.Walk || !UpcomingBridge(member, 3f) ||
+                !BridgeApproach(member, out int bridge, out Vector3 entry, out Vector3 direction)) return false;
+            JourneyMember first = null;
+            int ownDistance = Mathf.FloorToInt(FlatDistance(member.root.position, entry) * 10f);
+            int ownRank = member.bridge != 0 ? 1 : 0, bestRank = -1, bestDistance = int.MaxValue;
+            foreach (JourneyMember other in members)
+            {
+                if (!Live(other) || other == member || other.Arrived ||
+                    !BridgeApproach(other, out int otherBridge, out Vector3 otherEntry, out Vector3 otherDirection) ||
+                    bridge != otherBridge || Vector3.Dot(direction, otherDirection) < .7f) continue;
+                float gap = FlatDistance(member.root.position, other.root.position);
+                float room = Mathf.Max(member.profile.bodyRadius, member.bodyLength * .5f) +
+                    Mathf.Max(other.profile.bodyRadius, other.bodyLength * .5f) + .12f;
+                if (gap > room + .4f) continue;
+                int otherDistance = Mathf.FloorToInt(FlatDistance(other.root.position, otherEntry) * 10f);
+                int rank = other.Mode == JourneyTravelMode.Bridge ? 2 : other.bridge != 0 ? 1 : 0;
+                // One total order prevents three close arrivals from yielding to each other in a cycle.
+                bool ahead = rank > ownRank || (rank == ownRank &&
+                    (otherDistance < ownDistance || (otherDistance == ownDistance && other.id < member.id)));
+                if (ahead && (rank > bestRank || (rank == bestRank &&
+                    (otherDistance < bestDistance || (otherDistance == bestDistance && (first == null || other.id < first.id))))))
+                { first = other; bestRank = rank; bestDistance = otherDistance; }
+            }
+            if (first == null) return false;
+            Vector3 away = member.root.position - first.root.position; away.y = 0;
+            if (away.sqrMagnitude < .0001f) away = -direction;
+            for (int turn = 0; turn < 7; turn++)
+            {
+                float angle = turn == 0 ? 0 : ((turn + 1) / 2) * 30f * (turn % 2 == 0 ? -1 : 1);
+                Vector3 candidate = member.root.position + Quaternion.Euler(0, angle, 0) * away.normalized * .9f;
+                Vector3 previous = member.root.position;
+                bool safe = true;
+                for (int step = 1; step <= 6; step++)
+                {
+                    if (!navigation.TryStep(member.profile, previous, Vector3.Lerp(member.root.position, candidate, step / 6f),
+                        out Vector3 next, out JourneyTravelMode nextMode, JourneyTravelMode.Walk) || nextMode != JourneyTravelMode.Walk || !ClearOfOthers(member, next))
+                    { safe = false; break; }
+                    previous = next;
+                }
+                if (!safe) continue;
+                member.crowdPath = new List<Vector3> { member.root.position, previous };
+                member.crowdStep = 1; member.crowdResume = member.segment;
+                member.LastDecision = "在干燥桥口侧让，让更靠前的同伴先通过";
+                return true;
+            }
+            return false;
+        }
+
+        private static bool BridgeApproach(JourneyMember member, out int bridge, out Vector3 entry, out Vector3 direction)
+        {
+            bridge = 0; entry = direction = default;
+            if (member.route == null || member.segment >= member.route.segments.Count) return false;
+            for (int i = member.segment; i < member.route.segments.Count; i++)
+            {
+                JourneySegment part = member.route.segments[i];
+                if (part.bridgeId == 0) continue;
+                entry = part.from;
+                if (member.Mode != JourneyTravelMode.Bridge && FlatDistance(member.root.position, entry) > 3f) return false;
+                int last = i;
+                while (last + 1 < member.route.segments.Count && member.route.segments[last + 1].bridgeId == part.bridgeId) last++;
+                direction = member.route.segments[last].to - entry; direction.y = 0; direction.Normalize();
+                bridge = part.bridgeId; return true;
+            }
             return false;
         }
 
@@ -575,13 +671,13 @@ namespace WeatherHouse.WildlifeJourney
             return false;
         }
 
-        private static bool UpcomingBridge(JourneyMember m)
+        private static bool UpcomingBridge(JourneyMember m, float distance = 8f)
         {
             if (m.Arrived || m.route == null) return false;
             for (int i = m.segment; i < m.route.segments.Count; i++)
             {
                 JourneySegment segment = m.route.segments[i];
-                if (FlatDistance(m.root.position, segment.from) > 8f) return false;
+                if (FlatDistance(m.root.position, segment.from) > distance) return false;
                 if (segment.bridgeId != 0) return true;
             }
             return false;

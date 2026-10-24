@@ -82,7 +82,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 throw new InvalidOperationException("Run isolated herd checks outside Play mode.");
             var results = new List<string>();
             CheckBridgeApproachVariation();
-            results.Add("PASS the entire bridge approach keeps its center line while open ground retains individual route offsets");
+            results.Add("PASS the final bridge funnel and deck stay centered while the open approach retains individual route offsets");
             CheckHiddenWaterVariation();
             results.Add("PASS route variation rejects hidden mid-segment swimming beyond endurance while preserving a safe land offset");
             CheckBridgeSideEntranceAdmission();
@@ -173,6 +173,8 @@ namespace WeatherHouse.WildlifeJourney.Editor
             using (var fixture = new Fixture())
             {
                 JourneyHerd herd = fixture.herd;
+                // This case deliberately closes the authored center lane; dispersed routes can already avoid that small obstacle.
+                herd.travelSpread = 0;
                 Require(herd.BeginJourney(1), "Land-obstruction fixture could not start.");
                 fixture.landClosed = true;
                 herd.navigation.Rebuild();
@@ -345,18 +347,21 @@ namespace WeatherHouse.WildlifeJourney.Editor
                     Require(original.Count(s => s.linkIndex == 0) >= 4 && original.Count(s => s.linkIndex == 1) >= 8 &&
                         original.Any(s => s.bridgeId == 1), "The fixture did not include the full open-ground, approach and bridge sections.");
                     // The implementation is internal to the runtime assembly; compare only its observable route output.
-                    apply.Invoke(null, new object[] { nav, profile, route, lateral, 0f });
+                    apply.Invoke(null, new object[] { nav, profile, route, lateral, 0f, 0 });
                     Require(route.segments.Count == original.Length, "Individual route variation changed the route's segment count.");
-                    float openOffset = 0;
+                    float openOffset = 0, approachOffset = 0;
                     for (int i = 0; i < original.Length; i++)
                     {
                         JourneySegment before = original[i], after = route.segments[i];
-                        if (before.linkIndex == 1 || before.linkIndex == 2 || before.bridgeId == 1)
+                        if (before.bridgeId == 1 || before.surfaceBoundary ||
+                            (before.from.x >= -5 && before.to.x <= -4))
                             Require((after.from - before.from).sqrMagnitude < .000001f && (after.to - before.to).sqrMagnitude < .000001f,
-                                "An individual offset bent the bridge approach or deck away from its shared center line.");
+                                "An individual offset bent the final bridge funnel or deck away from its shared center line.");
                         if (before.linkIndex == 0) openOffset = Mathf.Max(openOffset, Mathf.Abs(after.to.z - before.to.z));
+                        if (before.to.x >= -12 && before.to.x <= -9) approachOffset = Mathf.Max(approachOffset, Mathf.Abs(after.to.z));
                     }
                     Require(openOffset > .3f, "Keeping the bridge approach centered also erased individual movement on open ground.");
+                    Require(approachOffset > .3f, "The bridge funnel unnecessarily collapsed the whole open approach into one line.");
                 }
             }
         }
@@ -375,12 +380,12 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 Vector3 start = Vector3.zero, goal = new Vector3(3, 0, 0);
                 JourneyRoute dryOffset = nav.TraceDirectRoute(start, goal, profile);
                 Require(dryOffset != null, "The hidden-water fixture has no initial dry route.");
-                apply.Invoke(null, new object[] { nav, profile, dryOffset, -1f, 0f });
+                apply.Invoke(null, new object[] { nav, profile, dryOffset, -1f, 0f, 0 });
                 Require(dryOffset.segments.Max(s => s.to.z) > .5f, "The fixture did not exercise an actual lateral offset.");
                 JourneySegment crossing = dryOffset.segments.First(s => s.from.x < .7f && s.to.x > .8f);
 
                 nav.surfaceSampler = p => {
-                    bool wet = p.x > .7f && p.x < .8f && p.z > .49f;
+                    bool wet = p.x > .7f && p.x < .8f && p.z > .2f;
                     return new JourneySurface { valid = true, hasWater = wet, waterY = 0, groundY = wet ? -.35f : 0 };
                 };
                 Require(nav.TryProject(profile, crossing.from, out _, out JourneyTravelMode fromMode) && fromMode == JourneyTravelMode.Walk &&
@@ -392,16 +397,16 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 JourneyRoute rejected = nav.TraceDirectRoute(start, goal, profile);
                 Require(rejected != null, "Adding water away from the original route invalidated its dry baseline.");
                 JourneySegment[] original = rejected.segments.ToArray();
-                float originalCost = rejected.totalCost;
-                apply.Invoke(null, new object[] { nav, profile, rejected, -1f, 0f });
-                Require(rejected.segments.Count == original.Length && Mathf.Abs(rejected.totalCost - originalCost) < .0001f &&
-                    rejected.segments.Select((s, i) => (s.from - original[i].from).sqrMagnitude < .000001f &&
-                        (s.to - original[i].to).sqrMagnitude < .000001f && s.mode == original[i].mode &&
-                        s.surfaceBoundary == original[i].surfaceBoundary).All(unchanged => unchanged),
-                    "A lateral variation accepted hidden Walk-Swim-Walk travel or partly committed an unsafe route.");
+                apply.Invoke(null, new object[] { nav, profile, rejected, -1f, 0f, 0 });
+                Require(rejected.segments.Count == original.Length &&
+                    (rejected.segments[0].from - start).sqrMagnitude < .000001f &&
+                    (rejected.segments.Last().to - goal).sqrMagnitude < .000001f &&
+                    rejected.segments.Select((s, i) => s.mode == original[i].mode && s.surfaceBoundary == original[i].surfaceBoundary &&
+                        nav.TryStep(profile, s.from, s.to, out _, out _, JourneyTravelMode.Walk)).All(safeStep => safeStep),
+                    "A locally narrowed variation accepted hidden Walk-Swim-Walk travel or changed its endpoints.");
 
                 JourneyRoute safe = nav.TraceDirectRoute(start, goal, profile);
-                apply.Invoke(null, new object[] { nav, profile, safe, 1f, 0f });
+                apply.Invoke(null, new object[] { nav, profile, safe, 1f, 0f, 0 });
                 Require(safe.segments.Min(s => s.to.z) < -.5f && safe.segments.All(s =>
                     nav.TryStep(profile, s.from, s.to, out _, out _, JourneyTravelMode.Walk)),
                     "Rejecting the hidden-water variation also suppressed a safe offset on the opposite side.");

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using WeatherHousePrototype;
 using Object = UnityEngine.Object;
 
@@ -29,7 +31,10 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 CheckInterruptedParticipants(root.transform);
                 CheckVisibilityAndRecordedContext(root.transform);
                 CheckVocabularyAndListenerClue(root.transform);
-                return "PASS 6 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners.";
+                CheckVisiblePairPriority(root.transform);
+                CheckCanonicalPresentationAndOcclusion(root.transform);
+                CheckCameraFallback(root.transform);
+                return "PASS 9 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners; visible-pair priority; canonical animal bubble with independent speaker visibility and real occlusion; active-camera fallback and explicit capture view.";
             }
             finally
             {
@@ -255,6 +260,117 @@ namespace WeatherHouse.WildlifeJourney.Editor
             Object.DestroyImmediate(social.gameObject); Object.DestroyImmediate(camera.gameObject);
         }
 
+        private static void CheckVisiblePairPriority(Transform parent)
+        {
+            var participants = Participants(parent, 4);
+            participants[0].root.position = new Vector3(35f, 0f, -.65f);
+            participants[1].root.position = new Vector3(35f, 0f, .65f);
+            participants[2].root.position = Vector3.left * .65f;
+            participants[3].root.position = Vector3.right * .65f;
+            Camera camera = View(parent);
+            for (int seed = 1; seed <= 12; seed++)
+            {
+                JourneySocial social = Social(parent); social.viewCamera = camera; social.randomSeed = seed;
+                social.Tick(0f, participants); social.Tick(1.2f, participants);
+                Require(social.IsParticipating(2) && social.IsParticipating(3) &&
+                    !social.IsParticipating(0) && !social.IsParticipating(1),
+                    "An off-screen pair consumed the first opportunity while a clear visible pair was available.");
+                FacePair(social, participants); social.Tick(1.3f, participants);
+                Require(social.ActiveConversation != null && social.CanPresentFrom(camera),
+                    "The visible pair was selected but did not start after its real facing preparation.");
+                Object.DestroyImmediate(social.gameObject);
+            }
+            Object.DestroyImmediate(camera.gameObject);
+        }
+
+        private static void CheckCanonicalPresentationAndOcclusion(Transform parent)
+        {
+            var participants = Participants(parent, 2);
+            JourneySocial social = Social(parent); Camera camera = View(parent); social.viewCamera = camera;
+            social.Tick(0f, participants); social.Tick(1.2f, participants); social.Tick(1.21f, participants);
+            Require(social.ActiveConversation != null, "Presentation fixture did not begin an exchange.");
+            int speaker = social.ActiveConversation.speakerId, listener = social.ActiveConversation.listenerId;
+            Vector3 listenerHead = participants[listener].head.localPosition;
+            participants[listener].head.localPosition += Vector3.right * 100f;
+            Require(social.CanPresentFrom(camera) && !social.ObserveFrom(camera) && !social.ActiveConversation.observed,
+                "An off-screen listener hid a visible speaker or incorrectly supplied a complete language observation.");
+            Call(social, "LateUpdate"); Canvas.ForceUpdateCanvases(); Call(social, "LateUpdate");
+            var background = social.GetComponentInChildren<ProceduralUiGraphic>();
+            var glyph = social.GetComponentInChildren<AnimalGlyphGraphic>();
+            var canvas = social.GetComponentInChildren<Canvas>();
+            Require(social.VisibleBubbleCount == 1 && background != null && background.mark == UiMark.AnimalBubble &&
+                background.color == ProceduralUiLibrary.Cream && background.waviness == ProceduralUiStyle.Current.waviness &&
+                background.bubbleRadius == ProceduralUiStyle.Current.bubbleRadius && background.tailSize == ProceduralUiStyle.Current.tailSize &&
+                social.GetComponentsInChildren<Image>(true).Length == 0,
+                "Social presentation did not reuse the game's procedural AnimalBubble, cream color and authored silhouette.");
+            Require(glyph != null && glyph.color == ProceduralUiLibrary.Ink && glyph.rectTransform.sizeDelta.y >= 40f &&
+                background.rectTransform.sizeDelta.x >= 140f && background.rectTransform.sizeDelta.y >= 70f &&
+                canvas != null && canvas.worldCamera == camera &&
+                canvas.GetComponent<CanvasScaler>().referenceResolution == new Vector2(1600f, 1000f),
+                "The reused animal bubble lost readable glyph dimensions, shared ink or the normal gameplay canvas scale.");
+
+            var blocker = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            SceneManager.MoveGameObjectToScene(blocker, parent.gameObject.scene); blocker.transform.SetParent(parent, true);
+            blocker.name = "Actual sight blocker"; blocker.layer = 30;
+            Vector3 anchor = participants[speaker].head.position + Vector3.up * .35f;
+            blocker.transform.position = (camera.transform.position + anchor) * .5f;
+            blocker.transform.localScale = Vector3.one * 2f; social.occlusionMask = 1 << 30;
+            Physics.SyncTransforms();
+            Require(!social.CanPresentFrom(camera) && !social.ObserveFrom(camera), "A real collider did not occlude the speaker or language evidence.");
+            Call(social, "LateUpdate");
+            Require(social.VisibleBubbleCount == 0 && !social.ActiveConversation.observed,
+                "An occluded word stayed on screen or was silently recorded.");
+            Object.DestroyImmediate(blocker); Physics.SyncTransforms();
+
+            // The listener clue obeys the same strict recording rule even though a partial exchange may still be displayed.
+            social.ResetSchedule(); social.participantCooldown = social.pairCooldown = 0f;
+            social.turnDuration = .2f; social.turnGap = .1f; social.conversationGap = Vector2.one * .1f;
+            participants[listener].head.localPosition = listenerHead;
+            for (int step = 0; step < 80; step++)
+            {
+                social.Tick(step * .1f, participants); FacePair(social, participants);
+                if (social.ActiveConversation != null && social.ActiveConversation.isClue) break;
+            }
+            Require(social.ActiveConversation != null && social.ActiveConversation.isClue, "The presentation fixture did not reach a listener clue.");
+            listener = social.ActiveConversation.listenerId;
+            listenerHead = participants[listener].head.localPosition;
+            participants[listener].head.localPosition += Vector3.right * 100f;
+            Call(social, "LateUpdate");
+            Require(social.VisibleBubbleCount == 1 && !social.ActiveConversation.observed && social.Completed.Count == 0,
+                "Showing a partial listener clue weakened its two-participant observation requirement.");
+            participants[listener].head.localPosition = listenerHead;
+            participants[0].root.rotation = participants[1].root.rotation = Quaternion.identity;
+            Require(!social.ObserveFrom(camera), "A visible but ambiguous listener clue bypassed the facing requirement.");
+            FacePair(social, participants);
+            Require(social.ObserveFrom(camera), "A clear reciprocal clue could no longer be observed after presentation was separated.");
+            Object.DestroyImmediate(social.gameObject); Object.DestroyImmediate(camera.gameObject);
+        }
+
+        private static void CheckCameraFallback(Transform parent)
+        {
+            JourneySocial social = Social(parent); Camera original = View(parent), replacement = View(parent);
+            replacement.gameObject.tag = "MainCamera";
+            var target = new RenderTexture(32, 32, 16);
+            original.targetTexture = target; social.viewCamera = original;
+            Require(social.CurrentViewCamera == original, "An explicit capture camera was replaced by another main camera.");
+            original.targetTexture = null;
+            if (Camera.main == replacement)
+                Require(social.CurrentViewCamera == replacement, "The active main camera did not replace a stale normal view reference.");
+            original.enabled = false;
+            Require(social.CurrentViewCamera != original, "A disabled saved camera continued to control animal words.");
+            social.viewCamera = replacement;
+            Require(social.CurrentViewCamera == replacement, "A valid explicit camera could not take over when the old camera was disabled.");
+            replacement.enabled = false;
+            Require(social.CurrentViewCamera == null, "A disabled camera or another scene's main camera controlled this social view.");
+            Object.DestroyImmediate(target); Object.DestroyImmediate(original.gameObject);
+            Object.DestroyImmediate(replacement.gameObject); Object.DestroyImmediate(social.gameObject);
+        }
+
+        private static void Call(JourneySocial social, string method)
+        {
+            typeof(JourneySocial).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(social, null);
+        }
+
         private static JourneySocial Social(Transform parent)
         {
             var root = new GameObject("Social schedule"); root.transform.SetParent(parent, false);
@@ -292,7 +408,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
         private static Camera View(Transform parent)
         {
             var root = new GameObject("Observation camera"); root.transform.SetParent(parent, false);
-            var camera = root.AddComponent<Camera>(); camera.transform.position = new Vector3(0f, 20f, -15f);
+            var camera = root.AddComponent<Camera>(); camera.aspect = 1.6f; camera.transform.position = new Vector3(0f, 20f, -15f);
             camera.transform.LookAt(new Vector3(0f, .9f, 0f)); camera.nearClipPlane = .1f; camera.farClipPlane = 100f;
             return camera;
         }

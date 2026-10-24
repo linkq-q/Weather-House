@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using WeatherHousePrototype;
 
@@ -38,6 +39,9 @@ namespace WeatherHouse.WildlifeJourney
         [Min(0f)] public float participantCooldown = 18f, pairCooldown = 48f;
         public Vector2 conversationGap = new Vector2(5f, 9f);
         public LayerMask occlusionMask = ~0;
+        public Vector2 bubbleSize = new Vector2(180f, 84f);
+        [Range(16f, 80f)] public float glyphHeight = 43f;
+        [Range(.5f, 14f)] public float glyphStrokeWidth = 9f;
 
         public JourneyConversation ActiveConversation { get; private set; }
         public IReadOnlyList<JourneyConversation> Completed => completed;
@@ -45,6 +49,7 @@ namespace WeatherHouse.WildlifeJourney
         public int SecondParticipantId => secondId;
         public string CurrentIntent { get; private set; } = "";
         public int VisibleBubbleCount => bubble != null && bubble.gameObject.activeSelf ? 1 : 0;
+        public Camera CurrentViewCamera => ResolveViewCamera();
 
         private readonly List<JourneyConversation> completed = new List<JourneyConversation>();
         private readonly List<JourneySocialParticipant> eligible = new List<JourneySocialParticipant>();
@@ -142,6 +147,8 @@ namespace WeatherHouse.WildlifeJourney
             }
             JourneySocialParticipant chosenFirst = default, chosenSecond = default;
             float totalWeight = 0f;
+            Camera camera = ResolveViewCamera();
+            int bestVisibility = -1;
             for (int i = 0; i < eligible.Count; i++)
                 for (int j = i + 1; j < eligible.Count; j++)
                 {
@@ -149,6 +156,11 @@ namespace WeatherHouse.WildlifeJourney
                     if (a.id == b.id || !Ready(pairReady, PairKey(a.id, b.id)) ||
                         Vector3.Distance(a.root.position, b.root.position) > interactionDistance ||
                         !ClearSight(Anchor(a), Anchor(b), a.root, b.root)) continue;
+                    // Prefer a nearby exchange the player can notice, while retaining weighted rotation within that group.
+                    int visibility = camera == null ? 0 :
+                        (InView(camera, a, b.root) ? 1 : 0) + (InView(camera, b, a.root) ? 1 : 0);
+                    if (visibility < bestVisibility) continue;
+                    if (visibility > bestVisibility) { bestVisibility = visibility; totalWeight = 0f; }
                     float weight = WaitWeight(a.id) * WaitWeight(b.id);
                     totalWeight += weight;
                     if (random.NextDouble() * totalWeight < weight) { chosenFirst = a; chosenSecond = b; }
@@ -242,6 +254,15 @@ namespace WeatherHouse.WildlifeJourney
             return true;
         }
 
+        /// <summary>A visible speaker can be heard even when the listener is outside the frame; this does not record evidence.</summary>
+        public bool CanPresentFrom(Camera camera)
+        {
+            var current = ActiveConversation;
+            return current != null && camera != null && camera.isActiveAndEnabled &&
+                TryFind(current.speakerId, out var speaker) && TryFind(current.listenerId, out var listener) &&
+                CanParticipate(speaker) && CanParticipate(listener) && InView(camera, speaker, listener.root);
+        }
+
         private bool InView(Camera camera, JourneySocialParticipant participant, Transform other)
         {
             Vector3 anchor = Anchor(participant);
@@ -255,7 +276,8 @@ namespace WeatherHouse.WildlifeJourney
         {
             Vector3 ray = to - from;
             if (ray.sqrMagnitude < .0001f) return true;
-            int count = Physics.RaycastNonAlloc(from, ray.normalized, sightHits, ray.magnitude, occlusionMask, QueryTriggerInteraction.Ignore);
+            int count = gameObject.scene.GetPhysicsScene().Raycast(from, ray.normalized, sightHits, ray.magnitude,
+                occlusionMask, QueryTriggerInteraction.Ignore);
             if (count == sightHits.Length) return false;
             for (int i = 0; i < count; i++)
                 if (!sightHits[i].transform.IsChildOf(first) && !sightHits[i].transform.IsChildOf(second)) return false;
@@ -276,10 +298,20 @@ namespace WeatherHouse.WildlifeJourney
 
         private void LateUpdate()
         {
-            Camera camera = viewCamera != null ? viewCamera : Camera.main;
-            bool visible = ObserveFrom(camera);
+            Camera camera = ResolveViewCamera();
+            bool visible = CanPresentFrom(camera);
             if (!visible) { if (bubble != null) bubble.gameObject.SetActive(false); return; }
             Present(camera);
+            ObserveFrom(camera);
+        }
+
+        private Camera ResolveViewCamera()
+        {
+            // A deliberate capture view remains authoritative; normal play follows the currently enabled main view.
+            if (viewCamera != null && viewCamera.isActiveAndEnabled && viewCamera.targetTexture != null) return viewCamera;
+            Camera main = Camera.main;
+            if (main != null && main.isActiveAndEnabled && main.gameObject.scene == gameObject.scene) return main;
+            return viewCamera != null && viewCamera.isActiveAndEnabled ? viewCamera : null;
         }
 
         private void Present(Camera camera)
@@ -298,26 +330,33 @@ namespace WeatherHouse.WildlifeJourney
                 go.transform.SetParent(transform, false); go.layer = 5;
                 canvas = go.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.sortingOrder = 80;
                 var scaler = go.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                scaler.referenceResolution = new Vector2(1920f, 1080f); scaler.matchWidthOrHeight = .5f;
-                bubble = new GameObject("One spoken word", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-                bubble.SetParent(go.transform, false); bubble.gameObject.layer = 5;
-                bubble.sizeDelta = new Vector2(66f, 54f);
-                var background = bubble.GetComponent<Image>(); background.color = new Color(1f, .98f, .9f, .94f); background.raycastTarget = false;
-                var tail = new GameObject("Tail", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-                tail.SetParent(bubble, false); tail.gameObject.layer = 5; tail.sizeDelta = new Vector2(10f, 10f);
-                tail.anchoredPosition = new Vector2(0f, -27f); tail.localRotation = Quaternion.Euler(0f, 0f, 45f);
-                tail.GetComponent<Image>().color = background.color; tail.GetComponent<Image>().raycastTarget = false;
+                scaler.referenceResolution = new Vector2(1600f, 1000f); scaler.matchWidthOrHeight = .5f;
+                bubble = ProceduralUiLibrary.Create(go.transform, "Animal bubble", UiMark.AnimalBubble,
+                    Vector2.zero, bubbleSize, ProceduralUiLibrary.Cream).rectTransform;
                 glyph = new GameObject("Animal glyph", typeof(RectTransform), typeof(CanvasRenderer), typeof(AnimalGlyphGraphic)).GetComponent<AnimalGlyphGraphic>();
                 glyph.transform.SetParent(bubble, false); glyph.gameObject.layer = 5;
-                glyph.rectTransform.sizeDelta = new Vector2(30f, 36f); glyph.raycastTarget = false;
-                glyph.color = new Color(.24f, .3f, .25f); glyph.lineWidth = 4.4f;
+                glyph.raycastTarget = false;
             }
             canvas.worldCamera = camera; canvas.planeDistance = camera.nearClipPlane + .2f;
+            bubble.sizeDelta = new Vector2(Mathf.Max(120f, bubbleSize.x), Mathf.Max(64f, bubbleSize.y));
+            var background = bubble.GetComponent<ProceduralUiGraphic>();
+            background.color = ProceduralUiLibrary.Cream;
+            float height = Mathf.Min(glyphHeight, bubble.sizeDelta.y * .52f);
+            glyph.rectTransform.sizeDelta = new Vector2(height * 5f / 6f, height);
+            glyph.rectTransform.anchoredPosition = Vector2.up * (bubble.sizeDelta.y * ProceduralUiStyle.Current.tailSize * .5f);
+            glyph.color = ProceduralUiLibrary.Ink;
+            if (glyph.lineWidth != glyphStrokeWidth) { glyph.lineWidth = glyphStrokeWidth; glyph.SetVerticesDirty(); }
             bubble.gameObject.SetActive(true); glyph.SvgBody = definition.body;
             TryFind(ActiveConversation.speakerId, out var speaker);
             Vector3 screen = camera.WorldToViewportPoint(Anchor(speaker));
             Rect size = ((RectTransform)canvas.transform).rect;
-            bubble.anchoredPosition = new Vector2((screen.x - .5f) * size.width, (screen.y - .5f) * size.height + 40f);
+            Vector2 position = new Vector2((screen.x - .5f) * size.width, (screen.y - .5f) * size.height + bubble.sizeDelta.y * .5f + 12f);
+            if (size.width > bubble.sizeDelta.x + 24f && size.height > bubble.sizeDelta.y + 24f)
+            {
+                position.x = Mathf.Clamp(position.x, size.xMin + bubble.sizeDelta.x * .5f + 12f, size.xMax - bubble.sizeDelta.x * .5f - 12f);
+                position.y = Mathf.Clamp(position.y, size.yMin + bubble.sizeDelta.y * .5f + 12f, size.yMax - bubble.sizeDelta.y * .5f - 12f);
+            }
+            bubble.anchoredPosition = position;
         }
 
         [Serializable]
