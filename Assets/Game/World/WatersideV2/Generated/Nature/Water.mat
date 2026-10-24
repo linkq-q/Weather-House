@@ -19,7 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: 
+  m_LockedProperties: _DebugDepth
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -42,16 +42,16 @@ Material:
     - _CausticDepth: 1.1
     - _CausticScale: 1.25
     - _CausticSpeed: 0.28
-    - _CausticStrength: 0.22
+    - _CausticStrength: 0.23
     - _DebugDepth: 0
-    - _DepthDistance: 1.2
+    - _DepthDistance: 0.9
     - _FoamSoftness: 0.101
-    - _FoamSpeed: 0
+    - _FoamSpeed: 0.7
     - _FoamTravel: 0.183
     - _HasPlanarReflection: 0
     - _HasSceneColor: 0
     - _InteractionStrength: 0
-    - _Opacity: 0.73
+    - _Opacity: 0.67
     - _ReflectionBrushSize: 1.35
     - _ReflectionBrushStrength: 0.78
     - _ReflectionColorSteps: 8
@@ -60,14 +60,14 @@ Material:
     - _ReflectionFar: 0.345
     - _ReflectionNear: 0.845
     - _ReflectionPosterize: 0.48
-    - _ReflectionStrength: 0.802
+    - _ReflectionStrength: 0.9
     - _ReflectionTintStrength: 0
-    - _RefractionStrength: 0.012
+    - _RefractionStrength: 0.01
     - _RippleSpeed: 0.12
     - _RippleStrength: 0.36
     - _ShadowPigmentBlend: 0.75
-    - _ShoreStrength: 0.42
-    - _ShoreWidth: 0.11
+    - _ShoreStrength: 1
+    - _ShoreWidth: 0.23
     - _SmallStrokeScale: 3.8
     - _SmallStrokeWeight: 0.623
     - _StrokeScale: 0.8
@@ -75,19 +75,19 @@ Material:
     - _SurfaceStrokeStrength: 0.417
     - _UseWaterBrushAtlas: 1
     - _ViewAlignedStrokes: 0
-    - _WaterSaturation: 1.09
+    - _WaterSaturation: 1.35
     - _WaveletLength: 1.25
     - _WaveletScale: 0.58
     - _WaveletSpeed: 0.15
-    - _WaveletStrength: 0.289
+    - _WaveletStrength: 0.2
     - _WaveletWidth: 0.075
     m_Colors:
     - _BrushDirection: {r: 0.829, g: -0.559, b: 0, a: 0}
-    - _DeepColor: {r: 0, g: 0.43137255, b: 0.63529414, a: 1}
-    - _FoamColor: {r: 0.99215686, g: 1, b: 0.90588236, a: 1}
+    - _DeepColor: {r: 0.5877208, g: 0.7505292, b: 0.8274932, a: 1}
+    - _FoamColor: {r: 0.98843217, g: 1, b: 0.8611859, a: 1}
     - _InteractionWorldRect: {r: 0, g: 0, b: 0, a: 0}
-    - _ReflectionTint: {r: 0.2, g: 0.44313726, b: 0.35686275, a: 1}
-    - _RippleColor: {r: 1, g: 0.9843137, b: 0.8862745, a: 1}
+    - _ReflectionTint: {r: 0.065725274, g: 0.4393531, b: 0.26890805, a: 1}
+    - _RippleColor: {r: 1, g: 0.9838275, b: 0.8827493, a: 1}
     - _ShadowPigmentColor: {r: 0.035, g: 0.4, b: 0.43, a: 1}
-    - _ShallowColor: {r: 0.42, g: 0.64, b: 0.62, a: 1}
+    - _ShallowColor: {r: 0.24289632, g: 0.57951474, b: 0.548913, a: 1}
   m_BuildTextureStacks: []
