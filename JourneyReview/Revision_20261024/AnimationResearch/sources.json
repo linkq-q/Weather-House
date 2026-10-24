@@ -1,0 +1,195 @@
+{
+  "checked_at_utc": "2026-10-24T10:09:18Z",
+  "scope": "只读资产盘点及网上免费动物动画研究；没有下载资源包、登录领取、付费、导入或操作 Unity。",
+  "verification_boundary": "动作已核实表示作者或官方商店页面列出，不表示文件已解包、视觉质量已验收或已兼容本项目骨架。",
+  "project_inventory": {
+    "sources": [
+      "Assets/Experiments/QuadrupedMotion/EightAnimals/manifest.json",
+      "Assets/Game/World/Hillside/Editor/HillsideAnimalBuilder.cs",
+      "Assets/Game/World/Wildlife/Runtime/WildlifeTypes.cs",
+      "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs",
+      "Assets/Game/World/Wildlife/Runtime/WildlifeAnimation.cs",
+      "Assets/Game/World/Wildlife/Journey/Editor/JourneySwimImport.cs"
+    ],
+    "species_and_authored_states": {
+      "sheep": ["idle", "walk", "eat", "react", "独立 sheep_swim.fbx 1.2秒循环"],
+      "fox": ["idle", "walk", "run", "attack", "hit"],
+      "deer": ["idle", "walk", "eat", "react"],
+      "dog": ["idle", "walk", "look", "react"],
+      "rabbit": ["idle", "walk", "run", "attack", "hit"],
+      "squirrel": ["turn", "walk_biped", "run_biped", "wave", "另有 jump_biped/dance 文件"],
+      "turtle": ["walk", "idle", "eat", "react"],
+      "fish": ["swim", "swim_fast", "impulse", "attack", "out_of_water"],
+      "robin": ["idle", "takeoff", "fly", "land", "sing"]
+    },
+    "confirmed_gaps": [
+      "没有独立的卧下、睡眠循环、起身三段资源接入。狐狸 Rest 使用待机，Drink 使用待机及轻微头部姿态。",
+      "狐狸和兔子没有真实吃东西片段；狗 forage 使用 look；松鼠 forage 使用 turn。",
+      "嗅闻、碰鼻、蹭身没有成对骨骼动画资源接入。旧 QuadrupedMotion/Models/sheep 和 deer 有 sniff 文件，但与当前 EightAnimals 骨架兼容性本次未测。",
+      "羊游泳资源已存在，不应把本次网上检索当成首次补齐游泳。"
+    ],
+    "rig_constraints": "当前使用 Generic + Playables，applyRootMotion=false。羊/鹿为 Hips/Head 命名；狐狸为 tripo::Root/bone_1；狗兔为 tripo::Root/tripo::Head_*。外来模型动作不能仅改 Animation Type 就认定可套用；需映射层级、绑定姿态、骨轴与比例并烘焙到当前骨架。保持现有外观，不默认替换模型。",
+    "unity_reference": "https://docs.unity3d.com/2022.3/Documentation/Manual/GenericAnimations.html"
+  },
+  "shortlist": [
+    {
+      "id": "ursa_goat_sheep",
+      "priority": 1,
+      "title": "Animated Goat and Sheep - 3D low poly - FREE / UrsaAnimations",
+      "url": "https://assetstore.unity.com/packages/3d/characters/animals/animated-goat-and-sheep-3d-low-poly-free-251910",
+      "action_evidence_url": "https://marketplace.unity.com/packages/3d/characters/animals/animated-goat-and-sheep-3d-low-poly-free-251910?locale=ko-KR",
+      "evidence": "官方商店搜索索引明确列出21动作，包含坐下、站起、吃东西、侧移、眨眼，以及多种移动。官方现价 Free；大小1.9MB；原始 Unity 2021.3.18。普通 open 的动态描述为空，动作证据来自官方地区页搜索结果。",
+      "confirmed_actions": ["stand to sit", "sit to stand", "eating", "shuffle left/right", "eyes blink additive"],
+      "unconfirmed": ["没有列出独立睡眠呼吸循环", "未实看 sit 姿态是否适合作羊卧下"],
+      "free": true,
+      "license": "Standard Unity Asset Store EULA；嵌入有原创内容的商业游戏可用，不能单独再分发资产。",
+      "license_url": "https://unity.com/legal/as-terms",
+      "access": "需 Unity 账户领取并通过 Package Manager 下载；本次未领取。",
+      "contents": "带羊和山羊模型、FBX骨架和动画；包内羊山羊共享骨架。",
+      "integration": "优先做现有羊骨架的坐下/起身重定向小试验。包内共享骨架不证明兼容本项目 Hips 羊骨架。只取所需动作，演示控制器不接入。"
+    },
+    {
+      "id": "turbosquid_deer",
+      "priority": 2,
+      "title": "deer animated / mnphmnmn",
+      "url": "https://www.turbosquid.com/3d-models/3d-deer-animation-model/1012108",
+      "evidence": "作者商品页显示 Free、Rigged、Animated；明确列出 Walk、Run、Jump、Sit、Guard、Dead；包含 Blender 与 FBX，2445 polygons。",
+      "confirmed_actions": ["Sit", "Guard", "Walk", "Run", "Jump"],
+      "unconfirmed": ["Sit 是否含完整出入过渡", "无明确 Sleep 或 Drink"],
+      "free": true,
+      "license": "TurboSquid Standard License；允许商业游戏内嵌使用及修改，不允许把模型原文件单独再分发。",
+      "license_url": "https://www.turbosquid.com/licensing",
+      "access": "下载入口可见；需要 TurboSquid 账户，未进行领取/登录验证。",
+      "contents": "带模型及动画，Blender/FBX。",
+      "integration": "适合补鹿的坐卧候选；独立骨架要重新映射到当前鹿。不能把 Dead 冒充睡觉。"
+    },
+    {
+      "id": "quaternius_ultimate",
+      "priority": 3,
+      "title": "Ultimate Animated Animal Pack / Quaternius",
+      "url": "https://quaternius.com/packs/ultimateanimatedanimals.html",
+      "model_url": "https://poly.pizza/m/Bc97C66HKi",
+      "evidence": "作者页列出12动物、每只超过12动作、FBX/Blend/glTF、CC0和个人商业免费。官方明确举例行走、奔跑、跳跃、攻击。作者在 Poly Pizza 的狐狸条目确认 CC0 和 FBX/GLTF。",
+      "confirmed_actions": ["Walk", "Gallop", "Jump"],
+      "unconfirmed": ["Eating 和 HeadLow 的具体片段名仅在第三方解包文章看到，本次未从官方清单或源文件复核", "没有官方睡眠或饮水证据"],
+      "free": true,
+      "license": "该包作者页及狐狸条目标 CC0；可商用，不要求署名。",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "access": "作者提供免费 Download 入口；本次未走完整下载流程，未确认当前跳转是否要求账户。",
+      "contents": "带低多边形动物模型及各自骨架，FBX/Blend/glTF。",
+      "integration": "作为狐狸/鹿自然待机与进食的下一轮文件核查候选；先确认实际 Eating，不承诺能直接替换本项目 Tripo/Generic 曲线。"
+    },
+    {
+      "id": "psx_rabbit",
+      "priority": 4,
+      "title": "PSX Animals Free - Wild Animals Sampler / heyheythere",
+      "url": "https://heyheythere.itch.io/psx-animals-free",
+      "evidence": "作者页提供免费947KB ZIP及CC BY 4.0，兔子与乌鸦各6动作；兔子的闲置表现明确包含啃草。作者说明是无蒙皮的刚性分块关节动画，由代码生成、在Godot验证。",
+      "confirmed_actions": ["兔子啃草待机", "跳步行走", "奔跑"],
+      "unconfirmed": ["无睡眠或饮水", "没有 Unity 2022 项目验证"],
+      "free": true,
+      "license": "CC BY 4.0；可商用，需署名、许可链接并说明改动。",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "access": "作者页有直接 Download ZIP；未执行下载。",
+      "contents": "GLB/FBX/Blend，带兔子及乌鸦模型；不包含完整付费包的Unity包。",
+      "integration": "适合观察啃草时序或小范围人工迁移。当前兔子是蒙皮骨架，刚性分块素材不是可直接套用的动画；风格差异大，优先级低于保留本体制作。"
+    },
+    {
+      "id": "aizity_fox_waking",
+      "priority": 5,
+      "title": "Animated Red Fox Waking Up / Alexei Ostapenko；AiZity转换分发版",
+      "url": "https://aizity.com/assets/free-3d-model-download/fox-3d-model",
+      "original_url": "https://sketchfab.com/3d-models/fox-4e37c303f8a241aaa2511bd9f3019273",
+      "evidence": "转换版发布者页面明确描述一段从蜷卧中醒来的骨骼动画，免费，GLB/FBX/Blend，9354 polygons，并给出原作者及CC BY 4.0。原作者Sketchfab页本次403，公开API也不可达。",
+      "confirmed_actions": ["分发者声明的蜷卧醒来单段动画"],
+      "unconfirmed": ["原作者许可尚未直接复核", "未证实有独立睡眠循环和卧下段", "未看文件或动态预览"],
+      "free": true,
+      "license": "分发者标CC BY 4.0；允许商用且需署名，原始授权待复核后才建议正式纳入。",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "access": "免费 Download Files 按钮可见；完整下载/登录门槛未操作确认。",
+      "contents": "带狐狸模型、骨架和一段动画；分发者清理、更名、缩放并转换格式。",
+      "integration": "这是与狐狸睡觉最贴近的免费线索，优先核清原始许可与真正动画后再评估。当前狐狸骨架不同，须重定向并单独制作或提取睡眠循环。"
+    },
+    {
+      "id": "fab_animal_variety",
+      "priority": 6,
+      "title": "ANIMAL VARIETY PACK / PROTOFACTOR INC",
+      "url": "https://www.fab.com/listings/2dd7964c-a601-4264-a53d-465dcae1644c",
+      "evidence": "Fab现页明确Free和Permanent Collection；狐狸26动作/33骨、雌雄鹿各20动作/31骨，另有狼等；Included formats仅Unreal Engine。页面License terms显示横线，未取得具体许可。",
+      "confirmed_actions": [],
+      "unconfirmed": ["没有逐段动作名称，不能认定已含睡眠/喝水", "该条目适用Fab Standard还是旧商城许可未确认", "未确认可取得原始FBX"],
+      "free": true,
+      "license": "条目许可字段未返回具体内容，尚不能确认本项目商用和跨引擎权限。Fab通用Standard许可允许兼容工具使用，但不能据此推定本条目所获许可。",
+      "license_url": "https://www.fab.com/eula",
+      "access": "需Epic/Fab账户领取；仅UE包，通常还需UE导出通路。本次未领取。",
+      "contents": "带模型、骨架、动画及UE内容；没有单独动画库证据。",
+      "integration": "先核领取许可和动作表，再决定是否值得UE到FBX再到当前骨架的转换成本。当前不排在可直接采用资源之前。"
+    },
+    {
+      "id": "bublisher_dogs",
+      "priority": 7,
+      "title": "3D Stylized Animated Dogs Kit / Bublisher",
+      "url": "https://assetstore.unity.com/packages/3d/characters/animals/mammals/3d-stylized-animated-dogs-kit-284699",
+      "evidence": "官方页确认Free、42.4MB、Standard Unity Asset Store EULA、原始Unity2021.3.28。官方动态描述未返回；第三方商店镜像列出进食、坐下、摇尾、呼吸等8动作，但本次未把镜像当作已验证动作清单。",
+      "confirmed_actions": [],
+      "unconfirmed": ["吃东西/坐下/摇尾的动作需打开官方完整描述或领取文件复核", "无睡眠或饮水证据"],
+      "free": true,
+      "license": "Standard Unity Asset Store EULA；允许商业游戏内嵌使用，不能单独再分发资源。",
+      "license_url": "https://unity.com/legal/as-terms",
+      "access": "需Unity账户领取；未领取。",
+      "contents": "带狗模型及动画的Unity资源包；未查文件结构。",
+      "integration": "若文件证实摇尾/进食，可补狗的自然反馈。现有狗为Tripo骨架，不保证外包曲线兼容。"
+    },
+    {
+      "id": "bake3d_fox",
+      "priority": 8,
+      "title": "Free Fox / Bake3D",
+      "url": "https://bake3d.ai/free-3d-models",
+      "evidence": "制作方明确免费免账户、CC BY 4.0；狐狸GLB包含行走4秒、摇尾2秒、张望5秒；FBX仅行走。模型60000三角形，29骨。",
+      "confirmed_actions": ["Tail wag", "Look around", "Walk"],
+      "unconfirmed": ["没有睡眠、饮水、碰鼻、游泳", "未验证动作质量及目标骨架适配"],
+      "free": true,
+      "license": "CC BY 4.0；可商用，需署名并注明改动。",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "access": "作者明确无需账户；GLB约3MB，FBX约3.5MB。未下载。",
+      "contents": "带模型及动画；不同格式动作数不同。",
+      "integration": "如只需尾巴/回头招呼可评估GLB的局部动作；FBX缺这些动作。60k三角形不适合直接替换现有群体，且现有狐狸需重新映射。"
+    }
+  ],
+  "not_free_or_not_suitable": [
+    {
+      "title": "Baby Sheep Animated / Kasit Studio",
+      "url": "https://www.blendkit.com/asset-gallery-detail/b3344db2-b837-425c-b5c0-36cbca36273f/",
+      "finding": "作者页23动作确实包含睡眠进入/循环/退出及休息、进食三段，Rigify Horse衍生骨架、28.8MiB。但资源明确标Full Plan；Royalty free是许可类型，不是免费价格。未付费或领取。"
+    },
+    {
+      "title": "Wolf with Animations / 3DHaupt",
+      "url": "https://sketchfab.com/3d-models/wolf-with-animations-f3769a474a714ebbbaca0d97f9b0a5a0",
+      "finding": "作者搜索结果明确Free download for non-commercial use，不能作为本项目可商用免费动画推荐。"
+    },
+    {
+      "title": "Undead Squirrel / CDmir, TinyWorlds",
+      "url": "https://opengameart.org/content/undead-squirrel-animated",
+      "finding": "作者CC0、3D带骨骼动画和3.5MB文件链接是真实候选，但没有睡眠/啃食/梳理动作清单，亡灵气质也不匹配；不为凑数量推荐导入。"
+    },
+    {
+      "title": "Khronos Fox sample",
+      "url": "https://github.com/KhronosGroup/glTF-Sample-Models/blob/main/2.0/Fox/README.md",
+      "finding": "官方仅列Survey/Walk/Run；模型CC0但绑定和动画CC BY 4.0，不能把整个文件说成纯CC0。没有本次需要的睡眠/进食。"
+    }
+  ],
+  "recommended_next_steps": [
+    "先小试Ursa羊的坐下/起身与当前羊骨架映射；文件很小且动作、价格、许可均有官方证据。",
+    "第二条直接可核查免费坐卧候选是TurboSquid鹿Sit；优先保留本项目模型，通过动画重定向验证后再决定采用。",
+    "狐狸睡眠优先核清Alexei Ostapenko原始授权和蜷卧醒来文件。若无法确认，保留现有狐狸骨架制作/生成卧下、睡眠循环、起身，比直接替换外来模型更稳定。"
+  ],
+  "unfilled_free_gaps": [
+    "未找到已经同时核实免费、可商用、含明确动作并适配当前骨架的完整狐狸/羊睡眠三段。",
+    "未找到值得优先采用的免费四足饮水、成对碰鼻/蹭身或羊游泳资源；本项目羊游泳已具备。",
+    "松鼠当前需要自然啃食/梳理/睡眠，搜到的免费条目没有足够动作证据。",
+    "人形Mixamo和2D/Lottie/静态睡姿模型不作为可直接套用的四足骨骼动画。"
+  ],
+  "downloaded_packages": false,
+  "imported_to_unity": false,
+  "retarget_or_visual_tests_run": false
+}
