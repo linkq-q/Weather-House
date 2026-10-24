@@ -1,0 +1,9 @@
+Fence LOD alignment / 2026-10-24
+
+Cause: four child transforms in three reviewed LODGroups had independent local offsets/rotations. Switching distance selected displaced meshes; no runtime script or Animator on those fence roots moves them. User selected nearest-detail geometry and existing colliders as the source of truth.
+Fix: restore only four child poses from their original prefabs and recalculate three group bounds. Preserve all root transforms, colliders, meshes, materials, LOD membership/thresholds, and unrelated scene edits.
+
+True RED: red.txt, displaced Fence_2_LOD0 detected. Earlier play-state-failure.txt is a fixture precondition failure, not defect evidence.
+Edit GREEN: Reports/20261024_133721_764_checks_07867234.txt. Nine renderer bounds match source-prefab instances at the original root poses, collider/root poses unchanged, repeated repair no-op. Source and scope checks passed.
+Actual main-scene Play: MotionReview/Runs/20261024_144058_608_lifecycle_baseline/result-144132860.json PASS. Three continuous camera zoom sequences plus all nine fixed-camera LOD 0/1/2 frames captured. Root visually reviewed the nine comparisons in fence-lod-contact.jpg: poles/rails stay in the same place, with expected source-mesh simplification. Existing rocks and crates occlude portions, but the visible pole/rail anchors align. No source model or scene dressing was altered to hide the discrepancy.
+The run returned clean Edit with original scene/Notebook hashes and editor options restored. Later user scene changes remain outside this scoped fence patch.

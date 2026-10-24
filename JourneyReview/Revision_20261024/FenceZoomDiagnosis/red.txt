@@ -1,0 +1,5 @@
+FAIL
+System.InvalidOperationException: LOD remains displaced: Fence_2_LOD0
+  at WeatherHouse.WatersideV2.Editor.WatersideFenceLodRepair.VerifyAligned (WeatherHouse.WatersideV2.Editor.WatersideFenceLodRepair+Item[] items) [0x00131] in C:\unity project\Weather House\Assets\Game\Editor\WatersideFenceLodRepair.cs:155 
+  at WeatherHouse.WatersideV2.Editor.WatersideFenceLodRepairChecks.RunReadOnly () [0x00013] in C:\unity project\Weather House\Assets\Game\Editor\WatersideFenceLodRepairChecks.cs:22 
+  at WeatherHouse.WatersideV2.Editor.WatersideReviewChecks.Poll () [0x000da] in C:\unity project\Weather House\Assets\Game\World\WatersideV2\Editor\WatersideReviewChecks.cs:99 
