@@ -1,0 +1,25 @@
+{
+  "scope": "Constrain the original controller before Move rather than teleporting it to an old dry position; preserve the 0.4 m wading limit. A scaled foot support query handles bridge deck seams missed by the centre ray.",
+  "ownership": "The original map chat confirmed the pre-Move changes are its completed uncommitted unit and delegated this scoped local commit. Controller and water-surface files are not included.",
+  "productionSha256": "EDF281B5A269FFEEDC0F58EF22A7D84D4239A0DE4E7777464252CF1FB7F290C2",
+  "priorWadingEvidence": {
+    "path": "WatersideV3Review/wading-play/checks.json",
+    "utc": "2026-10-24T10:28:34.8651268Z",
+    "result": "PASS with 54 deep-water blocks, zero rollbacks, maximum supported depth 0.399999 m, shallow entry and return to dry land.",
+    "boundary": "One initial spawn placement. This predates the bridge-seam fallback and does not certify that change."
+  },
+  "bridgeSeamRegression": {
+    "fixture": "JourneyReview/Revision_20261024/MageCandidate/Review/WaterSupportGapV1/WaterSupportGapFixture.cs",
+    "baseline": "The actual 12 mm bridge-stone gap caused a false 0.47342038 m depth and rejected a 72.41249 mm step.",
+    "red": "Native Unity fixture exit 1; five positive support cases failed as expected.",
+    "green": "Native Unity fixture exit 0; 19/19 cases passed, including the same step and negative wide-gap, off-edge, high-platform, below-bridge, airborne-window, scaled-capsule, slope, trigger, self and deep-water checks.",
+    "mainSceneSha256": "A0E43BE0D47776BCA7901563607126B5E53BA33E4E610079AD41DE76F3ACA59D",
+    "mainRuns": [
+      "MapIntegrationPlan/MainPlayReview/Runs/20261024_200050_849_lifecycle_all",
+      "MapIntegrationPlan/MainPlayReview/Runs/20261024_200706_906_lifecycle_all"
+    ],
+    "mainResult": "Both original-input walks crossed the previously blocked west bridge along z=-27, from x<-19 to x>-14, and continued to the northeast pasture. No actor teleport, altered collider, speed or wading limit. Later stops were independently attributed to sheep occupancy; water blocked-step counters remained zero.",
+    "lifecycle": "Both runs returned to clean Edit with saved scene unchanged and notebook/editor options restored.",
+    "boundary": "The complete map traversal remains unpassed because of later animal obstruction. This unit certifies the bridge-seam repair, not all buildings, routes or gameplay jumps."
+  }
+}
