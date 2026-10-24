@@ -177,7 +177,7 @@ namespace WeatherHouse.WatersideV2
         {
             new[] { Entry, At(27,70,3), At(31,67,2.4f), Crossings[0].Start, Crossings[0].End,
                 At(47,61,3.5f), OldTree, At(51,57,3.5f), Crossings[3].Start, Crossings[3].End,
-                At(67,51,4), At(64,44,7), LakeTerrace, At(69,42,8), At(72,49,5), At(74,55,3.4f),
+                At(67,51,4), At(64,44,7), LakeTerrace, At(69,42,8), new Vector3(40f,6.4245758f,7.1f), new Vector3(40.3f,5.9725151f,3.7f), At(72,49,5), At(74,55,3.4f),
                 At(73,61,2.5f), At(70,68,2), At(66,76,1.6f), Crossings[2].End, Crossings[2].Start,
                 MoonBay, At(35,82,2), Entry },
             new[] { LakeTerrace, At(56,38,8), Crossings[1].End, Crossings[1].Start,
