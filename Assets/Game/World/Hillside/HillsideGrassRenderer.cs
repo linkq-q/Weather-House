@@ -25,6 +25,8 @@ namespace WeatherHouse.Hillside
         public Camera viewCamera;
         [Tooltip("可选独立地图覆盖图：R 为草地覆盖率，G 为水深 / 8，B 为短草踩踏程度。空值保留山林地图规则。")]
         public Texture2D placementMap;
+        [Tooltip("可选的场景局部草笔刷；不修改原覆盖图或全局草种参数。")]
+        public WeatherHouse.Vegetation.GrassLocalPainter localPainter;
         [NonSerialized] public bool manualCaptureOnly;
 
         sealed class Cell
@@ -42,7 +44,8 @@ namespace WeatherHouse.Hillside
             public System.Random random;
             public float edge, totalWeight, low, high;
             public int maximum, generated, attempts, filterIndex, lastUsed;
-            public bool ready, building;
+            public bool ready, building, localEditDirty;
+            public float extraWidth;
             public readonly Dictionary<Camera, bool> lowDetailByCamera = new Dictionary<Camera, bool>();
         }
         struct Candidate
@@ -204,7 +207,7 @@ namespace WeatherHouse.Hillside
                 if (!exists && hasBudget) cell = GetOrCreateCell(request.key, edge);
                 if (cell == null) continue;
                 float density = DensityFraction(Vector3.Distance(camera.transform.position, cell.bounds.center));
-                bool stale = !cell.ready || (immediate ? cell.viewPosition != camera.transform.position :
+                bool stale = cell.localEditDirty || !cell.ready || (immediate ? cell.viewPosition != camera.transform.position :
                     density > cell.densityFraction * 1.2f || density < cell.densityFraction * .8f);
                 if (hasBudget && (cell.building || stale))
                 {
@@ -227,7 +230,17 @@ namespace WeatherHouse.Hillside
                 }
             }
             instanceBatcher.Flush(); drawCamera = null;
+            if (localPainter && localPainter.isActiveAndEnabled) localPainter.DrawForCamera(camera, populateImmediately);
             if (mayPopulate) RetireCells();
+        }
+
+        // Retain sampled candidates and the currently visible batches while only affected cells refilter.
+        public void InvalidateLocalRegion(Rect worldBounds)
+        {
+            float edge = Mathf.Max(4, cellSize);
+            foreach (var pair in cells)
+                if (new Rect(pair.Key.x * edge, pair.Key.y * edge, edge, edge).Overlaps(worldBounds))
+                { pair.Value.localEditDirty = true; pair.Value.building = false; }
         }
 
         void SubmitInstances(int group, Matrix4x4[] matrices, int count)
@@ -269,7 +282,7 @@ namespace WeatherHouse.Hillside
                 new Vector3(edge + 2, terrain.terrainData.size.y + 2, edge + 2));
         }
 
-        float DensityFraction(float distance)
+        internal float DensityFraction(float distance)
         {
             float near = Mathf.Max(12, visibleRadius);
             if (distance <= near) return 1;
@@ -316,10 +329,12 @@ namespace WeatherHouse.Hillside
         void BeginBuild(Cell cell, Vector3 cameraPosition)
         {
             cell.buildView = cameraPosition;
+            float densityLimit = localPainter && localPainter.isActiveAndEnabled ? localPainter.BaseDensityLimit(cell.key) : 1;
             cell.attempts = cell.totalWeight <= 0 ? 0 : Mathf.CeilToInt(cell.maximum *
-                DensityFraction(Mathf.Sqrt(CellBounds(cell.key, cell.edge).SqrDistance(cameraPosition))));
+                DensityFraction(Mathf.Sqrt(CellBounds(cell.key, cell.edge).SqrDistance(cameraPosition))) * densityLimit);
             cell.filterIndex = 0;
             cell.low = float.PositiveInfinity; cell.high = float.NegativeInfinity;
+            cell.extraWidth = 0;
             foreach (List<Matrix4x4> group in cell.groups) group.Clear();
             cell.building = true;
         }
@@ -339,11 +354,20 @@ namespace WeatherHouse.Hillside
                 if (candidate.index >= cell.attempts) break;
                 cell.filterIndex++;
                 float distance = Vector3.Distance(cell.buildView, candidate.position);
-                if (candidate.rank < DensityFraction(distance) * candidate.coverage)
+                var local = localPainter && localPainter.isActiveAndEnabled
+                    ? localPainter.SampleBase(candidate.position, candidate.variant / 4) : WeatherHouse.Vegetation.GrassLocalSample.Base;
+                if (candidate.rank < DensityFraction(distance) * candidate.coverage * local.density)
                 {
                     float scale = candidate.scale * Mathf.Lerp(1, .65f, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(75, 260, distance)));
-                    cell.groups[candidate.variant].Add(Matrix4x4.TRS(candidate.position, Quaternion.Euler(0, candidate.yaw, 0), Vector3.one * scale));
+                    cell.groups[candidate.variant].Add(Matrix4x4.TRS(candidate.position, Quaternion.Euler(0, candidate.yaw, 0),
+                        new Vector3(scale * local.widthScale, scale * local.heightScale, scale * local.widthScale)));
                     cell.low = Mathf.Min(cell.low, candidate.position.y); cell.high = Mathf.Max(cell.high, candidate.position.y);
+                    if ((local.heightScale > 1 || local.widthScale > 1) && variants[candidate.variant])
+                    {
+                        Bounds bounds = variants[candidate.variant].bounds;
+                        cell.high = Mathf.Max(cell.high, candidate.position.y + Mathf.Max(0, bounds.max.y * scale * local.heightScale - 1));
+                        cell.extraWidth = Mathf.Max(cell.extraWidth, Mathf.Max(bounds.extents.x, bounds.extents.z) * scale * Mathf.Max(0, local.widthScale - 1));
+                    }
                 }
                 if (++work % 16 == 0 && System.Diagnostics.Stopwatch.GetTimestamp() >= deadline) return false;
             }
@@ -424,10 +448,10 @@ namespace WeatherHouse.Hillside
             float low = cell.low, high = cell.high;
             if (float.IsPositiveInfinity(low)) { low = cell.origin.y; high = cell.origin.y + cell.terrainSize.y; }
             cell.bounds = new Bounds(new Vector3((cell.key.x + .5f) * cell.edge, (low + high) * .5f + .4f, (cell.key.y + .5f) * cell.edge),
-                new Vector3(cell.edge + 2, high - low + 2, cell.edge + 2));
+                new Vector3(cell.edge + 2 + cell.extraWidth * 2, high - low + 2, cell.edge + 2 + cell.extraWidth * 2));
             cell.viewPosition = cell.buildView;
             cell.densityFraction = DensityFraction(Vector3.Distance(cell.viewPosition, cell.bounds.center));
-            cell.ready = true; cell.building = false;
+            cell.ready = true; cell.building = false; cell.localEditDirty = false;
         }
 
         // Synchronous path is retained for explicit review captures and independent Editor checks.
@@ -435,7 +459,7 @@ namespace WeatherHouse.Hillside
         {
             ValidateCache();
             Cell cell = GetOrCreateCell(key, edge);
-            if (cell.ready && !cell.building && cell.viewPosition == cameraPosition) return cell;
+            if (cell.ready && !cell.building && !cell.localEditDirty && cell.viewPosition == cameraPosition) return cell;
             BeginBuild(cell, cameraPosition);
             AdvanceBuild(cell, long.MaxValue);
             return cell;

@@ -1,0 +1,3 @@
+PASS brush falloff/hard edge, continuous coalesced dragging, base/overlay species isolation, ordered erase/paint, height-only density preservation, serialization roundtrip and removal restoration.
+Serialized strokes=5; 10000 straight input events stored as 2 points.
+No scene, source species, materials or meshes were edited. Actual SceneView Undo/Redo, saved-scene reload, rendering and cache performance need Unity integration review.
