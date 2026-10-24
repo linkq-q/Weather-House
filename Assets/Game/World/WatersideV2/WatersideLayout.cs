@@ -130,6 +130,29 @@ namespace WeatherHouse.WatersideV2
                 new WaterNode(59, 87, 0, 5.5f, 1.5f), new WaterNode(63, 94, 0, 6, 2))
         };
         static readonly WaterChannel[] SampledWaterChannels = SmoothWaterChannels();
+        // These private authoring samples are immutable for the lifetime of the static layout.
+        // Cache only conservative bounds; exact distance and variable width still use the source nodes.
+        struct WaterQuerySegment
+        {
+            public WaterNode a, b;
+            public float minX, maxX, minZ, maxZ;
+        }
+        static readonly WaterQuerySegment[] WaterQuerySegments = MakeWaterQuerySegments();
+        static WaterQuerySegment[] MakeWaterQuerySegments()
+        {
+            var result = new List<WaterQuerySegment>();
+            foreach (WaterChannel channel in SampledWaterChannels)
+                for (int i = 1; i < channel.Nodes.Length; i++)
+                {
+                    WaterNode a = channel.Nodes[i - 1], b = channel.Nodes[i];
+                    float reach = Mathf.Max(a.HalfWidth, b.HalfWidth);
+                    float guard = (1 + Mathf.Abs(a.Position.x) + Mathf.Abs(a.Position.z) + Mathf.Abs(b.Position.x) + Mathf.Abs(b.Position.z) + reach) * .000001f;
+                    result.Add(new WaterQuerySegment { a = a, b = b,
+                        minX = Mathf.Min(a.Position.x, b.Position.x) - reach - guard, maxX = Mathf.Max(a.Position.x, b.Position.x) + reach + guard,
+                        minZ = Mathf.Min(a.Position.z, b.Position.z) - reach - guard, maxZ = Mathf.Max(a.Position.z, b.Position.z) + reach + guard });
+                }
+            return result.ToArray();
+        }
 
         // A single shoreline, open toward the east and south; the remaining edges are mountains.
         public static readonly Vector3[] Coastline =
@@ -262,7 +285,24 @@ namespace WeatherHouse.WatersideV2
         { float distance, surface, depth; int section; WaterSample(x, z, out distance, out surface, out depth, out section); return section; }
 
         public static bool IsWater(float x, float z, float margin = 0)
-        { return WaterSignedDistance(x, z) < margin; }
+        {
+            if (float.IsNaN(x) || float.IsInfinity(x) || float.IsNaN(z) || float.IsInfinity(z) ||
+                float.IsNaN(margin) || float.IsInfinity(margin)) return WaterSignedDistance(x, z) < margin;
+            float sea = SeaSignedDistance(x, z);
+            if (float.IsNaN(sea)) return WaterSignedDistance(x, z) < margin;
+            if (sea < margin) return true;
+            float expansion = margin + (1 + Mathf.Abs(x) + Mathf.Abs(z) + Mathf.Abs(margin)) * .000001f;
+            foreach (WaterQuerySegment segment in WaterQuerySegments)
+            {
+                if (x < segment.minX - expansion || x > segment.maxX + expansion ||
+                    z < segment.minZ - expansion || z > segment.maxZ + expansion) continue;
+                float t;
+                if (Segment(x, z, segment.a.Position, segment.b.Position, out t) -
+                    Mathf.Lerp(segment.a.HalfWidth, segment.b.HalfWidth, t) < margin) return true;
+            }
+            foreach (TidePool pool in TidePools) if (pool.SignedDistance(x, z) < margin) return true;
+            return false;
+        }
 
         /// <summary>Nearest water surface, including outside its footprint. Test IsWater before use.</summary>
         public static float WaterHeight(float x, float z)

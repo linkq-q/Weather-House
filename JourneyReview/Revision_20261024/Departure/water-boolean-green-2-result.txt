@@ -1,0 +1,3 @@
+PASS exact IsWater == WaterSignedDistance < margin comparisons=186499 bisectionBoundaries=482
+Grid includes sea, pools, confluences; original channel sides and true union boundaries tested at +/-1e-5 and +/-1e-3; negative/zero/positive margins and non-finite/extreme inputs.
+BENCH same 30603 queries baseline_ms=593.850 optimized_ms=65.662 ratio=0.1106

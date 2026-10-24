@@ -1,0 +1,15 @@
+Current-main isolated before/after, 2026-10-24.
+The copied saved scene SHA256 is D0DB86C3F27F1854D7C863D6CA82DA50875AE8D8568721039E0117BB6B113531.
+All current wildlife runtime sources, water-surface source and the UI dependency were copied from main; hashes are in original-planning-source-manifest.json. Original graph retained: 67 nodes, 70 links, 10 sheep.
+The before and after processes ran identical natural initialization and population/herd Edit Simulate steps. The only behavior change was the reviewed IsWater bounds/query hunk. Both copies had the same increment-only call counter, reset immediately before each timed Herd.Simulate.
+
+Before: main-original-water-before-2.log, PID 72288, OS_EXIT=0.
+Natural first planning attempt at simulation 12.05003 s: 1230.579 ms, 47716 IsWater calls, Travelling=False.
+After: main-original-water-after.log, PID 87328, OS_EXIT=0.
+Same attempt: 481.676 ms, 47716 IsWater calls, Travelling=False.
+Measured reduction: 748.903 ms / 60.86%. All ten initial positions and measured body bounds match exactly between reports.
+This directly measures the current production code/scene copy, not the newer staged alternative route or its 6126 ms planning result.
+
+The after case is still a visible planning spike and still cannot depart. This check does not establish main Play/FPS, full-route success, or visual acceptance.
+The first before launch (main-original-water-before.log, PID 66640) failed compilation because its current JourneySocial dependency needed the current UI library; it yielded no timing result. The missing dependency was copied without a behavior shim and both measured processes then exited 0.
+original-planning-restore.txt records restoration of the original isolated sources/scene and all Editor fixtures, verified against every backup SHA256. Main files were never modified by this test.
