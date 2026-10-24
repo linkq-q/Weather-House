@@ -1,0 +1,30 @@
+{
+  "verifiedUtc": "2026-10-24T19:45:00Z",
+  "scope": "Install the downloaded CC0 Eating motion into the original dogs' Forage state and correct its entry/exit foot blending without moving animal roots.",
+  "source": "Quaternius Ultimate Animated Animal Pack Husky Eating, retargeted to the existing dog rig; exact attribution is in Animation/Dog/SOURCES.md.",
+  "implementation": "Opt-in prebaked sole points and existing bone chains. Correction only runs during the distinct Forage clip's blend; pure clips retain their authored pose. Restore before evaluation, disable and reinitialization. No runtime readable mesh or per-frame BakeMesh requirement.",
+  "isolated": "3328 mixer samples, 8040 continuous slope samples and 11131 real Play frames across eight phases plus active disable/reinitialization; original bone lengths and root position preserved.",
+  "main": {
+    "sceneSha256": "76A0941AE880BE692DEC4BBF29C0A1C34AA665BA417F0618B006B277ED59B4B9",
+    "animalCount": 90,
+    "dogsBound": [0, 1, 2],
+    "naturalAiOnly": true,
+    "forageEnteredAndExited": [0, 1, 2],
+    "stableForageSamples": [20, 80, 129],
+    "minimumEntryGapMm": [-11.254, -1.089, -1.957],
+    "minimumStableGapMm": [-12.796, -1.099, -0.028],
+    "maximumRootDrift": 0,
+    "maximumIndependentSkinErrorMm": 0.02225,
+    "originalForageContactToleranceMm": 30,
+    "actualGameImagesReviewed": 3,
+    "lifecycle": "PASS: returned to clean Edit; scene unchanged; notebook, camera/input and editor options restored."
+  },
+  "evidence": "JourneyReview/Revision_20261024/AnimationInstall/AdditionalSources/DogEating/CandidateV3/MainRuns/20261024_193947_424/sample.json",
+  "lifecycleEvidence": "JourneyReview/Revision_20261024/AnimationInstall/MainReview/Runs/20261024_193930_114_lifecycle_dog-eating",
+  "boundaries": [
+    "The prior -87.6 mm Eating-entry blend failure is retained in MainRuns/20261024_181730_681; this run uses normal natural AI, not identical random positions.",
+    "An original Walk-to-Idle blend produced a brief -78.21 mm gap before this dog's first Forage. Its cause is separately recorded in causal-review.md; this change does not alter those clips or claim to fix every Idle transition.",
+    "The main images exposed ordinary dogs crowding during greeting/foraging. Forage root drift remained zero; ordinary same-population body spacing is a separate ecology correction still in progress.",
+    "Numeric contact and three reviewed Game images do not replace the user's final visual acceptance."
+  ]
+}

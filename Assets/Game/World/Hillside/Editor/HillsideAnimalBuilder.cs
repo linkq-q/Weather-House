@@ -168,6 +168,11 @@ namespace WeatherHouse.Hillside.Editor
                     walk = Find("walk") ?? Find("swim"), run = Find("run") ?? Find("swim_fast") ?? Find("walk"),
                     greet = Find("sing") ?? Find("look") ?? Find("idle"), alert = Find("react") ?? Find("idle"), takeoff = Find("takeoff"), fly = Find("fly"), land = Find("land") };
                 if (species == "fox") FoxRestImport.Bind(agent);
+                if (species == "dog")
+                {
+                    agent.clips.forage = Clip("Assets/Game/World/Wildlife/Animation/Dog/dog_eat.fbx");
+                    agent.forageContactData = AssetDatabase.LoadAssetAtPath<WildlifeForageContactData>("Assets/Game/World/Wildlife/Animation/Dog/dog_forage_contact.asset");
+                }
                 if (species == "robin") agent.motionRoot = hips;
                 agent.locomotion = species == "robin" ? WildlifeLocomotion.Flying : species == "fish" ? WildlifeLocomotion.Swimming : WildlifeLocomotion.Ground;
                 agent.walkSpeed = species == "turtle" ? .22f : species == "fish" ? .65f : species == "robin" ? 3.2f : species == "deer" ? 1.1f : .65f;

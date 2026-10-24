@@ -82,6 +82,12 @@ namespace WeatherHouse.Hillside
             return direction < 0f ? time <= 0d : time >= clip.length - .002d;
         }
 
+        public float WeightOf(AnimationClip clip)
+        {
+            int index = clip == null ? -1 : clips.IndexOf(clip);
+            return index >= 0 && index < weights.Count ? weights[index] : 0f;
+        }
+
         public void SetPaused(bool paused)
         {
             if (!graph.IsValid()) return;

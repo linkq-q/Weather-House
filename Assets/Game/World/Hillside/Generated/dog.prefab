@@ -89,7 +89,7 @@ MonoBehaviour:
   animator: {fileID: 6534148474821729125}
   clips:
     idle: {fileID: -623603649343465320, guid: 5f9625ae799e9684c8aea717bd5e158e, type: 3}
-    forage: {fileID: -623603649343465320, guid: a5a2ff6f6b4fd0c4cb9333be0b88bda4,
+    forage: {fileID: -623603649343465320, guid: 59fb71e488b550a4849852cdc060bb06,
       type: 3}
     walk: {fileID: -623603649343465320, guid: 41705c599f19fa24680e319a3fc426f8, type: 3}
     run: {fileID: -623603649343465320, guid: 41705c599f19fa24680e319a3fc426f8, type: 3}
@@ -98,6 +98,10 @@ MonoBehaviour:
     takeoff: {fileID: 0}
     fly: {fileID: 0}
     land: {fileID: 0}
+    restDown: {fileID: 0}
+    restSleep: {fileID: 0}
+    restUp: {fileID: 0}
+  forageContactData: {fileID: 11400000, guid: 265e181a8fb56df4982aa6691b02c9d7, type: 2}
   scaleRange: {x: 0.82, y: 1.16}
   walkSpeed: 0.65
   runSpeed: 1.4
@@ -108,6 +112,14 @@ MonoBehaviour:
   sociability: 0.7
   startlesOthers: 1
   friendlyAcrossSpecies: 1
+  routineMode: 0
+  solitaryProfile:
+    hungerCycleSeconds: 160
+    thirstCycleSeconds: 220
+    fatigueCycleSeconds: 180
+    forageSeconds: 8
+    drinkSeconds: 5
+    restSeconds: 12
 --- !u!1 &8478080517800872050
 GameObject:
   m_ObjectHideFlags: 0

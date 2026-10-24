@@ -15,6 +15,7 @@ namespace WeatherHouse.Hillside
         public Transform motionRoot;
         public Animator animator;
         public WildlifeClips clips = new WildlifeClips();
+        public WildlifeForageContactData forageContactData;
         public Vector2 scaleRange = new Vector2(.85f, 1.15f);
         public float walkSpeed = 1f, runSpeed = 2.5f, bodyRadius = .3f;
         public float flightHeight = 5f, swimDepth = .4f;
@@ -39,6 +40,7 @@ namespace WeatherHouse.Hillside
         private WildlifeRandom random;
         private readonly WildlifeAnimation animationPlayer = new WildlifeAnimation();
         private readonly WildlifeRestSequence restAnimation = new WildlifeRestSequence();
+        private readonly WildlifeForageContact forageContact = new WildlifeForageContact();
         private WildlifeAgent partner;
         private Vector3 baseVisualScale, baseVisualPosition, baseMotionPosition, destination, separation, threat;
         private float stateSince, stateUntil, nextGreeting, nextAlarm, nextDestination, speedVariation, altitude;
@@ -56,6 +58,7 @@ namespace WeatherHouse.Hillside
 
         public void Initialize(WildlifePopulation owner)
         {
+            forageContact.Restore();
             RestoreSolitaryPose();
             restAnimation.Reset();
             ReleasePartner();
@@ -73,6 +76,7 @@ namespace WeatherHouse.Hillside
             if (motionRoot != null && !capturedMotionPosition)
             { baseMotionPosition = motionRoot.localPosition; capturedMotionPosition = true; }
             BodyEnvelope = WildlifeBodyEnvelope.Measure(transform, Radius);
+            forageContact.Initialize(transform, clips != null && clips.forage != null && clips.forage != clips.idle ? forageContactData : null, owner.GroundHeight);
             if (animator == null) animator = GetComponentInChildren<Animator>();
             // Editor self-checks exercise decisions without starting a live animation graph.
             if (Application.isPlaying) animationPlayer.Initialize(animator, clips, random.Value());
@@ -489,7 +493,7 @@ namespace WeatherHouse.Hillside
         private void SetState(WildlifeState state, float now, float duration)
         { State = state; stateSince = now; stateUntil = now + duration; }
 
-        private void Update() { RestoreSolitaryPose(); }
+        private void Update() { RestoreSolitaryPose(); forageContact.Restore(); }
 
         private void RestoreSolitaryPose()
         {
@@ -512,6 +516,7 @@ namespace WeatherHouse.Hillside
                 float yaw = solitary.Activity == SolitaryActivity.Watch ? sway * 6f : sway * 2f;
                 solitaryHead.rotation = Quaternion.AngleAxis(pitch, transform.right) * Quaternion.AngleAxis(yaw, transform.up) * solitaryHead.rotation;
             }
+            if (forageContact.Enabled && clips != null) forageContact.Apply(animationPlayer.WeightOf(clips.forage));
         }
 
         private void OnEnable()
@@ -519,7 +524,7 @@ namespace WeatherHouse.Hillside
             if (population != null && Application.isPlaying)
                 animationPlayer.Initialize(animator, clips, 0f);
         }
-        private void OnDisable() { RestoreSolitaryPose(); restAnimation.Reset(); ReleasePartner(); animationPlayer.Dispose(); }
+        private void OnDisable() { forageContact.Restore(); RestoreSolitaryPose(); restAnimation.Reset(); ReleasePartner(); animationPlayer.Dispose(); }
         private void OnDestroy() { animationPlayer.Dispose(); }
     }
 }
