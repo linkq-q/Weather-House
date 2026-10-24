@@ -34,7 +34,7 @@ namespace WeatherHousePrototype
             {
                 if (!isActiveAndEnabled) return false;
                 if (herd) return herd.isActiveAndEnabled && Member != null;
-                return agent && agent.isActiveAndEnabled && population && population.isActiveAndEnabled &&
+                return CanConverse(agent) && agent.isActiveAndEnabled && population && population.isActiveAndEnabled &&
                     population.agents != null && Array.IndexOf(population.agents, agent) >= 0;
             }
         }
@@ -136,6 +136,9 @@ namespace WeatherHousePrototype
             public string id, species;
         }
 
+        private static bool CanConverse(WildlifeAgent source) => source &&
+            !string.Equals(source.speciesId, "butterfly", StringComparison.OrdinalIgnoreCase);
+
         public static AnimalActor[] BindScene(Scene scene)
         {
             if (!scene.IsValid() || !scene.isLoaded) throw new ArgumentException("Bind a loaded scene.", nameof(scene));
@@ -151,7 +154,7 @@ namespace WeatherHousePrototype
             foreach (GameObject root in roots)
                 foreach (WildlifePopulation population in root.GetComponentsInChildren<WildlifePopulation>(true))
                     foreach (WildlifeAgent agent in population.agents ?? Array.Empty<WildlifeAgent>())
-                        if (agent && agent.gameObject.scene == scene && seen.Add(agent.transform))
+                        if (CanConverse(agent) && agent.gameObject.scene == scene && seen.Add(agent.transform))
                             sources.Add(new Source { root = agent.transform, population = population, agent = agent, species = agent.speciesId,
                                 id = Identity(scene, population.transform, "agent." + agent.speciesId, agent.spawnId) });
 

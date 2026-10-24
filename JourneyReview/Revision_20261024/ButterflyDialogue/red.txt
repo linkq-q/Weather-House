@@ -1,0 +1,6 @@
+FAIL
+System.InvalidOperationException: Butterflies must not be installed as conversation targets.
+  at WeatherHousePrototype.Editor.WildlifeInteractionChecks.CheckButterflyExclusion (WeatherHousePrototype.Editor.WildlifeInteractionChecks+Fixture f) [0x00098] in C:\unity project\Weather House\Assets\Game\Editor\WildlifeInteractionChecks.cs:186 
+  at WeatherHousePrototype.Editor.WildlifeInteractionChecks.CheckBinding (WeatherHousePrototype.Editor.WildlifeInteractionChecks+Fixture f) [0x00297] in C:\unity project\Weather House\Assets\Game\Editor\WildlifeInteractionChecks.cs:135 
+  at WeatherHousePrototype.Editor.WildlifeInteractionChecks.RunEditChecks () [0x00019] in C:\unity project\Weather House\Assets\Game\Editor\WildlifeInteractionChecks.cs:32 
+  at WeatherHouse.WatersideV2.Editor.WatersideReviewChecks.Poll () [0x000b7] in C:\unity project\Weather House\Assets\Game\World\WatersideV2\Editor\WatersideReviewChecks.cs:98 

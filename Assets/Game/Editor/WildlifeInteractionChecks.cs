@@ -132,6 +132,7 @@ namespace WeatherHousePrototype.Editor
 
             f.population.enabled = f.herd.enabled = true;
             Require(Available(f.agentActor) && Available(f.sheepActor), "Enabled drivers were not observable.");
+            CheckButterflyExclusion(f);
             foreach (AnimalActor actor in actors)
             {
                 Require(actor.background && actor.region == null && !actor.RequestSatisfied, "Ecology binding fabricated a weather request.");
@@ -169,6 +170,37 @@ namespace WeatherHousePrototype.Editor
             initial.AssertUnchanged("Driver lifecycle changed ecology visuals");
             CheckPrototype(f);
             CheckInactiveFirstAwake(f);
+        }
+        private static void CheckButterflyExclusion(Fixture f)
+        {
+            Transform body = f.Body("Non-conversational butterfly", new Vector3(2020, 0, 2020));
+            var butterfly = body.gameObject.AddComponent<WildlifeAgent>();
+            butterfly.speciesId = "butterfly"; butterfly.spawnId = 5001; butterfly.visualRoot = body.GetChild(0);
+            WildlifeAgent[] original = f.population.agents;
+            string species = f.agent.speciesId;
+            var geometry = new Geometry(body);
+            try
+            {
+                f.population.agents = new[] { f.agent, butterfly };
+                AnimalActor[] actors = WildlifeInteractionTarget.BindScene(f.scene);
+                Require(actors.Length == 2 && !body.GetComponent<AnimalActor>() && !body.GetComponent<WildlifeInteractionTarget>(),
+                    "Butterflies must not be installed as conversation targets.");
+                geometry.AssertUnchanged("Excluding a butterfly changed its existing visual or Animator");
+                // Persisted scenes already have the old marker/Actor; their live availability must also reject butterflies.
+                f.agent.speciesId = "butterfly";
+                Require(!Available(f.agentActor) && f.agentActor.CurrentGlyphIds.Length == 0 && f.agentActor.UtteranceId.EndsWith(".unavailable"),
+                    "An already-bound butterfly still exposes an observation or greeting.");
+                Require(WildlifeInteractionTarget.BindScene(f.scene).SequenceEqual(new[] { f.sheepActor }),
+                    "Rebinding retained an existing butterfly in the conversation list.");
+                f.agent.speciesId = species;
+                Require(Available(f.agentActor) && f.agentActor.CurrentGlyphIds.SequenceEqual(new[] { "hello" }),
+                    "The butterfly filter disabled an ordinary animal's conversation.");
+            }
+            finally
+            {
+                f.agent.speciesId = species; f.population.agents = original;
+                Object.DestroyImmediate(body.gameObject);
+            }
         }
         private static void CheckAmbientOwnership(Fixture f)
         {

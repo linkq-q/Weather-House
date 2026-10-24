@@ -1,0 +1,7 @@
+只读复核通过；未发现具体阻断。2026-10-24。
+
+主场景序列化数据确认 20 个 butterfly Agent、20 个旧 Target，均正确引用对应 Agent 且 herd 为空，全部受新 CanConverse guard 约束，无需重绑才生效。
+GameplaySession 的观察选择和已锁定交谈均检查 IsAvailableForObservation；E 的 ToggleDialogue 再次检查；HUD 动物气泡也检查可用性。旧蝴蝶绑定返回空字语与 .unavailable，新绑定在创建 Actor/Target 前就排除蝴蝶。
+新检查覆盖新增蝴蝶、旧绑定蝴蝶、恢复普通物种及模型/Animator保持原样。red.txt 是实际断言失败而非编译失败；WildlifeInteractionReview/edit-checks.txt 为新检查通过。
+
+范围仅当前 WildlifeInteractionTarget.cs 与 WildlifeInteractionChecks.cs 蝴蝶 diff 及其调用链；未修改生产文件或操作 Unity。
