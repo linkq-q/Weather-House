@@ -355,8 +355,29 @@ namespace WeatherHouse.WildlifeJourney
             {
                 position.x = Mathf.Clamp(position.x, size.xMin + bubble.sizeDelta.x * .5f + 12f, size.xMax - bubble.sizeDelta.x * .5f - 12f);
                 position.y = Mathf.Clamp(position.y, size.yMin + bubble.sizeDelta.y * .5f + 12f, size.yMax - bubble.sizeDelta.y * .5f - 12f);
+                position = RaiseAboveListenerHead(camera, size, position);
+                position.y = Mathf.Min(position.y, size.yMax - bubble.sizeDelta.y * .5f - 12f);
             }
             bubble.anchoredPosition = position;
+        }
+
+        private Vector2 RaiseAboveListenerHead(Camera camera, Rect size, Vector2 position)
+        {
+            if (!TryFind(ActiveConversation.listenerId, out var listener) || listener.root == null) return position;
+            Vector3 head = listener.head != null ? listener.head.position : Anchor(listener) - Vector3.up * .35f;
+            Vector3 screen = camera.WorldToViewportPoint(head);
+            if (screen.z <= 0f || screen.x < 0f || screen.x > 1f || screen.y < 0f || screen.y > 1f) return position;
+            float radius = Mathf.Max(.18f, listener.radius);
+            Vector3 right = camera.WorldToViewportPoint(head + camera.transform.right * radius);
+            Vector3 top = camera.WorldToViewportPoint(head + camera.transform.up * radius);
+            Vector2 center = new Vector2((screen.x - .5f) * size.width, (screen.y - .5f) * size.height);
+            Vector2 extent = new Vector2(Mathf.Abs(right.x - screen.x) * size.width + 4f,
+                Mathf.Abs(top.y - screen.y) * size.height + 4f);
+            Rect protectedHead = new Rect(center - extent, extent * 2f);
+            Rect speech = new Rect(position - bubble.sizeDelta * .5f, bubble.sizeDelta);
+            // Keep the original silhouette and speaker's horizontal anchor; only lift a reply that covers its listener.
+            if (speech.Overlaps(protectedHead)) position.y = protectedHead.yMax + bubble.sizeDelta.y * .5f + 4f;
+            return position;
         }
 
         [Serializable]

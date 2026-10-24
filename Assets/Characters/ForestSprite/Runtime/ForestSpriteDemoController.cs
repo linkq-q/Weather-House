@@ -28,7 +28,7 @@ namespace ForestSpriteCharacter
         public enum Demonstration { Manual, Idle, Walk, Run, Jump, Sequence }
         public Demonstration demonstration;
         public string CurrentState { get; private set; } = "";
-        public bool IsGrounded => controller != null && controller.isGrounded;
+        public bool IsGrounded => controller != null && (controller.isGrounded || (AnimalCollisionFlags & CollisionFlags.Below) != 0);
         public float VerticalSpeed => verticalSpeed;
         public Vector3 ActualVelocity { get; private set; }
         public float JumpPhase { get; private set; }
@@ -37,6 +37,9 @@ namespace ForestSpriteCharacter
             (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.78f, 1f, JumpPhase))) : 0f;
         public bool ScriptedInput { get; private set; }
         public System.Func<Vector3, Vector3> ConstrainDisplacement { get; set; }
+        public System.Func<Vector3, Vector3> ConstrainAnimalDisplacement { get; set; }
+        public System.Action<float> RefreshAnimalContacts { get; set; }
+        public CollisionFlags AnimalCollisionFlags { get; set; }
 
         CharacterController controller;
         Vector3 startPosition;
@@ -102,7 +105,7 @@ namespace ForestSpriteCharacter
             direction = Vector3.ClampMagnitude(direction, 1f);
             AdvanceMovement(direction, running, jump, Time.deltaTime);
             animator.SetFloat("JumpPhase", JumpPhase);
-            string state = jumpStage != JumpStage.None || !controller.isGrounded ? "Jump" :
+            string state = jumpStage != JumpStage.None || !IsGrounded ? "Jump" :
                 direction.sqrMagnitude > .001f ? (running ? "Run" : "Walk") : "Idle";
             SwitchState(state);
             if (transform.position.y < -4f) ResetPosition();
@@ -128,7 +131,7 @@ namespace ForestSpriteCharacter
             float dt = deltaTime / Mathf.Max(1, steps);
             for (int step = 0; step < steps; step++)
             {
-                bool grounded = controller.isGrounded;
+                bool grounded = IsGrounded;
                 if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
                 if (jump && grounded && jumpStage != JumpStage.Anticipation)
                 {
@@ -168,9 +171,13 @@ namespace ForestSpriteCharacter
                 verticalSpeed += gravity * dt;
                 Vector3 displacement = (direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt;
                 if (ConstrainDisplacement != null) displacement = ConstrainDisplacement(displacement);
+                float requestedAnimalY = displacement.y;
+                if (ConstrainAnimalDisplacement != null) displacement = ConstrainAnimalDisplacement(displacement);
                 var collision = controller.Move(displacement);
+                RefreshAnimalContacts?.Invoke(requestedAnimalY);
+                collision |= AnimalCollisionFlags;
                 if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
-                if (controller.isGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
+                if (IsGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
                 {
                     jumpStage = JumpStage.Landing;
                     jumpElapsed = 0f;

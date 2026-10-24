@@ -27,6 +27,10 @@ try {
     $copied = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     foreach ($p in @('Assets/Game/World/Hillside/Generated/sheep.prefab','Assets/Game/World/Hillside/Generated/fox.prefab','Assets/Game/Resources/WeatherHouseGlyphs.json','Assets/Game/Resources/WeatherHouseUiStyle.json','Assets/Game/UI/AnimalGlyphGraphic.cs','Assets/Game/UI/ProceduralUiLibrary.cs','Assets/Game/UI/ProceduralUiStyle.cs','Assets/Game/UI/ProceduralUiGraphic.cs','Assets/Game/Scripts/Gameplay/LanguageNotebook.cs','Assets/Game/World/Wildlife/Journey/Animation/sheep_swim.fbx')) { $queue.Enqueue($p) }
     foreach ($file in Get-ChildItem -LiteralPath 'Assets/Game/World/Wildlife/Runtime' -File -Filter '*.cs') { $queue.Enqueue([IO.Path]::GetRelativePath($Source,$file.FullName)) }
+    foreach ($file in Get-ChildItem -LiteralPath 'Assets/Game/World/Wildlife/Editor' -File -Filter '*.cs') {
+        if ($file.Name.EndsWith('Checks.cs') -or $file.Name -in @('WildlifeSolitaryIntegration.cs','WildlifePlayerCollisionPlayReview.cs')) { $queue.Enqueue([IO.Path]::GetRelativePath($Source,$file.FullName)) }
+    }
+    foreach ($file in Get-ChildItem -LiteralPath 'Assets/Characters/ForestSprite/Runtime' -File -Filter '*.cs') { $queue.Enqueue([IO.Path]::GetRelativePath($Source,$file.FullName)) }
     foreach ($file in Get-ChildItem -LiteralPath 'Assets/Game/World/Wildlife/Journey' -File -Recurse -Filter '*.cs') { $queue.Enqueue([IO.Path]::GetRelativePath($Source,$file.FullName)) }
     $water = 'Assets/Game/World/WorldWaterSurface.cs'
     if (Test-Path -LiteralPath $water) { $queue.Enqueue($water) }

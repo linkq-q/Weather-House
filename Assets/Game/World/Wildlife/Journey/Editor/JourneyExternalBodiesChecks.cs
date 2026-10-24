@@ -174,7 +174,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
             using (var f = new Fixture(Vector3.zero, new Vector3(-.85f, 0, 0)))
             {
                 MethodInfo clear = typeof(JourneyHerd).GetMethod("ClearOfOthers", BindingFlags.Instance | BindingFlags.NonPublic);
-                Require(clear != null && !(bool)clear.Invoke(f.herd, new object[] { f.member, new Vector3(-.75f, 0, 0), null, null }),
+                Require(clear != null && !(bool)clear.Invoke(f.herd, new object[] { f.member, new Vector3(-.75f, 0, 0), null, null, false }),
                     "Journey movement allowed an existing legacy-body contact to deepen.");
                 Set(f.member, "localTarget", new Vector3(-2, 0, 0));
                 float previous = FlatDistance(f.member.root.position, f.old.transform.position);
@@ -189,11 +189,11 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 }
                 Require(previous >= 1.8f, "A journey sheep stayed trapped in an existing legacy-body contact.");
                 f.old.enabled = false;
-                Require((bool)clear.Invoke(f.herd, new object[] { f.member, Vector3.zero, null, null }), "An inactive legacy agent still blocked the journey herd.");
+                Require((bool)clear.Invoke(f.herd, new object[] { f.member, Vector3.zero, null, null, false }), "An inactive legacy agent still blocked the journey herd.");
                 f.old.enabled = true;
-                Require(!(bool)clear.Invoke(f.herd, new object[] { f.member, Vector3.zero, null, null }), "An enabled legacy agent lost its body clearance.");
+                Require(!(bool)clear.Invoke(f.herd, new object[] { f.member, Vector3.zero, null, null, false }), "An enabled legacy agent lost its body clearance.");
                 Object.DestroyImmediate(f.old);
-                Require((bool)clear.Invoke(f.herd, new object[] { f.member, Vector3.zero, null, null }), "A destroyed legacy agent still blocked the journey herd.");
+                Require((bool)clear.Invoke(f.herd, new object[] { f.member, Vector3.zero, null, null, false }), "A destroyed legacy agent still blocked the journey herd.");
                 return "PASS journey contact escapes by real simulation; legacy inactive/reactivated/destroyed bodies update immediately";
             }
         }
@@ -215,25 +215,25 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 f.old.locomotion = WildlifeLocomotion.Flying; Set(f.old, "altitude", .3f);
                 f.old.transform.position = new Vector3(-.85f, .3f, 0);
                 Require(f.population.ExternalSeparation(f.old).sqrMagnitude < .000001f && f.population.TryMove(f.old, inward, out _) &&
-                    (bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null }),
+                    (bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null, false }),
                     "An airborne legacy animal within the height band still participated in ground avoidance.");
                 Set(f.old, "altitude", 0f); f.old.transform.position = new Vector3(-.85f, 0, 0);
                 Require(f.population.ExternalSeparation(f.old).sqrMagnitude > .001f && !f.population.TryMove(f.old, inward, out _) &&
-                    !(bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null }),
+                    !(bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null, false }),
                     "A landed legacy bird did not recover ground avoidance in both controllers.");
 
                 f.old.locomotion = WildlifeLocomotion.Swimming; f.old.waterAreaIndex = 0; f.old.swimDepth = 1.2f;
                 f.population.waterAreas = new[] { new HabitatVolume { center = new Vector3(0, 1.5f, 0), radii = new Vector2(10, 10) } };
                 f.old.transform.position = new Vector3(-.85f, .3f, 0);
                 Require(f.population.ExternalSeparation(f.old).sqrMagnitude < .000001f && f.population.TryMove(f.old, inward, out _) &&
-                    (bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null }),
+                    (bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null, false }),
                     "A swimming legacy animal within the height band still participated in ground avoidance.");
 
                 f.population.waterAreas = new HabitatVolume[0]; f.old.locomotion = WildlifeLocomotion.Ground;
                 f.old.transform.position = new Vector3(-.85f, 0, 0); f.member.Mode = JourneyTravelMode.Swim;
                 typeof(JourneyHerd).GetMethod("RegisterSurroundingBodies", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(f.herd, null);
                 Require(f.population.ExternalSeparation(f.old).sqrMagnitude < .000001f && f.population.TryMove(f.old, inward, out _) &&
-                    (bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null }),
+                    (bool)clear.Invoke(f.herd, new object[] { f.member, inward, null, null, false }),
                     "A journey sheep's Swim mode did not disable ground avoidance in both controllers.");
                 f.member.Mode = JourneyTravelMode.Walk;
                 typeof(JourneyHerd).GetMethod("RegisterSurroundingBodies", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(f.herd, null);
@@ -332,7 +332,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 f.member.Arrived = false; f.member.Mode = JourneyTravelMode.Walk;
                 f.member.root.position = new Vector3(-.5f, -.7f, 0); f.old.transform.position = Vector3.zero;
                 MethodInfo clear = typeof(JourneyHerd).GetMethod("ClearOfOthers", BindingFlags.Instance | BindingFlags.NonPublic);
-                Require(!(bool)clear.Invoke(f.herd, new object[] { f.member, new Vector3(-.3f, -.3f, 0), null, JourneyTravelMode.Walk }),
+                Require(!(bool)clear.Invoke(f.herd, new object[] { f.member, new Vector3(-.3f, -.3f, 0), null, JourneyTravelMode.Walk, false }),
                     "Ground-body height filtering used the old root height instead of the prospective movement position.");
                 return "PASS real Swim-to-Walk landing respects occupied ground, resumes after clearance and tests the prospective support height";
             }

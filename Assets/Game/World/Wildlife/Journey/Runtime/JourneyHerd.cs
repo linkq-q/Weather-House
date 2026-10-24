@@ -101,6 +101,7 @@ namespace WeatherHouse.WildlifeJourney
         {
             UnregisterSurroundingBodies();
             if (!surroundingPopulation) surroundingPopulation = GetComponentInParent<WildlifePopulation>();
+            if (navigation) navigation.playerCollision = surroundingPopulation ? surroundingPopulation.EnsurePlayerCollision() : null;
             RestoreBodyLanguage();
             DisposeAnimations();
             if (social) social.ResetSchedule();
@@ -114,6 +115,8 @@ namespace WeatherHouse.WildlifeJourney
             {
                 JourneyMember m = members[i];
                 if (m == null || !m.root) continue;
+                m.profile.bodyEnvelope = WildlifeBodyEnvelope.Measure(m.root, m.profile.bodyRadius).WithLength(m.bodyLength);
+                m.profile.bodyHeading = m.root.rotation; m.profile.bodyOwner = m.root;
                 var individual = new WildlifeRandom(seed, m.id, "sheep");
                 m.phase = individual.Value(); m.pace = individual.Range(.88f, 1.12f);
                 m.hunger = individual.Range(.35f, .8f); m.fatigue = individual.Range(.1f, .4f);
@@ -152,6 +155,7 @@ namespace WeatherHouse.WildlifeJourney
             int liveCount = 0; float spacing = .1f, bodyRadius = 0; JourneyProfile widest = null;
             foreach (JourneyMember member in members) if (Live(member))
             {
+                RefreshBody(member);
                 liveCount++; spacing = Mathf.Max(spacing, member.bodyLength + .18f);
                 bodyRadius = Mathf.Max(bodyRadius, member.profile.bodyRadius, member.bodyLength * .5f);
                 if (widest == null || member.profile.bodyRadius > widest.bodyRadius) widest = member.profile;
@@ -165,18 +169,21 @@ namespace WeatherHouse.WildlifeJourney
                 if (!JourneyScatter.TryCreate(sites[siteIndex].center, sites[siteIndex].radius, spacing,
                     liveCount, placementSeed, out Vector3[] goals,
                     point => navigation.TryProject(widest, point, out Vector3 ground, out JourneyTravelMode groundMode) &&
-                        groundMode == JourneyTravelMode.Walk && ClearSurroundingPlace(ground, bodyRadius))) continue;
+                        groundMode == JourneyTravelMode.Walk && ClearSurroundingPlace(ground, bodyRadius, widest.bodyEnvelope))) continue;
                 int selected = 0; planned = true;
                 for (int i = 0; i < members.Length; i++)
                 {
                     JourneyMember m = members[i];
                     if (!Live(m)) continue;
                     Vector3 goal = goals[selected++];
-                    if (!navigation.TryProject(m.profile, goal, out goal, out JourneyTravelMode mode) || mode != JourneyTravelMode.Walk)
+                    if (!navigation.TryProject(m.profile, goal, out goal, out JourneyTravelMode mode) || mode != JourneyTravelMode.Walk ||
+                        !ClearSurroundingPlace(goal, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), m.profile.bodyEnvelope))
                     { planned = false; break; }
                     routes[i] = navigation.FindRoute(m.root.position, goal, m.profile);
                     if (routes[i] == null) { planned = false; break; }
+                    var original = new List<JourneySegment>(routes[i].segments);
                     JourneyRouteVariation.Apply(navigation, m.profile, routes[i], (m.phase - .5f) * 2f * travelSpread, 0f, unchecked(seed * 397 ^ m.id));
+                    if (!navigation.BodyRouteClear(m.profile, routes[i])) routes[i].segments = original;
                     destinations[i] = goal;
                 }
             }
@@ -202,6 +209,7 @@ namespace WeatherHouse.WildlifeJourney
         {
             if (!initialized || Paused || deltaTime <= 0) return;
             float dt = Mathf.Min(deltaTime, .1f);
+            foreach (JourneyMember member in members) if (Live(member)) RefreshBody(member);
             SimulationTime += dt;
             RestoreBodyLanguage();
             if (SimulationTime >= decisionAt)
@@ -308,7 +316,9 @@ namespace WeatherHouse.WildlifeJourney
                 m.route = navigation.FindRoute(m.root.position, m.destination, m.profile, excluded, m.ContinuousSwimDistance);
                 m.retryAt = SimulationTime + 3f; m.segment = 0;
                 if (m.route == null) { m.LastDecision = "记住受阻路段，等待或寻找其他通路"; return; }
+                var original = new List<JourneySegment>(m.route.segments);
                 JourneyRouteVariation.Apply(navigation, m.profile, m.route, (m.phase - .5f) * 2f * travelSpread, m.ContinuousSwimDistance, unchecked(seed * 397 ^ m.id));
+                if (!navigation.BodyRouteClear(m.profile, m.route)) m.route.segments = original;
                 RouteChanges++; m.LastDecision = "找到新的可行路线";
             }
             while (m.segment < m.route.segments.Count && (m.segment == m.route.segments.Count - 1
@@ -357,7 +367,7 @@ namespace WeatherHouse.WildlifeJourney
                 m.segment = targetSegment;
             if (m.crowdPath != null && m.crowdStep < m.crowdPath.Count) target = m.crowdPath[m.crowdStep];
             Vector3 next = Vector3.MoveTowards(m.root.position, target, speed * dt);
-            if (!navigation.TryStep(m.profile, m.root.position, next, out Vector3 projected, out JourneyTravelMode mode))
+            if (!navigation.TryStep(m.profile, m.root.position, next, out Vector3 projected, out JourneyTravelMode mode) || !CanMoveBody(m, projected, dt))
             {
                 if (m.blockedSince == 0) m.blockedSince = SimulationTime;
                 if (SimulationTime - m.blockedSince > 1.5f)
@@ -456,7 +466,11 @@ namespace WeatherHouse.WildlifeJourney
                 if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode mode, JourneyTravelMode.Walk) && mode == JourneyTravelMode.Walk &&
                     ClearOfOthers(m, next, partner)) Move(m, next, dt);
             }
-            if (direction.sqrMagnitude > .001f) m.root.rotation = Quaternion.RotateTowards(m.root.rotation, Quaternion.LookRotation(direction), dt * 100f);
+            if (direction.sqrMagnitude > .001f)
+            {
+                Quaternion rotation = Quaternion.RotateTowards(m.root.rotation, Quaternion.LookRotation(direction), dt * 100f);
+                if (navigation.CanMoveBody(m.profile, m.root.position, m.root.rotation, m.root.position, rotation)) m.root.rotation = rotation;
+            }
             m.LastDecision = "注意交流对象，靠近并回应";
         }
 
@@ -498,18 +512,23 @@ namespace WeatherHouse.WildlifeJourney
                 {
                     JourneySegment candidate = m.route.segments[i];
                     if (candidate.mode != JourneyTravelMode.Walk || candidate.bridgeId != 0) { remainingWalk = false; break; }
-                    if (FlatDistance(m.root.position, candidate.to) <= 6f && ClearOfOthers(m, candidate.to))
+                    if (FlatDistance(m.root.position, candidate.to) <= 6f && ClearOfOthers(m, candidate.to, endpointOnly: true))
                     { target = candidate.to; resume = i; }
                 }
-                if (remainingWalk && FlatDistance(m.root.position, m.destination) <= 8f && ClearOfOthers(m, m.destination))
+                if (remainingWalk && FlatDistance(m.root.position, m.destination) <= 8f && ClearOfOthers(m, m.destination, endpointOnly: true))
                 { target = m.destination; resume = m.route.segments.Count - 1; }
                 if (remainingWalk && FlatDistance(m.root.position, m.destination) <= 6f &&
-                    !ClearSurroundingPlace(m.destination, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f)) &&
+                    !ClearSurroundingPlace(m.destination, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), m.profile.bodyEnvelope) &&
                     ChooseNearbyRestingPlace(m)) return false;
                 if (resume < 0) { RequestRoom(m); return false; }
             }
             if (FlatDistance(m.root.position, target) < .2f) return false;
             crowdObstacles.Clear();
+            if (navigation.playerCollision && navigation.playerCollision.TryObstacle(m.root.position,
+                Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), out Vector3 playerCenter, out float playerRadius, m.profile.bodyEnvelope))
+                crowdObstacles.Add(new JourneyCrowdObstacle { center = playerCenter, radius = playerRadius +
+                    Mathf.Max(0, m.profile.bodyEnvelope.ContactRadius(Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f)) -
+                        Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f)) });
             foreach (JourneyMember other in members)
                 if (Live(other) && other != m && Mathf.Abs(other.root.position.y - m.root.position.y) < .65f)
                     crowdObstacles.Add(new JourneyCrowdObstacle { center = other.root.position,
@@ -683,8 +702,16 @@ namespace WeatherHouse.WildlifeJourney
             return false;
         }
 
-        private bool ClearOfOthers(JourneyMember m, Vector3 position, JourneyMember partner = null, JourneyTravelMode? nextMode = null)
+        private bool ClearOfOthers(JourneyMember m, Vector3 position, JourneyMember partner = null, JourneyTravelMode? nextMode = null, bool endpointOnly = false)
         {
+            float ownRadius = Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f);
+            // A detour can reach an unoccupied endpoint even when the straight segment is blocked.
+            if (endpointOnly)
+            {
+                if (!ClearSurroundingPlace(position, ownRadius, m.profile.bodyEnvelope)) return false;
+            }
+            else if (navigation.playerCollision && !navigation.playerCollision.AllowsAnimalMove(m.root.position, position,
+                ownRadius, m.profile.bodyEnvelope)) return false;
             if (m.Arrived && FlatDistance(position, sites[TargetSite].center) > sites[TargetSite].radius &&
                 FlatDistance(position, sites[TargetSite].center) >= FlatDistance(m.root.position, sites[TargetSite].center)) return false;
             foreach (JourneyMember other in members)
@@ -720,8 +747,11 @@ namespace WeatherHouse.WildlifeJourney
                     (other.locomotion == WildlifeLocomotion.Flying && other.AirHeight < .01f));
         }
 
-        private bool ClearSurroundingPlace(Vector3 position, float radius)
+        private bool ClearSurroundingPlace(Vector3 position, float radius, WildlifeBodyEnvelope envelope = default)
         {
+            if (navigation && navigation.playerCollision && navigation.playerCollision.TryObstacle(position, radius,
+                out Vector3 playerCenter, out float playerRadius, envelope) &&
+                FlatDistance(position, playerCenter) < envelope.ContactRadius(radius) + playerRadius + .12f) return false;
             if (surroundingPopulation && surroundingPopulation.agents != null)
                 foreach (WildlifeAgent other in surroundingPopulation.agents)
                     if (GroundBody(other, position) && FlatDistance(position, other.transform.position) < radius + other.Radius + .12f) return false;
@@ -741,7 +771,7 @@ namespace WeatherHouse.WildlifeJourney
                     Vector3 candidate = member.destination + Quaternion.Euler(0, angle, 0) * toward.normalized * (ring * 1.2f);
                     if (FlatDistance(candidate, sites[TargetSite].center) > sites[TargetSite].radius ||
                         !navigation.TryProject(member.profile, candidate, out candidate, out JourneyTravelMode mode) || mode != JourneyTravelMode.Walk ||
-                        !ClearSurroundingPlace(candidate, radius)) continue;
+                        !ClearSurroundingPlace(candidate, radius, member.profile.bodyEnvelope)) continue;
                     bool clear = true;
                     foreach (JourneyMember other in members)
                     {
@@ -762,6 +792,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private void RegisterSurroundingBodies()
         {
+            if (navigation) navigation.playerCollision = surroundingPopulation ? surroundingPopulation.PlayerCollision : null;
             if (registeredPopulation != surroundingPopulation)
             {
                 if (registeredPopulation) registeredPopulation.UnregisterExternalBodies(this);
@@ -771,7 +802,7 @@ namespace WeatherHouse.WildlifeJourney
             foreach (JourneyMember member in members)
                 if (member != null && member.root)
                     registeredPopulation.RegisterExternalBody(this, member.root,
-                        Mathf.Max(member.profile.bodyRadius, member.bodyLength * .5f), member.Mode != JourneyTravelMode.Swim);
+                        Mathf.Max(member.profile.bodyRadius, member.bodyLength * .5f), member.Mode != JourneyTravelMode.Swim, member.profile.bodyEnvelope);
         }
 
         private void UnregisterSurroundingBodies()
@@ -801,8 +832,22 @@ namespace WeatherHouse.WildlifeJourney
         private bool IsLiveId(int id) => Array.Exists(members, m => m != null && m.id == id && Live(m));
         private bool HasMemberCrossing() => Array.Exists(members, m => Live(m) && !m.Arrived && (m.Mode == JourneyTravelMode.Bridge || m.Mode == JourneyTravelMode.Swim));
         private static float FlatDistance(Vector3 a, Vector3 b) { a.y = b.y = 0; return Vector3.Distance(a, b); }
-        private static void Move(JourneyMember m, Vector3 next, float dt)
+        private static void RefreshBody(JourneyMember member)
         {
+            member.profile.bodyEnvelope = member.profile.bodyEnvelope.WithLength(member.bodyLength);
+            member.profile.bodyHeading = member.root.rotation;
+        }
+
+        private bool CanMoveBody(JourneyMember m, Vector3 next, float dt)
+        {
+            Quaternion rotation = Quaternion.RotateTowards(m.root.rotation,
+                WildlifeBodyEnvelope.Heading(next - m.root.position, m.root.rotation), dt * 130f);
+            return navigation.CanMoveBody(m.profile, m.root.position, m.root.rotation, next, rotation);
+        }
+
+        private void Move(JourneyMember m, Vector3 next, float dt)
+        {
+            if (!CanMoveBody(m, next, dt)) { m.ActualSpeed = 0; return; }
             Vector3 direction = next - m.root.position; direction.y = 0;
             float distance = direction.magnitude;
             m.ActualSpeed = distance / dt; m.DistanceTravelled += distance;

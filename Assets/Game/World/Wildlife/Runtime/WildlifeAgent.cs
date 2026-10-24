@@ -26,6 +26,7 @@ namespace WeatherHouse.Hillside
         public float StateAge => population == null ? 0f : population.SimulationTime - stateSince;
         public float ScaleFactor { get; private set; } = 1f;
         public float Radius => Mathf.Max(.05f, bodyRadius * ScaleFactor);
+        public WildlifeBodyEnvelope BodyEnvelope { get; private set; }
         public float ActualSpeed { get; private set; }
         public int AcceptedAlarmCount { get; private set; }
         public WildlifeAgent GreetingPartner => partner;
@@ -67,6 +68,7 @@ namespace WeatherHouse.Hillside
             }
             if (motionRoot != null && !capturedMotionPosition)
             { baseMotionPosition = motionRoot.localPosition; capturedMotionPosition = true; }
+            BodyEnvelope = WildlifeBodyEnvelope.Measure(transform, Radius);
             if (animator == null) animator = GetComponentInChildren<Animator>();
             // Editor self-checks exercise decisions without starting a live animation graph.
             if (Application.isPlaying) animationPlayer.Initialize(animator, clips, random.Value());
@@ -105,8 +107,8 @@ namespace WeatherHouse.Hillside
                 float spacing = Radius + other.Radius + .45f;
                 if (distance < spacing && distance > .01f) separation += away.normalized * (1f - distance / spacing);
                 if (timidity > .15f && other.startlesOthers && other.ActualSpeed > Mathf.Max(.4f, other.walkSpeed * .65f) && distance < 2.8f &&
-                    other.locomotion == locomotion && now >= nextAlarm)
-                    population.TryAmbientAlarm(other.transform.position, 5f, .8f);
+                    other.locomotion == locomotion && (string.IsNullOrEmpty(other.speciesId) || other.speciesId != speciesId) && now >= nextAlarm)
+                    population.TryAmbientAlarm(other.transform.position, 5f, .8f, other);
             }
             if (population.player != null && timidity > .15f && now >= nextAlarm)
             {
@@ -353,6 +355,9 @@ namespace WeatherHouse.Hillside
                 moving = direction.magnitude > Radius + partner.Radius + .35f;
             }
             float speed = (State == WildlifeState.Flee ? runSpeed : walkSpeed) * speedVariation;
+            Quaternion proposedRotation = transform.rotation;
+            if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
+                proposedRotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), dt * (State == WildlifeState.Flee ? 300f : 150f));
             if (moving && direction.sqrMagnitude > .01f)
             {
                 Vector3 steering = direction.normalized + separation * 1.3f;
@@ -360,9 +365,10 @@ namespace WeatherHouse.Hillside
                 if (steering.sqrMagnitude < .001f) steering = direction.normalized;
                 Vector3 displacement = steering.normalized * Mathf.Min(speed * dt, direction.magnitude);
                 Vector3 before = transform.position;
-                if (population.TryMove(this, before + displacement, out Vector3 next))
+                if (population.TryMove(this, before + displacement, out Vector3 next, proposedRotation))
                 {
                     transform.position = next;
+                    transform.rotation = proposedRotation;
                     ActualSpeed = HorizontalDistance(before, next) / Mathf.Max(.001f, dt);
                 }
                 else { ActualSpeed = 0f; nextDestination = Mathf.Min(nextDestination, now + .1f); }
@@ -378,7 +384,7 @@ namespace WeatherHouse.Hillside
                 }
             }
             if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), dt * (State == WildlifeState.Flee ? 300f : 150f));
+                if (population.CanRotate(this, proposedRotation)) transform.rotation = proposedRotation;
             if (solitary != null)
             {
                 bool available = State != WildlifeState.Alert && State != WildlifeState.Flee && State != WildlifeState.Greet;
@@ -392,7 +398,8 @@ namespace WeatherHouse.Hillside
                         Vector3 towardWater = solitary.WaterPoint - transform.position; towardWater.y = 0;
                         if (towardWater.sqrMagnitude > .001f) yaw = Quaternion.LookRotation(towardWater).eulerAngles.y;
                     }
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0, yaw, 0), dt * 25f);
+                    Quaternion rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0, yaw, 0), dt * 25f);
+                    if (population.CanRotate(this, rotation)) transform.rotation = rotation;
                 }
             }
             AnimationClip clip = clips == null ? null : clips.ForState(State, locomotion);
@@ -406,6 +413,7 @@ namespace WeatherHouse.Hillside
 
         public bool ReceiveStartle(WildlifeAlarm alarm, float now)
         {
+            if (alarm.source == this || (!string.IsNullOrEmpty(alarm.sourceSpecies) && alarm.sourceSpecies == speciesId)) return false;
             if (alarm.id <= lastAlarm || now > alarm.expiresAt || now < nextAlarm || alarm.intensity * timidity <= .12f || timidity <= .15f) return false;
             if ((transform.position - alarm.origin).sqrMagnitude > alarm.radius * alarm.radius) return false;
             lastAlarm = alarm.id;

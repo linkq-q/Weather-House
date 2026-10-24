@@ -23,6 +23,9 @@ namespace WeatherHouse.Hillside
         public int GreetingCount { get; private set; }
         public int LastNeighbourVisits { get; private set; }
         public float PlayerSpeed { get; private set; }
+        public WildlifePlayerCollision PlayerCollision { get; private set; }
+        internal WildlifePlayerCollision EnsurePlayerCollision()
+        { if (!PlayerCollision) PlayerCollision = WildlifePlayerCollision.Register(this); return PlayerCollision; }
 
         private const float CellSize = 6f;
         private const int MaxNeighbours = 12;
@@ -42,14 +45,14 @@ namespace WeatherHouse.Hillside
             public float robinWaypointUntil;
             public bool hasRobinWaypoint;
         }
-        private struct ExternalBody { public UnityEngine.Object owner; public Transform root; public float radius; public bool grounded; }
+        private struct ExternalBody { public UnityEngine.Object owner; public Transform root; public float radius; public bool grounded; public WildlifeBodyEnvelope envelope; }
 
         // Bodies driven by another controller share physical space without joining this population's decisions or animation.
-        public void RegisterExternalBody(UnityEngine.Object owner, Transform bodyRoot, float radius, bool grounded = true)
+        public void RegisterExternalBody(UnityEngine.Object owner, Transform bodyRoot, float radius, bool grounded = true, WildlifeBodyEnvelope envelope = default)
         {
             if (!owner || !bodyRoot) return;
             if (float.IsNaN(radius) || float.IsInfinity(radius)) throw new ArgumentOutOfRangeException(nameof(radius));
-            var body = new ExternalBody { owner = owner, root = bodyRoot, radius = Mathf.Max(.05f, radius), grounded = grounded };
+            var body = new ExternalBody { owner = owner, root = bodyRoot, radius = Mathf.Max(.05f, radius), grounded = grounded, envelope = envelope };
             for (int i = 0; i < externalBodies.Count; i++)
                 if (externalBodies[i].root == bodyRoot) { externalBodies[i] = body; return; }
             externalBodies.Add(body);
@@ -65,6 +68,12 @@ namespace WeatherHouse.Hillside
         {
             if (!agent) return Vector3.zero;
             Vector3 result = Vector3.zero, position = agent.transform.position;
+            if (PlayerCollision && PlayerCollision.TryObstacle(position, agent.Radius, out Vector3 playerCenter, out float playerRadius, agent.BodyEnvelope))
+            {
+                Vector3 away = position - playerCenter; away.y = 0;
+                float spacing = agent.BodyEnvelope.ContactRadius(agent.Radius) + playerRadius + .45f, distance = away.magnitude;
+                if (distance < spacing && distance > .001f) result += away / distance * (1f - distance / spacing);
+            }
             for (int i = externalBodies.Count - 1; i >= 0; i--)
             {
                 if (!TryExternalBody(i, agent, position, out ExternalBody body)) continue;
@@ -105,9 +114,18 @@ namespace WeatherHouse.Hillside
         }
 
         private void Start() { Initialize(); }
+        private void OnEnable() { if (Initialized) PlayerCollision = WildlifePlayerCollision.Register(this); }
+        private void OnDisable() { ReleasePlayerCollision(); }
+        private void OnDestroy() { ReleasePlayerCollision(); }
+        private void ReleasePlayerCollision()
+        {
+            if (PlayerCollision) PlayerCollision.Unregister(this);
+            PlayerCollision = null;
+        }
 
         public void Initialize()
         {
+            ReleasePlayerCollision();
             SimulationTime = decisionClock = nextAmbientAlarm = 0f;
             AlarmCount = GreetingCount = LastNeighbourVisits = 0;
             PlayerSpeed = 0f;
@@ -120,6 +138,34 @@ namespace WeatherHouse.Hillside
                 if (agents[i] != null) agents[i].Initialize(this);
             Initialized = true;
             RebuildSpatialIndex();
+            PlayerCollision = WildlifePlayerCollision.Register(this);
+        }
+
+        internal Vector3 ConstrainPlayerMove(WildlifePlayerCollision playerContact, Vector3 displacement)
+        {
+            foreach (WildlifeAgent agent in agents)
+                if (agent && agent.isActiveAndEnabled)
+                    displacement = playerContact.ConstrainAgainstBody(displacement, agent.transform, agent.Radius, agent.BodyEnvelope);
+            foreach (ExternalBody body in externalBodies)
+            {
+                if (!body.owner || !body.root || (body.owner is Behaviour behaviour && !behaviour.isActiveAndEnabled)) continue;
+                displacement = playerContact.ConstrainAgainstBody(displacement, body.root, body.radius, body.envelope);
+            }
+            return displacement;
+        }
+
+        internal CollisionFlags PlayerContactFlags(WildlifePlayerCollision contact, Vector3 displacement, float requestedY)
+        {
+            CollisionFlags flags = CollisionFlags.None;
+            foreach (WildlifeAgent agent in agents)
+                if (agent && agent.isActiveAndEnabled)
+                    flags |= contact.ContactFlags(displacement, requestedY, agent.transform, agent.Radius, agent.BodyEnvelope);
+            foreach (ExternalBody body in externalBodies)
+            {
+                if (!body.owner || !body.root || (body.owner is Behaviour behaviour && !behaviour.isActiveAndEnabled)) continue;
+                flags |= contact.ContactFlags(displacement, requestedY, body.root, body.radius, body.envelope);
+            }
+            return flags;
         }
 
         private void Update() { Simulate(Time.deltaTime); }
@@ -221,20 +267,21 @@ namespace WeatherHouse.Hillside
             return group.robinWaypoint;
         }
 
-        public bool TryAmbientAlarm(Vector3 origin, float radius, float intensity)
+        public bool TryAmbientAlarm(Vector3 origin, float radius, float intensity, WildlifeAgent source = null)
         {
             if (SimulationTime < nextAmbientAlarm) return false;
             nextAmbientAlarm = SimulationTime + .8f;
-            EmitStartle(origin, radius, intensity);
+            EmitStartle(origin, radius, intensity, source);
             return true;
         }
 
-        public WildlifeAlarm EmitStartle(Vector3 origin, float radius, float intensity)
+        public WildlifeAlarm EmitStartle(Vector3 origin, float radius, float intensity, WildlifeAgent source = null)
         {
             var alarm = new WildlifeAlarm
             {
                 id = ++AlarmCount, origin = origin, radius = Mathf.Clamp(radius, .1f, 12f),
-                intensity = Mathf.Clamp01(intensity), expiresAt = SimulationTime + 2f
+                intensity = Mathf.Clamp01(intensity), expiresAt = SimulationTime + 2f,
+                source = source, sourceSpecies = source != null ? source.speciesId : null
             };
             // An alarm is dispatched once from its original location. Recipients never rebroadcast it.
             foreach (WildlifeAgent agent in agents)
@@ -313,24 +360,43 @@ namespace WeatherHouse.Hillside
         public float GroundHeight(Vector3 point)
         { return terrain != null ? terrain.SampleHeight(point) + terrain.transform.position.y : worldBounds.min.y; }
 
-        public bool TryMove(WildlifeAgent agent, Vector3 requested, out Vector3 projected)
+        private readonly WildlifeBodyPhysics bodyPhysics = new WildlifeBodyPhysics();
+
+        public bool CanRotate(WildlifeAgent agent, Quaternion rotation)
+        {
+            return agent.locomotion != WildlifeLocomotion.Ground || bodyPhysics.Clear(agent.BodyEnvelope,
+                agent.transform.position, agent.transform.rotation, agent.transform.position, rotation, obstacleMask,
+                owner: agent.transform, player: PlayerCollision, ignoreAnimals: true);
+        }
+
+        public bool TryMove(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing = null)
         {
             Vector3 origin = agent.transform.position;
             projected = origin;
             Vector3 delta = requested - origin;
+            bool groundBody = agent.locomotion == WildlifeLocomotion.Ground && agent.BodyEnvelope.Valid;
+            Quaternion heading = facing ?? WildlifeBodyEnvelope.Heading(delta, agent.transform.rotation);
+            if (groundBody && !facing.HasValue && !CanRotate(agent, heading)) return false;
             float horizontalDistance = new Vector2(delta.x, delta.z).magnitude;
             // Check the whole segment: checking only a safe endpoint would permit crossing a narrow pond.
             int steps = Mathf.Max(1, Mathf.CeilToInt(horizontalDistance / Mathf.Max(.12f, agent.Radius)));
             if (steps > 256) return false;
             Vector3 previous = origin;
+            Quaternion previousRotation = facing.HasValue ? agent.transform.rotation : heading;
             for (int i = 1; i <= steps; i++)
             {
                 if (!TryProjectPosition(agent, Vector3.Lerp(origin, requested, (float)i / steps), out Vector3 sample)) return false;
                 if (agent.locomotion == WildlifeLocomotion.Ground && Mathf.Abs(sample.y - previous.y) > .45f) return false;
+                if (PlayerCollision && !PlayerCollision.AllowsAnimalMove(previous, sample, agent.Radius, agent.BodyEnvelope)) return false;
                 if (!ExternalBodiesAllowMove(agent, previous, sample)) return false;
+                Quaternion rotation = facing.HasValue ? Quaternion.Slerp(agent.transform.rotation, heading, (float)i / steps) : heading;
+                if (groundBody && !bodyPhysics.Clear(agent.BodyEnvelope, previous, previousRotation, sample, rotation, obstacleMask,
+                    owner: agent.transform, player: PlayerCollision, ignoreAnimals: true)) return false;
+                previousRotation = rotation;
                 previous = sample;
             }
             projected = previous;
+            if (groundBody) return true;
             Vector3 actualDelta = projected - origin;
             Vector3 lift = agent.locomotion == WildlifeLocomotion.Ground ? Vector3.up * (agent.Radius + .08f) : Vector3.zero;
             if (agent.locomotion == WildlifeLocomotion.Flying && agent.AirHeight < .01f) lift = Vector3.up * (agent.Radius + .08f);
@@ -350,9 +416,9 @@ namespace WeatherHouse.Hillside
             return true;
         }
 
-        private static bool IsObstacle(Collider collider, WildlifeAgent agent)
+        private bool IsObstacle(Collider collider, WildlifeAgent agent)
         {
-            return !(collider is TerrainCollider) && !collider.transform.IsChildOf(agent.transform) &&
+            return !(collider is TerrainCollider) && !(PlayerCollision && PlayerCollision.Owns(collider)) && !collider.transform.IsChildOf(agent.transform) &&
                 collider.GetComponentInParent<WildlifeAgent>() == null;
         }
 

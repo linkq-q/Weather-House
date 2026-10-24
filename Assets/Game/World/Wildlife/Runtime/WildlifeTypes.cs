@@ -58,6 +58,8 @@ namespace WeatherHouse.Hillside
         public int id;
         public Vector3 origin;
         public float radius, intensity, expiresAt;
+        public WildlifeAgent source;
+        public string sourceSpecies;
     }
 
     // A local random stream keeps scene rebuilding and individual sizes independent of Unity's global Random.

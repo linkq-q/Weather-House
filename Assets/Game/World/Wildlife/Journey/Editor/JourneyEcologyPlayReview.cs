@@ -213,7 +213,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 if (!foxes[index]) throw new InvalidOperationException("A selected fox disappeared during observation.");
                 if (cameraPhase == "fox" && focusedFoxId == foxes[index].spawnId && time >= nextFrame && foxFrames < 42)
                 { Capture("fox_" + foxes[index].spawnId + "_" + (++foxFrames).ToString("00")); nextFrame = time + 2.5f; }
-                Focus(new[] { foxes[index].transform.position }, 6f);
+                Focus(new[] { foxes[index].transform.position }, 3.5f);
                 cameraPhase = "fox"; focusedFoxId = foxes[index].spawnId;
             }
             if (time >= nextTrace)
@@ -236,9 +236,11 @@ namespace WeatherHouse.WildlifeJourney.Editor
             WildlifeSolitaryRoutine routine = fox.SolitaryRoutine;
             if (routine == null) return "unavailable";
             return string.Format(CultureInfo.InvariantCulture,
-                "{0} working={1} hunger={2:F3} thirst={3:F3} fatigue={4:F3} target={5} home={6} failures={7}",
+                "{0} working={1} hunger={2:F3} thirst={3:F3} fatigue={4:F3} target={5} home={6} failures={7} returning={8} decisions={9} alarms={10} playerDistance={11:F3} playerSpeed={12:F3}",
                 routine.Activity, routine.IsWorking, routine.Hunger, routine.Thirst, routine.Fatigue,
-                routine.Target.ToString("F3"), routine.Home.ToString("F3"), routine.FailureCount);
+                routine.Target.ToString("F3"), routine.Home.ToString("F3"), routine.FailureCount,
+                routine.ReturningHome, routine.DecisionCount, fox.AcceptedAlarmCount,
+                population.player ? Vector3.Distance(fox.transform.position, population.player.position) : -1f, population.PlayerSpeed);
         }
 
         static void Focus(IEnumerable<Vector3> positions, float minimumSize)

@@ -33,8 +33,9 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 CheckVocabularyAndListenerClue(root.transform);
                 CheckVisiblePairPriority(root.transform);
                 CheckCanonicalPresentationAndOcclusion(root.transform);
+                CheckReplyPlacement(root.transform);
                 CheckCameraFallback(root.transform);
-                return "PASS 9 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners; visible-pair priority; canonical animal bubble with independent speaker visibility and real occlusion; active-camera fallback and explicit capture view.";
+                return "PASS 10 social checks: weighted rotation and replay; clock reset and deterministic restart; mutual reservation and cooldown; approach/facing preparation, timeout and interruption; head-anchored visible-only context snapshots; legal glyphs and explicit listeners; visible-pair priority; canonical animal bubble with independent speaker visibility and real occlusion; reply placement clears the listener head without changing the speaker anchor or unobstructed layout; active-camera fallback and explicit capture view.";
             }
             finally
             {
@@ -344,6 +345,61 @@ namespace WeatherHouse.WildlifeJourney.Editor
             FacePair(social, participants);
             Require(social.ObserveFrom(camera), "A clear reciprocal clue could no longer be observed after presentation was separated.");
             Object.DestroyImmediate(social.gameObject); Object.DestroyImmediate(camera.gameObject);
+        }
+
+        private static void CheckReplyPlacement(Transform parent)
+        {
+            var participants = Participants(parent, 2);
+            JourneySocial social = Social(parent); Camera camera = View(parent); social.viewCamera = camera;
+            var target = new RenderTexture(1600, 1000, 16);
+            try
+            {
+                camera.targetTexture = target; camera.orthographic = true; camera.orthographicSize = 6f;
+                camera.transform.rotation = Quaternion.Euler(30f, 35f, 0f);
+                camera.transform.position = Vector3.up - camera.transform.forward * 27f;
+                social.Tick(0f, participants); social.Tick(1.2f, participants); social.Tick(1.21f, participants);
+                social.Tick(4f, participants); social.Tick(4.5f, participants);
+                Require(social.ActiveConversation != null && social.ActiveConversation.turnIndex == 1,
+                    "The placement fixture did not reach a real reply turn.");
+                int speaker = social.ActiveConversation.speakerId, listener = social.ActiveConversation.listenerId;
+                Vector3 forward = camera.transform.forward; forward.y = 0f; forward.Normalize();
+                participants[speaker].root.position = Vector3.zero;
+                participants[listener].root.position = forward * 1.8f;
+                FacePair(social, participants);
+                Call(social, "LateUpdate"); Canvas.ForceUpdateCanvases(); Call(social, "LateUpdate");
+                var background = social.GetComponentInChildren<ProceduralUiGraphic>();
+                var glyph = social.GetComponentInChildren<AnimalGlyphGraphic>();
+                Rect canvasRect = ((RectTransform)social.GetComponentInChildren<Canvas>().transform).rect;
+                Vector3 anchor = camera.WorldToViewportPoint(participants[speaker].head.position + Vector3.up * .35f);
+                Vector2 original = new Vector2((anchor.x - .5f) * canvasRect.width,
+                    (anchor.y - .5f) * canvasRect.height + background.rectTransform.sizeDelta.y * .5f + 12f);
+                Vector3 head = camera.WorldToViewportPoint(participants[listener].head.position);
+                Vector2 headPoint = new Vector2((head.x - .5f) * canvasRect.width, (head.y - .5f) * canvasRect.height);
+                Require(new Rect(original - background.rectTransform.sizeDelta * .5f, background.rectTransform.sizeDelta).Contains(headPoint),
+                    "The main-view reply fixture no longer reproduces the listener head covered by the old placement.");
+                Vector3 headTop = camera.WorldToViewportPoint(participants[listener].head.position + camera.transform.up * participants[listener].radius);
+                Vector2 placed = background.rectTransform.anchoredPosition;
+                Require(placed.y - background.rectTransform.sizeDelta.y * .5f > (headTop.y - .5f) * canvasRect.height + 3f &&
+                    placed.y > original.y && placed.y - original.y < 100f && Mathf.Abs(placed.x - original.x) < .01f,
+                    "The reply still covers its listener's head, moved sideways from its speaker, or jumped excessively far.");
+                Require(background.mark == UiMark.AnimalBubble && background.tailSize == ProceduralUiStyle.Current.tailSize &&
+                    glyph.rectTransform.sizeDelta.y >= 40f && social.VisibleBubbleCount == 1,
+                    "Avoiding the listener changed the original tail, glyph readability or single-bubble presentation.");
+
+                // At the same height beside the speaker, the head no longer intersects the bubble: keep normal placement.
+                participants[listener].root.position = camera.transform.right * 1.8f;
+                FacePair(social, participants); Call(social, "LateUpdate");
+                anchor = camera.WorldToViewportPoint(participants[speaker].head.position + Vector3.up * .35f);
+                original = new Vector2((anchor.x - .5f) * canvasRect.width,
+                    (anchor.y - .5f) * canvasRect.height + background.rectTransform.sizeDelta.y * .5f + 12f);
+                Require(Vector2.Distance(background.rectTransform.anchoredPosition, original) < .01f,
+                    "An unobstructed exchange was displaced even though its listener did not overlap the bubble.");
+            }
+            finally
+            {
+                camera.targetTexture = null;
+                Object.DestroyImmediate(target); Object.DestroyImmediate(camera.gameObject); Object.DestroyImmediate(social.gameObject);
+            }
         }
 
         private static void CheckCameraFallback(Transform parent)
