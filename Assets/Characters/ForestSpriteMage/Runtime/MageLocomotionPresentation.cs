@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using WeatherHouse.WatersideV2;
 
 namespace ForestSpriteCharacter
 {
@@ -15,6 +16,20 @@ namespace ForestSpriteCharacter
         public int ObservationsInterrupted { get; private set; }
         public float ObservationWeight { get; private set; }
         public float MaximumTurnLean { get; private set; }
+        public bool recordedMotionEnabled;
+        [Range(0f, .5f)] public float recordedVariationWeight = .3f;
+        public string CurrentAccent { get; private set; } = "";
+        public float AccentPhase { get; private set; }
+        public float VariationWeight { get; private set; }
+        public int AccentsStarted { get; private set; }
+        public int AccentsInterrupted { get; private set; }
+        float accentElapsed,accentDuration,previousMotionSpeed;
+        Vector3 previousIntent;
+        string previousMotionState="";
+        int variationLayer=-1;
+        bool wasRecorded,returningToGait;
+        float walkClipLength=2f;
+        WatersideWaterBoundary water;
         float nextObservation,observationTime,observationSide=1f;
         float previousYaw,previousSpeed,turnLean,startLean,lookWeight;
         bool observing;
@@ -25,7 +40,12 @@ namespace ForestSpriteCharacter
         Vector3 hipBeforeSupport,hipAfterSupport;
         public float TransitionSupportLift { get; private set; }
 
-        void OnDisable()=>RestoreSupport();
+        void OnDisable()
+        {
+            if(player)player.MovementUpdated-=AfterMovement;
+            CancelAccent(true);ClearVariation();RestoreSupport();
+            if(player&&player.capeCloth)player.capeCloth.PresentationOpenness=0;
+        }
 
         void RestoreSupport()
         {
@@ -61,8 +81,7 @@ namespace ForestSpriteCharacter
             if(!hips||!capsule||soles==null||soles.Length!=2||!animator||!animator.isActiveAndEnabled||
                 !player.IsGrounded||player.CurrentState=="Jump"||!animator.IsInTransition(0))return;
             var current=animator.GetCurrentAnimatorStateInfo(0);var next=animator.GetNextAnimatorStateInfo(0);
-            if(!(current.IsName("Idle")||current.IsName("Walk")||current.IsName("Run"))||
-                !(next.IsName("Idle")||next.IsName("Walk")||next.IsName("Run")))return;
+            if(!IsGroundPose(current)||!IsGroundPose(next))return;
             float lowest=float.PositiveInfinity;
             foreach(var sole in soles)
             {
@@ -85,6 +104,9 @@ namespace ForestSpriteCharacter
             hipAfterSupport=hips.localPosition;
         }
 
+        static bool IsGroundPose(AnimatorStateInfo state)=>state.IsName("Idle")||state.IsName("Walk")||state.IsName("Run")||
+            state.IsName("CMU_Start")||state.IsName("CMU_Stop")||state.IsName("CMU_TurnLeft90")||state.IsName("CMU_TurnRight90");
+
         void OnEnable()
         {
             RestoreSupport();
@@ -92,33 +114,154 @@ namespace ForestSpriteCharacter
             previousSpeed=player?Vector3.ProjectOnPlane(player.ActualVelocity,Vector3.up).magnitude:0;
             observing=false;observationTime=lookWeight=turnLean=startLean=0;
             ObservationWeight=0;Schedule();
+            previousIntent=Vector3.zero;previousMotionState="";previousMotionSpeed=0;
+            CurrentAccent="";AccentPhase=VariationWeight=0;
+            if(player)
+            {
+                player.MovementUpdated+=AfterMovement;
+                capsule=player.GetComponent<CharacterController>();
+                water=player.GetComponent<WatersideWaterBoundary>();
+                variationLayer=player.animator?player.animator.GetLayerIndex("Recorded Variation"):-1;
+                if(player.animator&&player.animator.runtimeAnimatorController)
+                    foreach(var clip in player.animator.runtimeAnimatorController.animationClips)
+                        if(clip.name=="Walking_MageBroad_MageSoles")walkClipLength=clip.length;
+            }
         }
 
         void Schedule(){nextObservation=Time.time+Random.Range(observationInterval.x,observationInterval.y);}
 
+        bool InWater()=>water&&water.isActiveAndEnabled&&water.terrain&&water.terrain.terrainData&&water.surface&&capsule&&
+            water.SampleSupportedDepth(player.transform.position,capsule.bounds.min.y)>.005f;
+
+        void AfterMovement(float dt)
+        {
+            if(!player||!player.animator)return;
+            if(!recordedMotionEnabled)
+            {
+                if(wasRecorded){CancelAccent(true);ClearVariation();wasRecorded=false;}
+                return;
+            }
+            wasRecorded=true;
+            var animator=player.animator;
+            Vector3 intent=player.MovementIntent;
+            float speed=Vector3.ProjectOnPlane(player.ActualVelocity,Vector3.up).magnitude;
+            float angle=previousIntent.sqrMagnitude>.001f&&intent.sqrMagnitude>.001f?
+                Vector3.SignedAngle(previousIntent,intent,Vector3.up):0;
+            bool allowed=dt>0&&player.IsGrounded&&!player.InputBlocked&&!player.JumpBlocked&&
+                player.CurrentState!="Jump"&&player.CurrentState!="Run"&&!InWater();
+            if(!allowed||Mathf.Abs(angle)>=135f)
+            {
+                CancelAccent(player.CurrentState!="Jump"&&player.CurrentState!="Run");ClearVariation();
+            }
+            else
+            {
+                bool moving=intent.sqrMagnitude>.001f;
+                if(moving&&Mathf.Abs(angle)>=55f)
+                    BeginAccent(angle<0?"CMU_TurnLeft90":"CMU_TurnRight90",.28f);
+                else if(moving&&previousIntent.sqrMagnitude<=.001f&&speed>.02f&&player.walkStartSeconds>0)
+                    BeginAccent("CMU_Start",.32f);
+                else if(!moving&&previousIntent.sqrMagnitude>.001f&&previousMotionState=="Walk"&&previousMotionSpeed>.2f&&player.walkStopSeconds>0)
+                    BeginAccent("CMU_Stop",.28f);
+                else if(CurrentAccent.Length>0&&moving&&speed<.02f)
+                    CancelAccent(true);
+                if(CurrentAccent.Length>0)
+                {
+                    accentElapsed+=dt;
+                    AccentPhase=Mathf.Clamp01(accentElapsed/accentDuration);
+                    animator.SetFloat("RecordedMotionPhase",AccentPhase);
+                    // The recorded weight shift yields to the existing broad gait as movement reaches full speed.
+                    if(!returningToGait&&AccentPhase>=.4f)
+                    {
+                        float phase=CurrentAccent=="CMU_Start"?.21666667f:CurrentAccent=="CMU_TurnLeft90"?.68333333f:.65f;
+                        float offset=player.CurrentState=="Walk"?walkClipLength*phase:0;
+                        animator.CrossFadeInFixedTime(player.CurrentState,Mathf.Max(0f,accentDuration-accentElapsed),0,offset);
+                        returningToGait=true;
+                    }
+                    if(AccentPhase>=1f)CurrentAccent="";
+                }
+                bool steady=moving&&speed>.5f&&player.CurrentState=="Walk"&&CurrentAccent.Length==0&&
+                    Mathf.Abs(angle)<20f&&Mathf.Abs(Mathf.DeltaAngle(previousYaw,transform.eulerAngles.y))/Mathf.Max(.001f,dt)<30f;
+                UpdateRecordedVariation(steady,dt);
+            }
+            previousIntent=intent;previousMotionState=player.CurrentState;previousMotionSpeed=speed;
+        }
+
+        void BeginAccent(string state,float duration)
+        {
+            if(!player.animator.HasState(0,Animator.StringToHash(state)))return;
+            if(CurrentAccent.Length>0)AccentsInterrupted++;
+            ClearVariation();returningToGait=false;CurrentAccent=state;accentDuration=Mathf.Max(.01f,duration);accentElapsed=AccentPhase=0;
+            player.animator.SetFloat("RecordedMotionPhase",0f);
+            player.animator.CrossFadeInFixedTime(state,.05f,0,0f);AccentsStarted++;
+        }
+
+        void CancelAccent(bool restore)
+        {
+            if(CurrentAccent.Length==0)return;
+            string cancelled=CurrentAccent;CurrentAccent="";AccentPhase=0;AccentsInterrupted++;
+            if(restore&&player&&player.animator&&player.animator.isActiveAndEnabled)
+            {
+                float phase=cancelled=="CMU_Start"?.21666667f:cancelled=="CMU_TurnLeft90"?.68333333f:.65f;
+                if(returningToGait&&player.animator.IsInTransition(0))phase=Mathf.Repeat(player.animator.GetNextAnimatorStateInfo(0).normalizedTime,1f);
+                player.animator.CrossFadeInFixedTime(player.CurrentState,.04f,0,player.CurrentState=="Walk"?walkClipLength*phase:0);
+            }
+        }
+
+        void ClearVariation()
+        {
+            if(observing){observing=false;ObservationsInterrupted++;Schedule();}
+            VariationWeight=ObservationWeight=lookWeight=0;
+            if(variationLayer>=0&&player&&player.animator)player.animator.SetLayerWeight(variationLayer,0);
+        }
+
+        void UpdateRecordedVariation(bool steady,float dt)
+        {
+            if(!steady||variationLayer<0){ClearVariation();return;}
+            if(!observing&&Time.time>=nextObservation)
+            {
+                observing=true;observationTime=0;ObservationsStarted++;
+                player.animator.Play("CMU_Happy",variationLayer,0);
+            }
+            if(!observing)return;
+            observationTime+=dt;
+            float phase=Mathf.Clamp01(observationTime/1.1f);
+            ObservationWeight=Mathf.Sin(phase*Mathf.PI);
+            VariationWeight=recordedVariationWeight*ObservationWeight;
+            player.animator.SetFloat("RecordedVariationPhase",phase);
+            player.animator.SetLayerWeight(variationLayer,VariationWeight);
+            if(phase>=1f){observing=false;ClearVariation();Schedule();}
+        }
+
         void LateUpdate()
         {
             if(player==null||chest==null||head==null)return;
+            if(recordedMotionEnabled&&!player.isActiveAndEnabled)
+            {
+                CancelAccent(true);ClearVariation();RestoreSupport();
+                if(player.capeCloth)player.capeCloth.PresentationOpenness=0;
+                return;
+            }
             ApplyTransitionSupport();
             float dt=Time.deltaTime;if(dt<=0)return;
             float speed=Vector3.ProjectOnPlane(player.ActualVelocity,Vector3.up).magnitude;
             float yaw=transform.eulerAngles.y;
             float yawRate=Mathf.DeltaAngle(previousYaw,yaw)/dt;
             float acceleration=(speed-previousSpeed)/dt;
-            bool canObserve=player.CurrentState=="Walk"&&player.IsGrounded&&speed>.5f&&!player.InputBlocked&&!player.JumpBlocked&&Mathf.Abs(yawRate)<30;
-            if(observing&&!canObserve)
+            bool canObserve=!recordedMotionEnabled&&player.CurrentState=="Walk"&&player.IsGrounded&&speed>.5f&&!player.InputBlocked&&!player.JumpBlocked&&Mathf.Abs(yawRate)<30;
+            if(!recordedMotionEnabled&&observing&&!canObserve)
             {observing=false;ObservationsInterrupted++;Schedule();}
             if(!observing&&canObserve&&Time.time>=nextObservation)
             {observing=true;observationTime=0;observationSide=Random.value<.5f?-1:1;ObservationsStarted++;}
             float target=0;
-            if(observing)
+            if(!recordedMotionEnabled&&observing)
             {
                 observationTime+=dt;
                 target=Mathf.Sin(Mathf.Clamp01(observationTime/1.1f)*Mathf.PI);
                 if(observationTime>=1.1f){observing=false;Schedule();}
             }
             lookWeight=Mathf.MoveTowards(lookWeight,target,dt*(canObserve?7f:20f));
-            ObservationWeight=lookWeight;
+            if(!recordedMotionEnabled)ObservationWeight=lookWeight;
+            if(player.capeCloth)player.capeCloth.PresentationOpenness=recordedMotionEnabled&&!InWater()?ObservationWeight:0;
             turnLean=Mathf.Lerp(turnLean,Mathf.Clamp(yawRate/90f,-6f,6f),1-Mathf.Exp(-18f*dt));
             startLean=Mathf.Lerp(startLean,Mathf.Clamp(acceleration*.25f,-4f,5f),1-Mathf.Exp(-14f*dt));
             if(player.CurrentState=="Jump")startLean=Mathf.Lerp(startLean,0,1-Mathf.Exp(-20f*dt));

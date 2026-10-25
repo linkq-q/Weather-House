@@ -87,8 +87,27 @@ namespace ForestSpriteCharacter
         public float LowerBendDegrees { get; private set; }
         public float WingSpreadDegrees { get; private set; }
         public float RunBlend => runBlend;
+        // The presentation layer refreshes this each LateUpdate before cape order -90.
+        // A missing producer or interruption cannot leave an extra opening latched.
+        public float PresentationOpenness
+        {
+            get => presentationFrame == Time.frameCount ? presentationOpenness : 0f;
+            set { presentationOpenness = float.IsNaN(value) || float.IsInfinity(value) ? 0f : Mathf.Clamp01(value); presentationFrame = Time.frameCount; }
+        }
+        public float PresentationSpreadDegrees => EvaluatePresentationSpread(presentationOpenness, presentationFrame, Time.frameCount,
+            motionEnabled && !windPreview && locomotion != null && locomotion.isActiveAndEnabled && locomotion.CurrentState == "Walk"
+            && locomotion.IsGrounded && !locomotion.InputBlocked && !locomotion.JumpBlocked,
+            flowAmount, smooth == null ? 0f : smooth.wingSpread);
+        internal static float EvaluatePresentationSpread(float weight, int writtenFrame, int frame, bool allowed, float moving, float spread)
+        {
+            if (!allowed || writtenFrame != frame || float.IsNaN(weight) || float.IsInfinity(weight)) return 0f;
+            return 4f * Mathf.Clamp01(weight) * Mathf.Clamp01(moving) * Mathf.Clamp01(spread);
+        }
+        void ClearPresentation() { presentationOpenness = 0f; presentationFrame = -1; }
         public string SettingsPath => Path.Combine(Application.persistentDataPath, "ForestSprite", "cape-flow-v1.json");
 
+        float presentationOpenness;
+        int presentationFrame = -1;
         Vector3 previousPosition, filteredVelocity;
         bool motionEnabled = true, windPreview, posed;
         float flowAmount, wavePhase, runBlend, appliedFreedom = -1;
@@ -124,6 +143,7 @@ namespace ForestSpriteCharacter
 
         void OnEnable()
         {
+            ClearPresentation();
             if (simulationRoot != null) previousPosition = simulationRoot.position;
         }
         void Start()
@@ -135,7 +155,7 @@ namespace ForestSpriteCharacter
                 catch (Exception exception) { Debug.LogWarning("披风参数未载入：" + exception.Message, this); }
             }
         }
-        void OnDisable() { RestorePose(); }
+        void OnDisable() { ClearPresentation(); RestorePose(); }
         void OnValidate() { if (settings != null) settings.Clamp(); }
 
         void Update()
@@ -238,7 +258,7 @@ namespace ForestSpriteCharacter
             lower = Mathf.Clamp(lower, -upper * .8f, upper * .6f);
             float opening = Mathf.Lerp(.25f, .65f, runBlend)
                 + Mathf.Sin(wavePhase - .6f) * Mathf.Lerp(.06f, .35f, runBlend) * smooth.wingFlap;
-            float wing = moving * smooth.wingSpread * 40f * opening;
+            float wing = moving * smooth.wingSpread * 40f * opening + PresentationSpreadDegrees;
             return new Vector3(upper, lower, wing);
         }
 
@@ -267,7 +287,7 @@ namespace ForestSpriteCharacter
             float jumpOpen = locomotion != null ? locomotion.JumpOpenness : 0f;
             float gait = Mathf.Max(runBlend, jumpOpen);
             float opening = 14f + Mathf.Lerp(3f, 10f, gait) * Mathf.Sin(wavePhase - .6f) * smooth.wingFlap;
-            WingSpreadDegrees = moving * smooth.wingSpread / .85f * Mathf.Lerp(opening, 9f, jumpOpen);
+            WingSpreadDegrees = moving * smooth.wingSpread / .85f * Mathf.Lerp(opening, 9f, jumpOpen) + PresentationSpreadDegrees;
             Vector3 right = guideFrame.InverseTransformDirection(simulationRoot.right).normalized;
             Vector3 forward = guideFrame.InverseTransformDirection(simulationRoot.forward).normalized;
             GuideMaxSegmentError = 0;
@@ -475,6 +495,7 @@ namespace ForestSpriteCharacter
         }
         public void ResetSimulation()
         {
+            ClearPresentation();
             RestorePose();
             if (Contact != null) Contact.ResetResponse();
             filteredVelocity = Vector3.zero;

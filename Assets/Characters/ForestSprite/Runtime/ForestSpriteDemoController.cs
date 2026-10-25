@@ -15,6 +15,10 @@ namespace ForestSpriteCharacter
         public float walkSpeed = 2.925f;
         [Range(0f, 1f)] public float walkStride = 1f;
         public float runSpeed = 4.5f;
+        [Range(0f, .18f)] public float walkStartSeconds;
+        [Range(0f, .12f)] public float walkStopSeconds;
+        public Vector3 MovementIntent { get; private set; }
+        public event System.Action<float> MovementUpdated;
         [HideInInspector] public float originalWalkCycleDistance = .264f;
         [HideInInspector] public float walkCycleDistance = .95f;
         [HideInInspector] public float runCycleDistance = 1.230769f;
@@ -52,6 +56,8 @@ namespace ForestSpriteCharacter
         Vector2 scriptedMovement;
         bool scriptedRun, scriptedJump;
         float verticalSpeed, modeStarted, nextJump;
+        float groundSpeed, stopElapsed, stopSpeed, turnSeconds;
+        Vector3 groundDirection, previousIntent;
         enum JumpStage { None, Anticipation, Air, Landing }
         JumpStage jumpStage;
         float jumpElapsed;
@@ -115,11 +121,26 @@ namespace ForestSpriteCharacter
                 ? Vector3.ProjectOnPlane(movementCamera.transform.forward, Vector3.up).normalized : Vector3.forward;
             Vector3 direction = forward * movement.y + Vector3.Cross(Vector3.up, forward) * movement.x;
             direction = Vector3.ClampMagnitude(direction, 1f);
+            MovementIntent = direction;
+            if (walkStartSeconds > 0f && direction.sqrMagnitude > .001f && previousIntent.sqrMagnitude > .001f)
+            {
+                float angle = Vector3.Angle(previousIntent, direction);
+                if (angle >= 55f && angle < 135f) turnSeconds = angle / 540f;
+                else if (angle >= 135f) turnSeconds = 0f;
+            }
+            previousIntent = direction;
             AdvanceMovement(direction, running, jump, Time.deltaTime);
             animator.SetFloat("JumpPhase", JumpPhase);
             string state = jumpStage != JumpStage.None || !IsGrounded ? "Jump" :
                 direction.sqrMagnitude > .001f ? (running ? "Run" : "Walk") : "Idle";
             SwitchState(state);
+            if (walkStartSeconds > 0f || walkStopSeconds > 0f)
+            {
+                float travelledSpeed = Vector3.ProjectOnPlane(ActualVelocity, Vector3.up).magnitude;
+                animator.SetFloat("WalkCadence", travelledSpeed / Mathf.Max(.01f, Mathf.Lerp(originalWalkCycleDistance, walkCycleDistance, stride)));
+                animator.SetFloat("RunCadence", travelledSpeed / Mathf.Max(.01f, runCycleDistance));
+            }
+            MovementUpdated?.Invoke(Time.deltaTime);
             if (transform.position.y < -4f) ResetPosition();
 
             if (demoCamera != null && !ScriptedInput && !externalCameraControl && !CameraInputBlocked)
@@ -181,11 +202,18 @@ namespace ForestSpriteCharacter
                 if (direction.sqrMagnitude > .001f)
                     transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), 540f * dt);
                 verticalSpeed += gravity * dt;
-                Vector3 displacement = (direction * (running ? runSpeed : walkSpeed) + Vector3.up * verticalSpeed) * dt;
+                Vector3 horizontal = GroundVelocity(direction, running, grounded && jumpStage == JumpStage.None, dt);
+                Vector3 displacement = (horizontal + Vector3.up * verticalSpeed) * dt;
                 if (ConstrainDisplacement != null) displacement = ConstrainDisplacement(displacement);
                 float requestedAnimalY = displacement.y;
                 if (ConstrainAnimalDisplacement != null) displacement = ConstrainAnimalDisplacement(displacement);
+                Vector3 beforeStep = transform.position;
                 var collision = controller.Move(displacement);
+                if (dt > 0f && horizontal.sqrMagnitude > .01f)
+                {
+                    float travelled = Vector3.ProjectOnPlane(transform.position - beforeStep, Vector3.up).magnitude / dt;
+                    if (travelled < groundSpeed * .1f) groundSpeed = travelled;
+                }
                 RefreshAnimalContacts?.Invoke(requestedAnimalY);
                 collision |= AnimalCollisionFlags;
                 if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
@@ -197,6 +225,33 @@ namespace ForestSpriteCharacter
                 }
             }
             ActualVelocity = deltaTime > 0f ? (transform.position - positionBeforeMove) / deltaTime : Vector3.zero;
+        }
+
+        Vector3 GroundVelocity(Vector3 direction, bool running, bool grounded, float dt)
+        {
+            float requested = direction.magnitude * (running ? runSpeed : walkSpeed);
+            if ((walkStartSeconds <= 0f && walkStopSeconds <= 0f) || running || !grounded || InputBlocked)
+            {
+                groundSpeed = requested; stopElapsed = turnSeconds = 0f;
+                groundDirection = direction.normalized;
+                return direction * (running ? runSpeed : walkSpeed);
+            }
+            if (direction.sqrMagnitude > .001f)
+            {
+                groundDirection = direction.normalized;
+                if (turnSeconds > 0f) requested *= .35f;
+                turnSeconds = Mathf.Max(0f, turnSeconds - dt);
+                groundSpeed = requested < groundSpeed ? requested : Mathf.MoveTowards(groundSpeed, requested,
+                    walkStartSeconds > 0f ? walkSpeed * dt / walkStartSeconds : float.PositiveInfinity);
+                stopElapsed = 0f; stopSpeed = groundSpeed;
+            }
+            else
+            {
+                turnSeconds = 0f; stopElapsed += dt;
+                float remaining = walkStopSeconds > 0f ? 1f - Mathf.Clamp01(stopElapsed / walkStopSeconds) : 0f;
+                groundSpeed = stopSpeed * remaining * remaining;
+            }
+            return groundDirection * groundSpeed;
         }
 
         void LateUpdate()
@@ -267,7 +322,8 @@ namespace ForestSpriteCharacter
             transform.SetPositionAndRotation(startPosition, startRotation);
             controller.enabled = true;
             verticalSpeed = 0f;
-            ActualVelocity = Vector3.zero;
+            ActualVelocity = MovementIntent = previousIntent = groundDirection = Vector3.zero;
+            groundSpeed = stopElapsed = stopSpeed = turnSeconds = 0f;
             jumpStage = JumpStage.None;
             jumpElapsed = JumpPhase = 0f;
             animator.SetFloat("JumpPhase", 0f);
@@ -275,6 +331,7 @@ namespace ForestSpriteCharacter
             if (capeCloth != null) capeCloth.ResetSimulation();
             SetDemonstration(Demonstration.Manual);
             SwitchState("Idle", true);
+            MovementUpdated?.Invoke(0f);
         }
 
         public void ToggleSecondaryMotion()
