@@ -2155,7 +2155,12 @@ PrefabInstance:
     - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
       propertyPath: settings.lift
-      value: 0.25
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
+        type: 3}
+      propertyPath: settings.sCurve
+      value: 0.35
       objectReference: {fileID: 0}
     - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
