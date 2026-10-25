@@ -937,11 +937,20 @@ namespace WeatherHouse.WildlifeJourney
                     ClearOfOthers(m, destinationFoot, endpointOnly: true))
                 { target = destinationFoot; resume = m.route.segments.Count - 1; }
                 if (remainingWalk && FlatDistance(m.root.position, m.destination) <= 6f &&
-                    !ClearSurroundingPlace(m.destination, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), m.profile.bodyEnvelope) &&
+                    (!ClearSurroundingPlace(m.destination, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), m.profile.bodyEnvelope) || RestingMemberOccupiesGoal(m)) &&
                     ChooseNearbyRestingPlace(m)) return false;
                 if (resume < 0) { RequestRoom(m); return false; }
             }
             if (FlatDistance(m.root.position, target) < .2f) return false;
+            CollectCrowdObstacles(m);
+            if (!JourneyCrowdPath.TryFindPath(m.root.position, target, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), crowdObstacles,
+                (from, to) => SafeCrowdStep(m, from, to), out List<Vector3> path)) { RequestRoom(m); return false; }
+            m.crowdPath = path; m.crowdStep = 1; m.crowdResume = resume; m.groundCheckAt = 0;
+            return false;
+        }
+
+        private void CollectCrowdObstacles(JourneyMember m)
+        {
             crowdObstacles.Clear();
             if (navigation.playerCollision && navigation.playerCollision.TryObstacle(m.root.position,
                 Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), out Vector3 playerCenter, out float playerRadius, m.profile.bodyEnvelope))
@@ -956,10 +965,6 @@ namespace WeatherHouse.WildlifeJourney
                 foreach (WildlifeAgent other in surroundingPopulation.agents)
                     if (GroundNeighbour(m, other, m.root.position, JourneyTravelMode.Walk))
                         crowdObstacles.Add(new JourneyCrowdObstacle { center = other.transform.position, radius = other.Radius });
-            if (!JourneyCrowdPath.TryFindPath(m.root.position, target, Mathf.Max(m.profile.bodyRadius, m.bodyLength * .5f), crowdObstacles,
-                (from, to) => SafeCrowdStep(m, from, to), out List<Vector3> path)) { RequestRoom(m); return false; }
-            m.crowdPath = path; m.crowdStep = 1; m.crowdResume = resume; m.groundCheckAt = 0;
-            return false;
         }
 
         private bool TryYieldAtBridge(JourneyMember member)
@@ -1178,12 +1183,23 @@ namespace WeatherHouse.WildlifeJourney
             return true;
         }
 
+        private bool RestingMemberOccupiesGoal(JourneyMember member)
+        {
+            float radius = Mathf.Max(member.profile.bodyRadius, member.bodyLength * .5f);
+            foreach (JourneyMember other in members)
+                if (Live(other) && other != member && other.Arrived &&
+                    Mathf.Abs(other.root.position.y - member.destination.y) <= .65f &&
+                    FlatDistance(other.root.position, member.destination) < radius + Mathf.Max(other.profile.bodyRadius, other.bodyLength * .5f) + .12f)
+                    return true;
+            return false;
+        }
         private bool ChooseNearbyRestingPlace(JourneyMember member)
         {
             Vector3 toward = member.root.position - member.destination; toward.y = 0;
             if (toward.sqrMagnitude < .001f) toward = Vector3.forward;
             float radius = Mathf.Max(member.profile.bodyRadius, member.bodyLength * .5f);
             // A resting neighbour may occupy a reserved goal after departure. Pick another nearby patch in the same site.
+            CollectCrowdObstacles(member);
             for (int ring = 1; ring <= 3; ring++)
                 for (int turn = 0; turn < 12; turn++)
                 {
@@ -1203,7 +1219,11 @@ namespace WeatherHouse.WildlifeJourney
                     if (!clear) continue;
                     JourneyRoute route = navigation.TraceDirectRoute(member.root.position, candidate, member.profile);
                     if (route == null || route.segments.Exists(part => part.mode != JourneyTravelMode.Walk || part.bridgeId != 0)) continue;
-                    member.destination = candidate; member.route = route; member.segment = 0; member.crowdPath = null;
+                    // A vacant endpoint still needs a way around the animals already resting in front of it.
+                    if (!JourneyCrowdPath.TryFindPath(member.root.position, candidate, radius, crowdObstacles,
+                        (from, to) => SafeCrowdStep(member, from, to), out List<Vector3> path)) continue;
+                    member.destination = candidate; member.route = route; member.segment = 0;
+                    member.crowdPath = path; member.crowdStep = 1; member.crowdResume = route.segments.Count - 1; member.groundCheckAt = 0;
                     RouteChanges++; member.LastDecision = "落脚处已有动物休息，在同一片草地另找空位";
                     return true;
                 }
