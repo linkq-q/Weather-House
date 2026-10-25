@@ -489,6 +489,13 @@ namespace WeatherHouse.WatersideV2
                         samples.Add(new WaterNode(p, Mathf.Lerp(a.HalfWidth, b.HalfWidth, t), Mathf.Lerp(a.Depth, b.Depth, t), section));
                     }
                 }
+                if (c == channels.Length - 1)
+                {
+                    // Continue the flat mouth past the revised coast without moving any upstream
+                    // Hermite tangent or adding a reflection section. The old mouth remains intact.
+                    samples.Add(new WaterNode(new Vector3(25.2f, SeaLevel, -86.4f), 9.5f, 2.2f, section - 1));
+                    samples.Add(new WaterNode(new Vector3(27, SeaLevel, -99), 14, 2.5f, section - 1));
+                }
                 channels[c] = new WaterChannel(WaterChannels[c].Name, samples.ToArray());
             }
             return channels;
