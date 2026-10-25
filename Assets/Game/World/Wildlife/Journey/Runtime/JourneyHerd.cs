@@ -579,7 +579,7 @@ namespace WeatherHouse.WildlifeJourney
                     Vector3 waiting = segment.from - entryDirection.normalized * (m.bodyLength + .5f);
                     Vector3 retreat = Vector3.MoveTowards(m.root.position, waiting, m.profile.walkSpeed * .6f * dt);
                     if (navigation.TryStep(m.profile, m.root.position, retreat, out retreat, out JourneyTravelMode retreatMode) && retreatMode == JourneyTravelMode.Walk &&
-                        AvoidOthers(m, retreat, retreatMode, out retreat)) Move(m, retreat, dt);
+                        AvoidOthers(m, retreat, retreatMode, out retreat, dt)) Move(m, retreat, dt);
                 }
                 return;
             }
@@ -627,7 +627,7 @@ namespace WeatherHouse.WildlifeJourney
                 return;
             }
             // A crowd is temporary: yield or take a small safe side step without blacklisting the route.
-            if (!AvoidOthers(m, projected, mode, out projected))
+            if (!AvoidOthers(m, projected, mode, out projected, dt))
             {
                 if (m.bridge != 0 || UpcomingBridge(m)) m.State = JourneyMemberState.WaitingForBridge;
                 m.LastDecision = "留出身体间距，等前方同伴走开"; return;
@@ -852,7 +852,7 @@ namespace WeatherHouse.WildlifeJourney
                 Vector3 target = m.crowdPath != null && m.crowdStep < m.crowdPath.Count ? m.crowdPath[m.crowdStep] : m.localTarget;
                 Vector3 next = Vector3.MoveTowards(m.root.position, target, m.profile.walkSpeed * .5f * dt);
                 if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode mode, JourneyTravelMode.Walk) && mode == JourneyTravelMode.Walk &&
-                    AvoidOthers(m, next, mode, out next)) Move(m, next, dt);
+                    AvoidOthers(m, next, mode, out next, dt)) Move(m, next, dt);
                 else if (m.crowdPath == null) m.localTarget = m.root.position;
             }
             m.Mode = JourneyTravelMode.Walk;
@@ -888,7 +888,7 @@ namespace WeatherHouse.WildlifeJourney
             m.LastDecision = "注意交流对象，靠近并回应";
         }
 
-        private bool AvoidOthers(JourneyMember m, Vector3 desired, JourneyTravelMode mode, out Vector3 result)
+        private bool AvoidOthers(JourneyMember m, Vector3 desired, JourneyTravelMode mode, out Vector3 result, float dt)
         {
             result = desired;
             float step = FlatDistance(m.root.position, desired);
@@ -903,10 +903,11 @@ namespace WeatherHouse.WildlifeJourney
                 }
                 Vector3 next = Vector3.MoveTowards(m.root.position, m.crowdPath[m.crowdStep], step);
                 if (navigation.TryStep(m.profile, m.root.position, next, out next, out JourneyTravelMode nextMode, JourneyTravelMode.Walk) &&
-                    nextMode == JourneyTravelMode.Walk && ClearOfOthers(m, next)) { result = next; return true; }
+                    nextMode == JourneyTravelMode.Walk && ClearOfOthers(m, next) &&
+                    ClearOfMemberBodies(m, next, MovementRotation(m, next, dt))) { result = next; return true; }
                 m.crowdPath = null;
             }
-            if (ClearOfOthers(m, desired, null, mode)) return true;
+            if (ClearOfOthers(m, desired, null, mode) && ClearOfMemberBodies(m, desired, MovementRotation(m, desired, dt))) return true;
             if (mode == JourneyTravelMode.Walk && SimulationTime >= m.crowdRetryAt && TryYieldAtBridge(m))
             { m.crowdRetryAt = SimulationTime + .7f; return false; }
             // Narrow crossings and swimmers retain their queue; open land can plan around a neighbour.
@@ -963,7 +964,8 @@ namespace WeatherHouse.WildlifeJourney
 
         private bool TryYieldAtBridge(JourneyMember member)
         {
-            if (member.Arrived || member.Mode != JourneyTravelMode.Walk || !UpcomingBridge(member, 3f) ||
+            // An admitted crosser keeps priority through the final boundary; only bridge entrants side-yield.
+            if (member.Arrived || member.bridge != 0 || member.Mode != JourneyTravelMode.Walk || !UpcomingBridge(member, 3f) ||
                 !BridgeApproach(member, out int bridge, out Vector3 entry, out Vector3 direction)) return false;
             JourneyMember first = null;
             int ownDistance = Mathf.FloorToInt(FlatDistance(member.root.position, entry) * 10f);
@@ -1256,10 +1258,32 @@ namespace WeatherHouse.WildlifeJourney
             member.profile.bodyHeading = member.root.rotation;
         }
 
+        private bool ClearOfMemberBodies(JourneyMember member, Vector3 next, Quaternion rotation)
+        {
+            // Radius spacing alone does not cover the corners swept by a turning body.
+            foreach (JourneyMember other in members)
+                if (other != member && Live(other) && !WildlifeBodyPhysics.ClearOfBody(member.profile.bodyEnvelope,
+                    member.root.position, member.root.rotation, next, rotation,
+                    other.profile.bodyEnvelope, other.root.position, other.root.rotation)) return false;
+            return true;
+        }
+        private Quaternion MovementRotation(JourneyMember member, Vector3 next, float dt)
+        {
+            Quaternion rotation = Quaternion.RotateTowards(member.root.rotation,
+                WildlifeBodyEnvelope.Heading(next - member.root.position, member.root.rotation), dt * 130f);
+            if (member.crowdPath == null || member.crowdStep >= member.crowdPath.Count || member.bridge != 0 ||
+                member.Mode != JourneyTravelMode.Walk || member.State == JourneyMemberState.Social ||
+                ClearOfMemberBodies(member, next, rotation)) return rotation;
+            // An existing crowd detour may first need a small translation to make room for its turn.
+            if (navigation.TryProject(member.profile, next, member.root.rotation, out Vector3 foot, out JourneyTravelMode mode) &&
+                mode == JourneyTravelMode.Walk && ClearOfMemberBodies(member, foot, member.root.rotation) &&
+                navigation.CanMoveSupportedBody(member.profile, member.root.position, member.root.rotation, foot, member.root.rotation))
+                return member.root.rotation;
+            return rotation;
+        }
         private bool CanMoveBody(JourneyMember m, Vector3 next, float dt)
         {
-            Quaternion rotation = Quaternion.RotateTowards(m.root.rotation,
-                WildlifeBodyEnvelope.Heading(next - m.root.position, m.root.rotation), dt * 130f);
+            Quaternion rotation = MovementRotation(m, next, dt);
             if (!navigation.TryProject(m.profile, next, rotation, out next, out _)) return false;
             return navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, next, rotation) ||
                 navigation.TryPlanBodyStep(m.profile, m.root.position, m.root.rotation, next, rotation, out _);
@@ -1290,7 +1314,7 @@ namespace WeatherHouse.WildlifeJourney
             if (Quaternion.Angle(m.root.rotation, desired) <= dt * 130f) return false;
             Quaternion rotation = Quaternion.RotateTowards(m.root.rotation, desired, dt * 130f);
             if (!navigation.TryProject(m.profile, m.root.position, rotation, out Vector3 foot, out JourneyTravelMode mode) ||
-                !ClearOfOthers(m, foot, nextMode: mode)) return false;
+                !ClearOfOthers(m, foot, nextMode: mode) || !ClearOfMemberBodies(m, foot, rotation)) return false;
             if (Mathf.Abs(foot.y - m.root.position.y) > .001f ||
                 !navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, foot, rotation))
             {
@@ -1305,9 +1329,9 @@ namespace WeatherHouse.WildlifeJourney
         private void Move(JourneyMember m, Vector3 next, float dt, JourneyMember partner = null)
         {
             if (!CanMoveBody(m, next, dt)) { m.ActualSpeed = 0; return; }
-            Quaternion rotation = Quaternion.RotateTowards(m.root.rotation,
-                WildlifeBodyEnvelope.Heading(next - m.root.position, m.root.rotation), dt * 130f);
-            if (!navigation.TryProject(m.profile, next, rotation, out next, out _) || !ClearOfOthers(m, next, partner)) { m.ActualSpeed = 0; return; }
+            Quaternion rotation = MovementRotation(m, next, dt);
+            if (!navigation.TryProject(m.profile, next, rotation, out next, out _) || !ClearOfOthers(m, next, partner) ||
+                !ClearOfMemberBodies(m, next, rotation)) { m.ActualSpeed = 0; return; }
             if (!navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, next, rotation))
             {
                 if (!navigation.TryPlanBodyStep(m.profile, m.root.position, m.root.rotation, next, rotation, out m.bodyStep)) { m.ActualSpeed = 0; return; }
@@ -1322,7 +1346,7 @@ namespace WeatherHouse.WildlifeJourney
             Quaternion rotation = m.bodyStepPhase == 1 ? m.root.rotation : Quaternion.RotateTowards(m.root.rotation, m.bodyStep.rotation, dt * 130f);
             Vector3 next = Vector3.MoveTowards(m.root.position, target, Mathf.Max(.1f, m.profile.walkSpeed) * dt);
             // Recheck each actual frame, including neighbours that entered the path after it was planned.
-            if (!ClearOfOthers(m, next, m.bodyStepPartner) || !navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, next, rotation))
+            if (!ClearOfOthers(m, next, m.bodyStepPartner) || !ClearOfMemberBodies(m, next, rotation) || !navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, next, rotation))
             { m.ActualSpeed = 0; m.LastDecision = "抬脚途中等待前方通道"; return; }
             ApplyMovement(m, next, rotation, dt);
             if ((next - target).sqrMagnitude < .0000001f) m.bodyStepPhase = m.bodyStepPhase == 3 ? 0 : m.bodyStepPhase + 1;

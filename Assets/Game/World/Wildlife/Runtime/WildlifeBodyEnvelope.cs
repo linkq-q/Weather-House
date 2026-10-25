@@ -82,6 +82,8 @@ namespace WeatherHouse.Hillside
     public sealed class WildlifeDeckFootprint
     {
         private readonly Vector3[] polygon = new Vector3[12], clipped = new Vector3[12];
+        internal static float SeparationGuard(float centerMagnitude, float boxCenterMagnitude)
+        { return .00001f + Mathf.Max(centerMagnitude, boxCenterMagnitude) * .000002f; }
         // A convex cast can report contact across a sub-millimetre empty gap. Prove separation
         // against the entire swept footprint, never from a hit point or only the final pose.
         public bool StrictlySeparatedVerticalBox(BoxCollider box, Vector3 center, Vector3 half, Quaternion heading)
@@ -97,7 +99,7 @@ namespace WeatherHouse.Hillside
             Vector3 boxCenter = transform.TransformPoint(box.center), size = box.size * .5f;
             // Enclose both transformed vertices and the rotation/lossyScale physical box. This
             // remains conservative when a rotated child inherits non-uniform parent scale.
-            float guard = .00001f + Mathf.Max(center.magnitude, boxCenter.magnitude) * .000002f;
+            float guard = SeparationGuard(center.magnitude, boxCenter.magnitude);
             for (int side = 0; side < 4; side++)
             {
                 Vector3 axis = side == 0 ? right : side == 1 ? forward : transform.rotation * (side == 2 ? Vector3.right : Vector3.forward);

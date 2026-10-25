@@ -297,17 +297,23 @@ namespace WeatherHouse.WildlifeJourney
             projected = ground; foundDeck = false; EnsureBridgeLookup();
             Vector3 center = ground + heading * new Vector3(body.center.x, 0, body.center.z);
             float baseY = ground.y + body.Bottom;
+            // Anticipate the same conservative bridge-edge contact used by the body sweep.
+            // Raising the support early keeps the original lift/across/landing collision checks intact.
+            float centerMagnitude = center.magnitude + Mathf.Abs(body.center.y) + Mathf.Max(0, maxStepHeight);
+            float candidateRadius = body.HorizontalRadius + WildlifeDeckFootprint.SeparationGuard(centerMagnitude, centerMagnitude);
             if (!MayTouchDeck(new Vector3(center.x, baseY + maxStepHeight * .5f, center.z),
-                new Vector3(body.HorizontalRadius, maxStepHeight * .5f + .002f, body.HorizontalRadius))) return true;
+                new Vector3(candidateRadius, maxStepHeight * .5f + .002f, candidateRadius))) return true;
             int count = Physics.OverlapBoxNonAlloc(new Vector3(center.x, baseY + maxStepHeight * .5f, center.z),
-                new Vector3(body.half.x, maxStepHeight * .5f + .002f, body.half.z), supportCandidates, heading, groundMask, QueryTriggerInteraction.Ignore);
+                new Vector3(candidateRadius, maxStepHeight * .5f + .002f, candidateRadius), supportCandidates, heading, groundMask, QueryTriggerInteraction.Ignore);
             if (count == supportCandidates.Length) return bodyPhysics.Reject(null);
             float top = baseY;
             for (int i = 0; i < count; i++)
             {
                 var box = supportCandidates[i] as BoxCollider;
                 if (!box || !bridgeIds.ContainsKey(box) || Vector3.Angle(box.transform.up, Vector3.up) > maxSlope) continue;
-                if (!deckFootprint.HighestTop(box, center, body.half, heading, out float y) ||
+                float guard = WildlifeDeckFootprint.SeparationGuard(centerMagnitude, box.transform.TransformPoint(box.center).magnitude);
+                Vector3 supportHalf = body.half + new Vector3(guard, 0, guard);
+                if (!deckFootprint.HighestTop(box, center, supportHalf, heading, out float y) ||
                     y < baseY - .001f || y > baseY + maxStepHeight + .001f) continue;
                 foundDeck = true; top = Mathf.Max(top, y);
             }
