@@ -8,6 +8,7 @@ Shader "Weather House/Painterly Water"
         _DepthDistance ("Depth color distance (m)", Range(0.1, 8)) = 1.2
         _Opacity ("Water opacity", Range(0, 1)) = 0.70
         _DeepBedOcclusion ("Deep ocean bed occlusion", Range(0, 1)) = 0
+        _EstuaryBedBlend ("Estuary bed fade (start Z, end Z, enable)", Vector) = (0, 0, 0, 0)
         _RefractionStrength ("Refraction strength", Range(0, 0.05)) = 0.012
         [Header(Reflections)]
         _ReflectionTint ("Reflection tint", Color) = (0.75, 0.86, 0.82, 1)
@@ -105,6 +106,7 @@ Shader "Weather House/Painterly Water"
                 float _DepthDistance;
                 float _Opacity;
                 float _DeepBedOcclusion;
+                float4 _EstuaryBedBlend;
                 float _RefractionStrength;
                 float _ReflectionStrength;
                 float _ReflectionDistortion;
@@ -703,7 +705,11 @@ Shader "Weather House/Painterly Water"
                 // Default and shallow water retain the original opacity; only opted-in deep ocean hides the bed edge.
                 float shallowPigment = smoothstep(0.015, 0.32, waterDepth);
                 if (_HasSceneColor > 0.5) waterColor = lerp(bedColor, waterColor, shallowPigment);
-                float bedOpacity = lerp(_Opacity, 1.0, saturate(_DeepBedOcclusion) * smoothstep(2.0, 5.0, waterDepth));
+                // Fade the river's visible bed before it meets an opaque deep-ocean material.
+                // World position makes the transition continuous across separately authored meshes.
+                float estuary = smoothstep(0.0, 1.0, saturate((_EstuaryBedBlend.x - input.positionWS.z)
+                    / max(0.001, _EstuaryBedBlend.x - _EstuaryBedBlend.y))) * saturate(_EstuaryBedBlend.z);
+                float bedOpacity = lerp(_Opacity, 1.0, max(saturate(_DeepBedOcclusion), estuary) * smoothstep(2.0, 5.0, waterDepth));
                 half3 color = _HasSceneColor > 0.5 ? lerp(bedColor, waterColor, bedOpacity) : waterColor;
 
                 float edgeWeight = _ShoreStrength * ShorePaint(p, waterDepth, time);
