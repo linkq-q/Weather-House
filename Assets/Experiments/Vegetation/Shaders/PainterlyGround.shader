@@ -2,6 +2,7 @@ Shader "Weather House/Painterly Ground"
 {
     Properties
     {
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 2
         _BaseColor("Meadow Bed", Color) = (0.40, 0.49, 0.22, 1)
         _PatchColor("Warm Pigment", Color) = (0.57, 0.62, 0.31, 1)
         _ShoreColor("Shore Ochre", Color) = (0.69, 0.66, 0.45, 1)
@@ -15,6 +16,7 @@ Shader "Weather House/Painterly Ground"
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" }
+        Cull [_Cull]
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"

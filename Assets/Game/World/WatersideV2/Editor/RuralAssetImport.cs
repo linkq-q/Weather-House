@@ -24,7 +24,7 @@ namespace WeatherHouse.WatersideV2.Editor
         [Serializable] public sealed class FileEntry { public string path, sha256; }
         [Serializable] public sealed class MaterialEntry
         {
-            public string name, baseColorTexture, metallicSmoothnessTexture, normalTexture, emissionTexture, occlusionTexture, alphaMode;
+            public string name, sourceMaterialName, baseColorTexture, metallicSmoothnessTexture, normalTexture, emissionTexture, occlusionTexture, alphaMode;
             public float[] baseColorFactor, emissionFactor;
             public float metallicFactor, roughnessFactor, smoothness, opacity = 1, alphaCutoff = .5f, normalScale = 1;
             public bool isGlass, doubleSided, packedFactorsBaked;
@@ -241,6 +241,7 @@ namespace WeatherHouse.WatersideV2.Editor
             Keyword(material, "_METALLICSPECGLOSSMAP", !string.IsNullOrEmpty(entry.metallicSmoothnessTexture));
             Keyword(material, "_NORMALMAP", !string.IsNullOrEmpty(entry.normalTexture));
             Keyword(material, "_EMISSION", emission != null && emission.Any(v => v > 0));
+            RuralRoofMaterialHarmony.Apply(folder, entry.sourceMaterialName, material);
             material.enableInstancing = true;
             EditorUtility.SetDirty(material);
             AssetDatabase.SaveAssetIfDirty(material);
