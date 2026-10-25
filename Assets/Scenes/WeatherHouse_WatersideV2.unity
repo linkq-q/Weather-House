@@ -103921,7 +103921,6 @@ Transform:
   - {fileID: 636932248}
   - {fileID: 754714949}
   - {fileID: 803445077}
-  - {fileID: 915164697}
   - {fileID: 1471923988}
   - {fileID: 1041736038}
   - {fileID: 1657763643}
@@ -146046,130 +146045,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 914588271}
   m_Mesh: {fileID: 6199300422517957253, guid: b5fe0a02ec5817645bc872f16f993f45, type: 3}
---- !u!1001 &915164696
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 634360395}
-    m_Modifications:
-    - target: {fileID: 3295221446281382976, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_Name
-      value: R08_Fern_v3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.020472
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.020472
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.020472
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -30.529007
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.0199294
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -63.943436
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: -0.8202488
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.57200694
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3295221446281382976, guid: 12a974d9e3524e348afb3207342d794b,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 915164700}
-  m_SourcePrefab: {fileID: 100100000, guid: 12a974d9e3524e348afb3207342d794b, type: 3}
---- !u!4 &915164697 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6623421743501155403, guid: 12a974d9e3524e348afb3207342d794b,
-    type: 3}
-  m_PrefabInstance: {fileID: 915164696}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &915164698 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3295221446281382976, guid: 12a974d9e3524e348afb3207342d794b,
-    type: 3}
-  m_PrefabInstance: {fileID: 915164696}
-  m_PrefabAsset: {fileID: 0}
---- !u!23 &915164699 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 6689171840030533580, guid: 12a974d9e3524e348afb3207342d794b,
-    type: 3}
-  m_PrefabInstance: {fileID: 915164696}
-  m_PrefabAsset: {fileID: 0}
---- !u!205 &915164700
-LODGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 915164698}
-  serializedVersion: 2
-  m_LocalReferencePoint: {x: -0.06755012, y: 0.3669328, z: 0.06538266}
-  m_Size: 1.3655871
-  m_FadeMode: 0
-  m_AnimateCrossFading: 0
-  m_LastLODIsBillboard: 0
-  m_LODs:
-  - screenRelativeHeight: 0.018
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 915164699}
-  m_Enabled: 1
 --- !u!1001 &915179322
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -172294,17 +172169,17 @@ PrefabInstance:
     - target: {fileID: 4323219406007772770, guid: 2f1f1a99a03849746adb662fa05676c2,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.41
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4323219406007772770, guid: 2f1f1a99a03849746adb662fa05676c2,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.66
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4323219406007772770, guid: 2f1f1a99a03849746adb662fa05676c2,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5086214993460798845, guid: 2f1f1a99a03849746adb662fa05676c2,
         type: 3}
@@ -231272,6 +231147,2426 @@ MonoBehaviour:
       y: -71.27683
       width: 10.599998
       height: 10.600002
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -34.34131, y: -31.08263}
+    bounds:
+      serializedVersion: 2
+      x: -36.34131
+      y: -33.08263
+      width: 4
+      height: 4
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -36.56797, y: -31.983303}
+    bounds:
+      serializedVersion: 2
+      x: -38.56797
+      y: -33.983303
+      width: 4
+      height: 4
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1.4
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -39.45226, y: -34.457706}
+    bounds:
+      serializedVersion: 2
+      x: -40.85226
+      y: -35.857708
+      width: 2.800003
+      height: 2.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1.4
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -41.04215, y: -36.007797}
+    bounds:
+      serializedVersion: 2
+      x: -42.44215
+      y: -37.4078
+      width: 2.800003
+      height: 2.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -42.89225, y: -38.119755}
+    bounds:
+      serializedVersion: 2
+      x: -43.89225
+      y: -39.119755
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -41.971508, y: -36.880207}
+    bounds:
+      serializedVersion: 2
+      x: -42.971508
+      y: -37.880207
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -42.66877, y: -37.24384}
+    bounds:
+      serializedVersion: 2
+      x: -43.66877
+      y: -38.24384
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -43.487953, y: -39.82808}
+    bounds:
+      serializedVersion: 2
+      x: -44.487953
+      y: -40.82808
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -42.818928, y: -38.649673}
+    bounds:
+      serializedVersion: 2
+      x: -43.818928
+      y: -39.649673
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -35.69758, y: -29.66838}
+    bounds:
+      serializedVersion: 2
+      x: -36.69758
+      y: -30.66838
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -36.524246, y: -30.332714}
+    bounds:
+      serializedVersion: 2
+      x: -37.524246
+      y: -31.332714
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -36.889103, y: -27.678413}
+    bounds:
+      serializedVersion: 2
+      x: -37.889103
+      y: -28.678413
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -34.86723, y: -26.289799}
+    bounds:
+      serializedVersion: 2
+      x: -35.86723
+      y: -27.289799
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -34.944786, y: -28.419487}
+    bounds:
+      serializedVersion: 2
+      x: -35.944786
+      y: -29.419487
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -35.539185, y: -26.86324}
+    bounds:
+      serializedVersion: 2
+      x: -36.539185
+      y: -27.86324
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -33.031372, y: -28.477158}
+    bounds:
+      serializedVersion: 2
+      x: -34.031372
+      y: -29.477158
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.5
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -30.435467, y: -29.101433}
+    bounds:
+      serializedVersion: 2
+      x: -31.435467
+      y: -30.101433
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -27.465961, y: -25.69114}
+    bounds:
+      serializedVersion: 2
+      x: -28.465961
+      y: -26.69114
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -28.596394, y: -26.052269}
+    bounds:
+      serializedVersion: 2
+      x: -29.596394
+      y: -27.052269
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -30.029915, y: -26.611263}
+    bounds:
+      serializedVersion: 2
+      x: -31.029915
+      y: -27.611263
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -28.857437, y: -25.44944}
+    bounds:
+      serializedVersion: 2
+      x: -29.857437
+      y: -26.44944
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -29.235558, y: -26.1068}
+    bounds:
+      serializedVersion: 2
+      x: -30.235558
+      y: -27.1068
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -29.038593, y: -29.209991}
+    bounds:
+      serializedVersion: 2
+      x: -30.038593
+      y: -30.209991
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -37.07932, y: -34.16762}
+    bounds:
+      serializedVersion: 2
+      x: -38.07932
+      y: -35.16762
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -35.935726, y: -33.94746}
+    bounds:
+      serializedVersion: 2
+      x: -36.935726
+      y: -34.94746
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -37.25799, y: -35.133854}
+    bounds:
+      serializedVersion: 2
+      x: -38.25799
+      y: -36.133854
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -38.425545, y: -34.346405}
+    bounds:
+      serializedVersion: 2
+      x: -39.425545
+      y: -35.346405
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -35.324253, y: -33.58777}
+    bounds:
+      serializedVersion: 2
+      x: -36.324253
+      y: -34.58777
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -36.417675, y: -34.77719}
+    bounds:
+      serializedVersion: 2
+      x: -37.417675
+      y: -35.77719
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -31.157764, y: -32.170673}
+    bounds:
+      serializedVersion: 2
+      x: -32.157764
+      y: -33.170673
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -45.902752, y: -42.1104}
+    bounds:
+      serializedVersion: 2
+      x: -46.902752
+      y: -43.1104
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -45.102657, y: -40.645134}
+    bounds:
+      serializedVersion: 2
+      x: -46.102657
+      y: -41.645134
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -46.578712, y: -41.013367}
+    bounds:
+      serializedVersion: 2
+      x: -47.578712
+      y: -42.013367
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -43.521095, y: -41.33978}
+    bounds:
+      serializedVersion: 2
+      x: -44.521095
+      y: -42.33978
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -44.71247, y: -42.730003}
+    bounds:
+      serializedVersion: 2
+      x: -45.71247
+      y: -43.730003
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -46.56528, y: -42.22092}
+    bounds:
+      serializedVersion: 2
+      x: -47.56528
+      y: -43.22092
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -45.71569, y: -41.244793}
+    bounds:
+      serializedVersion: 2
+      x: -46.71569
+      y: -42.244793
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -47.890907, y: -42.366413}
+    bounds:
+      serializedVersion: 2
+      x: -48.890907
+      y: -43.366413
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -48.427395, y: -43.445873}
+    bounds:
+      serializedVersion: 2
+      x: -49.427395
+      y: -44.445873
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -44.961742, y: -43.445038}
+    bounds:
+      serializedVersion: 2
+      x: -45.961742
+      y: -44.445038
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -43.797684, y: -42.675747}
+    bounds:
+      serializedVersion: 2
+      x: -44.797684
+      y: -43.675747
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -54.40281, y: -51.33008}
+    bounds:
+      serializedVersion: 2
+      x: -55.40281
+      y: -52.33008
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -48.50062, y: -45.98438}
+    bounds:
+      serializedVersion: 2
+      x: -49.50062
+      y: -46.98438
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -53.549725, y: -50.48206}
+    bounds:
+      serializedVersion: 2
+      x: -54.549725
+      y: -51.48206
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -52.73127, y: -49.954258}
+    bounds:
+      serializedVersion: 2
+      x: -53.73127
+      y: -50.954258
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -46.755867, y: -44.75702}
+    bounds:
+      serializedVersion: 2
+      x: -47.755867
+      y: -45.75702
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 1
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -48.41957, y: -46.59118}
+    bounds:
+      serializedVersion: 2
+      x: -49.41957
+      y: -47.59118
+      width: 2
+      height: 2
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -52.69675, y: -49.37772}
+    bounds:
+      serializedVersion: 2
+      x: -55.596752
+      y: -52.27772
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -54.82542, y: -52.67391}
+    bounds:
+      serializedVersion: 2
+      x: -57.72542
+      y: -55.57391
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -51.45194, y: -57.169933}
+    bounds:
+      serializedVersion: 2
+      x: -54.35194
+      y: -60.069935
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -41.98002, y: -61.698906}
+    bounds:
+      serializedVersion: 2
+      x: -44.88002
+      y: -64.59891
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -47.055603, y: -58.70885}
+    bounds:
+      serializedVersion: 2
+      x: -49.955605
+      y: -61.608852
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -30.42315, y: -64.6676}
+    bounds:
+      serializedVersion: 2
+      x: -33.32315
+      y: -67.567604
+      width: 5.800001
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -26.039444, y: -66.647484}
+    bounds:
+      serializedVersion: 2
+      x: -28.939444
+      y: -69.547485
+      width: 5.799999
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -17.331665, y: -73.21026}
+    bounds:
+      serializedVersion: 2
+      x: -20.231665
+      y: -76.11026
+      width: 5.799999
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -4.007126, y: -70.41051}
+    bounds:
+      serializedVersion: 2
+      x: -6.907126
+      y: -73.31051
+      width: 5.8
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -8.824135, y: -61.184013}
+    bounds:
+      serializedVersion: 2
+      x: -11.724134
+      y: -64.084015
+      width: 5.7999997
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 33.182335, y: 16.565163}
+    bounds:
+      serializedVersion: 2
+      x: 30.282335
+      y: 13.665163
+      width: 5.800001
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 34.205826, y: 13.96386}
+    bounds:
+      serializedVersion: 2
+      x: 31.305826
+      y: 11.06386
+      width: 5.800001
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 37.465675, y: 18.509926}
+    bounds:
+      serializedVersion: 2
+      x: 34.565674
+      y: 15.609926
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 37.12294, y: 19.587822}
+    bounds:
+      serializedVersion: 2
+      x: 34.22294
+      y: 16.687822
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -50.59986, y: 27.67321}
+    bounds:
+      serializedVersion: 2
+      x: -53.499863
+      y: 24.77321
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -48.76818, y: 22.717216}
+    bounds:
+      serializedVersion: 2
+      x: -51.668182
+      y: 19.817217
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -49.89502, y: 25.722801}
+    bounds:
+      serializedVersion: 2
+      x: -52.79502
+      y: 22.822802
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -50.512424, y: 36.264732}
+    bounds:
+      serializedVersion: 2
+      x: -53.412426
+      y: 33.36473
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -49.881397, y: 32.01712}
+    bounds:
+      serializedVersion: 2
+      x: -52.7814
+      y: 29.11712
+      width: 5.800003
+      height: 5.800001
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -50.23147, y: 37.64727}
+    bounds:
+      serializedVersion: 2
+      x: -53.13147
+      y: 34.74727
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -50.62982, y: 39.630127}
+    bounds:
+      serializedVersion: 2
+      x: -53.529823
+      y: 36.730125
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -50.25271, y: 29.962494}
+    bounds:
+      serializedVersion: 2
+      x: -53.15271
+      y: 27.062494
+      width: 5.800003
+      height: 5.800001
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -46.778008, y: 20.997337}
+    bounds:
+      serializedVersion: 2
+      x: -49.67801
+      y: 18.097338
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -43.828037, y: 17.5111}
+    bounds:
+      serializedVersion: 2
+      x: -46.72804
+      y: 14.611101
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -42.348633, y: 14.212303}
+    bounds:
+      serializedVersion: 2
+      x: -45.248634
+      y: 11.312304
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -39.98407, y: 14.598}
+    bounds:
+      serializedVersion: 2
+      x: -42.88407
+      y: 11.698
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -60.900585, y: 23.18409}
+    bounds:
+      serializedVersion: 2
+      x: -63.800587
+      y: 20.28409
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -60.87834, y: 29.155602}
+    bounds:
+      serializedVersion: 2
+      x: -63.778343
+      y: 26.255602
+      width: 5.800003
+      height: 5.800001
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -60.487244, y: 17.912415}
+    bounds:
+      serializedVersion: 2
+      x: -63.387245
+      y: 15.012415
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -39.6757, y: 12.627518}
+    bounds:
+      serializedVersion: 2
+      x: -42.575703
+      y: 9.727518
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -49.095665, y: -8.459717}
+    bounds:
+      serializedVersion: 2
+      x: -51.995667
+      y: -11.359716
+      width: 5.800003
+      height: 5.7999997
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: -46.950314, y: -7.5951004}
+    bounds:
+      serializedVersion: 2
+      x: -49.850315
+      y: -10.4951
+      width: 5.800003
+      height: 5.7999997
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 52.112106, y: -62.59256}
+    bounds:
+      serializedVersion: 2
+      x: 49.212105
+      y: -65.49256
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 64.795395, y: -63.610245}
+    bounds:
+      serializedVersion: 2
+      x: 61.895393
+      y: -66.51025
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 55.89003, y: -63.949833}
+    bounds:
+      serializedVersion: 2
+      x: 52.99003
+      y: -66.84983
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 39.71161, y: -56.276295}
+    bounds:
+      serializedVersion: 2
+      x: 36.811607
+      y: -59.176296
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 33.49533, y: -49.502472}
+    bounds:
+      serializedVersion: 2
+      x: 30.595331
+      y: -52.402473
+      width: 5.800001
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 37.84996, y: -54.423023}
+    bounds:
+      serializedVersion: 2
+      x: 34.94996
+      y: -57.323025
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 25.86892, y: -49.0089}
+    bounds:
+      serializedVersion: 2
+      x: 22.96892
+      y: -51.9089
+      width: 5.799999
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 32.606285, y: -38.928658}
+    bounds:
+      serializedVersion: 2
+      x: 29.706285
+      y: -41.82866
+      width: 5.800001
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 30.204636, y: -43.99398}
+    bounds:
+      serializedVersion: 2
+      x: 27.304636
+      y: -46.893982
+      width: 5.800001
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 37.070007, y: -28.675716}
+    bounds:
+      serializedVersion: 2
+      x: 34.170006
+      y: -31.575716
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 40.709747, y: -20.148598}
+    bounds:
+      serializedVersion: 2
+      x: 37.809746
+      y: -23.048597
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 40.022705, y: -22.680244}
+    bounds:
+      serializedVersion: 2
+      x: 37.122704
+      y: -25.580244
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 31.408623, y: -41.77051}
+    bounds:
+      serializedVersion: 2
+      x: 28.508623
+      y: -44.670513
+      width: 5.800001
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 42.353607, y: -15.630089}
+    bounds:
+      serializedVersion: 2
+      x: 39.453606
+      y: -18.530088
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 42.575027, y: -20.158752}
+    bounds:
+      serializedVersion: 2
+      x: 39.675026
+      y: -23.058752
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 42.52568, y: -6.662262}
+    bounds:
+      serializedVersion: 2
+      x: 39.62568
+      y: -9.562262
+      width: 5.800003
+      height: 5.7999997
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 42.898926, y: -12.689758}
+    bounds:
+      serializedVersion: 2
+      x: 39.998924
+      y: -15.589758
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 51.03047, y: -18.320793}
+    bounds:
+      serializedVersion: 2
+      x: 48.13047
+      y: -21.220793
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 56.700516, y: -20.603539}
+    bounds:
+      serializedVersion: 2
+      x: 53.800514
+      y: -23.503538
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 49.160004, y: -21.02127}
+    bounds:
+      serializedVersion: 2
+      x: 46.260002
+      y: -23.92127
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 57.238373, y: -27.778671}
+    bounds:
+      serializedVersion: 2
+      x: 54.33837
+      y: -30.67867
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 56.914673, y: -31.408936}
+    bounds:
+      serializedVersion: 2
+      x: 54.01467
+      y: -34.308937
+      width: 5.800003
+      height: 5.800001
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 57.7565, y: -34.963062}
+    bounds:
+      serializedVersion: 2
+      x: 54.8565
+      y: -37.863064
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 59.081955, y: -39.98664}
+    bounds:
+      serializedVersion: 2
+      x: 56.181953
+      y: -42.886642
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 60.853485, y: -42.119255}
+    bounds:
+      serializedVersion: 2
+      x: 57.953484
+      y: -45.019257
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 62.242477, y: -45.645367}
+    bounds:
+      serializedVersion: 2
+      x: 59.342476
+      y: -48.54537
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 63.34108, y: -47.881824}
+    bounds:
+      serializedVersion: 2
+      x: 60.44108
+      y: -50.781826
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 64.66939, y: -53.40025}
+    bounds:
+      serializedVersion: 2
+      x: 61.769386
+      y: -56.30025
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 67.060135, y: -54.858265}
+    bounds:
+      serializedVersion: 2
+      x: 64.16013
+      y: -57.758266
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 69.982315, y: -59.205578}
+    bounds:
+      serializedVersion: 2
+      x: 67.08231
+      y: -62.10558
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 69.270065, y: -61.78165}
+    bounds:
+      serializedVersion: 2
+      x: 66.37006
+      y: -64.68165
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 65.964615, y: -63.206154}
+    bounds:
+      serializedVersion: 2
+      x: 63.064613
+      y: -66.106155
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 60.356583, y: -64.63934}
+    bounds:
+      serializedVersion: 2
+      x: 57.45658
+      y: -67.539345
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 49.13388, y: -61.65304}
+    bounds:
+      serializedVersion: 2
+      x: 46.23388
+      y: -64.55304
+      width: 5.800003
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 44.767136, y: -60.995003}
+    bounds:
+      serializedVersion: 2
+      x: 41.867134
+      y: -63.895004
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 35.574066, y: -52.07226}
+    bounds:
+      serializedVersion: 2
+      x: 32.674065
+      y: -54.972263
+      width: 5.800003
+      height: 5.800003
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 40.82814, y: -1.5477982}
+    bounds:
+      serializedVersion: 2
+      x: 37.92814
+      y: -4.4477983
+      width: 5.800003
+      height: 5.8
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 44.529648, y: -10.237946}
+    bounds:
+      serializedVersion: 2
+      x: 41.629646
+      y: -13.137945
+      width: 5.800003
+      height: 5.7999997
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 51.220978, y: -6.894615}
+    bounds:
+      serializedVersion: 2
+      x: 48.320976
+      y: -9.794615
+      width: 5.800003
+      height: 5.7999997
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 46.38524, y: -7.4161835}
+    bounds:
+      serializedVersion: 2
+      x: 43.485237
+      y: -10.316183
+      width: 5.800003
+      height: 5.7999997
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 28.976654, y: 19.55017}
+    bounds:
+      serializedVersion: 2
+      x: 26.076654
+      y: 16.650171
+      width: 5.799999
+      height: 5.799999
+  - settings:
+      mode: 0
+      sourceId: 0
+      radius: 2.9
+      hardness: 0.123
+      strength: 1
+      density: 0
+      heightScale: 1
+      widthScale: 1
+      affectDensity: 1
+      affectHeight: 1
+      affectWidth: 1
+    points:
+    - {x: 24.64991, y: 23.688416}
+    bounds:
+      serializedVersion: 2
+      x: 21.74991
+      y: 20.788416
+      width: 5.799999
+      height: 5.799999
   sources:
   - definition: {fileID: 11400000, guid: 87cba58775bac83479a701c9b9abfc6d, type: 2}
     material: {fileID: 2100000, guid: 4226f64bcc564ae4393b2086b44e9972, type: 2}
@@ -359106,7 +361401,7 @@ Transform:
   m_GameObject: {fileID: 429108142674100679}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.83, y: 0.0000000011920929, z: 0.72}
+  m_LocalPosition: {x: 0.0000048828124, y: 0.0000000011920929, z: 0.0000000023841857}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -374943,8 +377238,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5036911214961480039}
   serializedVersion: 2
-  m_LocalRotation: {x: -9.3132246e-10, y: -0.21908611, z: 0.0000000037252899, w: 0.97570556}
-  m_LocalPosition: {x: -0.59, y: 0, z: -2.14}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -375503,8 +377798,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8981687083408126632}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.040378667, y: -0, z: 0.000000004656612, w: 0.9991844}
-  m_LocalPosition: {x: -0.0000039488077, y: 0.0051516593, z: -0.035814777}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -464819,7 +467114,7 @@ Transform:
   m_GameObject: {fileID: 3545485643716434621}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.32, y: 0, z: -0}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -467143,8 +469438,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3273856761014963392}
   serializedVersion: 2
-  m_LocalRotation: {x: -2.3283064e-10, y: -0.10513723, z: -0, w: 0.9944578}
-  m_LocalPosition: {x: -0.32, y: 0, z: -1.25}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
