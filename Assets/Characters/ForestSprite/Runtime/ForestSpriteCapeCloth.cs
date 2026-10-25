@@ -133,7 +133,7 @@ namespace ForestSpriteCharacter
             {0f,0f,0f,.5f,1f,1f}, {0f,.5f,2f,4f,4.5f,3.5f}
         };
         static readonly float[,] RunCapeMean = {
-            {0f,90f,65f,80f,140f,150f}, {0f,45f,35f,55f,80f,95f},
+            {0f,75f,55f,65f,100f,112f}, {0f,45f,35f,55f,80f,95f},
             {0f,0f,0f,2f,6f,10f}, {0f,10f,17.5f,38.75f,64.75f,79f}
         };
         static readonly float[,] RunCapeAmplitude = {
@@ -286,7 +286,10 @@ namespace ForestSpriteCharacter
             float moving = Mathf.Clamp01(flowAmount);
             float jumpOpen = locomotion != null ? locomotion.JumpOpenness : 0f;
             float gait = Mathf.Max(runBlend, jumpOpen);
-            float opening = 14f + Mathf.Lerp(3f, 10f, gait) * Mathf.Sin(wavePhase - .6f) * smooth.wingFlap;
+            // A longer travelling wave avoids a full curl within the short six-segment cape.
+            float guidePhase = wavePhase * .75f;
+            float flapAmplitude = Mathf.Lerp(3f, 10f, gait) * smooth.wingFlap;
+            float opening = 14f + flapAmplitude * Mathf.Sin(guidePhase - .6f);
             WingSpreadDegrees = moving * smooth.wingSpread / .85f * Mathf.Lerp(opening, 9f, jumpOpen) + PresentationSpreadDegrees;
             Vector3 right = guideFrame.InverseTransformDirection(simulationRoot.right).normalized;
             Vector3 forward = guideFrame.InverseTransformDirection(simulationRoot.forward).normalized;
@@ -307,14 +310,19 @@ namespace ForestSpriteCharacter
                     // Spread keeps its envelope; the material arc uses the full six-segment profile.
                     float envelope = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.25f, .55f, u));
                     float mean = Mathf.Lerp(WalkCapeMean[family,s], RunCapeMean[family,s], gait);
+                    // The two sides follow slightly different crests; the collar remains pinned.
+                    float phase = guidePhase - s * .62f + side * .65f;
                     float wave = Mathf.Lerp(WalkCapeAmplitude[family,s], RunCapeAmplitude[family,s], gait)
-                        * Mathf.Sin(wavePhase - s * 1.05f);
+                        * Mathf.Sin(phase) * Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0, .55f, u));
                     float theta = moving * Mathf.Lerp(.5f, 1.125f, smooth.lift) *
                         (mean * smooth.sCurve / .7f + wave * smooth.waveAmplitude / .07f);
                     if (s > 0) theta += jumpOpen * 12f * u;
                     GuideTangentDegrees[d * guideSegments + s] = theta;
+                    float sideOpening = 14f + flapAmplitude * Mathf.Sin(phase - .6f);
+                    float sideSpread = moving * smooth.wingSpread / .85f * Mathf.Lerp(sideOpening, 9f, jumpOpen)
+                        + PresentationSpreadDegrees;
                     Quaternion rotation = Quaternion.AngleAxis(theta, d == 3 ? -right : right)
-                        * Quaternion.AngleAxis(WingSpreadDegrees * side * envelope, forward);
+                        * Quaternion.AngleAxis(sideSpread * side * envelope, forward);
                     Vector3 restSegment = guideRestPoints[first + s + 1] - guideRestPoints[first + s];
                     Vector3 next = point + rotation * restSegment;
                     if (s > 1) guideNodes[first + s].localRotation = Quaternion.Slerp(previous, rotation, .5f);

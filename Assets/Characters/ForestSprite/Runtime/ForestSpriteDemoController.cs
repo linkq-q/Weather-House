@@ -22,6 +22,9 @@ namespace ForestSpriteCharacter
         [HideInInspector] public float originalWalkCycleDistance = .264f;
         [HideInInspector] public float walkCycleDistance = .95f;
         [HideInInspector] public float runCycleDistance = 1.230769f;
+        public bool lightMovingLanding;
+        public bool GaitHopsActive => gaitHops;
+        public float GaitHopsProgress => gaitHops ? (gaitHopIndex + JumpPhase) * .5f : 0f;
         public float jumpHeight = .48f;
         public float gravity = -8f;
         public float cameraHeight = .8f;
@@ -36,7 +39,7 @@ namespace ForestSpriteCharacter
         public float VerticalSpeed => verticalSpeed;
         public Vector3 ActualVelocity { get; private set; }
         public float JumpPhase { get; private set; }
-        public float JumpOpenness => CurrentState == "Jump" ?
+        public float JumpOpenness => (CurrentState == "Jump" || gaitHopFlight) ?
             Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.16f, .38f, JumpPhase)) *
             (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.78f, 1f, JumpPhase))) : 0f;
         public bool ScriptedInput { get; private set; }
@@ -61,6 +64,12 @@ namespace ForestSpriteCharacter
         enum JumpStage { None, Anticipation, Air, Landing }
         JumpStage jumpStage;
         float jumpElapsed;
+        bool gaitHops, gaitHopFlight;
+        float gaitHopSupportY;
+        int gaitHopIndex;
+        Vector3 gaitHopHeading;
+        System.Func<bool> gaitHopClear;
+        const float GaitHopHeight = .065f;
         const float AnticipationDuration = .14f, LandingDuration = .22f;
         GUIStyle label, button;
 
@@ -129,9 +138,13 @@ namespace ForestSpriteCharacter
                 else if (angle >= 135f) turnSeconds = 0f;
             }
             previousIntent = direction;
+            if (gaitHops && (jump || !CanContinueGaitHops(direction, running))) CancelGaitHops();
             AdvanceMovement(direction, running, jump, Time.deltaTime);
             animator.SetFloat("JumpPhase", JumpPhase);
-            string state = jumpStage != JumpStage.None || !IsGrounded ? "Jump" :
+            bool movingLanding = lightMovingLanding && !gaitHops && jumpStage == JumpStage.Landing &&
+                IsGrounded && jumpElapsed >= .055f && direction.sqrMagnitude > .001f;
+            string state = (jumpStage != JumpStage.None && !movingLanding) || !IsGrounded ?
+                (gaitHopFlight ? (gaitHopIndex == 0 ? "HopLeft" : "HopRight") : "Jump") :
                 direction.sqrMagnitude > .001f ? (running ? "Run" : "Walk") : "Idle";
             SwitchState(state);
             if (walkStartSeconds > 0f || walkStopSeconds > 0f)
@@ -165,9 +178,11 @@ namespace ForestSpriteCharacter
             for (int step = 0; step < steps; step++)
             {
                 bool grounded = IsGrounded;
+                if (gaitHops && !CanContinueGaitHops(direction, running)) CancelGaitHops();
                 if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
                 if (jump && grounded && jumpStage != JumpStage.Anticipation)
                 {
+                    gaitHopFlight = false;
                     jumpStage = JumpStage.Anticipation;
                     jumpElapsed = 0f;
                     JumpPhase = 0f;
@@ -177,24 +192,38 @@ namespace ForestSpriteCharacter
                 if (jumpStage == JumpStage.Anticipation)
                 {
                     jumpElapsed += dt;
-                    JumpPhase = .22f * Mathf.Clamp01(jumpElapsed / AnticipationDuration);
-                    if (jumpElapsed >= AnticipationDuration)
+                    float anticipation = gaitHopFlight ? .06f : AnticipationDuration;
+                    JumpPhase = .22f * Mathf.Clamp01(jumpElapsed / anticipation);
+                    if (jumpElapsed >= anticipation)
                     {
-                        verticalSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
-                        jumpStage = JumpStage.Air;
+                        // Every optional impulse rechecks current input, water and the actual supporting contact.
+                        if (gaitHops && (!grounded || !CanContinueGaitHops(direction, running)))
+                        { CancelGaitHops(); }
+                        else
+                        {
+                            if (gaitHops) gaitHopSupportY = transform.position.y;
+                            verticalSpeed = Mathf.Sqrt(-2f * gravity * (gaitHopFlight ? GaitHopHeight : jumpHeight));
+                            jumpStage = JumpStage.Air;
+                        }
                     }
                 }
                 else if (jumpStage == JumpStage.Landing)
                 {
                     jumpElapsed += dt;
-                    JumpPhase = Mathf.Lerp(.78f, 1f, jumpElapsed / LandingDuration);
-                    if (jumpElapsed >= LandingDuration) jumpStage = JumpStage.None;
+                    float landing = gaitHopFlight ? .06f : LandingDuration;
+                    JumpPhase = Mathf.Lerp(.78f, 1f, jumpElapsed / landing);
+                    if (jumpElapsed >= landing)
+                    {
+                        if (gaitHops && gaitHopIndex == 0 && grounded && CanContinueGaitHops(direction, running))
+                        { gaitHopIndex = 1; jumpStage = JumpStage.Anticipation; jumpElapsed = JumpPhase = 0f; }
+                        else { jumpStage = JumpStage.None; gaitHops = gaitHopFlight = false; gaitHopClear = null; }
+                    }
                 }
                 else if (!grounded && jumpStage == JumpStage.None)
                     jumpStage = JumpStage.Air;
                 if (jumpStage == JumpStage.Air)
                 {
-                    float launchSpeed = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                    float launchSpeed = Mathf.Sqrt(-2f * gravity * (gaitHopFlight ? GaitHopHeight : jumpHeight));
                     // The pose follows actual upward/downward velocity, so ceilings and early landing remain coherent.
                     float flight = Mathf.Clamp01(.5f - .5f * verticalSpeed / Mathf.Max(.01f, launchSpeed));
                     JumpPhase = Mathf.Lerp(.22f, .78f, flight);
@@ -216,7 +245,11 @@ namespace ForestSpriteCharacter
                 }
                 RefreshAnimalContacts?.Invoke(requestedAnimalY);
                 collision |= AnimalCollisionFlags;
-                if ((collision & CollisionFlags.Above) != 0 && verticalSpeed > 0f) verticalSpeed = 0f;
+                if ((collision & CollisionFlags.Above) != 0)
+                { if (verticalSpeed > 0f) verticalSpeed = 0f; if (gaitHops) CancelGaitHops(); }
+                // A light gait hop cannot schedule its next impulse after falling below its takeoff support.
+                if (gaitHops && jumpStage == JumpStage.Air && verticalSpeed <= 0f &&
+                    transform.position.y < gaitHopSupportY - controller.skinWidth) CancelGaitHops();
                 if (IsGrounded && verticalSpeed <= 0f && jumpStage == JumpStage.Air)
                 {
                     jumpStage = JumpStage.Landing;
@@ -225,6 +258,29 @@ namespace ForestSpriteCharacter
                 }
             }
             ActualVelocity = deltaTime > 0f ? (transform.position - positionBeforeMove) / deltaTime : Vector3.zero;
+        }
+
+        public bool TryBeginGaitHops(System.Func<bool> clear)
+        {
+            if (gaitHops || jumpStage != JumpStage.None || !IsGrounded || CurrentState != "Walk" ||
+                InputBlocked || JumpBlocked || MovementIntent.sqrMagnitude <= .001f || clear == null || !clear() ||
+                !animator.HasState(0, Animator.StringToHash("HopLeft")) || !animator.HasState(0, Animator.StringToHash("HopRight"))) return false;
+            gaitHops = gaitHopFlight = true; gaitHopIndex = 0; gaitHopHeading = MovementIntent.normalized; gaitHopClear = clear;
+            jumpStage = JumpStage.Anticipation; jumpElapsed = JumpPhase = 0f;
+            return true;
+        }
+
+        bool CanContinueGaitHops(Vector3 direction, bool running) => !running && !InputBlocked && !JumpBlocked &&
+            direction.sqrMagnitude > .001f && Vector3.Angle(gaitHopHeading, direction) < 20f &&
+            gaitHopClear != null && gaitHopClear();
+
+        public void CancelGaitHops()
+        {
+            if (!gaitHops) return;
+            gaitHops = false; gaitHopClear = null;
+            // An airborne hop keeps its existing velocity, collisions and gravity; only later impulses are revoked.
+            if (jumpStage == JumpStage.Anticipation || jumpStage == JumpStage.Landing)
+            { jumpStage = JumpStage.None; gaitHopFlight = false; JumpPhase = 1f; }
         }
 
         Vector3 GroundVelocity(Vector3 direction, bool running, bool grounded, float dt)
@@ -253,6 +309,8 @@ namespace ForestSpriteCharacter
             }
             return groundDirection * groundSpeed;
         }
+
+        void OnDisable() { CancelGaitHops(); }
 
         void LateUpdate()
         {
@@ -286,7 +344,8 @@ namespace ForestSpriteCharacter
             if (IsGait(CurrentState) && IsGait(state))
                 phase = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
             if (CurrentState.Length == 0) animator.Play(state, 0, 0f);
-            else if (state == "Jump") animator.CrossFadeInFixedTime(state, .04f, 0, 0f);
+            else if (state == "Jump" || state == "HopLeft" || state == "HopRight") animator.CrossFadeInFixedTime(state, .04f, 0, 0f);
+            else if (lightMovingLanding && CurrentState == "Jump" && IsGait(state)) animator.CrossFadeInFixedTime(state, .1f, 0, 0f);
             else animator.CrossFade(state, .12f, 0, phase);
             CurrentState = state;
         }
@@ -325,6 +384,7 @@ namespace ForestSpriteCharacter
             ActualVelocity = MovementIntent = previousIntent = groundDirection = Vector3.zero;
             groundSpeed = stopElapsed = stopSpeed = turnSeconds = 0f;
             jumpStage = JumpStage.None;
+            gaitHops = gaitHopFlight = false; gaitHopClear = null;
             jumpElapsed = JumpPhase = 0f;
             animator.SetFloat("JumpPhase", 0f);
             if (secondaryMotion != null) secondaryMotion.ResetSimulation();

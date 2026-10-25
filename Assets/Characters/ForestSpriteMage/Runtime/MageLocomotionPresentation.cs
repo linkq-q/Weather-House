@@ -17,6 +17,7 @@ namespace ForestSpriteCharacter
         public float ObservationWeight { get; private set; }
         public float MaximumTurnLean { get; private set; }
         public bool recordedMotionEnabled;
+        public bool fullBodyHopsEnabled;
         [Range(0f, .5f)] public float recordedVariationWeight = .3f;
         public string CurrentAccent { get; private set; } = "";
         public float AccentPhase { get; private set; }
@@ -43,6 +44,7 @@ namespace ForestSpriteCharacter
         void OnDisable()
         {
             if(player)player.MovementUpdated-=AfterMovement;
+            if(player&&fullBodyHopsEnabled)player.CancelGaitHops();
             CancelAccent(true);ClearVariation();RestoreSupport();
             if(player&&player.capeCloth)player.capeCloth.PresentationOpenness=0;
         }
@@ -79,9 +81,12 @@ namespace ForestSpriteCharacter
             RestoreSupport();CacheSoles();
             var animator=player?player.animator:null;
             if(!hips||!capsule||soles==null||soles.Length!=2||!animator||!animator.isActiveAndEnabled||
-                !player.IsGrounded||player.CurrentState=="Jump"||!animator.IsInTransition(0))return;
+                !player.IsGrounded||!animator.IsInTransition(0))return;
             var current=animator.GetCurrentAnimatorStateInfo(0);var next=animator.GetNextAnimatorStateInfo(0);
-            if(!IsGroundPose(current)||!IsGroundPose(next))return;
+            bool landing = player.lightMovingLanding && IsJumpPose(current) && IsGroundPose(next);
+            bool takeoff = player.lightMovingLanding && player.JumpPhase<=.22f &&
+                (IsGroundPose(current)||IsJumpPose(current)) && (IsGroundPose(next)||IsJumpPose(next));
+            if(!landing && !takeoff && (!IsGroundPose(current)||!IsGroundPose(next)))return;
             float lowest=float.PositiveInfinity;
             foreach(var sole in soles)
             {
@@ -103,6 +108,8 @@ namespace ForestSpriteCharacter
             hips.position+=Vector3.up*TransitionSupportLift;
             hipAfterSupport=hips.localPosition;
         }
+
+        static bool IsJumpPose(AnimatorStateInfo state)=>state.IsName("Jump")||state.IsName("HopLeft")||state.IsName("HopRight");
 
         static bool IsGroundPose(AnimatorStateInfo state)=>state.IsName("Idle")||state.IsName("Walk")||state.IsName("Run")||
             state.IsName("CMU_Start")||state.IsName("CMU_Stop")||state.IsName("CMU_TurnLeft90")||state.IsName("CMU_TurnRight90");
@@ -138,10 +145,21 @@ namespace ForestSpriteCharacter
             if(!player||!player.animator)return;
             if(!recordedMotionEnabled)
             {
-                if(wasRecorded){CancelAccent(true);ClearVariation();wasRecorded=false;}
+                if(wasRecorded){player.CancelGaitHops();CancelAccent(true);ClearVariation();wasRecorded=false;}
                 return;
             }
             wasRecorded=true;
+            if(fullBodyHopsEnabled && player.GaitHopsActive && !CanBeginGaitHop())
+            {player.CancelGaitHops();ClearVariation();}
+            if(fullBodyHopsEnabled && player.GaitHopsActive)
+            {
+                ObservationWeight=Mathf.Sin(player.GaitHopsProgress*Mathf.PI);
+                VariationWeight=recordedVariationWeight*ObservationWeight;
+                if(variationLayer>=0)player.animator.SetLayerWeight(variationLayer,0);
+                previousIntent=player.MovementIntent;previousMotionState=player.CurrentState;
+                previousMotionSpeed=Vector3.ProjectOnPlane(player.ActualVelocity,Vector3.up).magnitude;
+                return;
+            }
             var animator=player.animator;
             Vector3 intent=player.MovementIntent;
             float speed=Vector3.ProjectOnPlane(player.ActualVelocity,Vector3.up).magnitude;
@@ -214,8 +232,19 @@ namespace ForestSpriteCharacter
             if(variationLayer>=0&&player&&player.animator)player.animator.SetLayerWeight(variationLayer,0);
         }
 
+        bool CanBeginGaitHop()=>isActiveAndEnabled && recordedMotionEnabled && fullBodyHopsEnabled &&
+            player && player.isActiveAndEnabled && Vector3.ProjectOnPlane(player.ActualVelocity,Vector3.up).magnitude>.2f && !InWater();
+
         void UpdateRecordedVariation(bool steady,float dt)
         {
+            if(fullBodyHopsEnabled)
+            {
+                if(observing){observing=false;VariationWeight=ObservationWeight=0;Schedule();}
+                if(!steady)return;
+                if(Time.time>=nextObservation && player.TryBeginGaitHops(CanBeginGaitHop))
+                {observing=true;ObservationsStarted++;ObservationWeight=VariationWeight=0;}
+                return;
+            }
             if(!steady||variationLayer<0){ClearVariation();return;}
             if(!observing&&Time.time>=nextObservation)
             {

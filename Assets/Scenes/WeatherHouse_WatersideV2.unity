@@ -2117,6 +2117,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1115665798342882101, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: a3344248b2b51b549ac521e54a08fab4, type: 2}
     - target: {fileID: 2355860801814015649, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
       propertyPath: m_Name
@@ -2131,6 +2136,11 @@ PrefabInstance:
         type: 3}
       propertyPath: showControls
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615942017193634810, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
+        type: 3}
+      propertyPath: lightMovingLanding
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3615942017193634810, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
@@ -2150,7 +2160,12 @@ PrefabInstance:
     - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
       propertyPath: settings.waveAmplitude
-      value: 0.02
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5043983565734826783, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
+        type: 3}
+      propertyPath: fullBodyHopsEnabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7072265104376383078, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
