@@ -19,6 +19,9 @@ namespace ForestSpriteCharacter
         [Range(0f, .12f)] public float walkStopSeconds;
         public Vector3 MovementIntent { get; private set; }
         public event System.Action<float> MovementUpdated;
+        // Optional character pose selection; no handler preserves the original motion path.
+        public System.Action PrepareJumpPose { get; set; }
+        public System.Func<string, float> LandingPoseTime { get; set; }
         [HideInInspector] public float originalWalkCycleDistance = .264f;
         [HideInInspector] public float walkCycleDistance = .95f;
         [HideInInspector] public float runCycleDistance = 1.230769f;
@@ -182,6 +185,7 @@ namespace ForestSpriteCharacter
                 if (grounded && verticalSpeed < 0f) verticalSpeed = -2f;
                 if (jump && grounded && jumpStage != JumpStage.Anticipation)
                 {
+                    PrepareJumpPose?.Invoke();
                     gaitHopFlight = false;
                     jumpStage = JumpStage.Anticipation;
                     jumpElapsed = 0f;
@@ -344,8 +348,10 @@ namespace ForestSpriteCharacter
             if (IsGait(CurrentState) && IsGait(state))
                 phase = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
             if (CurrentState.Length == 0) animator.Play(state, 0, 0f);
-            else if (state == "Jump" || state == "HopLeft" || state == "HopRight") animator.CrossFadeInFixedTime(state, .04f, 0, 0f);
-            else if (lightMovingLanding && CurrentState == "Jump" && IsGait(state)) animator.CrossFadeInFixedTime(state, .1f, 0, 0f);
+            else if (state == "Jump" || state == "HopLeft" || state == "HopRight")
+                animator.CrossFadeInFixedTime(state, state == "Jump" && PrepareJumpPose != null ? .12f : .04f, 0, 0f);
+            else if (lightMovingLanding && CurrentState == "Jump" && IsGait(state))
+                animator.CrossFadeInFixedTime(state, .1f, 0, LandingPoseTime != null ? Mathf.Max(0f, LandingPoseTime(state)) : 0f);
             else animator.CrossFade(state, .12f, 0, phase);
             CurrentState = state;
         }
