@@ -189,7 +189,7 @@ namespace WeatherHouse.WatersideV2
             new[] { At(39f,37f,6.2f), At(38f,42f,5f) },
             new[] { At(69f,42f,8f), At(72f,37f,10f) },
             new[] { At(74f,55f,3.4f), At(80f,53f,4f), At(82f,52f,4f) },
-            new[] { At(73f,61f,2.5f), At(82f,61f,2f), At(82f,69f,1.4f), At(85f,77f,1.5f), At(93f,85f,1.5f), At(84f,86f,1.5f), At(76f,84f,1.5f), At(66f,76f,1.6f) },
+            new[] { At(73f,61f,2.5f), At(82f,61f,2f), At(82f,69f,1.4f), At(85f,77f,1.5f), new Vector3(71f,1.4998474f,-61.5f), At(84f,86f,1.5f), At(76f,84f,1.5f), At(66f,76f,1.6f) },
             new[] { At(24f,75f,3f), At(19f,79f,2.5f), At(24f,83f,1.7f), At(34f,86f,1.3f), At(43f,92f,1.2f), At(48f,89f,1.2f), At(45f,84f,1.2f) }
         };
         public static readonly Vector3[][] Routes = SmoothRoutes();

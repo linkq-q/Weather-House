@@ -21,11 +21,11 @@ namespace WeatherHouse.WatersideV2
             new[] { new Vector3(-19.8f,6.2f,23.4f), new Vector3(-21.6f,5f,14.4f) },
             new[] { new Vector3(34.2f,8f,14.4f), new Vector3(39.6f,10f,23.4f) },
             new[] { new Vector3(43.2f,3.4f,-9f), new Vector3(54f,4f,-5.4f), new Vector3(57.6f,4f,-3.6f) },
-            new[] { new Vector3(41.4f,2.5f,-19.8f), new Vector3(57.6f,2f,-19.8f), new Vector3(57.6f,1.4f,-34.2f), new Vector3(63f,1.5f,-48.6f), new Vector3(77.4f,1.5f,-63f), new Vector3(61.2f,1.5f,-64.8f), new Vector3(46.8f,1.5f,-61.2f), new Vector3(28.8f,1.6f,-46.8f) },
+            new[] { new Vector3(41.4f,2.5f,-19.8f), new Vector3(57.6f,2f,-19.8f), new Vector3(57.6f,1.4f,-34.2f), new Vector3(63f,1.5f,-48.6f), new Vector3(71f,1.4998474f,-61.5f), new Vector3(61.2f,1.5f,-64.8f), new Vector3(46.8f,1.5f,-61.2f), new Vector3(28.8f,1.6f,-46.8f) },
             new[] { new Vector3(-46.8f,3f,-45f), new Vector3(-55.8f,2.5f,-52.2f), new Vector3(-46.8f,1.7f,-59.4f), new Vector3(-28.8f,1.3f,-64.8f), new Vector3(-12.6f,1.2f,-75.6f), new Vector3(-3.6f,1.2f,-70.2f), new Vector3(-9f,1.2f,-61.2f) },
             new[] { new Vector3(23.4f,0f,25.2f), new Vector3(34.2f,0f,14.4f), new Vector3(40f,6.4245758f,7.1f), new Vector3(40.3f,5.9725151f,3.7f), new Vector3(39.6f,0f,1.8f), new Vector3(43.2f,0f,-9f), new Vector3(41.4f,0f,-19.8f), new Vector3(36f,0f,-32.4f), new Vector3(28.8f,0f,-46.8f), new Vector3(19.8f,0f,-55.8f) }
         };
-        public static readonly Vector3[] DrySpine = { new Vector3(57.6f,0f,-19.8f), new Vector3(57.6f,0f,-34.2f), new Vector3(63f,0f,-48.6f), new Vector3(77.4f,0f,-63f) };
+        public static readonly Vector3[] DrySpine = { new Vector3(57.6f,0f,-19.8f), new Vector3(57.6f,0f,-34.2f), new Vector3(63f,0f,-48.6f), new Vector3(71f,0f,-61.5f) };
         public static readonly Vector3[][] Regions = {
             new[] { new Vector3(-77.4f,0f,73.8f), new Vector3(-46.8f,0f,77.4f), new Vector3(-27f,0f,68.4f), new Vector3(-19.8f,0f,50.4f), new Vector3(-27f,0f,30.6f), new Vector3(-36f,0f,18f), new Vector3(-32.4f,0f,3.6f), new Vector3(-41.4f,0f,-12.6f), new Vector3(-54f,0f,-18f), new Vector3(-68.4f,0f,-39.6f), new Vector3(-77.4f,0f,-27f), new Vector3(-75.6f,0f,3.6f), new Vector3(-81f,0f,30.6f) },
             new[] { new Vector3(9f,0f,72f), new Vector3(39.6f,0f,77.4f), new Vector3(66.6f,0f,64.8f), new Vector3(66.6f,0f,37.8f), new Vector3(61.2f,0f,16.2f), new Vector3(68.4f,0f,3.6f), new Vector3(52.2f,0f,-5.4f), new Vector3(39.6f,0f,1.8f), new Vector3(27f,0f,10.8f), new Vector3(18f,0f,27f), new Vector3(9f,0f,41.4f) },
