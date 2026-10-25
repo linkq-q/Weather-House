@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace WeatherHouse.WatersideV2.Editor
 {
-    // Visual-only A/B. The imported materials, original colliders and grass are never edited.
+    // Original materials/colliders/grass are preserved; the accepted visual can add its own matching collider.
     public static class WatersideDDrivePropsTrial
     {
         const string RootName = "AncientRuins 低墙 A_B 试验";
@@ -129,8 +129,14 @@ namespace WeatherHouse.WatersideV2.Editor
             Trial trial = ReadTrial(scene);
             Transform wall = Resolve<Transform>(trial.wallId);
             GameObject root = FindRoot(scene);
-            if (!wall || !root || root.GetComponentsInChildren<Collider>(true).Length != 0)
-                throw new InvalidOperationException("Trial root/wall missing or trial introduced colliders.");
+            if (!wall || !root)
+                throw new InvalidOperationException("Trial root/wall missing.");
+            foreach (Collider c in root.GetComponentsInChildren<Collider>(true))
+            {
+                var mesh = c.GetComponent<MeshFilter>();
+                if (!(c is MeshCollider matched) || !mesh || matched.sharedMesh != mesh.sharedMesh || !c.enabled || c.isTrigger)
+                    throw new InvalidOperationException("Accepted wall collider must match its exact visible mesh.");
+            }
             if (trial.renderers.Any(s => !Resolve<MeshRenderer>(s.id) || Resolve<MeshRenderer>(s.id).enabled))
                 throw new InvalidOperationException("An original wall renderer is still visible.");
             if (ColliderSignature(wall) != trial.colliderSignature || GrassSignature(scene) != trial.grassSignature)
@@ -148,7 +154,35 @@ namespace WeatherHouse.WatersideV2.Editor
                 "; normalScale=" + material.GetFloat("_BumpScale") + "; smoothness=" + material.GetFloat("_Smoothness");
             return "PASS visual-only AncientRuins trial view " + trial.view + "\nasset=" + trial.asset +
                 "\noriginal=" + trial.localEnvelope + "\ncandidate=" + candidate + materialReport +
-                "\nOriginal colliders and all stone-top grass unchanged; no new colliders.\nScene not saved. Compare the same camera/mood before keeping; Restore() returns original visuals.";
+                "\nOriginal colliders and all stone-top grass unchanged; matching visual colliders=" + root.GetComponentsInChildren<Collider>(true).Length + ".\nScene not saved. Compare the same camera/mood before keeping; Restore() returns original visuals.";
+        }
+
+        public static string MatchAcceptedWallCollider()
+        {
+            WatersideSceneBuilder.RequireSaved();
+            Scene scene = RequireScene();
+            Trial trial = ReadTrial(scene);
+            Transform original = Resolve<Transform>(trial.wallId);
+            GameObject root = FindRoot(scene);
+            if (!original || !root) throw new InvalidOperationException("Accepted wall is missing.");
+            string originalCollision = ColliderSignature(original), grassBefore = GrassSignature(scene);
+            MeshFilter mesh = root.GetComponentsInChildren<MeshFilter>().Single();
+            MeshCollider collider = mesh.GetComponent<MeshCollider>();
+            if (!collider) collider = Undo.AddComponent<MeshCollider>(mesh.gameObject);
+            Undo.RecordObject(collider, "Match accepted wall collision to visible stone");
+            collider.sharedMesh = mesh.sharedMesh; collider.convex = false;
+            collider.enabled = true; collider.isTrigger = false;
+            Physics.SyncTransforms();
+            Bounds visible = mesh.GetComponent<Renderer>().bounds;
+            if (Vector3.Distance(collider.bounds.center, visible.center) > .002f ||
+                Vector3.Distance(collider.bounds.size, visible.size) > .005f)
+                throw new InvalidOperationException("Wall collision does not match the visible bounds.");
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            if (ColliderSignature(original) != originalCollision || GrassSignature(scene) != grassBefore)
+                throw new InvalidOperationException("Wall repair changed existing colliders or plants.");
+            string report = "PASS exact same mesh/transform; collider bounds match visible stone; existing stone colliders, transforms and plants retained.\nmesh=" + AssetDatabase.GetAssetPath(mesh.sharedMesh) + "\nworldBounds=" + visible;
+            File.WriteAllText("WatersideV3Review/rock-collision/wall-fix.txt", report);
+            return report;
         }
 
         static Trial ReadTrial(Scene scene)

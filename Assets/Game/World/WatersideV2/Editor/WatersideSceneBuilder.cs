@@ -162,6 +162,7 @@ namespace WeatherHouse.WatersideV2.Editor
                     var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab,parent);
                     var agent = go.GetComponent<WildlifeAgent>(); agent.spawnId = agents.Count; agent.groupId = group;
                     agent.scaleRange = WatersideAnimalScale.ForNewInstance(species, agent.scaleRange);
+                    if (species == "fox") agent.routineMode = WildlifeRoutineMode.Solitary;
                     agent.habitatCenter = center; agent.habitatRadius = radius; agent.waterAreaIndex = water;
                     bool legal = false; Vector3 p = center;
                     for (int attempt = 0; attempt < 700; attempt++)

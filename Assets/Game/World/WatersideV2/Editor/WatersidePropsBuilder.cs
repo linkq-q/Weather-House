@@ -24,6 +24,24 @@ namespace WeatherHouse.WatersideV2.Editor
         static Material timber;
         static Mesh lanternHead;
         static Material[] lanternMaterials;
+        static bool reuseMaterials;
+
+        // Incremental dressing uses the approved materials without rebuilding any authored scene group.
+        public static void PrepareAdditions(Terrain terrain)
+        {
+            ground = terrain; output = WatersideSceneBuilder.Output + "/Props/Props";
+            Materials.Clear(); reuseMaterials = true;
+        }
+
+        public static GameObject CreateAddition(string asset, string label, Vector3 point, float height,
+            float yaw, Transform parent, bool grounded = true)
+        {
+            var go = Instantiate(asset, label, height, yaw, parent);
+            Bounds b = Bounds(go);
+            go.transform.position += new Vector3(point.x-b.center.x,
+                (grounded ? Ground(point)-.015f : point.y)-b.min.y, point.z-b.center.z);
+            return go;
+        }
 
         public static GameObject CreateFreeBridge(string filename, Transform parent, string outputFolder)
         {
@@ -59,6 +77,7 @@ namespace WeatherHouse.WatersideV2.Editor
             output = outputFolder + "/Props";
             Directory.CreateDirectory(output);
             Materials.Clear(); Occupied.Clear();
+            reuseMaterials = false;
             lanternHead = null; lanternMaterials = null;
             timberMesh = MakeTimber();
             timber = Adapt(Required<Material>(Pack + "Materials/Witches House/Fences.mat"));
@@ -568,6 +587,12 @@ namespace WeatherHouse.WatersideV2.Editor
                 return Required<Material>("Assets/Experiments/Vegetation/Generated/Backdrop_Tall_Fir_Branch.mat");
             Material found;
             if (Materials.TryGetValue(source, out found)) return found;
+            string existingGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(source));
+            if (reuseMaterials && existingGuid.Length >= 8)
+            {
+                found = AssetDatabase.LoadAssetAtPath<Material>(output + "/" + source.name + "_" + existingGuid.Substring(0,8) + ".mat");
+                if (found) { Materials[source] = found; return found; }
+            }
             var mat = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = source.name, enableInstancing = true };
             Texture albedo = Texture(source, "_Albedo", "_BaseMap", "_MainTex");
             mat.SetTexture("_BaseMap", albedo);

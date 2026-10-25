@@ -49,8 +49,9 @@ namespace WeatherHouse.WatersideV2.Editor
             var mood = Mood();
             var material = Material();
             var renderers = WaterRenderers(material);
-            if (renderers.Length == 0 || !Equal(material.GetColor(Shallow), Candidate))
-                throw new InvalidOperationException("The V2 shallow-color candidate has not been applied.");
+            Color currentPalette = material.GetColor(Shallow);
+            if (renderers.Length == 0)
+                throw new InvalidOperationException("The V2 water renderers are missing.");
             var scene = SceneManager.GetActiveScene();
             bool dirty = scene.isDirty;
             var original = mood.CaptureState();
@@ -68,7 +69,7 @@ namespace WeatherHouse.WatersideV2.Editor
                     foreach (var renderer in renderers)
                     {
                         renderer.GetPropertyBlock(block);
-                        if (!block.HasColor(Shallow) || !Equal(block.GetColor(Shallow), Candidate * tint))
+                        if (!block.HasColor(Shallow) || !Equal(block.GetColor(Shallow), currentPalette * tint))
                             throw new InvalidOperationException("A stale water palette survived the " + mode + " capture transition: " + renderer.name);
                         samples++;
                     }
@@ -78,7 +79,7 @@ namespace WeatherHouse.WatersideV2.Editor
             if (scene.isDirty != dirty) throw new InvalidOperationException("Water palette checks changed the scene dirty state.");
             string report = "PASS: V2 shallow-water palette and repeated capture-state transitions.\n" +
                 "UTC=" + DateTime.UtcNow.ToString("o") + "\nMaterial=" + MaterialPath +
-                "\nShallowColor=" + Candidate + "\nRenderers=" + renderers.Length + "\nPaletteChecks=" + samples +
+                "\nShallowColor=" + currentPalette + "\nRenderers=" + renderers.Length + "\nPaletteChecks=" + samples +
                 "\nSceneDirtyStateUnchanged=True\nVisualAcceptance=Pending same-camera A/B; this check does not prove image quality.\n";
             Directory.CreateDirectory(Review);
             File.WriteAllText(Review + "/palette-checks.txt", report);

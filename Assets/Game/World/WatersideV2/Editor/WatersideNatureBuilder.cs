@@ -84,11 +84,8 @@ namespace WeatherHouse.WatersideV2.Editor
 
         static void Water(Terrain terrain, Transform parent, string folder)
         {
-            var material = Store(new Material(AssetDatabase.LoadAssetAtPath<Material>(Meadow + "PainterlyWater.mat")), folder + "/Water.mat");
-            // Dense submerged grass needs a softer foam band than the small meadow test pond.
-            material.SetFloat("_ShoreStrength", .42f);
-            material.SetFloat("_ShoreWidth", .11f);
-            EditorUtility.SetDirty(material);
+            // The authored V2 material is the source of truth, including Inspector tuning.
+            var material = WatersideWaterAuthoring.GetOrCreateMaterial(folder + "/Water.mat", Meadow + "PainterlyWater.mat");
             // Partition the connected surface by river segment; each segment has its own reflection plane.
             const float step = 1;
             const int cells = 240;
@@ -193,6 +190,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 reflection.reflectionRendererIndex = 2; // Dedicated reflection slot in each project URP quality asset.
                 var surface = water.AddComponent<WatersideWaterSurface>();surface.section=part-1;
                 var interaction=water.AddComponent<HillsideWaterInteraction>();interaction.terrain=terrain;interaction.waterRenderer=renderer;interaction.surface=surface;
+                WatersideWaterAuthoring.ConfigureNewInteraction(interaction);
                 interaction.simulationShader=AssetDatabase.LoadAssetAtPath<Shader>("Assets/Experiments/Vegetation/Shaders/WaterInteractionNormals.shader");
             }
         }
