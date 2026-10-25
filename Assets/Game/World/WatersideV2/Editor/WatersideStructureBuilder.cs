@@ -81,6 +81,7 @@ namespace WeatherHouse.WatersideV2.Editor
                         Block("桥栏石柱", post + Vector3.up * .38f, new Vector3(.34f, .86f, .4f), yaw, timber ? wood : stone, root, true);
                     }
             }
+            if (crossing.Kind == "MouthBridge") RuralMouthBridgeEntrySteps.Ensure(root, terrain);
             if (!stones && !timber)
             {
                 // Voussoirs follow the arch instead of filling the stream with a rectangular foundation.
