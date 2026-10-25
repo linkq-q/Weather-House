@@ -3,6 +3,9 @@ Shader "Weather House/Oil Paint Surface"
     Properties
     {
         _BaseColor("Base Pigment", Color) = (.46,.56,.34,1)
+        _BaseMap("Original Color Texture", 2D) = "white" {}
+        _TextureInfluence("Original Texture Retention", Range(0,1)) = 0
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull("Render Faces", Float) = 2
         _ShadowColor("Cool Shadow Pigment", Color) = (.19,.30,.29,1)
         _HighlightColor("Warm Light Pigment", Color) = (.89,.79,.48,1)
         _BrushScale("Brush Size Frequency (Object Space)", Range(.5,24)) = 8
@@ -25,7 +28,7 @@ Shader "Weather House/Oil Paint Surface"
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" }
-        Cull Back
+        Cull [_Cull]
         ZWrite On
 
         HLSLINCLUDE
@@ -41,8 +44,12 @@ Shader "Weather House/Oil Paint Surface"
             float _ColorSteps, _Impasto, _Smoothness;
             float _UseBrushAtlas, _StrokeScatter;
             float4 _BrushAtlas_TexelSize;
+            float4 _BaseMap_ST;
+            float _TextureInfluence, _Cull;
         CBUFFER_END
 
+        TEXTURE2D(_BaseMap);
+        SAMPLER(sampler_BaseMap);
         TEXTURE2D(_BrushAtlas);
         SAMPLER(sampler_BrushAtlas);
 
@@ -50,6 +57,7 @@ Shader "Weather House/Oil Paint Surface"
         {
             float4 positionOS : POSITION;
             float3 normalOS : NORMAL;
+            float2 uv : TEXCOORD0;
             UNITY_VERTEX_INPUT_INSTANCE_ID
         };
 
@@ -198,6 +206,7 @@ Shader "Weather House/Oil Paint Surface"
                 half3 normalOS : TEXCOORD3;
                 half fog : TEXCOORD4;
                 float4 shadowCoord : TEXCOORD5;
+                float2 uv : TEXCOORD6;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
             Varyings ForwardVert(Attributes input)
@@ -213,6 +222,7 @@ Shader "Weather House/Oil Paint Surface"
                 output.normalOS = input.normalOS;
                 output.fog = ComputeFogFactor(position.positionCS.z);
                 output.shadowCoord = GetShadowCoord(position);
+                output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 return output;
             }
             half4 ForwardFrag(Varyings input) : SV_Target
@@ -250,6 +260,10 @@ Shader "Weather House/Oil Paint Surface"
                 float dryBreak = lerp(1,saturate(.55 + brush.y * .45 - brush.w * .70),_BrushStrength);
                 float edgeBlend = saturate(max(formEdge,castEdge) * dryBreak * _ShadowEdgeStrength);
                 palette = lerp(palette,_ShadowEdgeColor.rgb,edgeBlend);
+
+                // Opt-in texture tint preserves the original UV artwork; zero retains the lab palette exactly.
+                if (_TextureInfluence > 0)
+                    palette *= lerp(half3(1,1,1), SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv).rgb, _TextureInfluence);
 
                 half3 ambient = max(SampleSH(normalWS),0);
                 half3 fill = max(ambient * .8,half3(_ShadowFill,_ShadowFill,_ShadowFill));
