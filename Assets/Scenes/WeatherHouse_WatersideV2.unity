@@ -2154,13 +2154,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
+      propertyPath: settings.lift
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
+        type: 3}
       propertyPath: settings.wingSpread
       value: 0.95
       objectReference: {fileID: 0}
     - target: {fileID: 4303005510787393310, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
       propertyPath: settings.waveAmplitude
-      value: 0.05
+      value: 0.12
       objectReference: {fileID: 0}
     - target: {fileID: 5043983565734826783, guid: e68f66c36f7fd2e4ab60f0aaca8610c9,
         type: 3}
