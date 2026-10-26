@@ -36,19 +36,20 @@
     "U20",
     "U21"
   ],
-  "targetNotVisibleUiIds": [
+  "targetNotVisibleUiIds": [],
+  "baseTargetNotVisibleUiIds": [
     "U05"
   ],
   "unimplementedUiIds": [
     "U22"
   ],
   "humanAcceptance": "NOT_DONE",
-  "visualInspectionScope": "5 contact sheets, eight specified base-run full-resolution PNGs, and the two adopted full-resolution long-echo/closed-G supplement PNGs. Root also reviewed the base report in a real browser; this does not establish human gameplay acceptance.",
-  "echoDiagnosis": "runner 确实调用 BuildReplyEcho，并把 echoUntil 设为 Time.unscaledTime + 8；HUD 也读取同一时钟。此前公开相遇产生了“这次相遇记在手账里了”状态。GameplayHud.UpdateStatus 保留新状态十秒；存在状态提示时 echoVisible=false，随后 Update 因 statusRoot.activeSelf 隐藏 echoRoot。采图仅等待约 0.15 秒，因此夹具在有效状态提示期间截到了被隐藏的回声。这是采图条件未准备完整，当前两图不能证明短／长回声可见，也没有据此修改生产 UI 的优先级规则。",
+  "visualInspectionScope": "5 contact sheets, eight specified base-run full-resolution PNGs, the two earlier supplement PNGs, and all three latest short/long/closed-G PNGs. Root also reviewed the base report in a real browser; this does not establish human gameplay acceptance.",
+  "echoDiagnosis": "runner 确实调用 BuildReplyEcho，并把 echoUntil 设为 Time.unscaledTime + 8；HUD 也读取同一时钟。此前公开相遇产生了“这次相遇记在手账里了”状态。GameplayHud.UpdateStatus 保留新状态十秒；存在状态提示时 echoVisible=false，随后 Update 因 statusRoot.activeSelf 隐藏 echoRoot。采图仅等待约 0.15 秒，因此夹具在有效状态提示期间截到了被隐藏的回声。这是采图条件未准备完整，基础批两图不能证明短／长回声可见，也没有据此修改生产 UI 的优先级规则。",
   "gaps": [
     {
       "id": "U05",
-      "detail": "基础批两图未见回声；02:32 补拍的长句已经可见并有 ScrollRect，短句仍在截帧前 active 断言失败，没有成功 PNG。真人横向滚动与输入未验收。"
+      "detail": "03:14 补拍已看到短句与长句回声，截帧前可见／原文／长句 ScrollRect 断言通过。基础批两图和02:32短句失败仍保留历史来源；真人横向滚动与输入未验收。"
     },
     {
       "id": "U22",
@@ -76,7 +77,7 @@
     },
     {
       "id": "U20",
-      "detail": "02:32 补图已退出 G，真实雨和世界圈可见；仍缺夜间／阴天、更多坡面与其他分辨率对照，圈线低对比留待美化复核。"
+      "detail": "02:32 与03:14补图均已退出 G，真实雨和世界圈可见；仍缺夜间／阴天、更多坡面与其他分辨率对照，圈线低对比留待美化复核。"
     },
     {
       "id": "U21",
@@ -1310,12 +1311,78 @@
     ],
     "boundary": "Only these two successful PNGs are adopted. Original 53-image manifest/index remain unchanged. Long echo is visible; short echo still has no successful PNG. U20 leaves G without changing production range opacity."
   },
-  "deliveredPngFiles": 55,
+  "latestSupplementSelection": {
+    "sourceRun": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\191357623",
+    "sourceRunShots": 53,
+    "adopted": [
+      {
+        "id": "U05",
+        "state": "short-reply",
+        "file": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\191357623\\U05_short-reply.png",
+        "capturedUtc": "2026-10-26T19:14:07.9264539Z",
+        "capturedHongKong": "2026-10-27 03:14:07.926 +08:00",
+        "entry": "GameplayHud.BuildReplyEcho",
+        "condition": "Short draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed",
+        "source": "",
+        "sourceWrittenUtc": "",
+        "sha256": "0FB91E9518402BD5B5CE043F21EFEDFF0599306AA048380A65438BB1AD1E5B56",
+        "width": 1613,
+        "height": 943,
+        "unityFrame": 137,
+        "fixture": true,
+        "reused": false
+      },
+      {
+        "id": "U05",
+        "state": "long-reply",
+        "file": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\191357623\\U05_long-reply.png",
+        "capturedUtc": "2026-10-26T19:14:08.3222413Z",
+        "capturedHongKong": "2026-10-27 03:14:08.322 +08:00",
+        "entry": "GameplayHud.BuildReplyEcho",
+        "condition": "Long draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed",
+        "source": "",
+        "sourceWrittenUtc": "",
+        "sha256": "AEBF1F24727D63C32C92050A8F95801D6021B09EAEA479623B3FE0BFD3632BD7",
+        "width": 1613,
+        "height": 943,
+        "unityFrame": 143,
+        "fixture": true,
+        "reused": false
+      },
+      {
+        "id": "U20",
+        "state": "rain-and-range",
+        "file": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\191357623\\U20_rain-and-range.png",
+        "capturedUtc": "2026-10-26T19:14:28.4794166Z",
+        "capturedHongKong": "2026-10-27 03:14:28.479 +08:00",
+        "entry": "LifeGestureInput.Cancel / actual local rain and LifeCastRange",
+        "condition": "Actual rain and lower-opacity world boundary after leaving G; no drawing overlay",
+        "source": "",
+        "sourceWrittenUtc": "",
+        "sha256": "C3F57050BDB24FEBC2BF48273D8E57C3E0742E17E3BE773E6513A6734B9EEFEC",
+        "width": 1613,
+        "height": 943,
+        "unityFrame": 491,
+        "fixture": true,
+        "reused": false
+      }
+    ],
+    "gaps": [
+      "U22: standalone onboarding UI is not implemented; planning HTML is not a game screenshot.",
+      "U04: OS IME candidates and human keyboard submission are not simulated; manual input verification remains.",
+      "U03 ecology bubble variant; U17 feed/invite-rest variants; U20 night/overcast and alternate resolutions need root's separate actual setups.",
+      "U18 post-hello/post-rain guidance and U19 unlearned/cancel variants are not separately captured in this batch. Timed book images cannot establish smooth animation; root's visual review remains."
+    ],
+    "boundary": "Three actual PNGs adopted after full-resolution visual review. Short and long echo are now visible; text is a presenter fixture, not a provider reply. Actual rain/world range follows G cancellation. Earlier 53-image and two-image supplement manifests remain unchanged. Manual IME, scrolling and gameplay acceptance remain separate."
+  },
+  "deliveredPngFiles": 58,
   "echoState": {
     "baseShort": "NOT_VISIBLE",
     "baseLong": "NOT_VISIBLE",
     "supplementLong": "VISIBLE",
-    "supplementShort": "CAPTURE_ASSERTION_FAILED_NO_PNG"
+    "supplementShort": "CAPTURE_ASSERTION_FAILED_NO_PNG",
+    "latestShort": "VISIBLE",
+    "latestLong": "VISIBLE"
   },
   "u20Supplement": "Actual local rain and production .22-opacity world boundary after G cancellation; arrow absent. Low contrast remains a visual follow-up."
 }

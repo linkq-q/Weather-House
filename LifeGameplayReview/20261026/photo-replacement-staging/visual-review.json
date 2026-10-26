@@ -1,0 +1,10 @@
+{
+  "status": "RECORDED",
+  "utc": "2026-10-26T19:34:39.399538+00:00",
+  "freshReportSha256": "f34552f9645c237ee7343146aa54e97392d88449297da3ce699db31c91e7e67a",
+  "sourceUtc": "2026-10-26T19:29:30.8495383Z",
+  "review": "Root inspected first and last frames of all four latest Live clips. Squirrel and deer leave the static camera frame before the final frame; these clips are functional evidence, not approved real-save replacement compositions. Earlier 01:00 candidates remain in prepared without a real-save write. The current fresh report differs from the old prepared manifest, so its commit guard must refuse until candidates are selected and re-prepared.",
+  "realSaveTouched": false,
+  "result": "FUNCTIONAL_PASS_VISUAL_COMPOSITION_NOT_APPROVED",
+  "boundary": "主控已查看03:29四段Live的首尾帧。松鼠和鹿在片段后半离开固定镜头；自动PASS只证明首帧及文件记录，构图未获认可。01:00旧候选保留，最新实拍报告已变更，实际替换前需要重新选片准备。真实玩家存档未写入。"
+}

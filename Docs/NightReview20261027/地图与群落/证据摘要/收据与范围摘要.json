@@ -1,6 +1,57 @@
 {
-  "status": "FIRST_BATCH_SAVED_SIX_PLAY_MODES_PASS_PERFORMANCE_PENDING",
+  "status": "FIRST_BATCH_SAVED_SIX_PLAY_PASS_EDITOR_SAMPLE_COMPLETE_MANUAL_MAP_WORK_PENDING",
   "playStatus": "PASS_ACTUAL_SAVED_SCENE_SIX_MODES",
+  "performance": {
+    "status": "PASS",
+    "utc": "2026-10-26T19:20:48.4614438Z",
+    "source": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261026\\performance\\20261026-192048-451\\report.json",
+    "sha256": "73BD83CFA66CED9E8E7B464E722692304BADD1BFBE1AFD7FFD877096066F23D9",
+    "boundary": "Current WatersideV2 Editor Play A/B/A diagnostic, not an old-water-version comparison. Player movement controller and orbit are temporarily disabled in all phases to hold the original pose; Animator/world continue. Frame intervals include Editor/wait overhead. Recorder values are latest completed samples; GPU data are delayed and deduplicated by timestamp. Missing measurements are -1. Screenshots and 2-second warmups are excluded. Natural world evolution and background workloads can still affect comparisons.",
+    "restoreChecks": [
+      "PASS original player/camera pose, component enabled state, serialized reflection/camera/player settings, water materials, quality/vsync/frame cap, time scale and scene dirty flag restored."
+    ],
+    "phases": [
+      {
+        "name": "A-current-reflections",
+        "seconds": 20.023138599994127,
+        "sampledFrames": 628,
+        "activeReflections": 16
+      },
+      {
+        "name": "B-reflections-disabled",
+        "seconds": 10.048043399991002,
+        "sampledFrames": 400,
+        "activeReflections": 0
+      },
+      {
+        "name": "A-restored-reflections",
+        "seconds": 10.042367200017907,
+        "sampledFrames": 214,
+        "activeReflections": 16
+      }
+    ],
+    "note": "改后当前场景Editor A/B/A采样已完成并恢复设置；数据用于当前诊断，不提供地图改前后FPS提升证明或打包版本帧率结论。",
+    "handoffUTC": "2026-10-26T19:21:37Z",
+    "handoffPlay": false,
+    "handoffDirty": false,
+    "handoffAuthority": "Root coordinator verified native handoff."
+  },
+  "localImplementationCommit": {
+    "hash": "ae32e72",
+    "title": "优化外围家具与花草并验证场景保护",
+    "verification": {
+      "status": "PASS_SCOPED_COMMIT_AND_ISOLATED_SCENE",
+      "commit": "ae32e72",
+      "commitFileCount": 40,
+      "expectedFileCount": 40,
+      "extra": [],
+      "missing": [],
+      "committedSceneSHA": "20B195D97A5C17CD287C4E43B9C14CA30178F277A77A8140669F6847E550073C",
+      "actualSavedWorktreeSceneSHA": "A65AD518191918A0A939D28832BE622E4496388DEEEBF0A2F1426A238EDB0473",
+      "isolatedSceneWasOnlyStaticChecked": true,
+      "note": "No Assets/index mutation or index-preparation script replay occurred during this check. Actual Play used the saved worktree scene with preserved original dirty baseline."
+    }
+  },
   "counts": {
     "status": "PASS_OFFLINE_RECEIPT_ROWS_BINDINGS_AND_OWNERSHIP",
     "evidenceUTC": "2026-10-26T18:55:47.8300405Z",
@@ -115,7 +166,7 @@
     "A04 boathouse dual-shore relocation",
     "A07 safe flower patch and larger community composition",
     "Whole-map density, color, everyday-use composition and human visual acceptance",
-    "Fixed-view CPU/GPU/batches/LOD/overdraw performance proof"
+    "地图改前后性能因果比较、各外围区固定视图/批次/透明叠加和打包版本帧率验证"
   ],
   "planningOnly": [
     "Survival/business/indoor new functions"

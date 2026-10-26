@@ -22,7 +22,7 @@ copyEvidence=['landscape-apply-proof.json','landscape-save-result.json','landsca
 for name in copyEvidence:shutil.copy2(DATA/name,EVID/name)
 REPRO=OUT/'隔离复核';REPRO.mkdir(exist_ok=True)
 shutil.copy2(DATA/'prepare_map_index_scene.py',REPRO/'prepare_map_index_scene.py')
-summary=dict(status=phase['status'],playStatus=phase['playStatus'],counts=proof,save=saved,stableOriginalBackup=phase.get('stableOriginalBackup'),
+summary=dict(status=phase['status'],playStatus=phase['playStatus'],performance=phase.get('performanceEvidence'),localImplementationCommit=phase.get('localImplementationCommit'),counts=proof,save=saved,stableOriginalBackup=phase.get('stableOriginalBackup'),
     implemented='首批96株植物重组、11个家具组与12丛蓝/橙花副本；未改中央岛/天气屋原布局。',
     perNode=[dict(name=n['name'],plantMoves=sum(m['node']==Path(n['source']).stem for m in plan['moves']),newProps=sum(a['node']==n['name'] and not a.get('purpose','').startswith('Full existing R') for a in plan['additions']),newFlowers=sum(a['node']==n['name'] and a.get('purpose','').startswith('Full existing R') for a in plan['additions']),approachStatus=n['approachStatus']) for n in plan['nodes']],
     pending=phase['pending'],planningOnly=phase['planningOnly'],limits='收据计数与截图审议，不等同当前Editor实时读数、逐区人物穿行或用户验收。')
