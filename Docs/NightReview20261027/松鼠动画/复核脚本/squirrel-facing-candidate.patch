@@ -1,0 +1,13 @@
+--- a/Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs
++++ b/Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs
+@@ -454,7 +454,9 @@
+                 Vector3 steering = direction.normalized + separation * 1.3f;
+                 steering.y = 0f;
+                 if (steering.sqrMagnitude < .001f) steering = direction.normalized;
+-                Vector3 displacement = steering.normalized * Mathf.Min(speed * dt, direction.magnitude);
++                float travelSpeed=speed;
++                if(speciesId=="squirrel" && population.CanRotate(this,proposedRotation))travelSpeed*=Mathf.Clamp01(Vector3.Dot(proposedRotation*Vector3.forward,steering.normalized));
++                Vector3 displacement = steering.normalized * Mathf.Min(travelSpeed * dt, direction.magnitude);
+                 Vector3 before = transform.position;
+                 bool accepted = population.TryMove(this, before + displacement, out Vector3 next, proposedRotation);
+                 // A neighbour may block turning while a short step without turning can safely back out.

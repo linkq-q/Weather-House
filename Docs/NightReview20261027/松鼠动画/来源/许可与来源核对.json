@@ -1,0 +1,63 @@
+{
+  "verifiedDate": "2026-10-27",
+  "primarySources": [
+    {
+      "name": "Gobkit 作者免费模型清单",
+      "url": "https://gobkit.com/api/free",
+      "author": "Gobkit",
+      "license": "CC0 1.0",
+      "localEvidence": [
+        "来源/gobkit-free-manifest.json",
+        "候选模型/gobkit-animal006-pack/LICENSE.txt",
+        "候选模型/gobkit-animal009-pack/LICENSE.txt"
+      ],
+      "downloadedArchives": [
+        "来源/gobkit-animal006-pack.zip",
+        "来源/gobkit-animal009-pack.zip"
+      ],
+      "verifiedModels": [
+        "Squirrel.glb",
+        "Capegroundsquirrel.glb"
+      ],
+      "verifiedClips": [
+        "idle",
+        "attack",
+        "dead",
+        "walk"
+      ],
+      "limitation": "包内模型可商用和再分发；没有 run 或 turn 命名片段。地松鼠骨名为不透明标识符，不能按英文骨名自动重定向。"
+    },
+    {
+      "name": "Undead Squirrel (ANIMATED)",
+      "url": "https://opengameart.org/content/undead-squirrel-animated",
+      "author": "Čestmír Dammer / CDmir；页面协作者 TinyWorlds",
+      "license": "CC0",
+      "localEvidence": [
+        "候选模型/OGA-undeadsquirrel/lecense.txt"
+      ],
+      "downloadedArchives": [
+        "来源/undeadsquirrell.zip"
+      ],
+      "verifiedModels": [
+        "squirrel-anim.blend"
+      ],
+      "limitation": "源外形为亡灵松鼠；只作四足动作与整套替换的备选，不能当作已适配本项目。旧材质已在预览内链接原 diffuse 图，源文件保持不变。"
+    },
+    {
+      "name": "Kovonic Squirrel",
+      "url": "https://sketchfab.com/3d-models/squirrel-f442c20ca7dd4a988a17a12604556672",
+      "author": "Kovonic",
+      "license": "CC BY-NC",
+      "downloaded": false,
+      "decision": "排除通用商用候选，免费获取不等于允许商业复用。"
+    },
+    {
+      "name": "3DDisco Cartoon Squirrel Animated",
+      "url": "https://3ddisco.itch.io/cartoon-squirrel-animated-3d-model",
+      "author": "3DDisco",
+      "license": "Paid commercial asset",
+      "downloaded": false,
+      "decision": "页面价格99.99美元，未购买，不列入免费候选。"
+    }
+  ]
+}
