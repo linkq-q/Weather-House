@@ -1,0 +1,60 @@
+{
+  "status": "FIRST_BATCH_SAVED_SIX_PLAY_MODES_PASS_PERFORMANCE_PENDING",
+  "playStatus": "PASS_ACTUAL_SAVED_SCENE_SIX_MODES",
+  "playStartedUTC": "2026-10-26T19:00:32Z",
+  "playEvidence": "实际保存后的Scene于19:00–19:14 UTC（本地03:00–03:14）完成六项回归并全部PASS：漫游、world（57项异步含P22）、对话、摄影、摄影交互、UIcapture。Play保留原有脏基底，不能据此宣称index静态隔离候选已经独立checkout运行；宏观连路与人物逐门穿行仍未验收。",
+  "mapImplemented": "96 moved plants, 11 static prop assemblies and 12 complete flower clones, saved with byte-exact original scene backup.",
+  "pending": [
+    "Macro door-to-road connections, route redesign and actual doorway player traversal",
+    "A04 boathouse dual-shore relocation",
+    "A07 safe flower patch and larger community composition",
+    "Whole-map density, color, everyday-use composition and human visual acceptance",
+    "Fixed-view CPU/GPU/batches/LOD/overdraw performance proof"
+  ],
+  "planningOnly": [
+    "Survival/business/indoor new functions"
+  ],
+  "stableOriginalBackup": {
+    "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\map-backups\\WeatherHouse_WatersideV2.pre-night-E3F70FC101.unity",
+    "sha256": "E3F70FC101001AE1DE8DDD4E203866755BB9D024196F371B5378160E5E0E22E5",
+    "bytes": 13924750,
+    "status": "PASS_BYTE_EXACT_ORIGINAL_COPY_IN_LOCAL_REVIEW",
+    "gitDelivery": false
+  },
+  "runtimeModules": {
+    "roaming": {
+      "status": "PASS",
+      "utc": "2026-10-26T19:02:40Z",
+      "simulationSeconds": 24.01,
+      "maxTravelMeters": 2.576877,
+      "secondaryMovingAnimals": 11
+    },
+    "world": {
+      "status": "PASS",
+      "utc": "2026-10-26T19:06:08Z",
+      "asyncChecks": 57,
+      "includes": "P22 shared shallow bowl simultaneous body/mouth/water/consume/return"
+    },
+    "dialogue": {
+      "status": "PASS",
+      "utc": "2026-10-26T19:08:04Z"
+    },
+    "photography": {
+      "status": "PASS",
+      "utc": "2026-10-26T19:10:12Z"
+    },
+    "photoInteractions": {
+      "status": "PASS",
+      "utc": "2026-10-26T19:12:20Z"
+    },
+    "UIcapture": {
+      "status": "PASS",
+      "utc": "2026-10-26T19:14:28Z"
+    }
+  },
+  "indexIsolationBoundary": "Play uses actual saved scene with retained earlier dirty baseline; index candidate is static isolation only. Sixteen byte-order-only MonoBehaviour save reorders stay in worktree and are not included in map commit.",
+  "playCompletedUTC": "2026-10-26T19:14:28Z",
+  "savedSceneSHA256": "A65AD518191918A0A939D28832BE622E4496388DEEEBF0A2F1426A238EDB0473",
+  "performanceStatus": "PENDING_NEW_POST_MAP_SAMPLE",
+  "runtimeEvidenceAuthority": "Root coordinator verified actual result files and reported the final six modes. This map status summary does not replace their original native check logs."
+}

@@ -1,0 +1,25 @@
+{
+  "status": "PASS_OFFLINE_RECEIPT_ROWS_BINDINGS_AND_OWNERSHIP",
+  "evidenceUTC": "2026-10-26T18:55:47.8300405Z",
+  "nativeTransactionStatus": "PASS_APPLIED_UNSAVED_VISUAL_PLAY_AND_SAVE_REVIEW_PENDING",
+  "receiptStatus": "APPLIED_UNSAVED_VISUAL_AND_PLAY_PENDING",
+  "reviewedPlanSHA": "4A8C8FA8C4BE9E028E78002BBD5E913612ADC1AA4A93739D713BA92CDCF9F748",
+  "beforeTransforms": 7810,
+  "afterTransforms": 7845,
+  "protectedDescendants": 198,
+  "originalRowCategories": {
+    "unowned_original": 7714,
+    "owned_descendant": 96
+  },
+  "newTransforms": 35,
+  "originalRendererBindings": 4678,
+  "afterRendererBindings": 4712,
+  "addedRendererBindings": 34,
+  "originalColliders": 1557,
+  "nativeExpectedAfterColliders": 1568,
+  "plantMoves": 96,
+  "newPropGroups": 11,
+  "newFlowerClones": 12,
+  "failures": [],
+  "limits": "Checks captured Apply receipt only, not current Unity state. Collider geometry and source bounds were checked by native Apply; this offline check does not re-run them. Door traversal, Play, performance, save and human visual acceptance are separate."
+}

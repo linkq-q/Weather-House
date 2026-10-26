@@ -1,0 +1,33 @@
+{
+    "status": "PASS_READ_ONLY_A07_REJECTION_AUDIT",
+    "utc": "2026-10-26T18:14:22.6066018Z",
+    "error": "",
+    "beforeHash": "7406F8B0A16DC8F899BA748EA693841FC1D44C139CAC1D22A36682821A280830",
+    "afterHash": "7406F8B0A16DC8F899BA748EA693841FC1D44C139CAC1D22A36682821A280830",
+    "firstSource": "R13_LeafyHerb_v2",
+    "dirtyBefore": false,
+    "dirtyAfter": false,
+    "sourcePool": 113,
+    "accepted": 0,
+    "rejections": [
+        {
+            "reason": "existing_walkable_route_buffer",
+            "count": 204
+        },
+        {
+            "reason": "new_corridor_buffer_2_8m",
+            "count": 184
+        },
+        {
+            "reason": "terrain_slope_over_28",
+            "count": 72
+        },
+        {
+            "reason": "physical_obstacle",
+            "count": 8
+        }
+    ],
+    "blockingColliders": [
+        "Fir_Tall_2"
+    ]
+}

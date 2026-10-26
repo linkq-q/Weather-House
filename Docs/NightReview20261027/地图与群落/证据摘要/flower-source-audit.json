@@ -1,0 +1,467 @@
+{
+  "status": "OFFLINE_SOURCE_AUDIT_NATIVE_PLACEMENT_AND_VISUAL_ACCEPTANCE_PENDING",
+  "snapshotUTC": "2026-10-26T17:14:57.9029073Z",
+  "snapshotSceneSHA": "E3F70FC101001AE1DE8DDD4E203866755BB9D024196F371B5378160E5E0E22E5",
+  "frozenPlanPath": "C:\\Users\\31483\\.codex\\visualizations\\2026\\10\\26\\01a178cf-479b-7f41-af26-309b1776f6d5\\map-staging\\landscape-plan-frozen-49DCDADD8FA8.json",
+  "frozenPlanSHA": "49DCDADD8FA8677E4B6F9583A735F53FE5F5CCDB8F7F7CFC99447353BEE451A5",
+  "frozenMovedFamilies": {
+    "R06": 24,
+    "R12": 4,
+    "R11": 6,
+    "R10": 5,
+    "R05": 5,
+    "G3": 1,
+    "R09": 11,
+    "G4": 6,
+    "G1": 6,
+    "R01": 11,
+    "R02": 5,
+    "R08": 5,
+    "R13": 5,
+    "R14": 2
+  },
+  "frozenMovesByNode": {
+    "A01": {
+      "R06": 6,
+      "R12": 4
+    },
+    "A02": {
+      "R11": 3,
+      "R06": 7
+    },
+    "A03": {
+      "R10": 5,
+      "R05": 5
+    },
+    "A06": {
+      "R11": 3,
+      "R06": 11
+    },
+    "forest-understory": {
+      "R08": 5,
+      "R13": 5,
+      "R14": 2
+    },
+    "reed-ground": {
+      "G3": 1,
+      "R09": 11,
+      "G4": 6,
+      "G1": 6,
+      "R01": 11,
+      "R02": 5
+    }
+  },
+  "families": [
+    {
+      "family": "R07_BlueFlower",
+      "allSceneRoots": 36,
+      "activeSceneRoots": 35,
+      "currentPrefabCounts": {
+        "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v3.prefab": 16,
+        "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v2.prefab": 6,
+        "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v1.prefab": 14
+      },
+      "assets": [
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R07_BlueFlower_v1.prefab",
+          "sha256": "4C1AC2AABCC4F665A91C52804CD193366AAE78F444D1C2071C9F60C76B1C49C8",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "7b4dfd6d5905a2841b5f81b84d62558a"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R07_BlueFlower_v2.prefab",
+          "sha256": "89F91D9D7318588512E6A2074D427601F5C32F5DA7454DAA4BA9CFBE88DC2CE1",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "5591a682327f6f446956f5316f802a07"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R07_BlueFlower_v3.prefab",
+          "sha256": "9A0E1FFF8FD9C37B3914A940467F8181E3595F653F3D9C42D142F5952AA157AE",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "2395622d7b02f354f93f42164b8618bc"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R07_BlueFlower_v4.prefab",
+          "sha256": "F71BC7BABCD392B062FDD4351562B25F812B30297DA988960B688B611087CC11",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "9b370efe8c228b94ba3e02a6a9ea5a1e"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v1.prefab",
+          "sha256": "29099147552D23BCE85AD2568575152767225E9E83D4E9B2A3E7CFABC2513379",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1
+          },
+          "meshGuids": [
+            "e40d219b74d6b9f4a94e7434e2d0d67a"
+          ],
+          "scripts": [],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v2.prefab",
+          "sha256": "8B8C4F3D4CE586170A12687A5638951E5C0C56394B59730C1809209A98000CB7",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1
+          },
+          "meshGuids": [
+            "68f0eb86c1d19de47b97538eb78e1c73"
+          ],
+          "scripts": [],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v3.prefab",
+          "sha256": "F787B6528240C9054CF7117EF266B8141B0892B738733F424644474C1E65B1BB",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1
+          },
+          "meshGuids": [
+            "586d638e8343a1143b88f4e021f02973"
+          ],
+          "scripts": [],
+          "matchesGatheringMesh": false
+        }
+      ],
+      "examples": [
+        {
+          "id": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-2876527744422904020-1105832458",
+          "path": "02 草地与水岸群落[1]/水岸群落 · 实体叶片与厚花穗[18]/R07_BlueFlower_v3[155]",
+          "prefab": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v3.prefab",
+          "position": {
+            "x": -59.87720489501953,
+            "y": 8.588312149047852,
+            "z": 14.633260726928711
+          }
+        },
+        {
+          "id": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-2876527744422904020-1407241108",
+          "path": "02 草地与水岸群落[1]/水岸群落 · 实体叶片与厚花穗[18]/R07_BlueFlower_v3[564]",
+          "prefab": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v3.prefab",
+          "position": {
+            "x": 36.53231430053711,
+            "y": 11.472423553466797,
+            "z": 34.028358459472656
+          }
+        },
+        {
+          "id": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-2876527744422904020-1422341085",
+          "path": "02 草地与水岸群落[1]/水岸群落 · 实体叶片与厚花穗[18]/R07_BlueFlower_v3[822]",
+          "prefab": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R07_BlueFlower_v3.prefab",
+          "position": {
+            "x": 13.79063606262207,
+            "y": 14.149971008300781,
+            "z": 59.867225646972656
+          }
+        }
+      ]
+    },
+    {
+      "family": "R10_OrangeFlower",
+      "allSceneRoots": 43,
+      "activeSceneRoots": 42,
+      "currentPrefabCounts": {
+        "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab": 15,
+        "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v3.prefab": 14,
+        "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v1.prefab": 14
+      },
+      "assets": [
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R10_OrangeFlower_v1.prefab",
+          "sha256": "9B3DFA15E27FC20F755DDB91D55EF490D0DEA5D0E47005434A7883670AAAC736",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "82e79fb74f5a7db4daf6a20a92a476ff"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R10_OrangeFlower_v2.prefab",
+          "sha256": "CBF85197A8A4299C9E62C609B08DBF8F0C1CCB9BA693741D8D4FDBE79D77347F",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "824db2453d1b8de4f8c39c15e222221b"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R10_OrangeFlower_v3.prefab",
+          "sha256": "19094D335308BFE462B0D0BB7D052B49AF4266D9A9D67D9DDFDC207A7DE00357",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "46a10efd7293b9145b37e6d887a99e19"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Experiments/Vegetation/PlantLibrary/Prefabs/R10_OrangeFlower_v4.prefab",
+          "sha256": "A9D4296584F1B1C787236F886BA1074FB549AA3A9D504DFACBF6BBF6D21724B3",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1,
+            "114": 1
+          },
+          "meshGuids": [
+            "37b785ab76b1e8544962f8f732585dec"
+          ],
+          "scripts": [
+            "5d0e6310846fd374583d380315286e1d"
+          ],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v1.prefab",
+          "sha256": "6626DF8E23F13173BEECC5DA387DAC021E14ABD9324BA7BB0753607841D22C6E",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1
+          },
+          "meshGuids": [
+            "36c505ad739b51d449af76cc86a6f16e"
+          ],
+          "scripts": [],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab",
+          "sha256": "22524DBB6FFC661D51D2C3DAA8760491C119A1EE1D8B2F659DF32B0647EBB7C0",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1
+          },
+          "meshGuids": [
+            "9abb58fb44d50494c8cbabf6c05ddfd2"
+          ],
+          "scripts": [],
+          "matchesGatheringMesh": false
+        },
+        {
+          "path": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v3.prefab",
+          "sha256": "9B9B2E2318C13BB75280F5A2B8278D0E606D87882F29C7EDABD9136D6B532751",
+          "components": {
+            "1": 1,
+            "4": 1,
+            "33": 1,
+            "23": 1
+          },
+          "meshGuids": [
+            "095ff20cc6c30844f8152c5ea1866de0"
+          ],
+          "scripts": [],
+          "matchesGatheringMesh": false
+        }
+      ],
+      "examples": [
+        {
+          "id": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1528115235821850822-1001514711",
+          "path": "02 草地与水岸群落[1]/水岸群落 · 实体叶片与厚花穗[18]/R10_OrangeFlower_v2[913]",
+          "prefab": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab",
+          "position": {
+            "x": 39.18598175048828,
+            "y": 3.3563473224639893,
+            "z": -12.096386909484863
+          }
+        },
+        {
+          "id": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1528115235821850822-1024163957",
+          "path": "02 草地与水岸群落[1]/水岸群落 · 实体叶片与厚花穗[18]/R10_OrangeFlower_v2[538]",
+          "prefab": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab",
+          "position": {
+            "x": 55.985382080078125,
+            "y": 11.779281616210938,
+            "z": 28.009939193725586
+          }
+        },
+        {
+          "id": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1528115235821850822-1059370312",
+          "path": "02 草地与水岸群落[1]/水岸群落 · 实体叶片与厚花穗[18]/R10_OrangeFlower_v2[835]",
+          "prefab": "Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab",
+          "position": {
+            "x": 46.65840148925781,
+            "y": 4.22551965713501,
+            "z": -3.5779380798339844
+          }
+        }
+      ]
+    }
+  ],
+  "marker": {
+    "script": "Assets/Experiments/Vegetation/Scripts/PlantSpecimen.cs",
+    "meaning": "Data-only source/variation marker; no callbacks or gameplay action. Original library prefabs retain it; current generated prefabs do not contain it. Extension clones current full generated prefab roots without stripping components."
+  },
+  "collection": {
+    "whitelist": "Assets/Game/Life/Content/Resources/LifeContent/GatheringGrass.asset",
+    "species": "G2_Upright",
+    "matchingSource": "Assets/Game/Life/World/LifeWorld.Gathering.cs:34",
+    "blueOrOrangeMeshMatches": false
+  },
+  "proposal": {
+    "status": "NATIVE_READ_ONLY_EXTENSION_BUILD_PENDING",
+    "A01_blue": 4,
+    "A03_blue": 4,
+    "A06_orange": 4,
+    "maxTotalGroups": 23,
+    "maxAddedRenderers": 34,
+    "maxAddedChildTransforms": 34,
+    "maxAddedColliders": 11,
+    "notes": "Existing complete scene sources only; original sources remain unchanged. No new mesh/material/resource, collider, script or harvest object. Native safety checks may skip placements."
+  },
+  "nativeInstanceEvidence": {
+    "status": "PASS_READ_ONLY_12_COLOR_CLONES_REVIEW_PENDING",
+    "utc": "2026-10-26T18:54:35.1574475Z",
+    "sourceFilters": [
+      {
+        "filter": "active",
+        "survivors": 7195
+      },
+      {
+        "filter": "generated_source_folder",
+        "survivors": 1195
+      },
+      {
+        "filter": "R07_or_R10_family",
+        "survivors": 77
+      },
+      {
+        "filter": "nearest_prefab_root",
+        "survivors": 77
+      },
+      {
+        "filter": "not_owned_move",
+        "survivors": 72
+      },
+      {
+        "filter": "root_mesh_filter",
+        "survivors": 72
+      },
+      {
+        "filter": "existing_static_clone_guard",
+        "survivors": 72
+      },
+      {
+        "filter": "only_transform_filter_renderer_LOD",
+        "survivors": 72
+      },
+      {
+        "filter": "LOD_renderers_owned_and_not_missing",
+        "survivors": 72
+      },
+      {
+        "filter": "no_missing_or_G2_harvest_mesh",
+        "survivors": 72
+      },
+      {
+        "filter": "small_source_bounds",
+        "survivors": 72
+      }
+    ],
+    "sourceSamples": [
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.42, 0.46, 0.42)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.33, 0.37, 0.34)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.38, 0.40, 0.38)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.27, 0.33, 0.27)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.31, 0.43, 0.31)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.37, 0.41, 0.37)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.37, 0.45, 0.37)",
+      "R10_OrangeFlower_v2 | Assets/Game/World/WatersideV2/Generated/Nature/Plants/Prefabs/R10_OrangeFlower_v2.prefab | nearestRootSelf=True | components=UnityEngine.Transform,UnityEngine.MeshFilter,UnityEngine.MeshRenderer,UnityEngine.LODGroup | LODlevels=1 | size=(0.33, 0.43, 0.33)"
+    ],
+    "plannedA01Blue": 4,
+    "plannedA03Blue": 4,
+    "plannedA06Orange": 4,
+    "beforeHash": "5063049D6D90108851922E30F6A19784646836D8B5E952C795B0ED24E1719D4A",
+    "afterHash": "5063049D6D90108851922E30F6A19784646836D8B5E952C795B0ED24E1719D4A",
+    "dirtyBefore": false,
+    "dirtyAfter": false,
+    "note": "Prefab YAML components do not fully describe scene instance overrides. Native scene R07/R10 instances have LODGroup; extension retains complete LODs and requires every referenced renderer to exist and belong to its source root."
+  }
+}

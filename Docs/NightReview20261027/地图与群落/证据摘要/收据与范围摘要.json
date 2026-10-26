@@ -1,0 +1,124 @@
+{
+  "status": "FIRST_BATCH_SAVED_SIX_PLAY_MODES_PASS_PERFORMANCE_PENDING",
+  "playStatus": "PASS_ACTUAL_SAVED_SCENE_SIX_MODES",
+  "counts": {
+    "status": "PASS_OFFLINE_RECEIPT_ROWS_BINDINGS_AND_OWNERSHIP",
+    "evidenceUTC": "2026-10-26T18:55:47.8300405Z",
+    "nativeTransactionStatus": "PASS_APPLIED_UNSAVED_VISUAL_PLAY_AND_SAVE_REVIEW_PENDING",
+    "receiptStatus": "APPLIED_UNSAVED_VISUAL_AND_PLAY_PENDING",
+    "reviewedPlanSHA": "4A8C8FA8C4BE9E028E78002BBD5E913612ADC1AA4A93739D713BA92CDCF9F748",
+    "beforeTransforms": 7810,
+    "afterTransforms": 7845,
+    "protectedDescendants": 198,
+    "originalRowCategories": {
+      "unowned_original": 7714,
+      "owned_descendant": 96
+    },
+    "newTransforms": 35,
+    "originalRendererBindings": 4678,
+    "afterRendererBindings": 4712,
+    "addedRendererBindings": 34,
+    "originalColliders": 1557,
+    "nativeExpectedAfterColliders": 1568,
+    "plantMoves": 96,
+    "newPropGroups": 11,
+    "newFlowerClones": 12,
+    "failures": [],
+    "limits": "Checks captured Apply receipt only, not current Unity state. Collider geometry and source bounds were checked by native Apply; this offline check does not re-run them. Door traversal, Play, performance, save and human visual acceptance are separate."
+  },
+  "save": {
+    "status": "PASS_SAVED_WITH_BYTE_EXACT_ORIGINAL_BACKUP_VISUAL_PLAY_AND_HUMAN_ACCEPTANCE_SEPARATE",
+    "utc": "2026-10-26T18:59:26.9480215Z",
+    "scene": "Assets/Scenes/WeatherHouse_WatersideV2.unity",
+    "receiptSha256": "2453D4949E8F5988587AD67BCDD75290348519A1B9763FE5AA0076DFE48D0015",
+    "originalSceneSha256": "E3F70FC101001AE1DE8DDD4E203866755BB9D024196F371B5378160E5E0E22E5",
+    "savedSceneSha256": "A65AD518191918A0A939D28832BE622E4496388DEEEBF0A2F1426A238EDB0473",
+    "backupPath": "C:/Users/31483/.codex/visualizations/2026/10/26/01a178cf-479b-7f41-af26-309b1776f6d5/map-staging\\scene-backups\\20261026-185932-323-E3F70FC101\\WeatherHouse_WatersideV2.before.unity",
+    "backupSha256": "E3F70FC101001AE1DE8DDD4E203866755BB9D024196F371B5378160E5E0E22E5",
+    "metaBackupPath": "C:/Users/31483/.codex/visualizations/2026/10/26/01a178cf-479b-7f41-af26-309b1776f6d5/map-staging\\scene-backups\\20261026-185932-323-E3F70FC101\\WeatherHouse_WatersideV2.before.unity.meta",
+    "originalMemoryHash": "CF3B7889C411F745D4A7FA4FFCDC2C3D362E2E288399984B3ED3108BD917E03F",
+    "savedMemoryHash": "CF3B7889C411F745D4A7FA4FFCDC2C3D362E2E288399984B3ED3108BD917E03F",
+    "terrainSha256": "BA1B3254D41A9BEA7B56B6D3C7E65220E8F84261005F81FD7858537584A1E523",
+    "preSaveGuard": "C:/Users/31483/.codex/visualizations/2026/10/26/01a178cf-479b-7f41-af26-309b1776f6d5/map-staging\\landscape-presave.json",
+    "error": "",
+    "originalBytes": 13924750,
+    "backupBytes": 13924750,
+    "savedBytes": 14028943,
+    "originalTransforms": 7845,
+    "savedTransforms": 7845,
+    "dirtyBefore": true,
+    "dirtyAfter": false,
+    "saveCalled": true,
+    "saveReturned": true
+  },
+  "stableOriginalBackup": {
+    "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\map-backups\\WeatherHouse_WatersideV2.pre-night-E3F70FC101.unity",
+    "sha256": "E3F70FC101001AE1DE8DDD4E203866755BB9D024196F371B5378160E5E0E22E5",
+    "bytes": 13924750,
+    "status": "PASS_BYTE_EXACT_ORIGINAL_COPY_IN_LOCAL_REVIEW",
+    "gitDelivery": false
+  },
+  "implemented": "首批96株植物重组、11个家具组与12丛蓝/橙花副本；未改中央岛/天气屋原布局。",
+  "perNode": [
+    {
+      "name": "A01 · 湖畔集雨温室",
+      "plantMoves": 10,
+      "newProps": 3,
+      "newFlowers": 4,
+      "approachStatus": "STRAIGHT_APPROACH_FAILED_BENT_ROUTE_OR_DOOR_REVIEW_REQUIRED"
+    },
+    {
+      "name": "A03 · 海岬避雨驿",
+      "plantMoves": 10,
+      "newProps": 2,
+      "newFlowers": 4,
+      "approachStatus": "STRAIGHT_APPROACH_FAILED_BENT_ROUTE_OR_DOOR_REVIEW_REQUIRED"
+    },
+    {
+      "name": "A07 · 林间草药调配屋",
+      "plantMoves": 0,
+      "newProps": 1,
+      "newFlowers": 0,
+      "approachStatus": "PASS_STRAIGHT_GROUND_AND_ACTUAL_CAPSULE_DOOR_TRAVERSAL_PENDING"
+    },
+    {
+      "name": "A09 · 木制休憩雨棚",
+      "plantMoves": 0,
+      "newProps": 3,
+      "newFlowers": 0,
+      "approachStatus": "STRAIGHT_APPROACH_FAILED_BENT_ROUTE_OR_DOOR_REVIEW_REQUIRED"
+    },
+    {
+      "name": "A06 · 草坡牧场暖棚",
+      "plantMoves": 14,
+      "newProps": 1,
+      "newFlowers": 4,
+      "approachStatus": "STRAIGHT_APPROACH_FAILED_BENT_ROUTE_OR_DOOR_REVIEW_REQUIRED"
+    },
+    {
+      "name": "A04 · 潮湾船坞风铃楼",
+      "plantMoves": 0,
+      "newProps": 0,
+      "newFlowers": 0,
+      "approachStatus": ""
+    },
+    {
+      "name": "A02 · 望湖风信亭",
+      "plantMoves": 10,
+      "newProps": 1,
+      "newFlowers": 0,
+      "approachStatus": "PASS_STRAIGHT_GROUND_AND_ACTUAL_CAPSULE_DOOR_TRAVERSAL_PENDING"
+    }
+  ],
+  "pending": [
+    "Macro door-to-road connections, route redesign and actual doorway player traversal",
+    "A04 boathouse dual-shore relocation",
+    "A07 safe flower patch and larger community composition",
+    "Whole-map density, color, everyday-use composition and human visual acceptance",
+    "Fixed-view CPU/GPU/batches/LOD/overdraw performance proof"
+  ],
+  "planningOnly": [
+    "Survival/business/indoor new functions"
+  ],
+  "limits": "收据计数与截图审议，不等同当前Editor实时读数、逐区人物穿行或用户验收。"
+}
