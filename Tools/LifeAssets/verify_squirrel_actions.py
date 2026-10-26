@@ -2,6 +2,7 @@
 import bpy,json,math
 from pathlib import Path
 from mathutils import Vector
+from io_scene_fbx import parse_fbx
 ROOT=Path(__file__).resolve().parents[2]
 SOURCE=ROOT/'Tools/LifeAssets/Source/Animations'
 EXPORT=ROOT/'Assets/Game/Life/Art/Resources/LifeAssets/Animations'
@@ -11,8 +12,27 @@ checks=[];seams={}
 
 def matrices(rig):return {b.name:rig.matrix_world@b.matrix for b in rig.pose.bones}
 
+def fbx_units(path):
+    root,_=parse_fbx.parse(str(path))
+    def properties(element):
+        group=next(e for e in element.elems if e.id==b'Properties70')
+        return {e.props[0]:e.props[4:] for e in group.elems}
+    settings=properties(next(e for e in root.elems if e.id==b'GlobalSettings'))
+    objects=next(e for e in root.elems if e.id==b'Objects')
+    model=lambda name:next(e for e in objects.elems if e.id==b'Model' and e.props[1].split(b'\0')[0]==name)
+    rig=properties(model(b'Squirrel_Rig'));head=properties(model(b'Head'))
+    return {'fileUnitScale':settings[b'UnitScaleFactor'][0],
+            'rigLocalScale':list(rig[b'Lcl Scaling']),
+            'headLocalPosition':list(head[b'Lcl Translation'])}
+
+original_units=fbx_units(ROOT/'Assets/Experiments/Squirrel/Models/walk_biped.fbx')
+
 for item in manifest['clips']:
     name=item['id'];bpy.ops.wm.open_mainfile(filepath=str(SOURCE/(name+'.blend')))
+    units=fbx_units(EXPORT/(name+'.fbx'))
+    assert units['fileUnitScale']==original_units['fileUnitScale'],(name,'original FBX file units',units)
+    assert max(abs(a-b) for a,b in zip(units['rigLocalScale'],original_units['rigLocalScale']))<.0001,(name,'original rig scale',units)
+    assert abs(units['headLocalPosition'][1]-original_units['headLocalPosition'][1])<.00001,(name,'original bone units',units)
     scene=bpy.context.scene;rig=next(o for o in scene.objects if o.type=='ARMATURE')
     signature=[(b.name,b.parent.name if b.parent else '') for b in rig.data.bones]
     source_rest={b.name:rig.matrix_world@b.matrix_local for b in rig.data.bones}
@@ -44,7 +64,8 @@ for item in manifest['clips']:
     assert item['maximumLimbReachExcess']<.00001,(name,'limb reach')
     assert item['minimumClearanceFromSourceFloor']>-.00001,(name,'ground penetration')
     checks.append({'clip':name,'status':'PASS','bones':len(signature),'durationSeconds':(end-start)/30,'maxReimportBonePositionError':max_position,
-                   'maxReimportRotationErrorRadians':max_rotation,'maxRestPositionError':max_rest,'minimumSkinClearance':item['minimumClearanceFromSourceFloor']})
+                   'maxReimportRotationErrorRadians':max_rotation,'maxRestPositionError':max_rest,'minimumSkinClearance':item['minimumClearanceFromSourceFloor'],
+                   'originalFbxUnitContract':units,'unityOriginalPrefabBinding':'requires Unity pose audit; Blender reimport alone is insufficient'})
 for a,ai,b,bi in [('SquirrelIdle',0,'SquirrelRestDown',0),('SquirrelRestDown',1,'SquirrelRestLoop',0),('SquirrelRestLoop',1,'SquirrelRestUp',0),('SquirrelRestLoop',0,'SquirrelRestLoop',1),('SquirrelRestUp',1,'SquirrelIdle',0),('SquirrelIdle',0,'SquirrelIdle',1)]:
     error=max((seams[a][ai][n].translation-seams[b][bi][n].translation).length for n in seams[a][ai])
     assert error<.00001,(a,b,'seam',error)

@@ -207,7 +207,10 @@ for name,duration,loop in specs:
     # Keep that skin as bind-pose evidence; runtime loads only the AnimationClip.
     bpy.ops.object.select_all(action='DESELECT');rig.select_set(True);mesh.select_set(True);bpy.context.view_layer.objects.active=rig
     bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'.fbx')),use_selection=True,object_types={'ARMATURE','MESH'},
-        apply_scale_options='FBX_SCALE_ALL',axis_forward='-Z',axis_up='Y',bake_space_transform=False,add_leaf_bones=False,
+        # Original squirrel FBXs use centimetre file units and a 100x rig node.
+        # FBX_SCALE_ALL moves that scale into file units; Blender round-trips it,
+        # but Unity's animation binding then disagrees with the original skin.
+        global_scale=1,apply_unit_scale=True,apply_scale_options='FBX_SCALE_NONE',axis_forward='-Z',axis_up='Y',bake_space_transform=False,add_leaf_bones=False,
         bake_anim=True,bake_anim_use_all_actions=False,bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0)
     item={'id':name,'durationSeconds':duration,'fps':30,'loop':loop,'frameCount':frame_count+1,'samples':samples,
           'minimumClearanceFromSourceFloor':min(s['minY']-floor for s in samples),
