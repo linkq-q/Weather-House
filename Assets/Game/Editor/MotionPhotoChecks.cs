@@ -103,27 +103,27 @@ namespace WeatherHousePrototype
                 recorder.CancelCapture();
                 Require(cancelled && !wronglyCompleted && !recorder.IsRecording && !Directory.Exists(TestFolder(cancelledId)),
                     "Cancellation did not remove the incomplete clip.");
-                bool disabled = false;
+                ObservationRecord disabled = null;
                 recorder.Capture(camera, new ObservationRecord { id = disabledId },
-                    record => wronglyCompleted = true, message => disabled = true);
+                    record => disabled = record, message => error = message);
                 while (recorder.IsRecording && recorder.CaptureProgress == 0f) yield return null;
                 Require(File.Exists(Path.Combine(TestFolder(disabledId), "frame_000.png")), "Disable test did not write a partial frame.");
                 recorder.enabled = false;
-                Require(disabled && !wronglyCompleted && !Directory.Exists(TestFolder(disabledId)),
-                    "Disabling the recorder did not cancel and clean the clip.");
+                Require(disabled != null && disabled.frameCount == 1 && disabled.liveTruncated && error == null && File.Exists(Path.Combine(TestFolder(disabledId), "metadata.json")),
+                    "Disabling the recorder did not preserve the shutter and finalize its metadata.");
                 recorder.enabled = true;
-                bool cameraFailureReported = false;
+                ObservationRecord recovered = null;
                 recorder.Capture(camera, new ObservationRecord { id = failedId },
-                    record => wronglyCompleted = true, message => cameraFailureReported = true);
+                    record => recovered = record, message => error = message);
                 while (recorder.IsRecording && recorder.CaptureProgress == 0f) yield return null;
                 Object.Destroy(camera);
                 float failureStartedAt = Time.realtimeSinceStartup;
                 while (recorder.IsRecording && Time.realtimeSinceStartup - failureStartedAt < 2f) yield return null;
-                Require(cameraFailureReported && !wronglyCompleted && !recorder.IsRecording && !Directory.Exists(TestFolder(failedId)),
-                    "Removing the capture camera did not fail and clean the incomplete clip.");
+                Require(recovered != null && recovered.frameCount == 1 && !string.IsNullOrEmpty(recovered.captureWarning) && !recorder.IsRecording &&
+                    File.Exists(Path.Combine(TestFolder(failedId), "frame_000.png")), "Removing the capture camera did not preserve the still and report an interrupted Live clip.");
                 File.WriteAllText("PrototypeReview/motion-photo-play.txt",
                     "PASS: recorded 18 real camera frames at 6 FPS; changed pixels=" + changed +
-                    "; metadata snapshot, overlap rejection, cancellation, disable and camera failure cleanup passed.\n" +
+                    "; metadata snapshot, overlap rejection, explicit cancellation cleanup, and disable/camera-failure still preservation passed.\n" +
                     "The fixture checks actual rendering and storage, not the user's scene composition.\n");
             }
             finally
@@ -147,7 +147,7 @@ namespace WeatherHousePrototype
         private static string TestFolder(string id)
         {
             if (!Guid.TryParseExact(id, "N", out Guid _)) throw new ArgumentException("Invalid test clip ID.");
-            string root = Path.GetFullPath(Path.Combine(Application.persistentDataPath, "MotionPhotos"));
+            string root = Path.GetFullPath(Path.Combine(GameplaySession.PersistenceDirectory, "MotionPhotos"));
             string path = Path.GetFullPath(Path.Combine(root, id));
             Require(path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal), "Test directory escaped its root.");
             return path;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using WeatherHouse.Life;
 
 namespace WeatherHousePrototype
 {
@@ -39,14 +40,30 @@ namespace WeatherHousePrototype
         public bool IsDialogueOpen => dialogueOpen;
         private AnimalActor dialogueTarget;
         public bool JournalOpen { get; private set; }
-        public bool IsAlbumOpening => albumOpening != null && albumOpening.IsPlaying;
+        public bool IsAlbumOpening => (journal3D && journal3D.IsAnimating) || (albumOpening != null && albumOpening.IsPlaying);
         public bool BlocksMovement => JournalOpen || dialogueOpen || InputFocused();
+        public LifePrimaryAction PrimaryInteraction => LifeInteractionRules.Primary(
+            !session || BlocksMovement || CameraMode || IsAlbumOpening || session.Judging ||
+            !string.IsNullOrEmpty(Input.compositionString) || Time.frameCount<=lastCompositionFrame+1 ||
+            (life && life.GestureInputActive) || (gestureInput && gestureInput.IsWorldDrawing),
+            session && session.Observed && (!life || life.CanTalk(session.Observed)),life && life.World && life.World.CanGather);
+        public string GatheringHint => PrimaryInteraction==LifePrimaryAction.Gather?"E 采集":"";
+        public void InteractPrimary()
+        {
+            switch(PrimaryInteraction)
+            {
+                case LifePrimaryAction.Talk:ToggleDialogue();break;
+                case LifePrimaryAction.Gather:life.World.TryGather();break;
+            }
+        }
 
         private GameplaySession session;
+        private LifeSession life;
+        private LifeGestureInput gestureInput;
         private Canvas canvas;
         private RectTransform canvasRect, controlsRoot, bubbleRoot, modalRoot, cameraRoot, echoRoot, focusMark;
         private float focusMarkUntil;
-        private const string PhotoGuide = "先把附近的一只动物和它的字语放进取景框。";
+        private const string PhotoGuide = "留下你想记住的风景与片刻。";
         private float photoControlScale = -1f;
         private int photoHintFontSize;
         private CanvasGroup cameraGroup;
@@ -62,21 +79,33 @@ namespace WeatherHousePrototype
         private InputField replyInput, guessInput;
         private Font font, albumCountFont;
         private RectTransform albumRoot;
+        private RectTransform detailRoot;
+        private RectTransform detailLayer;
         private AlbumBookOpening albumOpening;
+        private LifeJournal3D journal3D;
+        private bool openingJournal;
         private AnimalActor bubbleAnimal;
         private CanvasGroup bubbleGroup;
         private bool bubbleWanted;
+        private ProceduralUiGraphic bubbleShape;
+        private readonly List<AnimalGlyphGraphic> bubbleGlyphs = new List<AnimalGlyphGraphic>();
+        private readonly List<Text> bubbleMeanings = new List<Text>();
         private readonly RaycastHit[] bubbleSightHits = new RaycastHit[16];
         private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "", replyDraft = "", lastReply;
         private int page, currentFrame;
         private int glyphPage;
-        private bool albumPhotosSelected, glyphDetailOpen;
+        private bool albumPhotosSelected, glyphDetailOpen, albumGesturesSelected, albumTasksSelected;
+        private int photoTaskPage;
+        private string publicTaskId;
+        private string selectedGesture = "rain";
         private bool dialogueOpen, dirty, playingPhoto, inspectorDirty;
         private float nextFrameAt, echoUntil;
         private ObservationRecord expandedPhoto;
         private RawImage expandedImage;
         private Texture2D expandedTexture;
-        private readonly List<Texture2D> thumbnailTextures = new List<Texture2D>();
+        private readonly LifePhotoCache photoCache = new LifePhotoCache();
+        public int PhotoDecodeCount => photoCache.DecodedFrames;
+        public int CachedPhotoTextureCount => photoCache.TextureCount;
         private ProceduralUiStyle appliedStyle;
         private string lastStyleWarning;
         private static readonly Color Paper = new Color(.96f, .95f, .88f);
@@ -88,6 +117,9 @@ namespace WeatherHousePrototype
             ApplyInspectorStyle();
             session = GetComponent<GameplaySession>();
             if (session == null) { Debug.LogError("GameplayHud needs GameplaySession on the same object.", this); enabled = false; return; }
+            life = GetComponent<LifeSession>();
+            gestureInput = GetComponent<LifeGestureInput>();
+            if (life) { useAlbumDesignSamples = false; life.Changed += OnChanged; }
             font = Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular");
             if (font == null) throw new InvalidOperationException("Missing UI font: Resources/Fonts/ZCOOLXiaoWei-Regular.ttf");
             albumCountFont = Font.CreateDynamicFontFromOSFont(new[] { "Comic Sans MS", "Segoe Print", "Arial" }, 72);
@@ -142,7 +174,7 @@ namespace WeatherHousePrototype
             if (session.Observed != null && displayedStatus != null && displayedStatus.StartsWith("走近动物，观察")) hasMessage = false;
             string text = session.Judging ? "动物在听你说……" : hasMessage ? displayedStatus : "";
             if (!session.Judging && !dialogueOpen && !CameraMode && session.Observed != null && !hasMessage)
-                text = session.Observed.displayName + "   ·   E 交谈";
+                text = session.Observed.displayName + (life && !life.CanTalk(session.Observed) ? "   ·   再走近一点才能交谈" : "   ·   E 交谈");
             bool echoVisible = echoRoot != null && Time.unscaledTime < echoUntil && !hasMessage && !session.Judging;
             if (captureLabel != null)
                 captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
@@ -228,6 +260,7 @@ namespace WeatherHousePrototype
                 Destroy(child.gameObject);
             }
             bubbleRoot = modalRoot = cameraRoot = echoRoot = null;
+            bubbleShape = null; bubbleGlyphs.Clear(); bubbleMeanings.Clear();
             captureLabel = playbackLabel = null;
             cameraGroup = null;
             bubbleAnimal = null;
@@ -244,7 +277,16 @@ namespace WeatherHousePrototype
             dirty = false;
         }
 
-        private void OnChanged() { dirty = true; }
+        private void OnChanged()
+        {
+            dirty = true;
+            foreach (Text meaning in bubbleMeanings)
+            {
+                if (!meaning) continue;
+                string id = meaning.gameObject.name;
+                meaning.text = session?.Notebook?.GetWord(id)?.confirmed == true ? FindGlyph(id)?.name ?? "" : "";
+            }
+        }
 
         private void Update()
         {
@@ -256,7 +298,7 @@ namespace WeatherHousePrototype
             UpdatePhotoLayout();
             if (focusMark != null) focusMark.gameObject.SetActive(Time.unscaledTime < focusMarkUntil);
             if (Input.GetKeyDown(KeyCode.Escape)) { CloseTop(); return; }
-            if (dirty && !InputFocused() && !IsAlbumOpening)
+            if (dirty && !InputFocused() && !IsAlbumOpening && !(gestureInput && gestureInput.IsStrokeActive))
             {
                 dirty = false;
                 if (JournalOpen && expandedPhoto == null) RebuildModal();
@@ -267,14 +309,13 @@ namespace WeatherHousePrototype
             if (InputFocused()) return;
             if (Input.GetKeyDown(KeyCode.J)) { ToggleJournal(); return; }
             if (IsAlbumOpening) return;
-            if (JournalOpen && expandedPhoto == null && !glyphDetailOpen)
+            if (JournalOpen && expandedPhoto == null && publicTaskId == null && !glyphDetailOpen && !albumGesturesSelected)
             {
                 if (Input.GetKeyDown(KeyCode.RightArrow)) { TurnJournalPage(1); return; }
                 if (Input.GetKeyDown(KeyCode.LeftArrow)) { TurnJournalPage(-1); return; }
             }
             if (Input.GetKeyDown(KeyCode.C) && !JournalOpen && !dialogueOpen) SetCameraMode(!cameraRequested);
-            if (Input.GetKeyDown(KeyCode.E) && !JournalOpen && !CameraMode && session.Observed != null)
-                ToggleDialogue();
+            if (Input.GetKeyDown(KeyCode.E)) InteractPrimary();
             if (JournalOpen || dialogueOpen) return;
             if (CameraMode && cameraRequested && Input.GetMouseButtonDown(0) && (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
             {
@@ -284,9 +325,12 @@ namespace WeatherHousePrototype
                 focusMarkUntil = Time.unscaledTime + 1.5f;
             }
             if (CanTakePhoto && Input.GetKeyDown(KeyCode.Space)) session.TakePhoto();
-            if (Input.GetKeyDown(KeyCode.Alpha1)) session.Cast(LocalWeather.Rain);
-            if (Input.GetKeyDown(KeyCode.Alpha2)) session.Cast(LocalWeather.Sun);
-            if (Input.GetKeyDown(KeyCode.Alpha3)) session.Cast(LocalWeather.Wind);
+            if (!life)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1)) session.Cast(LocalWeather.Rain);
+                if (Input.GetKeyDown(KeyCode.Alpha2)) session.Cast(LocalWeather.Sun);
+                if (Input.GetKeyDown(KeyCode.Alpha3)) session.Cast(LocalWeather.Wind);
+            }
         }
 
         private void LateUpdate()
@@ -294,6 +338,7 @@ namespace WeatherHousePrototype
             if (session == null || canvas == null) return;
             PositionAnimalBubble();
             FitAlbum();
+            FitDetails();
         }
 
         private void FitAlbum()
@@ -303,31 +348,51 @@ namespace WeatherHousePrototype
             albumRoot.localScale = Vector3.one * scale;
         }
 
+        private void FitDetails()
+        {
+            if (!detailRoot || !canvasRect) return;
+            Vector2 size = detailRoot.sizeDelta;
+            if (size.x <= 0 || size.y <= 0) return;
+            float scale = Mathf.Min(1f, Mathf.Max(1f, canvasRect.rect.width - 48f) / size.x,
+                Mathf.Max(1f, canvasRect.rect.height - 48f) / size.y);
+            detailRoot.localScale = Vector3.one * scale;
+        }
+
         public void ToggleJournal()
         {
+            if (gestureInput) gestureInput.Cancel();
             if (JournalOpen)
             {
-                if (albumOpening != null && albumOpening.IsClosing) albumOpening.Resume();
+                if (journal3D && journal3D.IsClosing) journal3D.Resume();
+                else if (albumOpening != null && albumOpening.IsClosing) albumOpening.Resume();
                 else CloseJournal();
                 return;
             }
             JournalOpen = true;
             dialogueOpen = false;
             expandedPhoto = null;
+            publicTaskId = null;
             glyphDetailOpen = false;
             SetCameraMode(false, true);
             ClearFocus();
-            RebuildModal();
+            openingJournal = true;
+            try { RebuildModal(); }
+            finally { openingJournal = false; }
             dirty = false;
-            if (albumOpening != null) albumOpening.Play();
+            if (journal3D && journal3D.Available)
+                journal3D.Open(BuildJournalIntro);
+            else if (albumOpening != null) albumOpening.Play();
             session.RefreshInputBlocking();
         }
 
         public void ToggleDialogue()
         {
             if (JournalOpen || CameraMode || session == null || session.Observed == null || !session.Observed.IsAvailableForObservation) return;
+            if (life && !life.CanTalk(session.Observed)) { life.SaveAndNotify("再走近一点。"); return; }
+            if (gestureInput) gestureInput.Cancel();
             dialogueOpen = !dialogueOpen;
             dialogueTarget = dialogueOpen ? session.Observed : null;
+            if (dialogueOpen) session.BeginDialogue(dialogueTarget);
             RebuildModal();
             session.RefreshInputBlocking();
         }
@@ -341,16 +406,16 @@ namespace WeatherHousePrototype
 
         private void CloseJournal()
         {
+            if (journal3D && journal3D.IsClosing) return;
             if (albumOpening != null && albumOpening.IsClosing) return;
             ClearFocus();
             // Details replace or cover the book; return to its current page before folding it away.
-            if (expandedPhoto != null || glyphDetailOpen)
+            if (expandedPhoto != null || glyphDetailOpen || publicTaskId != null)
             {
-                expandedPhoto = null;
-                glyphDetailOpen = false;
-                RebuildModal();
+                HideDetails();
             }
-            if (albumOpening != null) albumOpening.PlayReverse(CompleteJournalClose);
+            if (journal3D && journal3D.Available) journal3D.Close(CompleteJournalClose);
+            else if (albumOpening != null) albumOpening.PlayReverse(CompleteJournalClose);
             else CompleteJournalClose();
         }
 
@@ -364,7 +429,8 @@ namespace WeatherHousePrototype
 
         public void SetCameraMode(bool value, bool immediate = false)
         {
-            if (!value && CameraMode && session.Recorder.IsRecording) session.Recorder.CancelCapture();
+            if (value && gestureInput) gestureInput.Cancel();
+            if (!value && CameraMode && session.Recorder.IsRecording) session.Recorder.FinishLiveCapture();
             cameraRequested = value;
             if (!value && !CameraMode)
             {
@@ -456,9 +522,9 @@ namespace WeatherHousePrototype
 
         private void CloseTop()
         {
+            if (gestureInput && gestureInput.IsWorldDrawing) { gestureInput.Cancel(); return; }
             ClearFocus();
-            if (expandedPhoto != null) { expandedPhoto = null; RebuildModal(); return; }
-            if (glyphDetailOpen) { glyphDetailOpen = false; RebuildModal(); return; }
+            if (expandedPhoto != null || glyphDetailOpen || publicTaskId != null) { HideDetails(); return; }
             if (JournalOpen) { CloseJournal(); return; }
             else if (dialogueOpen) dialogueOpen = false;
             else if (CameraMode) { SetCameraMode(false); return; }
@@ -468,23 +534,51 @@ namespace WeatherHousePrototype
 
         private void RebuildModal()
         {
+            if (journal3D && !JournalOpen) journal3D.Unbind();
             controlsRoot.gameObject.SetActive(!JournalOpen && !CameraMode);
             statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode);
-            ReleasePhotoTextures();
+            if (!JournalOpen) ReleasePhotoTextures();
             playingPhoto = false;
             expandedImage = null;
             playbackLabel = null;
             replyInput = null;
             guessInput = null;
             albumRoot = null;
+            detailRoot = null;
+            detailLayer = null;
             albumOpening = null;
             if (modalRoot != null) { modalRoot.gameObject.SetActive(false); Destroy(modalRoot.gameObject); modalRoot = null; }
             if (!JournalOpen && !dialogueOpen) return;
             modalRoot = Panel(canvasRect, "Modal backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .48f));
-            if (expandedPhoto != null) BuildPhoto();
-            else if (JournalOpen) BuildJournal();
+            if (JournalOpen) BuildJournal();
             else BuildDialogue();
-            if (JournalOpen && expandedPhoto == null && glyphDetailOpen) BuildGlyphDetail();
+            if (JournalOpen && (expandedPhoto != null || glyphDetailOpen || publicTaskId != null)) ShowDetails();
+        }
+
+        private void ShowDetails()
+        {
+            ClearDetailLayer();
+            if (expandedPhoto != null)
+            {
+                if (albumRoot) albumRoot.gameObject.SetActive(false);
+                BuildPhoto();
+            }
+            else if (glyphDetailOpen) BuildGlyphDetail();
+            else if (publicTaskId != null) BuildPublicRecord();
+        }
+
+        private void HideDetails()
+        {
+            ClearFocus(); expandedPhoto = null; glyphDetailOpen = false; publicTaskId = null;
+            ClearDetailLayer();
+            if (albumRoot) albumRoot.gameObject.SetActive(true);
+        }
+
+        private void ClearDetailLayer()
+        {
+            if (detailLayer) { detailLayer.gameObject.SetActive(false); Destroy(detailLayer.gameObject); }
+            detailLayer = detailRoot = null; expandedImage = null; expandedTexture = null;
+            playbackLabel = null; playingPhoto = false; guessInput = null;
         }
 
         private void BuildDialogue()
@@ -508,6 +602,12 @@ namespace WeatherHousePrototype
                 if (dialogueOpen && replyInput != null) replyInput.ActivateInputField();
             });
             replyInput.ActivateInputField();
+            if (life && dialogueTarget && dialogueTarget.GetComponent<LifeSpeaker>())
+                TextButton(bubble.transform, "Next conversation topic", "再听另一句话", new Vector2(0f, size.y * .5f + 38f), new Vector2(220f, 42f), () =>
+                {
+                    if (session.Judging) return;
+                    life.NextTopic(dialogueTarget); replyDraft = ""; ClearFocus(); RebuildModal();
+                });
         }
 
         private void SubmitReply()
@@ -584,10 +684,34 @@ namespace WeatherHousePrototype
         private void BuildJournal()
         {
             albumRoot = AlbumBookView.Create(modalRoot, albumPhotosSelected,
-                () => { albumPhotosSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildModal(); },
-                () => { albumPhotosSelected = true; selectedGlyph = null; glyphDetailOpen = false; ClearFocus(); RebuildModal(); },
-                CloseTop, () => TurnGlyphPage(1));
-            bool samples = useAlbumDesignSamples && !albumPhotosSelected;
+                () => { albumPhotosSelected = false; albumGesturesSelected = false; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
+                () => { albumPhotosSelected = true; albumGesturesSelected = false; albumTasksSelected = false; selectedGlyph = null; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
+                CloseTop, () => TurnJournalPage(1));
+            if (life)
+            {
+                LifeJournalChrome.GestureTab(albumRoot, albumGesturesSelected, () =>
+                { albumGesturesSelected = true; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); });
+                LifeJournalChrome.PhotographyTab(albumRoot, albumTasksSelected, () =>
+                { albumTasksSelected = true; albumGesturesSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); });
+                if (albumTasksSelected)
+                {
+                    LifePhotoBook.Build(albumRoot, session, photoTaskPage, font, id =>
+                    {
+                        var records = session.Notebook.FindTaskPhotos(id);
+                        if (records.Count == 0) { publicTaskId = id; ClearFocus(); ShowDetails(); return; }
+                        expandedPhoto = records[records.Count - 1]; currentFrame = 0; ClearFocus(); ShowDetails();
+                    }, direction => TurnJournalPage(direction));
+                    FinishJournal(); return;
+                }
+                if (albumGesturesSelected)
+                {
+                    LifeGestureBook.Build(albumRoot, life, gestureInput, font, selectedGesture,
+                        id => { selectedGesture = id; RebuildJournalPage(); },
+                        id => { albumGesturesSelected = false; selectedGlyph = guessGlyphId = id; guessDraft = session.Notebook.GetWord(id)?.guess ?? ""; glyphDetailOpen = true; RebuildModal(); });
+                    FinishJournal(); return;
+                }
+            }
+            bool samples = !life && useAlbumDesignSamples && !albumPhotosSelected;
             if (samples)
             {
                 string[] names = { "SampleHouse", "SampleFrog", "SampleSquirrel", "SampleTraveler" };
@@ -600,25 +724,48 @@ namespace WeatherHousePrototype
             int collected = samples ? session.Catalog.glyphs.Length :
                 Array.FindAll(session.Catalog.glyphs, glyph => session.Notebook.GetWord(glyph.id)?.encountered == true).Length;
             AlbumBookView.Count(albumRoot, collected, session.Catalog.glyphs.Length, albumCountFont);
+            FinishJournal();
+        }
+
+        private void FinishJournal()
+        {
             FitAlbum();
+            if (life)
+            {
+                if (!journal3D) journal3D = GetComponent<LifeJournal3D>() ?? gameObject.AddComponent<LifeJournal3D>();
+                if (journal3D.Bind(albumRoot, openingJournal)) return;
+            }
             albumOpening = albumRoot.gameObject.AddComponent<AlbumBookOpening>();
+        }
+
+        private void RebuildJournalPage(int direction = 1)
+        {
+            if (IsAlbumOpening) return;
+            if (journal3D && journal3D.Available) journal3D.Turn(RebuildModal, direction);
+            else RebuildModal();
         }
 
         private void TurnGlyphPage(int direction)
         {
-            if (IsAlbumOpening) return;
-            int pages = Mathf.Max(1, Mathf.CeilToInt(session.Catalog.glyphs.Length / 22f));
+            if (IsAlbumOpening || albumGesturesSelected || albumTasksSelected) return;
+            int pages = Mathf.Max(1, Mathf.CeilToInt(session.Catalog.glyphs.Length / (float)AlbumBookView.GlyphsPerPage));
             glyphPage = (glyphPage + direction + pages) % pages;
             ClearFocus();
-            RebuildModal();
+            RebuildJournalPage(direction);
         }
 
         private void TurnJournalPage(int direction)
         {
+            if (IsAlbumOpening) return;
+            if (albumTasksSelected)
+            {
+                photoTaskPage = (photoTaskPage + direction + LifePhotoBook.PageCount) % LifePhotoBook.PageCount;
+                ClearFocus(); RebuildJournalPage(direction); return;
+            }
             if (!albumPhotosSelected) { TurnGlyphPage(direction); return; }
             page += direction;
             ClearFocus();
-            RebuildModal();
+            RebuildJournalPage(direction);
         }
 
         private void BuildAlbumPhotos(Transform book)
@@ -637,48 +784,65 @@ namespace WeatherHousePrototype
         private void BuildPhotoCard(Transform parent, ObservationRecord record, int slot)
         {
             Texture2D texture = null;
-            try { texture = MotionPhotoRecorder.LoadFrame(record, 0); thumbnailTextures.Add(texture); }
+            try { texture = photoCache.Cover(record); }
             catch (Exception exception) { Debug.LogWarning(exception.Message, this); }
             var image = AlbumBookView.Photo(parent, slot, texture, "Photo " + record.id,
-                () => { expandedPhoto = record; glyphDetailOpen = false; currentFrame = 0; ClearFocus(); RebuildModal(); });
+                () => { expandedPhoto = record; glyphDetailOpen = false; currentFrame = 0; ClearFocus(); ShowDetails(); });
             if (texture == null)
                 Label(image.transform, "Missing frame", "照片暂时无法读取", new Vector2(0f, -image.rectTransform.rect.height * .35f), new Vector2(image.rectTransform.rect.width - 12f, 46f), 17, Ink);
         }
 
-        private void BuildWordPage(Transform book)
+        private void BuildJournalIntro(RectTransform book)
+        {
+            for (int i = 0; i < 4; i++) AlbumBookView.Photo(book, i, null, "Intro empty photo " + (i + 1));
+            AlbumBookView.AddStickers(book);
+            BuildWordPage(book, true);
+            int found = Array.FindAll(session.Catalog.glyphs, glyph => session.Notebook.GetWord(glyph.id)?.encountered == true).Length;
+            AlbumBookView.Count(book, found, session.Catalog.glyphs.Length, albumCountFont);
+        }
+
+        private void BuildWordPage(Transform book, bool intro = false)
         {
             GlyphDefinition[] glyphs = session.Catalog.glyphs;
-            glyphPage = Mathf.Clamp(glyphPage, 0, Mathf.Max(0, (glyphs.Length - 1) / 22));
-            int first = glyphPage * 22;
-            for (int i = first; i < Mathf.Min(first + 22, glyphs.Length); i++)
+            var photographed = new HashSet<string>();
+            foreach (ObservationRecord photo in session.Notebook.observations)
+                foreach (string id in photo?.glyphIds ?? Array.Empty<string>()) photographed.Add(id);
+            if (!intro) glyphPage = Mathf.Clamp(glyphPage, 0, Mathf.Max(0, (glyphs.Length - 1) / AlbumBookView.GlyphsPerPage));
+            int first = intro ? 0 : glyphPage * AlbumBookView.GlyphsPerPage;
+            for (int i = first; i < Mathf.Min(first + AlbumBookView.GlyphsPerPage, glyphs.Length); i++)
             {
                 GlyphDefinition glyph = glyphs[i];
                 GlyphKnowledge knowledge = session.Notebook.GetWord(glyph.id);
                 bool seen = knowledge != null && knowledge.encountered;
-                bool visible = seen || (useAlbumDesignSamples && !albumPhotosSelected);
-                AlbumBookView.Word(book, i - first, glyph, visible, selectedGlyph == glyph.id, () =>
+                bool visible = seen || (!life && useAlbumDesignSamples && !albumPhotosSelected);
+                var wordButton = AlbumBookView.Word(book, i - first, glyph, visible, !intro && selectedGlyph == glyph.id, () =>
                 {
                     if (guessGlyphId != glyph.id) guessDraft = knowledge?.guess ?? "";
                     guessGlyphId = glyph.id;
                     selectedGlyph = glyph.id;
+                    if (life) LifeJournalChrome.SelectWord(book, glyph.id);
                     glyphDetailOpen = true;
                     ClearFocus();
-                    RebuildModal();
+                    ShowDetails();
                 });
+                if (life) LifeJournalChrome.Word(wordButton, glyph.id, knowledge?.confirmed == true ? 2 : photographed.Contains(glyph.id) ? 1 : 0,
+                    knowledge?.confirmed == true ? glyph.name : "", !intro && selectedGlyph == glyph.id, font,
+                    () => { if (journal3D) journal3D.RequestContentRefresh(); }, !intro);
             }
         }
 
         private void BuildGlyphDetail()
         {
-            var shade = Panel(modalRoot, "Word detail backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .38f));
-            var card = PaperPanel(shade, "Word detail", Vector2.zero, new Vector2(620f, 400f), Paper);
+            var shade = detailLayer = Panel(modalRoot, "Word detail backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .38f));
+            var card = detailRoot = PaperPanel(shade, "Word detail", Vector2.zero, new Vector2(620f, 400f), Paper);
+            FitDetails();
             CloseButton(card, new Vector2(263f, 153f), CloseTop);
             GlyphDefinition definition = FindGlyph(selectedGlyph);
-            if (definition != null) Glyph(card, definition, new Vector2(0f, 113f), new Vector2(50f, 60f));
             GlyphKnowledge selected = session.Notebook.GetWord(selectedGlyph);
+            if (definition != null && (!life || selected?.encountered == true)) Glyph(card, definition, new Vector2(0f, 113f), new Vector2(50f, 60f));
             if (selected == null || !selected.encountered)
             {
-                Label(card, "Unseen meaning", "还没有在相遇中记录这个字。\n听听动物的字语，再留下你的猜测。", new Vector2(0f, -35f), new Vector2(500f, 100f), 21, Ink);
+                Label(card, "Unseen meaning", "还没有认识这个字。\n带着相机去看看吧。", new Vector2(0f, -35f), new Vector2(500f, 100f), 21, Ink);
                 return;
             }
             if (selected.confirmed)
@@ -693,12 +857,17 @@ namespace WeatherHousePrototype
             }
             TextButton(card, "Word evidence", "查看相关照片", new Vector2(0f, -151f), new Vector2(190f, 38f), () =>
             { albumPhotosSelected = true; glyphDetailOpen = false; page = 0; ClearFocus(); RebuildModal(); });
+            if (life && selected.confirmed && GestureCatalog.Find(selectedGlyph) != null)
+                TextButton(card, "Learn word reward", "练习手势", new Vector2(0, 66), new Vector2(250, 37), () =>
+                { selectedGesture = selectedGlyph; albumGesturesSelected = true; glyphDetailOpen = false; ClearFocus(); RebuildModal(); });
         }
 
         private void BuildPhoto()
         {
-            var card = PaperPanel(modalRoot, "Expanded motion photo", Vector2.zero, new Vector2(1240f, 850f), Paper);
-            Label(card, "Photo title", "观察记录", new Vector2(-470f, 378f), new Vector2(260f, 40f), 25, Ink, TextAnchor.MiddleLeft);
+            detailLayer = Rect(modalRoot, "Photo detail layer", Vector2.zero, new Vector2(4000, 3000));
+            var card = detailRoot = PaperPanel(detailLayer, "Expanded motion photo", Vector2.zero, new Vector2(1240f, life ? 940f : 850f), Paper);
+            FitDetails();
+            Label(card, "Photo title", "留下的片刻", new Vector2(life ? -366f : -470f, 378f), new Vector2(life ? 468f : 260f, 40f), 25, Ink, TextAnchor.MiddleLeft);
             CloseButton(card, new Vector2(559f, 380f), CloseTop);
             expandedImage = Raw(card, "Motion photo frame", new Vector2(0f, 38f), new Vector2(1024f, 576f));
             currentFrame = Mathf.Clamp(currentFrame, 0, Mathf.Max(0, expandedPhoto.frameCount - 1));
@@ -712,6 +881,55 @@ namespace WeatherHousePrototype
                 UpdatePlaybackLabel();
             });
             playbackLabel = play.GetComponentInChildren<Text>();
+            var contextLines = new List<string>();
+            if (life && expandedPhoto.context != null)
+            {
+                LifeContextSnapshot context = expandedPhoto.context;
+                string position = "当时指向：" + (string.IsNullOrEmpty(context.locationName) ? "照片中的位置" : context.locationName);
+                string participants = "说话者 " + (string.IsNullOrEmpty(context.speakerName) ? PhotoParticipant(context.speakerId) : context.speakerName) +
+                    "   听者 " + (string.IsNullOrEmpty(context.listenerName) ? PhotoParticipant(context.listenerId) : context.listenerName);
+                string captured = expandedPhoto.capturedUtcTicks > 0 && expandedPhoto.capturedUtcTicks <= DateTime.MaxValue.Ticks
+                    ? new DateTime(expandedPhoto.capturedUtcTicks, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") : "时间未记录";
+                contextLines.Add(participants + "   拍摄开始 " + captured);
+                contextLines.Add(position + " · " + PhotoVisibleState(context.objectState) + "   " + context.weatherState);
+            }
+            if (expandedPhoto.photoSnapshot?.contexts != null)
+                foreach (LifePublicContext context in expandedPhoto.photoSnapshot.contexts)
+                    if (context != null && !string.IsNullOrWhiteSpace(context.description) && !contextLines.Contains(context.description)) contextLines.Add(context.description);
+            if (contextLines.Count > 0)
+                Label(card, "Original photo context", string.Join("\n", contextLines), new Vector2(0, -425), new Vector2(1140, 82), 16, Ink);
+        }
+
+        private void BuildPublicRecord()
+        {
+            detailLayer = Panel(modalRoot, "Encounter record backdrop", Vector2.zero, new Vector2(4000, 3000), new Color(.13f, .19f, .16f, .38f));
+            var card = detailRoot = PaperPanel(detailLayer, "Encounter record", Vector2.zero, new Vector2(660, 440), Paper);
+            FitDetails(); CloseButton(card, new Vector2(282, 172), CloseTop);
+            Label(card, "Encounter record title", "相遇记录", new Vector2(0, 160), new Vector2(500, 40), 27, Ink);
+            var records = session.Notebook.publicHistory.FindAll(c => c != null && c.targetId == publicTaskId && c.completed);
+            Label(card, "Public encounter context", string.Join("\n\n", records.ConvertAll(c => c.description)), new Vector2(0, -5), new Vector2(550, 250), 21, Ink, TextAnchor.UpperLeft);
+        }
+
+        private string PhotoParticipant(string id)
+        {
+            if (id == "player") return "玩家";
+            AnimalActor animal = Array.Find(session.animals ?? Array.Empty<AnimalActor>(), a => a && a.animalId == id);
+            return animal ? animal.displayName : string.IsNullOrEmpty(id) ? "未记录" : "当时的动物";
+        }
+
+        private static string PhotoVisibleState(string state)
+        {
+            if (string.IsNullOrWhiteSpace(state)) return "物件状态未记录";
+            // Old snapshots included the AI-only Describe payload. Keep its physical-state field only.
+            int anchor = state.IndexOf("；指示位置=", StringComparison.Ordinal);
+            if (anchor >= 0)
+            {
+                int start = state.IndexOf('；', anchor + 1);
+                if (start < 0) return "物件状态未记录";
+                int end = state.IndexOf('；', start + 1);
+                return end < 0 ? state.Substring(start + 1) : state.Substring(start + 1, end - start - 1);
+            }
+            return state;
         }
 
         private void UpdatePlayback()
@@ -731,9 +949,9 @@ namespace WeatherHousePrototype
 
         private void LoadExpandedFrame()
         {
-            if (expandedTexture != null) { Destroy(expandedTexture); expandedTexture = null; }
+            expandedTexture = null;
             expandedImage.texture = null;
-            try { expandedTexture = MotionPhotoRecorder.LoadFrame(expandedPhoto, currentFrame); expandedImage.texture = expandedTexture; }
+            try { expandedTexture = photoCache.Frame(expandedPhoto, currentFrame); expandedImage.texture = expandedTexture; }
             catch (Exception exception) { playingPhoto = false; Debug.LogWarning(exception.Message, this); }
             if (expandedImage.texture == null)
             {
@@ -750,20 +968,48 @@ namespace WeatherHousePrototype
             string utterance = animal == null ? "" : animal.UtteranceId;
             bubbleWanted = animal != null && animal == bubbleAnimal && utterance == bubbleUtterance;
             // Finish the old word on its original speaker before reusing the presentation slot.
-            if (bubbleRoot != null) return;
+            if (bubbleAnimal != null) return;
             if (animal == null) return;
-            bubbleAnimal = animal;
-            bubbleUtterance = utterance;
             string[] glyphs = animal.CurrentGlyphIds ?? Array.Empty<string>();
             if (glyphs.Length == 0) return;
+            bubbleAnimal = animal;
+            bubbleUtterance = utterance;
             Vector2 size = ProceduralUiLibrary.AnimalBubbleSize(animalBubbleSize, glyphs.Length, animalGlyphHeight, canvasRect.rect.size);
-            bubbleRoot = Rect(canvasRect, "Animal utterance", Vector2.zero, size);
-            bubbleGroup = bubbleRoot.gameObject.AddComponent<CanvasGroup>();
+            if (!bubbleRoot)
+            {
+                bubbleRoot = Rect(canvasRect, "Animal utterance", Vector2.zero, size);
+                bubbleGroup = bubbleRoot.gameObject.AddComponent<CanvasGroup>();
+                bubbleShape = ProceduralUiLibrary.Create(bubbleRoot, "Animal bubble", UiMark.AnimalBubble, Vector2.zero, size, ProceduralUiLibrary.Cream);
+            }
+            bubbleRoot.sizeDelta = bubbleShape.rectTransform.sizeDelta = size;
+            bubbleRoot.gameObject.SetActive(true);
             bubbleGroup.alpha = 0f; bubbleGroup.interactable = bubbleGroup.blocksRaycasts = false;
             bubbleWanted = true;
-            ProceduralUiLibrary.Create(bubbleRoot, "Animal bubble", UiMark.AnimalBubble, Vector2.zero, size, ProceduralUiLibrary.Cream);
-            GlyphLine(bubbleRoot, glyphs, new Vector2(0f, size.y * ProceduralUiStyle.Current.tailSize * .5f),
-                Mathf.Min(animalGlyphHeight, size.y * .48f), size.x * .78f);
+            float height = Mathf.Min(animalGlyphHeight, size.y * .48f, size.x * .78f / (glyphs.Length * .95f));
+            float inset = 2f + Mathf.Min(size.x, size.y) * bubbleShape.waviness;
+            float bodyCenter = (size.y - 2f * inset) * bubbleShape.tailSize * .5f;
+            for (int i = 0; i < glyphs.Length; i++)
+            {
+                if (i == bubbleGlyphs.Count)
+                {
+                    var slot = Rect(bubbleRoot, "Animal glyph slot " + i, Vector2.zero, Vector2.zero);
+                    bubbleGlyphs.Add(slot.gameObject.AddComponent<AnimalGlyphGraphic>());
+                    bubbleMeanings.Add(Label(slot, "Meaning", "", Vector2.zero, Vector2.zero, 16, Color.white));
+                }
+                AnimalGlyphGraphic graphic = bubbleGlyphs[i]; GlyphDefinition definition = FindGlyph(glyphs[i]);
+                graphic.gameObject.SetActive(definition != null);
+                if (definition == null) continue;
+                graphic.SvgBody = definition.body; graphic.lineWidth = animalGlyphStrokeWidth; graphic.color = Ink; graphic.raycastTarget = false;
+                graphic.rectTransform.sizeDelta = new Vector2(height * 5f / 6f, height);
+                graphic.rectTransform.anchoredPosition = new Vector2((i - (glyphs.Length - 1) * .5f) * height * .95f, bodyCenter);
+                Text meaning = bubbleMeanings[i]; meaning.gameObject.name = definition.id;
+                meaning.text = session.Notebook.GetWord(definition.id)?.confirmed == true ? definition.name : "";
+                meaning.fontSize = Mathf.Clamp(Mathf.RoundToInt(height * .36f), 12, 18);
+                float meaningHeight = Mathf.Max(height * .45f, meaning.fontSize * 1.4f);
+                meaning.rectTransform.sizeDelta = new Vector2(height * 1.1f, meaningHeight);
+                meaning.rectTransform.anchoredPosition = Vector2.up * (size.y * .5f + 6f + meaningHeight * .5f - bodyCenter);
+            }
+            for (int i = glyphs.Length; i < bubbleGlyphs.Count; i++) bubbleGlyphs[i].gameObject.SetActive(false);
             if (modalRoot != null) modalRoot.SetAsLastSibling();
         }
 
@@ -772,6 +1018,7 @@ namespace WeatherHousePrototype
         private void UpdateAnimalPresentation(float deltaTime)
         {
             if (bubbleRoot == null) return;
+            if (!bubbleAnimal) { ClearAnimalBubble(); return; }
             Camera view = session.CurrentView;
             // Social's LateUpdate has already placed its world conversation; avoid a second bubble over it.
             bool visible = BubbleAnchorVisible(view, bubbleAnimal) && !JournalOpen && !bubbleAnimal.HasAmbientPresentation;
@@ -790,14 +1037,16 @@ namespace WeatherHousePrototype
             float half = bubbleRoot.sizeDelta.x * .5f;
             local.x = Mathf.Clamp(local.x, canvasRect.rect.xMin + half + 16f, canvasRect.rect.xMax - half - 16f);
             local.y = Mathf.Clamp(local.y, canvasRect.rect.yMin + bubbleRoot.sizeDelta.y * .5f + 42f,
-                canvasRect.rect.yMax - bubbleRoot.sizeDelta.y * .5f - 24f);
+                canvasRect.rect.yMax - bubbleRoot.sizeDelta.y * .5f - 48f);
             bubbleRoot.anchoredPosition = local;
         }
 
         public bool IsAnimalSpeechVisible(AnimalActor animal)
         {
             if (!isActiveAndEnabled || !canvas || !canvas.enabled || JournalOpen || !animal) return false;
-            if (animal.HasAmbientSpeech) return true;
+            bool lifeUtterance = animal.GetComponent<LifeSpeaker>()?.Current != null;
+            if (!lifeUtterance && animal.HasAmbientSpeech) return true;
+            if (lifeUtterance && animal.HasAmbientPresentation) return false;
             return bubbleAnimal == animal &&
                 bubbleUtterance == animal.UtteranceId && bubbleRoot && bubbleRoot.gameObject.activeInHierarchy &&
                 bubbleGroup && bubbleGroup.alpha >= ProceduralUiLibrary.SpeechVisibleAlpha && BubbleAnchorVisible(session.CurrentView, animal);
@@ -820,20 +1069,14 @@ namespace WeatherHousePrototype
 
         private void ClearAnimalBubble()
         {
-            if (bubbleRoot) { bubbleRoot.gameObject.SetActive(false); Destroy(bubbleRoot.gameObject); }
-            bubbleRoot = null; bubbleGroup = null; bubbleAnimal = null; bubbleUtterance = null; bubbleWanted = false;
+            if (bubbleRoot) bubbleRoot.gameObject.SetActive(false);
+            if (bubbleGroup) bubbleGroup.alpha = 0;
+            bubbleAnimal = null; bubbleUtterance = null; bubbleWanted = false;
         }
 
         private void GlyphLine(Transform parent, string[] ids, Vector2 center, float height, float maxWidth)
         {
-            if (ids == null || ids.Length == 0) return;
-            height = Mathf.Min(height, maxWidth / (ids.Length * .95f));
-            float step = height * .95f;
-            for (int i = 0; i < ids.Length; i++)
-            {
-                GlyphDefinition definition = FindGlyph(ids[i]);
-                if (definition != null) Glyph(parent, definition, center + Vector2.right * ((i - (ids.Length - 1) * .5f) * step), new Vector2(height * 5f / 6f, height));
-            }
+            LifePhotoBook.TokenLine(parent, session, ids, center, height, maxWidth, font);
         }
 
         private GlyphDefinition FindGlyph(string id)
@@ -911,6 +1154,7 @@ namespace WeatherHousePrototype
             colors.pressedColor = new Color(.80f, .85f, .70f);
             button.colors = colors;
             button.onClick.AddListener(clicked);
+            button.onClick.AddListener(() => LifeAudio.Play(LifeAudioCue.Ui));
             Label(rect, "Label", text, Vector2.zero, size - new Vector2(12f, 6f) * scale, Mathf.Max(8, Mathf.RoundToInt(19f * scale)), Ink);
             return button;
         }
@@ -919,6 +1163,7 @@ namespace WeatherHousePrototype
         {
             var button = ProceduralUiLibrary.Button(parent, "Close", UiMark.Close, position, new Vector2(size, size), color ?? SoftOutline, 2.8f * size / 49f);
             button.onClick.AddListener(clicked);
+            button.onClick.AddListener(() => LifeAudio.Play(LifeAudioCue.Ui));
         }
 
         private InputField InputBox(Transform parent, string name, string value, string placeholder, Vector2 position, Vector2 size, float scale = 1f, bool reply = false)
@@ -973,9 +1218,7 @@ namespace WeatherHousePrototype
 
         private void ReleasePhotoTextures()
         {
-            foreach (Texture2D texture in thumbnailTextures) if (texture != null) Destroy(texture);
-            thumbnailTextures.Clear();
-            if (expandedTexture != null) Destroy(expandedTexture);
+            photoCache.Clear();
             expandedTexture = null;
         }
 
@@ -988,6 +1231,7 @@ namespace WeatherHousePrototype
 
         private void OnDisable()
         {
+            if (gestureInput) gestureInput.Cancel();
             ClearFocus();
             ClearAnimalBubble();
             JournalOpen = dialogueOpen = false; dialogueTarget = null;
@@ -1000,6 +1244,7 @@ namespace WeatherHousePrototype
         private void OnDestroy()
         {
             if (session != null) session.Changed -= OnChanged;
+            if (life != null) life.Changed -= OnChanged;
             ReleasePhotoTextures();
             if (albumCountFont != null) Destroy(albumCountFont);
         }

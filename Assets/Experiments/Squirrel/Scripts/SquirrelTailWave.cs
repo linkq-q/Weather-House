@@ -24,6 +24,13 @@ namespace WeatherHouseSquirrelLab
 
         public bool IsInitialized => initialized;
 
+        private void OnEnable()
+        {
+            // Hot reload restores initialized, but readonly bone caches are rebuilt empty.
+            // A newly added component still waits for Start or its owner's explicit Initialize.
+            if (initialized) Initialize(modelRoot != null ? modelRoot : transform);
+        }
+
         private void Start()
         {
             if (!initialized)

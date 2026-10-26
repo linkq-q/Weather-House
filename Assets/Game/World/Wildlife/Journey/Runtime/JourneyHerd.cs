@@ -81,6 +81,70 @@ namespace WeatherHouse.WildlifeJourney
         public int PlanningRequests { get; private set; }
         public int PlanningCompletions { get; private set; }
         public int PlanningCancellations { get; private set; }
+        private struct LifeLease { public Vector3 target; public float until; }
+        private readonly Dictionary<int,LifeLease> lifeLeases = new Dictionary<int,LifeLease>();
+        private readonly Dictionary<int,float> lifeGreetings = new Dictionary<int,float>();
+        private readonly Dictionary<int,float> lifeForage = new Dictionary<int,float>();
+        public bool IsLifeForaging(int memberId)=>HasLifeTarget(memberId) && lifeForage.TryGetValue(memberId,out float until) && SimulationTime<until;
+        public bool RequestLifeForage(int memberId,float seconds=2f)
+        {
+            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            if(!Live(m) || !HasLifeTarget(m) || IsLifeForaging(memberId) || m.ActualSpeed>.03f || m.animation==null ||
+                !m.clips.forage || m.clips.forage==m.clips.idle)return false;
+            lifeForage[memberId]=SimulationTime+Mathf.Clamp(seconds,2f,8f);return true;
+        }
+        public float LifeForageWeight(int memberId)
+        {
+            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            return Live(m) && IsLifeForaging(memberId) && m.animation!=null?m.animation.WeightOf(m.clips.forage):0;
+        }
+        public void CancelLifeForage(int memberId){lifeForage.Remove(memberId);}
+        public void RequestLifeGreeting(int memberId) { lifeGreetings[memberId]=SimulationTime+2f; }
+        public void FaceLifePoint(int memberId,Vector3 point,float dt)
+        {
+            JourneyMember m=Array.Find(members,v=>v!=null&&v.id==memberId);
+            if(!HasLifeTarget(m)||!Live(m)||m.ActualSpeed>.03f||m.bodyStepPhase>0)return;
+            Vector3 delta=point-m.root.position;delta.y=0;if(delta.sqrMagnitude<.01f)return;
+            Quaternion rotation=Quaternion.RotateTowards(m.root.rotation,Quaternion.LookRotation(delta),dt*100);
+            if(ClearOfMemberBodies(m,m.root.position,rotation) &&
+                navigation.CanMoveSupportedBody(m.profile,m.root.position,m.root.rotation,m.root.position,rotation))
+                ApplyMovement(m,m.root.position,rotation,dt);
+        }
+
+        public bool RequestLifeTarget(int memberId,Vector3 target,float seconds)
+        {
+            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            if(!isActiveAndEnabled || !Live(m) || !navigation || m.Mode!=JourneyTravelMode.Walk || m.bridge!=0 || m.bodyStepPhase>0 ||
+                FlatDistance(m.root.position,target)>8f ||
+                !navigation.TryStep(m.profile,m.root.position,target,out Vector3 foot,out JourneyTravelMode mode) ||
+                mode!=JourneyTravelMode.Walk || !ClearOfOthers(m,foot,endpointOnly:true))return false;
+            lifeLeases[memberId]=new LifeLease {target=foot,until=SimulationTime+Mathf.Clamp(seconds,.1f,3f)};
+            return true;
+        }
+        public void ReleaseLifeTarget(int memberId) { lifeLeases.Remove(memberId);lifeForage.Remove(memberId); }
+        public bool HasLifeTarget(int memberId) => isActiveAndEnabled && lifeLeases.TryGetValue(memberId,out LifeLease lease) && SimulationTime<lease.until;
+        private bool HasLifeTarget(JourneyMember m) => m!=null && HasLifeTarget(m.id);
+        private void LifeMove(JourneyMember m,float dt)
+        {
+            LifeLease lease=lifeLeases[m.id];m.ActualSpeed=0;
+            if(IsLifeForaging(m.id)){m.State=JourneyMemberState.Forage;return;}
+            if(FlatDistance(m.root.position,lease.target)<.25f)
+            { m.State=JourneyMemberState.Idle;m.LastDecision="在附近的生活点等候";return; }
+            m.State=JourneyMemberState.Travelling;
+            if(TurnBeforeTravel(m,lease.target,dt))return;
+            Vector3 next=Vector3.MoveTowards(m.root.position,lease.target,m.profile.walkSpeed*dt);
+            if(navigation.TryStep(m.profile,m.root.position,next,out Vector3 foot,out JourneyTravelMode mode) &&
+                mode==JourneyTravelMode.Walk && EvaluateBodyMove(m,foot,dt,out BodyMove bodyMove))
+            {
+                Vector3 checkedPoint=foot;var crowd=m.crowdPath;int crowdStep=m.crowdStep;
+                if(AvoidOthers(m,foot,mode,out foot,dt))
+                {
+                    if(foot==checkedPoint && crowd==m.crowdPath && crowdStep==m.crowdStep)CommitBodyMove(m,bodyMove,dt);
+                    else Move(m,foot,dt);
+                }
+            }
+            m.LastDecision=m.ActualSpeed>.02f?"步行到附近的生活点":"通路受阻，等候或重新邀请";
+        }
 
         private sealed class Plan
         {
@@ -137,6 +201,7 @@ namespace WeatherHouse.WildlifeJourney
 
         public void Initialize()
         {
+            lifeLeases.Clear();lifeGreetings.Clear();lifeForage.Clear();
             CancelPlanning();
             PlanningRequests = PlanningCompletions = PlanningCancellations = 0;
             MaximumPlanningUnitMilliseconds = MaximumRouteSampleMilliseconds = 0;
@@ -453,8 +518,9 @@ namespace WeatherHouse.WildlifeJourney
                 if (!Live(m)) continue;
                 m.hunger = Mathf.Clamp01(m.hunger + dt * (m.State == JourneyMemberState.Forage ? -.045f : .004f));
                 m.fatigue = Mathf.Clamp01(m.fatigue + dt * (m.ActualSpeed > .1f ? .007f : -.012f));
-                if (pending != null && (pending.member < 0 || members[pending.member] == m)) m.ActualSpeed = 0;
-                else if (m.bodyStepPhase > 0) AdvanceBodyStep(m, dt);
+                if (m.bodyStepPhase > 0) AdvanceBodyStep(m, dt);
+                else if (HasLifeTarget(m)) LifeMove(m,dt);
+                else if (pending != null && (pending.member < 0 || members[pending.member] == m)) m.ActualSpeed = 0;
                 else if (social && social.IsParticipating(m.id)) SocialMove(m, dt);
                 else if (Travelling && !m.Arrived) Travel(m, dt);
                 else Loiter(m, dt);
@@ -473,6 +539,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private bool CanSocialize(JourneyMember member)
         {
+            if(HasLifeTarget(member))return false;
             if (pending != null && (pending.member < 0 || members[pending.member] == member)) return false;
             if (!Live(member) || member.sociability <= 0 || member.bridge != 0 || member.bodyStepPhase > 0 ||
                 member.Mode != JourneyTravelMode.Walk || member.crowdPath != null) return false;
@@ -499,7 +566,7 @@ namespace WeatherHouse.WildlifeJourney
             foreach (JourneyMember member in members)
                 if (member != null && !Live(member)) { member.bridge = 0; member.bridgeLink = -1; }
             bool allArrived = true;
-            foreach (JourneyMember m in members) if (Live(m) && !m.Arrived) allArrived = false;
+            foreach (JourneyMember m in members) if (Live(m) && !HasLifeTarget(m) && !m.Arrived) allArrived = false;
             if (Travelling && allArrived)
             {
                 Travelling = false; recovery = false; CompletedJourneys++;
@@ -610,7 +677,8 @@ namespace WeatherHouse.WildlifeJourney
             Vector3 next = Vector3.MoveTowards(m.root.position, target, speed * dt);
             bool safeStep = navigation.TryStep(m.profile, m.root.position, next, out Vector3 projected, out JourneyTravelMode mode);
             if (!safeStep && TryStartSupportedRouteStep(m, segment, dt)) { m.blockedSince = 0; return; }
-            if (!safeStep || !CanMoveBody(m, projected, dt) ||
+            BodyMove evaluated=default;
+            if (!safeStep || !EvaluateBodyMove(m, projected, dt, out evaluated) ||
                 (mode == JourneyTravelMode.Bridge && (segment.bridgeId == 0 || m.checkedPassage < m.segment ||
                     navigation.SampleBodySurface(m.profile, projected).bridgeId != segment.bridgeId)) ||
                 ((mode == JourneyTravelMode.Swim || m.Mode == JourneyTravelMode.Swim) &&
@@ -627,13 +695,17 @@ namespace WeatherHouse.WildlifeJourney
                 return;
             }
             // A crowd is temporary: yield or take a small safe side step without blacklisting the route.
+            Vector3 checkedPoint=projected;var checkedCrowd=m.crowdPath;int checkedCrowdStep=m.crowdStep;
+            JourneyTravelMode checkedMode=m.Mode;
             if (!AvoidOthers(m, projected, mode, out projected, dt))
             {
                 if (m.bridge != 0 || UpcomingBridge(m)) m.State = JourneyMemberState.WaitingForBridge;
                 m.LastDecision = "留出身体间距，等前方同伴走开"; return;
             }
             m.blockedSince = 0; m.Mode = mode;
-            Move(m, projected, dt);
+            if(projected==checkedPoint && checkedMode==mode && checkedCrowd==m.crowdPath && checkedCrowdStep==m.crowdStep)
+                CommitBodyMove(m,evaluated,dt);
+            else Move(m, projected, dt);
             m.LastDecision = mode == JourneyTravelMode.Swim ? "保持水面浮泳，前往可上岸处" :
                 mode == JourneyTravelMode.Wade ? "脚踩浅水底缓慢涉水" : m.bridge != 0 ? "沿桥面依次通过" : "沿自己的路线跟进";
         }
@@ -1301,12 +1373,19 @@ namespace WeatherHouse.WildlifeJourney
                 return member.root.rotation;
             return rotation;
         }
-        private bool CanMoveBody(JourneyMember m, Vector3 next, float dt)
+        private struct BodyMove
         {
-            Quaternion rotation = MovementRotation(m, next, dt);
-            if (!navigation.TryProject(m.profile, next, rotation, out next, out _)) return false;
-            return navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, next, rotation) ||
-                navigation.TryPlanBodyStep(m.profile, m.root.position, m.root.rotation, next, rotation, out _);
+            public Vector3 next;
+            public Quaternion rotation;
+            public bool supported;
+            public JourneyBodyStep step;
+        }
+        private bool EvaluateBodyMove(JourneyMember m, Vector3 next, float dt, out BodyMove move)
+        {
+            move=new BodyMove {rotation=MovementRotation(m,next,dt)};
+            if (!navigation.TryProject(m.profile, next, move.rotation, out move.next, out _)) return false;
+            move.supported=navigation.CanMoveSupportedBody(m.profile,m.root.position,m.root.rotation,move.next,move.rotation);
+            return move.supported || navigation.TryPlanBodyStep(m.profile,m.root.position,m.root.rotation,move.next,move.rotation,out move.step);
         }
 
         private bool TryStartSupportedRouteStep(JourneyMember m, JourneySegment segment, float dt)
@@ -1348,16 +1427,19 @@ namespace WeatherHouse.WildlifeJourney
 
         private void Move(JourneyMember m, Vector3 next, float dt, JourneyMember partner = null)
         {
-            if (!CanMoveBody(m, next, dt)) { m.ActualSpeed = 0; return; }
-            Quaternion rotation = MovementRotation(m, next, dt);
-            if (!navigation.TryProject(m.profile, next, rotation, out next, out _) || !ClearOfOthers(m, next, partner) ||
-                !ClearOfMemberBodies(m, next, rotation)) { m.ActualSpeed = 0; return; }
-            if (!navigation.CanMoveSupportedBody(m.profile, m.root.position, m.root.rotation, next, rotation))
+            if(!EvaluateBodyMove(m,next,dt,out BodyMove move)){m.ActualSpeed=0;return;}
+            CommitBodyMove(m,move,dt,partner);
+        }
+        private void CommitBodyMove(JourneyMember m,BodyMove move,float dt,JourneyMember partner=null)
+        {
+            // The result is local to this one synchronous step. Neighbour bodies are always rechecked.
+            if(!ClearOfOthers(m,move.next,partner) || !ClearOfMemberBodies(m,move.next,move.rotation)){m.ActualSpeed=0;return;}
+            if (!move.supported)
             {
-                if (!navigation.TryPlanBodyStep(m.profile, m.root.position, m.root.rotation, next, rotation, out m.bodyStep)) { m.ActualSpeed = 0; return; }
+                m.bodyStep=move.step;
                 m.bodyStepPartner = partner; m.bodyStepPhase = 1; AdvanceBodyStep(m, dt); return;
             }
-            ApplyMovement(m, next, rotation, dt);
+            ApplyMovement(m, move.next, move.rotation, dt);
         }
 
         private void AdvanceBodyStep(JourneyMember m, float dt)
@@ -1419,6 +1501,9 @@ namespace WeatherHouse.WildlifeJourney
         private void Animate(JourneyMember m, float dt)
         {
             if (m.animation == null) return;
+            if(IsLifeForaging(m.id)){m.animation.Play(m.clips.forage,true,1f);m.animation.Tick(dt);return;}
+            if(HasLifeTarget(m) && lifeGreetings.TryGetValue(m.id,out float until) && SimulationTime<until && m.clips.greet)
+            {m.animation.Play(m.clips.greet,false,1f);m.animation.Tick(dt);return;}
             m.animation.Play(CurrentClip(m), true,
                 m.ActualSpeed > .03f && m.Mode != JourneyTravelMode.Swim ? Mathf.Clamp(m.ActualSpeed / Mathf.Max(.1f, m.profile.walkSpeed), .25f, 1.4f) : 1f);
             m.animation.Tick(dt);
@@ -1509,7 +1594,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private void DisposeAnimations()
         { foreach (JourneyMember m in members) if (m != null && m.animation != null) { m.animation.Dispose(); m.animation = null; } }
-        private void OnDisable() { CancelPlanning(); UnregisterSurroundingBodies(); RestoreBodyLanguage(); DisposeAnimations(); }
+        private void OnDisable() { lifeLeases.Clear(); lifeGreetings.Clear(); lifeForage.Clear(); CancelPlanning(); UnregisterSurroundingBodies(); RestoreBodyLanguage(); DisposeAnimations(); }
         private void OnDestroy() { CancelPlanning(); UnregisterSurroundingBodies(); DisposeAnimations(); }
     }
 }

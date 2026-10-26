@@ -1,0 +1,255 @@
+{
+    "utc": "2026-10-26T06:28:01.7774850Z",
+    "scene": "Assets/Scenes/WeatherHouse_WatersideV2.unity",
+    "boundary": "Read-only current terrain, water, colliders and direct dry-land navigation sample. No animals or player moved, no scene saved. Candidate positions do not authorize placement; final chosen model envelopes and walking require separate Play verification.",
+    "play": false,
+    "dirty": false,
+    "sites": [
+        {
+            "name": "渡口北缘候选A",
+            "position": {
+                "x": 71.0,
+                "y": 1.499847412109375,
+                "z": -55.5
+            },
+            "dry": true,
+            "projected": true,
+            "clear": true,
+            "slope": 0.0,
+            "depth": 0.0,
+            "colliders": []
+        },
+        {
+            "name": "渡口北缘候选B",
+            "position": {
+                "x": 73.5,
+                "y": 1.499847412109375,
+                "z": -55.5
+            },
+            "dry": true,
+            "projected": true,
+            "clear": true,
+            "slope": 0.0,
+            "depth": 0.0,
+            "colliders": []
+        },
+        {
+            "name": "潮池干岸候选A",
+            "position": {
+                "x": 72.0,
+                "y": 0.64190673828125,
+                "z": -49.0
+            },
+            "dry": true,
+            "projected": true,
+            "clear": true,
+            "slope": 26.27640151977539,
+            "depth": 0.0,
+            "colliders": []
+        },
+        {
+            "name": "潮池干岸候选B",
+            "position": {
+                "x": 74.0,
+                "y": -1.2848663330078126,
+                "z": -49.5
+            },
+            "dry": true,
+            "projected": false,
+            "clear": false,
+            "slope": 67.7319107055664,
+            "depth": 0.0,
+            "colliders": [
+                "新潮池断续礁石 · 17"
+            ]
+        },
+        {
+            "name": "既有海岸干路",
+            "position": {
+                "x": 71.0,
+                "y": 1.499847412109375,
+                "z": -61.5
+            },
+            "dry": true,
+            "projected": true,
+            "clear": true,
+            "slope": 0.0,
+            "depth": 0.0,
+            "colliders": []
+        },
+        {
+            "name": "芦苇湾候选",
+            "position": {
+                "x": -28.799999237060548,
+                "y": 2.054859161376953,
+                "z": -64.80000305175781
+            },
+            "dry": true,
+            "projected": true,
+            "clear": true,
+            "slope": 1.2930119037628174,
+            "depth": 0.0,
+            "colliders": []
+        }
+    ],
+    "routes": [
+        {
+            "from": "渡口北缘候选A",
+            "to": "渡口北缘候选B",
+            "directWalk": true,
+            "horizontalLength": 2.5
+        },
+        {
+            "from": "渡口北缘候选A",
+            "to": "潮池干岸候选A",
+            "directWalk": true,
+            "horizontalLength": 6.576473236083984
+        },
+        {
+            "from": "渡口北缘候选B",
+            "to": "潮池干岸候选B",
+            "directWalk": false,
+            "horizontalLength": 6.020797252655029
+        },
+        {
+            "from": "潮池干岸候选A",
+            "to": "潮池干岸候选B",
+            "directWalk": false,
+            "horizontalLength": 2.0615527629852297
+        },
+        {
+            "from": "既有海岸干路",
+            "to": "渡口北缘候选A",
+            "directWalk": true,
+            "horizontalLength": 6.0
+        },
+        {
+            "from": "既有海岸干路",
+            "to": "渡口北缘候选B",
+            "directWalk": true,
+            "horizontalLength": 6.5
+        }
+    ],
+    "nearby": [
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.rabbit/11",
+            "position": {
+                "x": 40.08583450317383,
+                "y": 7.508051872253418,
+                "z": 14.14389705657959
+            },
+            "ferryDistance": 76.19683837890625,
+            "tideDistance": 70.750732421875
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.rabbit/9",
+            "position": {
+                "x": 38.43442916870117,
+                "y": 9.812040328979493,
+                "z": 20.745777130126954
+            },
+            "ferryDistance": 82.90919494628906,
+            "tideDistance": 77.40232849121094
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.rabbit/10",
+            "position": {
+                "x": 36.848907470703128,
+                "y": 9.827747344970704,
+                "z": 21.24593162536621
+            },
+            "ferryDistance": 84.00140380859375,
+            "tideDistance": 78.5499267578125
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.turtle/46",
+            "position": {
+                "x": -1.8976020812988282,
+                "y": 3.7422008514404299,
+                "z": -22.167421340942384
+            },
+            "ferryDistance": 80.15685272216797,
+            "tideDistance": 78.61833190917969
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.rabbit/13",
+            "position": {
+                "x": 29.916608810424806,
+                "y": 9.932090759277344,
+                "z": 17.501083374023439
+            },
+            "ferryDistance": 83.7675552368164,
+            "tideDistance": 78.69819641113281
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.rabbit/12",
+            "position": {
+                "x": 39.07851791381836,
+                "y": 10.28255844116211,
+                "z": 24.10074234008789
+            },
+            "ferryDistance": 85.76280212402344,
+            "tideDistance": 80.17195129394531
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.turtle/47",
+            "position": {
+                "x": -4.289909839630127,
+                "y": 3.2631053924560549,
+                "z": -23.854291915893556
+            },
+            "ferryDistance": 81.67019653320313,
+            "tideDistance": 80.32718658447266
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19",
+            "position": {
+                "x": 2.161653995513916,
+                "y": 2.8130369186401369,
+                "z": -9.13362979888916
+            },
+            "ferryDistance": 82.9973373413086,
+            "tideDistance": 80.41593170166016
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/Journey 羊群 · 草地与老树会合[16]/herd.sheep/26",
+            "position": {
+                "x": 24.025381088256837,
+                "y": 9.313911437988282,
+                "z": 21.918865203857423
+            },
+            "ferryDistance": 90.55548858642578,
+            "tideDistance": 85.62155151367188
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.turtle/45",
+            "position": {
+                "x": -7.269264221191406,
+                "y": 4.380779266357422,
+                "z": -16.348161697387697
+            },
+            "ferryDistance": 87.51539611816406,
+            "tideDistance": 85.7307357788086
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/Journey 羊群 · 草地与老树会合[16]/herd.sheep/28",
+            "position": {
+                "x": 26.47722625732422,
+                "y": 9.932861328125,
+                "z": 23.713546752929689
+            },
+            "ferryDistance": 90.8683853149414,
+            "tideDistance": 85.78800964355469
+        },
+        {
+            "animalId": "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.turtle/44",
+            "position": {
+                "x": -5.823142051696777,
+                "y": 4.479564666748047,
+                "z": -10.559562683105469
+            },
+            "ferryDistance": 89.0024642944336,
+            "tideDistance": 86.79924774169922
+        }
+    ]
+}

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using WeatherHouse.Life;
 
 namespace WeatherHousePrototype
 {
@@ -24,6 +26,11 @@ namespace WeatherHousePrototype
         public int frameCount;
         public float framesPerSecond;
         public long capturedUtcTicks;
+        public WeatherHouse.Life.LifeContextSnapshot context;
+        public LifePhotoSnapshot photoSnapshot;
+        public string[] matchedPhotoTaskIds = Array.Empty<string>();
+        public bool liveTruncated;
+        public string captureWarning;
     }
 
     [Serializable]
@@ -42,9 +49,39 @@ namespace WeatherHousePrototype
     [Serializable]
     public class LanguageNotebook
     {
+        public int version = 2;
         public List<GlyphKnowledge> words = new List<GlyphKnowledge>();
         public List<ObservationRecord> observations = new List<ObservationRecord>();
         public List<ObservationEncounter> encounters = new List<ObservationEncounter>();
+        public List<string> completedPhotoTasks = new List<string>();
+        public List<LifePublicContext> publicHistory = new List<LifePublicContext>();
+
+        public void Normalize(GlyphCatalog catalog)
+        {
+            words = words ?? new List<GlyphKnowledge>();
+            observations = observations ?? new List<ObservationRecord>();
+            encounters = encounters ?? new List<ObservationEncounter>();
+            completedPhotoTasks = completedPhotoTasks ?? new List<string>();
+            publicHistory = publicHistory ?? new List<LifePublicContext>();
+            foreach (var glyph in catalog?.glyphs ?? Array.Empty<GlyphDefinition>())
+                if (glyph != null && !string.IsNullOrWhiteSpace(glyph.id)) EnsureWord(glyph.id);
+            foreach (string id in new[] { "want", "reject" })
+            {
+                var word = EnsureWord(id);
+                word.encountered = word.confirmed = true;
+            }
+            version = 2;
+        }
+
+        private GlyphKnowledge EnsureWord(string id)
+        {
+            if (words == null) words = new List<GlyphKnowledge>();
+            var word = GetWord(id);
+            if (word != null) return word;
+            word = new GlyphKnowledge { glyphId = id, guess = string.Empty };
+            words.Add(word);
+            return word;
+        }
 
         public void Observe(string animalId, string utteranceId, string[] glyphIds)
         {
@@ -87,10 +124,67 @@ namespace WeatherHousePrototype
                 glyphIds = record.glyphIds == null ? new string[0] : (string[])record.glyphIds.Clone(),
                 weather = record.weather, clipFolder = record.clipFolder,
                 frameCount = record.frameCount, framesPerSecond = record.framesPerSecond,
-                capturedUtcTicks = record.capturedUtcTicks
+                capturedUtcTicks = record.capturedUtcTicks, context = record.context?.Copy(),
+                photoSnapshot = record.photoSnapshot?.Copy(), liveTruncated = record.liveTruncated, captureWarning = record.captureWarning,
+                matchedPhotoTaskIds = record.matchedPhotoTaskIds == null ? Array.Empty<string>() : (string[])record.matchedPhotoTaskIds.Clone()
             };
             observations.Add(snapshot);
             Observe(snapshot.animalId, snapshot.utteranceId, snapshot.glyphIds);
+        }
+
+        public bool AddPublicContext(LifePublicContext context)
+        {
+            if (context == null || string.IsNullOrWhiteSpace(context.id)) return false;
+            if (publicHistory == null) publicHistory = new List<LifePublicContext>();
+            int prior = publicHistory.FindIndex(c => c != null && c.id == context.id);
+            if (prior >= 0)
+            {
+                var existing = publicHistory[prior];
+                if ((existing.kind == "interaction" && existing.completed) ||
+                    UnityEngine.JsonUtility.ToJson(existing) == UnityEngine.JsonUtility.ToJson(context)) return false;
+                publicHistory[prior] = context.Copy();
+                return true;
+            }
+            publicHistory.Add(context.Copy());
+            return true;
+        }
+
+        public bool IsPhotoTaskComplete(string id) => completedPhotoTasks != null && completedPhotoTasks.Contains(id);
+
+        public List<ObservationRecord> FindTaskPhotos(string taskId) => (observations ?? new List<ObservationRecord>())
+            .Where(photo => photo != null && Array.IndexOf(photo.matchedPhotoTaskIds ?? Array.Empty<string>(), taskId) >= 0).ToList();
+
+        // Re-evaluate stored shutter facts, never today's world. Only the matcher allows later public context.
+        public int ApplyPhotoTasks()
+        {
+            if (completedPhotoTasks == null) completedPhotoTasks = new List<string>();
+            if (publicHistory == null) publicHistory = new List<LifePublicContext>();
+            int count = 0;
+            foreach (var photo in observations ?? new List<ObservationRecord>())
+            {
+                if (photo?.photoSnapshot == null) continue;
+                var matched = LifePhotoRules.Match(photo.photoSnapshot, publicHistory)
+                    .Where(id => LifePhotoRules.Tasks.Any(task => task.id == id && !task.IsInteraction)).ToArray();
+                photo.matchedPhotoTaskIds = matched;
+                foreach (string id in matched) if (CompletePhotoTask(id)) count++;
+            }
+            foreach (string id in LifePhotoRules.Match(null, publicHistory)) if (CompletePhotoTask(id)) count++;
+            return count;
+        }
+
+        private bool CompletePhotoTask(string id)
+        {
+            var task = LifePhotoRules.Tasks.FirstOrDefault(item => item.id == id);
+            if (task == null) return false;
+            // Also repairs a partially written old record without repeating the completion reward.
+            foreach (string glyphId in task.rewards)
+            {
+                var word = EnsureWord(glyphId);
+                word.encountered = word.confirmed = true;
+            }
+            if (IsPhotoTaskComplete(id)) return false;
+            completedPhotoTasks.Add(id);
+            return true;
         }
 
         public void SetGuess(string glyphId, string guess)
@@ -111,7 +205,9 @@ namespace WeatherHousePrototype
             var result = new List<ObservationRecord>();
             if (string.IsNullOrWhiteSpace(glyphId) || observations == null) return result;
             foreach (var record in observations)
-                if (record != null && record.glyphIds != null && Array.IndexOf(record.glyphIds, glyphId) >= 0)
+                if (record != null && ((record.glyphIds != null && Array.IndexOf(record.glyphIds, glyphId) >= 0) ||
+                    LifePhotoRules.Tasks.Any(task => Array.IndexOf(record.matchedPhotoTaskIds ?? Array.Empty<string>(), task.id) >= 0 &&
+                        Array.IndexOf(task.tokens, glyphId) >= 0)))
                     result.Add(record);
             return result;
         }

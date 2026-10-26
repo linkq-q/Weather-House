@@ -11,6 +11,14 @@ namespace WeatherHousePrototype
         public const float FramesPerSecond = 6f;
         public bool IsRecording { get; private set; }
         public float CaptureProgress { get; private set; }
+#if UNITY_EDITOR
+        [Serializable] public struct CaptureCost
+        {
+            public int frame,unityFrame;
+            public double renderMs,readPixelsMs,applyMs,encodeMs,writeMs,totalMs;
+        }
+        public event Action<CaptureCost> CaptureMeasured;
+#endif
 
         private Camera captureCamera;
         private ObservationRecord pending;
@@ -20,9 +28,10 @@ namespace WeatherHousePrototype
         private RenderTexture renderTexture;
         private Texture2D frameTexture;
         private string ownedFolder;
+        private Func<bool> snapshotStillCurrent;
 
         public bool Capture(Camera camera, ObservationRecord snapshot,
-            Action<ObservationRecord> onCompleted, Action<string> onFailed = null)
+            Action<ObservationRecord> onCompleted, Action<string> onFailed = null, Func<bool> isSnapshotCurrent = null)
         {
             if (IsRecording)
             {
@@ -40,12 +49,14 @@ namespace WeatherHousePrototype
             {
                 id = id, animalId = snapshot.animalId, utteranceId = snapshot.utteranceId,
                 glyphIds = snapshot.glyphIds == null ? Array.Empty<string>() : (string[])snapshot.glyphIds.Clone(),
-                weather = snapshot.weather, clipFolder = "MotionPhotos/" + id,
+                weather = snapshot.weather, clipFolder = "MotionPhotos/" + id, context = snapshot.context?.Copy(),
+                photoSnapshot = snapshot.photoSnapshot?.Copy(),
                 capturedUtcTicks = snapshot.capturedUtcTicks > 0 ? snapshot.capturedUtcTicks : DateTime.UtcNow.Ticks
             };
             captureCamera = camera;
             completed = onCompleted;
             failed = onFailed;
+            snapshotStillCurrent = isSnapshotCurrent;
             CaptureProgress = 0f;
             try
             {
@@ -56,6 +67,10 @@ namespace WeatherHousePrototype
                 renderTexture = RenderTexture.GetTemporary(Width, Height, 24, RenderTextureFormat.ARGB32);
                 frameTexture = new Texture2D(Width, Height, TextureFormat.RGB24, false);
                 IsRecording = true;
+                // The ordinary photo belongs to this shutter instant, before any later dialogue turn.
+                if (!TryWriteFrame(0, out string error)) throw new IOException(error);
+                pending.frameCount = 1;
+                CaptureProgress = 1f / FrameCount;
                 recording = StartCoroutine(RecordFrames());
                 return true;
             }
@@ -68,44 +83,67 @@ namespace WeatherHousePrototype
 
         private IEnumerator RecordFrames()
         {
-            // Let the caller finish setting up the observation before the first world render.
             yield return null;
             float startedAt = Time.realtimeSinceStartup;
-            for (int frame = 0; frame < FrameCount; frame++)
+            for (int frame = 1; frame < FrameCount; frame++)
             {
                 while (Time.realtimeSinceStartup < startedAt + frame / FramesPerSecond)
+                {
+                    if (snapshotStillCurrent != null && !snapshotStillCurrent()) break;
                     yield return null;
+                }
+                if (snapshotStillCurrent != null && !snapshotStillCurrent())
+                {
+                    pending.liveTruncated = true;
+                    break;
+                }
                 if (!TryWriteFrame(frame, out string error))
                 {
-                    recording = null;
-                    FinishFailure(error);
-                    yield break;
+                    pending.liveTruncated = true;
+                    pending.captureWarning = error;
+                    break;
                 }
+                pending.frameCount = frame + 1;
                 CaptureProgress = (frame + 1f) / FrameCount;
+                // A slow capture must never batch overdue renders into the same Unity frame.
+                yield return null;
             }
-            while (Time.realtimeSinceStartup < startedAt + FrameCount / FramesPerSecond)
+            while (!pending.liveTruncated && Time.realtimeSinceStartup < startedAt + FrameCount / FramesPerSecond)
                 yield return null;
 
-            string completionError = null;
+            recording = null;
+            CompleteCapture();
+        }
+
+        private void CompleteCapture()
+        {
             try
             {
-                pending.frameCount = FrameCount;
                 pending.framesPerSecond = FramesPerSecond;
                 File.WriteAllText(Path.Combine(ownedFolder, "metadata.json"), JsonUtility.ToJson(pending, true));
             }
-            catch (Exception exception) { completionError = "动态照片保存失败：" + exception.Message; }
-            recording = null;
-            if (completionError != null)
+            catch (Exception exception)
             {
-                FinishFailure(completionError);
-                yield break;
+                // The index also contains the full snapshot; keep successful image files even if this sidecar fails.
+                pending.captureWarning = "照片元数据保存失败：" + exception.Message;
             }
+            recording = null;
             ObservationRecord result = pending;
             Action<ObservationRecord> callback = completed;
             ownedFolder = null;
             ResetCapture();
             CaptureProgress = 1f;
             callback?.Invoke(result);
+        }
+
+        // Lowering the camera ends Live playback; the shutter's ordinary photo remains valid.
+        public void FinishLiveCapture()
+        {
+            if (!IsRecording) return;
+            if (recording != null) StopCoroutine(recording);
+            recording = null;
+            pending.liveTruncated = pending.frameCount < FrameCount;
+            CompleteCapture();
         }
 
         private bool TryWriteFrame(int index, out string error)
@@ -129,11 +167,31 @@ namespace WeatherHousePrototype
                     int uiLayer = LayerMask.NameToLayer("UI");
                     if (uiLayer >= 0) captureCamera.cullingMask &= ~(1 << uiLayer);
                     captureCamera.targetTexture = renderTexture;
+#if UNITY_EDITOR
+                    long costStart=System.Diagnostics.Stopwatch.GetTimestamp(),section=costStart;
+                    var cost=new CaptureCost{frame=index,unityFrame=Time.frameCount};
+#endif
                     captureCamera.Render();
+#if UNITY_EDITOR
+                    cost.renderMs=Elapsed(ref section);
+#endif
                     RenderTexture.active = renderTexture;
                     frameTexture.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
+#if UNITY_EDITOR
+                    cost.readPixelsMs=Elapsed(ref section);
+#endif
                     frameTexture.Apply(false, false);
-                    File.WriteAllBytes(Path.Combine(ownedFolder, FrameName(index)), frameTexture.EncodeToPNG());
+#if UNITY_EDITOR
+                    cost.applyMs=Elapsed(ref section);
+#endif
+                    byte[] png=frameTexture.EncodeToPNG();
+#if UNITY_EDITOR
+                    cost.encodeMs=Elapsed(ref section);
+#endif
+                    File.WriteAllBytes(Path.Combine(ownedFolder, FrameName(index)), png);
+#if UNITY_EDITOR
+                    cost.writeMs=Elapsed(ref section);cost.totalMs=Elapsed(ref costStart);CaptureMeasured?.Invoke(cost);
+#endif
                 }
                 finally
                 {
@@ -162,6 +220,12 @@ namespace WeatherHousePrototype
             recording = null;
             FinishFailure("动态照片已取消，未生成观察记录。");
         }
+#if UNITY_EDITOR
+        static double Elapsed(ref long start)
+        {
+            long end=System.Diagnostics.Stopwatch.GetTimestamp();double elapsed=(end-start)*1000.0/System.Diagnostics.Stopwatch.Frequency;start=end;return elapsed;
+        }
+#endif
 
         private void FinishFailure(string message)
         {
@@ -193,9 +257,11 @@ namespace WeatherHousePrototype
             pending = null;
             completed = null;
             failed = null;
+            snapshotStillCurrent = null;
         }
 
-        private void OnDisable() { CancelCapture(); }
+        private void OnDisable() { FinishLiveCapture(); }
+        private void OnApplicationQuit() { FinishLiveCapture(); }
 
         public static Texture2D LoadFrame(ObservationRecord record, int index)
         {
@@ -232,7 +298,7 @@ namespace WeatherHousePrototype
             if (segments.Length != 2 || segments[0] != "MotionPhotos" ||
                 !Guid.TryParseExact(segments[1], "N", out Guid id) || record.id != id.ToString("N"))
                 throw new ArgumentException("动态照片目录必须位于本地 MotionPhotos 目录内。", nameof(record));
-            string root = Path.GetFullPath(Path.Combine(Application.persistentDataPath, "MotionPhotos"));
+            string root = Path.GetFullPath(Path.Combine(GameplaySession.PersistenceDirectory, "MotionPhotos"));
             string folder = Path.GetFullPath(Path.Combine(root, segments[1]));
             if (!folder.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal))
                 throw new ArgumentException("动态照片目录超出了本地存储范围。", nameof(record));

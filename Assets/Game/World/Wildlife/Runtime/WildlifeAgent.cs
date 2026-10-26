@@ -35,6 +35,49 @@ namespace WeatherHouse.Hillside
         public float AirHeight => population == null ? flightHeight : altitude;
         public WildlifeSolitaryRoutine SolitaryRoutine => solitary;
         public WildlifeRestPhase RestPhase => restAnimation.Phase;
+        private Vector3 lifeTarget;
+        private float lifeUntil;
+        private float lifeArrival=.22f;
+        private bool lifeRest;
+        private AnimationClip lifeAction;
+        private float lifeActionUntil;
+        public bool HasLifeTarget => isActiveAndEnabled && population && population.SimulationTime < lifeUntil;
+
+        // A short renewable lease uses the same body checks and animation owner as ordinary life.
+        public bool RequestLifeTarget(Vector3 target, float seconds, bool rest = false,float arrivalRadius=.22f)
+        {
+            float arrival=Mathf.Clamp(arrivalRadius,.025f,.22f),distance=HorizontalDistance(transform.position,target);
+            if (!isActiveAndEnabled || !population || locomotion != WildlifeLocomotion.Ground || distance>8f) return false;
+            // An arrived animal remains still; renewing its place must not require a turn toward a few residual centimetres.
+            Quaternion? facing=distance<arrival?(Quaternion?)transform.rotation:null;
+            if(!population.TryMove(this,target,out Vector3 valid,facing))return false;
+            lifeTarget=valid;lifeUntil=population.SimulationTime+Mathf.Clamp(seconds,.1f,3f);lifeRest=rest;lifeArrival=arrival;
+            ReleasePartner();solitary?.Interrupt(false);
+            return true;
+        }
+        public void ReleaseLifeTarget() { lifeUntil=0;lifeRest=false;solitary?.Interrupt(false); }
+        public void RequestLifeAction(AnimationClip clip,float seconds)
+        {
+            if(!clip || !population || !HasLifeTarget)return;
+            animationPlayer.RegisterClip(clip);
+            lifeAction=clip;lifeActionUntil=population.SimulationTime+Mathf.Clamp(seconds,.1f,4f);
+        }
+        public void CancelLifeAction(){lifeAction=null;lifeActionUntil=0;}
+        public void ConfigureLifeRest(AnimationClip down,AnimationClip sleep,AnimationClip up,AnimationClip idle=null)
+        {
+            if(!down||!sleep||!up)return;
+            clips.restDown=down;clips.restSleep=sleep;clips.restUp=up;
+            animationPlayer.RegisterClip(down);animationPlayer.RegisterClip(sleep);animationPlayer.RegisterClip(up);
+            if(idle){clips.idle=idle;animationPlayer.RegisterClip(idle);}
+        }
+        public void FaceLifePoint(Vector3 point,float dt)
+        {
+            if(!HasLifeTarget || ActualSpeed>.05f)return;
+            Vector3 delta=point-transform.position;delta.y=0;
+            if(delta.sqrMagnitude<.01f)return;
+            Quaternion facing=Quaternion.RotateTowards(transform.rotation,Quaternion.LookRotation(delta),dt*100);
+            if(population.CanRotate(this,facing))transform.rotation=facing;
+        }
 
         private WildlifePopulation population;
         private WildlifeRandom random;
@@ -58,6 +101,7 @@ namespace WeatherHouse.Hillside
 
         public void Initialize(WildlifePopulation owner)
         {
+            lifeUntil=lifeActionUntil=0;lifeAction=null;lifeRest=false;
             forageContact.Restore();
             RestoreSolitaryPose();
             restAnimation.Reset();
@@ -107,6 +151,13 @@ namespace WeatherHouse.Hillside
 
         internal void Think(float now, List<WildlifeAgent> neighbours)
         {
+            if (HasLifeTarget)
+            {
+                separation=population.ExternalSeparation(this);destination=lifeTarget;
+                WildlifeState desired=HorizontalDistance(transform.position,lifeTarget)<lifeArrival?WildlifeState.Idle:WildlifeState.Wander;
+                if(State!=desired)SetState(desired,now,3f);
+                return;
+            }
             separation = population.ExternalSeparation(this);
             foreach (WildlifeAgent other in neighbours)
             {
@@ -283,11 +334,13 @@ namespace WeatherHouse.Hillside
                 }
                 else
                 {
-                    Vector2 offset = random.InCircle(home ? Mathf.Min(2f, habitatRadius) : habitatRadius * .6f);
+                    Vector2 offset = random.InCircle(home ? Mathf.Min(2f, habitatRadius) : habitatRadius * .9f);
                     candidate = center + new Vector3(offset.x, 0f, offset.y);
                     if (HorizontalDistance(candidate, habitatCenter) > habitatRadius) continue;
                 }
-                if (!population.TryMove(this, candidate, out Vector3 valid)) continue;
+                // Neighbours can prevent an in-place turn after greeting; the existing mover can safely back out without turning.
+                if (!population.TryMove(this, candidate, out Vector3 valid) &&
+                    !(locomotion == WildlifeLocomotion.Ground && population.TryMove(this, candidate, out valid, transform.rotation))) continue;
                 destination = valid;
                 return;
             }
@@ -365,7 +418,11 @@ namespace WeatherHouse.Hillside
 
         internal void Move(float dt, float now)
         {
-            bool resting = solitary != null && solitary.IsWorking && solitary.Activity == SolitaryActivity.Rest && State == WildlifeState.Idle;
+            if(HasLifeTarget && lifeAction && now<lifeActionUntil)
+            {
+                ActualSpeed=0;animationPlayer.Play(lifeAction,false,1f);animationPlayer.Tick(dt);return;
+            }
+            bool resting = (HasLifeTarget && lifeRest || solitary != null && solitary.IsWorking && solitary.Activity == SolitaryActivity.Rest) && State == WildlifeState.Idle;
             restAnimation.Tick(resting, State == WildlifeState.Alert || State == WildlifeState.Flee, dt, clips, animationPlayer.HasReachedBoundary(restAnimation.Clip, restAnimation.Speed));
             if (restAnimation.BlocksMovement)
             {
@@ -394,7 +451,7 @@ namespace WeatherHouse.Hillside
             Quaternion proposedRotation = transform.rotation;
             if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
                 proposedRotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), dt * (State == WildlifeState.Flee ? 300f : 150f));
-            if (moving && direction.sqrMagnitude > .01f)
+            if (moving && direction.sqrMagnitude > (HasLifeTarget?Mathf.Min(.01f,lifeArrival*lifeArrival):.01f))
             {
                 Vector3 steering = direction.normalized + separation * 1.3f;
                 steering.y = 0f;
@@ -530,7 +587,7 @@ namespace WeatherHouse.Hillside
             if (population != null && Application.isPlaying)
                 animationPlayer.Initialize(animator, clips, 0f);
         }
-        private void OnDisable() { forageContact.Restore(); RestoreSolitaryPose(); restAnimation.Reset(); ReleasePartner(); animationPlayer.Dispose(); }
+        private void OnDisable() { ReleaseLifeTarget(); lifeActionUntil=0; forageContact.Restore(); RestoreSolitaryPose(); restAnimation.Reset(); ReleasePartner(); animationPlayer.Dispose(); }
         private void OnDestroy() { animationPlayer.Dispose(); }
     }
 }

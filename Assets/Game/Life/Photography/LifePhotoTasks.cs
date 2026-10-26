@@ -1,0 +1,63 @@
+using System.Collections.Generic;
+
+namespace WeatherHouse.Life
+{
+    public static partial class LifePhotoRules
+    {
+        public static IReadOnlyList<LifePhotoTask> Tasks {get;}=new LifePhotoTask[]
+        {
+            new LifePhotoTask{id="P01",title="树根后的尾巴",mode="普通照片",tokens=new[]{"fox"},rewards=new[]{"fox"},
+                action="沿树根走几步，到侧面把狐狸拍清。",accept="狐狸主体足够可见；不要求正脸、特定像素中心或唯一机位。只有尾尖不算肖像。",recovery="狐狸在本地两处短程站位间重复；错过不追半张地图。"},
+            new LifePhotoTask{id="P02",title="院边的回头",mode="普通照片",tokens=new[]{"squirrel"},rewards=new[]{"squirrel"},
+                action="任何清楚的肖像都可，不必等回头瞬间。",accept="松鼠可见且无遮挡；回头只是诱发拍摄欲望，不是隐性验收条件。",recovery="保持一个长期可拍位置，不因靠近永久逃跑。"},
+            new LifePhotoTask{id="P03",title="一小束草",mode="普通照片",tokens=new[]{"grass"},rewards=new[]{"grass"},
+                action="拍清草丛或散草束，之后可采一束做垫。",accept="识别到草对象；不把花、树叶、芦苇统称为草；制作过的垫不作为首次草词条目标。",recovery="采集后散草束仍可拍；附近保留可再生来源。"},
+            new LifePhotoTask{id="P04",title="滴水的草",mode="普通照片",tokens=new[]{"grass","wet"},rewards=new[]{"wet"},
+                action="拍湿草；也允许先施雨再拍。",accept="草对象为湿且表面湿态可见；不能只因全局天气下雨就认定画中草湿。",recovery="淋湿和晾干均可重复，不消耗材料。"},
+            new LifePhotoTask{id="P05",title="落在碗里的雨",mode="普通照片",tokens=new[]{"rain"},rewards=new[]{"rain"},
+                action="自然下雨时拍，或对集雨点施雨后拍。",accept="拍摄范围中能看见正在落雨；单独拍存水不算雨。",recovery="施雨可重开；自然天气不是唯一等待途径。"},
+            new LifePhotoTask{id="P06",title="雨停，水留下",mode="普通照片",tokens=new[]{"water"},rewards=new[]{"water"},
+                action="拍清碗里的水，已有水源也能直接完成。",accept="画面中可见足量水面；雨与水可在同一张照片各自命中，不强迫分两次。",recovery="提供持续可拍的水源或可再集雨的碗。"},
+            new LifePhotoTask{id="P07",title="光落下来的地方",mode="普通照片",tokens=new[]{"sunlight"},rewards=new[]{"sunlight"},
+                action="从阴影一侧拍到受光表面；也可使用日照能力。",accept="指定可识别表面受到日照且明暗差可见；不是画面曝光高就算日照。",recovery="已有稳定日照观察点，不强迫改变天气。"},
+            new LifePhotoTask{id="P08",title="终于干了",mode="普通照片",tokens=new[]{"grass","dry"},rewards=new[]{"dry"},
+                action="晾干后拍；初始就干的合格草束也接受。",accept="目标明确处于干态，且画面可辨；不把未知湿度或仅停雨视为干。",recovery="误淋湿可重新晾，不损毁成品。"},
+            new LifePhotoTask{id="P09",title="新垫上的小睡",mode="普通照片",tokens=new[]{"sleep"},rewards=new[]{"sleep"},
+                action="采一束草、编一张垫、使其干燥、放到指定窝位；退开一点拍睡态。这是推荐生活路径，不是该词的唯一获取方法。",accept="睡态可见且动物可见；进入睡眠后维持较长窗口。正文只有睡觉，因此已在别处自然睡觉的狐狸、羊等合格动物也可满足，不暗中限定松鼠或制作过程。",recovery="惊醒后只需退开，短时间内重演；不扣已完成照料。"},
+            new LifePhotoTask{id="P10",title="弯树下的河面",mode="普通照片",tokens=new[]{"tree"},rewards=new[]{"tree"},
+                action="拍清任一合格树对象；优美构图由玩家选择。",accept="树主体可见；不以树龄、特定景点或唯一取景框偷加条件。",recovery="静态对象随时可拍。"},
+            new LifePhotoTask{id="P11",title="它回到的地方",mode="情境照片",tokens=new[]{"fox","home"},rewards=new[]{"home"},
+                action="先看到它进窝或明确指认住处，再拍住处；拍摄不必正好赶上入窝帧。",accept="照片包含住处对象；系统已有该动物与该窝的公开情境记录。空洞、临时阴影和任意树不直接算住处。",recovery="情境记录留存；住处照片先拍了也能在后来确认归属时兑现。"},
+            new LifePhotoTask{id="P12",title="牧场的第一张肖像",mode="普通照片",tokens=new[]{"sheep"},rewards=new[]{"sheep"},
+                action="拍任何一只清楚可见的绵羊。",accept="目标可见；不要求整群合照。",recovery="附近常驻可拍个体。"},
+            new LifePhotoTask{id="P13",title="嘴边那一口草",mode="普通照片",tokens=new[]{"sheep","eat","grass"},rewards=new[]{"eat"},
+                action="绕到侧面或略低处拍进食；可用同一类草束引到开阔处。",accept="进食状态与食物同时可见，不能仅因羊正在进食但嘴被石头挡住就命中。",recovery="一个进食阶段初测维持约 5–8 秒；可重复，不要求毫秒反应。"},
+            new LifePhotoTask{id="P14",title="看得见的风",mode="普通照片",tokens=new[]{"wind"},rewards=new[]{"wind"},
+                action="拍到受风影响的固定布条或草穗。",accept="目标对象确实处于受风状态，画面姿态可读；风存在但拍向静止石墙不算。",recovery="风能开关；固定道具不吹走。"},
+            new LifePhotoTask{id="P15",title="轻轻吹就好",mode="普通照片",tokens=new[]{"wind","weak"},rewards=new[]{"weak"},
+                action="调弱风或找到已有弱风点，拍清布条和状态。",accept="弱档且效果可见；关闭不算弱。拍照采用按快门时状态，状态展示不能依赖看不到的数值。",recovery="不需要重新采集道具；可随时调回。"},
+            new LifePhotoTask{id="P16",title="风把布条拉直",mode="普通照片",tokens=new[]{"wind","strong"},rewards=new[]{"strong"},
+                action="改变同一地点的风强度，拍清表现。",accept="强档且可见；不因范围更大或持续更久判强。",recovery="不造成物件遗失、动物受伤或永久离开。"},
+            new LifePhotoTask{id="P17",title="芦苇之间的鹿",mode="普通照片",tokens=new[]{"deer"},rewards=new[]{"deer"},
+                action="沿干岸移动到芦苇缺口，不用冲进水里。",accept="鹿主体足够可见；稀有性来自发现位置，不来自低概率刷新。",recovery="鹿在两处短站位循环；等不到时可在附近重新接近触发。"},
+            new LifePhotoTask{id="P18",title="亮着也会冷",mode="情境照片",tokens=new[]{"sheep","cold"},rewards=new[]{"cold"},
+                action="观察该情境，拍到羊及风口环境；不要求玩家故意把它冻着。",accept="公开情境记录包含明确冷感表达与环境线索；照片记录对应情境。单独蜷缩照不能证明冷。",recovery="可在安全观察点重复短演示，无伤害倒计时。"},
+            new LifePhotoTask{id="P19",title="阴影里的暖处",mode="情境照片",tokens=new[]{"sheep","warm"},rewards=new[]{"warm"},
+                action="帮助换到舒适休息位，再拍该情境。",accept="公开暖态情境与合格照片同时存在；不能把普通阴影照片自动判暖。",recovery="固定舒适点可反复邀请，无热传导模拟要求。"},
+            new LifePhotoTask{id="P20",title="它在打招呼",mode="情境照片",tokens=new[]{"hello"},rewards=new[]{"hello"},
+                action="拍下问候情境；普通肖像不会自动解锁你好。",accept="目标动物可见且照片绑定问候情境；进入相机后保留约 6–10 秒可拍余量。",recovery="重演不扣关系；不要求先认识字才能完成。"},
+            new LifePhotoTask{id="P21",title="留下来的也会道别",mode="情境照片",tokens=new[]{"goodbye"},rewards=new[]{"goodbye"},
+                action="回头拍下告别情境；也接受动物离开时的道别。",accept="照片绑定真实道别话轮；仅有移动不能判为再见。",recovery="可重新交谈后再结束，不刷好感门槛。"},
+            new LifePhotoTask{id="P22",title="同一口水",mode="普通照片",tokens=new[]{"sheep","deer","together","water"},rewards=new[]{"together"},
+                action="使水源合适，等附近两只动物就位，退到能同框的位置。",accept="两只不同个体可见、共享活动成立、共同行为有可辨认窗口；远近偶然叠在一起不算。",recovery="安排本地短路径和较长重叠窗口，不等待全图 AI 偶遇。"},
+            new LifePhotoTask{id="I01",title="谁在说，谁在听",mode="互动情境",tokens=new[]{"self","you"},rewards=new[]{"self","you"},
+                action="参与一次完整的轮换交谈；两次说话者/听者切换后，手账给出我、你。",accept="两组角色关系的演示已完成；不要求额外填写词义。照片可收藏，但单独肖像不判指代。",recovery="可重放短演示；提前到达也可参与。"},
+            new LifePhotoTask{id="I02",title="来我这里",mode="互动情境",tokens=new[]{"come","here"},rewards=new[]{"come","here"},
+                action="朝可见邀请点靠近，完成短邀请事件；随后给来、这里。",accept="走入明确邀请点，语境与锚点已展示；普通路过不触发。",recovery="两块安全地面相近；无跳跃、深水或船。"},
+            new LifePhotoTask{id="I03",title="去那棵树",mode="互动情境",tokens=new[]{"go","tree"},rewards=new[]{"go"},
+                action="沿短路到达指定目标；镜头方向改变仍能理解。",accept="明确指向的目标被到达；与 I02 的靠近说话者形成对照。",recovery="可以再次邀请，无护送失败。"},
+            new LifePhotoTask{id="I04",title="先接水，再晒干",mode="互动情境",tokens=new[]{"first","rain","then","sunlight"},rewards=new[]{"first","then"},
+                action="跟随或自己试出两步计划，使碗有水、垫干；手账揭示先、后。",accept="计划情境已出现且生活结果成立。给词义是任务奖励，不宣称已证明玩家理解顺序。",recovery="接受分区施法等合理替代解；不为认字强迫重做。可用两锚点短行程复用先后。"},
+        };
+    }
+}

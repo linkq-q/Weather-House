@@ -1,0 +1,577 @@
+{
+  "version": 1,
+  "scope": "非动物音效原始素材；在 Assets 外存放，未经听感/混音/Unity 接入验收。",
+  "sources": [
+    {
+      "id": "kenney_interface",
+      "title": "Interface Sounds",
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/interface-sounds",
+      "download": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+      "archive": "Archives/kenney_interface-sounds.zip",
+      "license_file": "Licenses/kenney_interface-sounds.txt",
+      "covers": [
+        "A01",
+        "A02"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/kenney_interface.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\kenney_interface-sounds.zip",
+      "bytes": 834536,
+      "sha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+      "evidence_saved": true,
+      "evidence_sha256": "dd593fb48f3eb83470dbee155a9d55ced53db31cd98d79ba4751f409f9ad74ce",
+      "license_file_sha256": "f7966c773bbed0eca6a9c75081c44a178b38eae112724dbb5fdfbd4192d118a9"
+    },
+    {
+      "id": "kenney_impact",
+      "title": "Impact Sounds",
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/impact-sounds",
+      "download": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+      "archive": "Archives/kenney_impact-sounds.zip",
+      "license_file": "Licenses/kenney_impact-sounds.txt",
+      "covers": [
+        "A07",
+        "A13-grass"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/kenney_impact.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\kenney_impact-sounds.zip",
+      "bytes": 800850,
+      "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+      "evidence_saved": true,
+      "evidence_sha256": "d792cb205f6952bd3f43d386b4ee98fb97df4a3bb89996622fc03f07fbe39005",
+      "license_file_sha256": "b49aa9c56b04528b95913de13e506a0f7c5e807b9925db9bfef86af1f91120db"
+    },
+    {
+      "id": "kenney_rpg",
+      "title": "RPG Audio",
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/rpg-audio",
+      "download": "https://kenney.nl/media/pages/assets/rpg-audio/8e99002d76-1677590336/kenney_rpg-audio.zip",
+      "archive": "Archives/kenney_rpg-audio.zip",
+      "license_file": "Licenses/kenney_rpg-audio.txt",
+      "covers": [
+        "A03",
+        "A06-proxy"
+      ],
+      "note": "cloth1 仅是布纤维替代候选，未认定为草叶录音。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/kenney_rpg.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\kenney_rpg-audio.zip",
+      "bytes": 964837,
+      "sha256": "6dbeaf8544da958d8f2adcb4a4a4b76c1ade34a05f8ab9edccd327da7375f38b",
+      "evidence_saved": true,
+      "evidence_sha256": "a700ca539391b0293657fe7e63a1eb492a5ccaba02311260605cfec2bf7720b2",
+      "license_file_sha256": "5735dfd72cb64cbbceda4ebc00c380c41ca680edb82ff153aa7c9ab97614c539"
+    },
+    {
+      "id": "pencil",
+      "title": "Pencil Sounds",
+      "author": "AntumDeluge; pencil_write original: NachtmahrTV",
+      "page": "https://opengameart.org/content/pencil-sounds",
+      "download": "https://opengameart.org/sites/default/files/pencil.zip",
+      "archive": "Archives/antumdeluge_pencil.zip",
+      "license_file": "Licenses/antumdeluge_pencil.txt",
+      "covers": [
+        "A04"
+      ],
+      "upstream": [
+        {
+          "author": "NachtmahrTV",
+          "page": "https://freesound.org/people/NachtmahrTV/sounds/571800/",
+          "license": "CC0-1.0",
+          "note": "仅提取 pencil_write；未提取 pencil_erase。"
+        }
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/pencil.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\antumdeluge_pencil.zip",
+      "bytes": 279813,
+      "sha256": "e944c3a6261b4eda793247e90e0905a9b3a2bec48a4fab44fdd63a08109cd28a",
+      "evidence_saved": true,
+      "evidence_sha256": "816081bcbabfd32b86a865549162dbe4b9b6b98425a13ddc7d3863c948cb893e",
+      "license_file_sha256": "347921c25e07b7c40dff256731122a14826caaed18b367bfa01c538541872593"
+    },
+    {
+      "id": "water",
+      "title": "40 CC0 water splash slime sfx",
+      "author": "rubberduck",
+      "page": "https://opengameart.org/content/40-cc0-water-splash-slime-sfx",
+      "download": "https://opengameart.org/sites/default/files/water-splash-slime-sfx.zip",
+      "archive": "Archives/rubberduck_water_splash_slime.zip",
+      "covers": [
+        "A08"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/water.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\rubberduck_water_splash_slime.zip",
+      "bytes": 2259262,
+      "sha256": "7cd39abb49d4362a37ba18dc0e454c7dc1d08029d4e5b683149046bc237b2eba",
+      "evidence_saved": true,
+      "evidence_sha256": "09817969c272cbf73a32c1f34cb5473038682d5779241b0bfbe3dfe3bd18c4e7",
+      "license_file": "Licenses/water-source-license.txt",
+      "license_file_sha256": "b39443cd0742fbaae75acacfc6ab2534c203296b503c92a8423c99a13361f28b"
+    },
+    {
+      "id": "rain",
+      "title": "Rain (Loopable)",
+      "author": "Ylmir",
+      "page": "https://opengameart.org/content/rain-loopable",
+      "download": "https://opengameart.org/sites/default/files/Rain%20OGG.zip",
+      "archive": "Archives/ylmir_rain_ogg.zip",
+      "covers": [
+        "A11"
+      ],
+      "note": "来源声明可循环；本轮未试听接缝。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/rain.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\ylmir_rain_ogg.zip",
+      "bytes": 2736596,
+      "sha256": "e68f3e1c77493cf43bec84cebff5043bff6be9ce16d59b24caa988cd460aa75b",
+      "evidence_saved": true,
+      "evidence_sha256": "bf2e4ed2741451f1bdc91a59f780223707364c4439274993f3d0b1c0b3ab718f",
+      "license_file": "Licenses/rain-source-license.txt",
+      "license_file_sha256": "878514176738be1ad2a18def260b8f7e22aef9020ca8e2f9f3fe99c8d6002db4"
+    },
+    {
+      "id": "stone",
+      "title": "Fantozzi's Footsteps (Grass/Sand & Stone)",
+      "author": "Fantozzi; sliced/published by qubodup",
+      "page": "https://opengameart.org/content/fantozzis-footsteps-grasssand-stone",
+      "download": "https://opengameart.org/sites/default/files/Fantozzi-footsteps.7z",
+      "archive": "Archives/fantozzi_footsteps.7z",
+      "covers": [
+        "A13-stone"
+      ],
+      "upstream": [
+        {
+          "author": "Fantozzi",
+          "page": "https://freesound.org/people/Fantozzi/packs/10338/",
+          "license": "CC0-1.0"
+        }
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/stone.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\fantozzi_footsteps.7z",
+      "bytes": 476363,
+      "sha256": "415d360e0911c1c1c5355ee94023b772e6f4044f59b9b580610e7dbffd1840fd",
+      "evidence_saved": true,
+      "evidence_sha256": "d60d24529dc31f90cb259285522523b2e7bd4058813cb4a389b3d226251e3f67",
+      "license_file": "Licenses/stone-source-license.txt",
+      "license_file_sha256": "f794edb3624d3bfe34873d095fd767f0764c4e7dcca202f9e462d18bc08177e6"
+    },
+    {
+      "id": "wind",
+      "title": "Wind Whoosh Loop",
+      "author": "SketchMan3; original source JaggedStone",
+      "page": "https://opengameart.org/content/wind-whoosh-loop",
+      "download": "https://opengameart.org/sites/default/files/wind%20woosh%20loop.ogg",
+      "direct_file": "Selected/wind_woosh_loop.ogg",
+      "covers": [
+        "A12",
+        "A10-derivative-candidate"
+      ],
+      "upstream": [
+        {
+          "author": "JaggedStone",
+          "page": "https://opengameart.org/content/loopable-dungeon-ambience",
+          "license": "CC0-1.0"
+        }
+      ],
+      "note": "A10 可试用同源短段，尚未裁切；A12 原始声质待人工试听。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/wind.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\wind_woosh_loop.ogg",
+      "bytes": 251584,
+      "sha256": "0cfdbd3f21ed449689a9024264edf267d0037a6495813a7010827672ec191dac",
+      "evidence_saved": true,
+      "evidence_sha256": "315d76c394315a1e5c4bae42df5baeae2d5e243aee8a6ad6a59f273b85b7e72d",
+      "license_file": "Licenses/wind-source-license.txt",
+      "license_file_sha256": "17868fb53d106c87b389d90dfc2d09141dbe71c0591a8daf1c7e6c360ba998f4"
+    },
+    {
+      "id": "camera",
+      "title": "Camera",
+      "author": "themightyglider; original A Clock in the Kingdom",
+      "page": "https://opengameart.org/content/camera",
+      "download": "https://opengameart.org/sites/default/files/photo.ogg",
+      "direct_file": "Selected/camera_photo.ogg",
+      "covers": [
+        "A05"
+      ],
+      "upstream": [
+        {
+          "author": "A Clock in the Kingdom",
+          "page": "https://archive.org/details/CameraShutterSound",
+          "license": "CC0-1.0"
+        }
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/camera.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\camera_photo.ogg",
+      "bytes": 20520,
+      "sha256": "029dfcb981fdf375fb0ae4657962b3d470e1a073932c3d3aefb15d3d9ba38670",
+      "evidence_saved": true,
+      "evidence_sha256": "4e30d9bd4ee8d53ea7a1cb85cfb7f595a3f7444262a31d1ebeb2023df6007292",
+      "license_file": "Licenses/camera-source-license.txt",
+      "license_file_sha256": "33ecd1c2a480b6e2d64d3d66095be2913d0c08f4021bdee239ff618ca8581126"
+    },
+    {
+      "id": "dirt_1837",
+      "title": "Jumping on dirt road #1",
+      "author": "Joseph SARDIN",
+      "page": "https://bigsoundbank.com/jumping-on-dirt-road-1-s1837.html",
+      "download": "https://bigsoundbank.com/UPLOAD/ogg/1837.ogg?v=d",
+      "direct_file": "Selected/dirt_landing_1837.ogg",
+      "covers": [
+        "A13-dirt-landing-reserve"
+      ],
+      "additional_license_page": "https://bigsoundbank.com/licenses.html",
+      "note": "来源页公开 OGG 音频；真实泥土路落地，非行走单步。需裁切与步态适配试听。 已降为落地备选，不计为行走覆盖。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/dirt_1837.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\dirt_landing_1837.ogg",
+      "bytes": 37104,
+      "sha256": "8ea45190a6ec57f5e2b854b8985e48e93cb3eda59dc02ed7f2795ac114bea90e",
+      "evidence_saved": true,
+      "evidence_sha256": "185b4f009f627969169e9275c60d4d6fe1beb416f4f542f14ea8bc5a88951aca",
+      "license_file": "Licenses/dirt_1837-source-license.txt",
+      "license_file_sha256": "432ffb27df92dbc50ea426e17ae6cf27c71af80a2713f1e37782195260b9a5fd"
+    },
+    {
+      "id": "dirt_1838",
+      "title": "Jumping on dirt road #2",
+      "author": "Joseph SARDIN",
+      "page": "https://bigsoundbank.com/jumping-on-dirt-road-2-s1838.html",
+      "download": "https://bigsoundbank.com/UPLOAD/ogg/1838.ogg?v=d",
+      "direct_file": "Selected/dirt_landing_1838.ogg",
+      "covers": [
+        "A13-dirt-landing-reserve"
+      ],
+      "additional_license_page": "https://bigsoundbank.com/licenses.html",
+      "note": "来源页公开 OGG 音频；真实泥土路落地，非行走单步。需裁切与步态适配试听。 已降为落地备选，不计为行走覆盖。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/dirt_1838.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\dirt_landing_1838.ogg",
+      "bytes": 48472,
+      "sha256": "b031e74f3d60bb724591c08777ccacd88434d7d6b4a6d5ef79c4685eae5c10ef",
+      "evidence_saved": true,
+      "evidence_sha256": "6652f788bcbb25a7256ff243c02db8aa495bcdcaa2bb9a311783c76d43f1c8f2",
+      "license_file": "Licenses/dirt_1838-source-license.txt",
+      "license_file_sha256": "ec33d8ee505175c7c0c1bf6af9f3c5eefcdad2abba89565ecc14c12571502ef2"
+    },
+    {
+      "id": "mud_reserve",
+      "title": "25 CC0 mud sfx",
+      "author": "rubberduck",
+      "page": "https://opengameart.org/content/25-cc0-mud-sfx",
+      "download": "https://opengameart.org/sites/default/files/25-CC0-mud-sfx.zip",
+      "archive": "Archives/rubberduck_mud.zip",
+      "covers": [],
+      "note": "保留原始备选包，未提取；湿泥挤压音不能冒充干土脚步。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/mud_reserve.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\rubberduck_mud.zip",
+      "bytes": 525884,
+      "sha256": "3f3dccc202c0a010053e1775ec257d0038b69291fc10fc49e8488a9355d4cfdf",
+      "evidence_saved": true,
+      "evidence_sha256": "a73ae8ca096729a5d706bc801bde5d2ba50b71b46c2bca51a004e464229d4508",
+      "license_file": "Licenses/mud_reserve-source-license.txt",
+      "license_file_sha256": "14ad9e3a497a997304089f42bb69075fc49f668956badf4c32793a39e826dc03"
+    },
+    {
+      "id": "steps_reserve",
+      "title": "Different steps on wood, stone, leaves, gravel and mud",
+      "author": "TinyWorlds; original recordings pdsounds",
+      "page": "https://opengameart.org/content/different-steps-on-wood-stone-leaves-gravel-and-mud",
+      "download": "https://opengameart.org/sites/default/files/%5Bkdd%5DDifferentSteps_0.zip",
+      "archive": "Archives/tinyworlds_different_steps.zip",
+      "covers": [],
+      "note": "保留原始备选包，未提取；石头和泥土各只有一条，不充当两变体。",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者或发布者来源页明确列出 CC0；完整许可保存于本地。",
+      "evidence_file": "Evidence/steps_reserve.html",
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Archives\\tinyworlds_different_steps.zip",
+      "bytes": 77711,
+      "sha256": "987d072b7deaa65177e005ddd8185f2351be7c9a76cd7575dea560549c39b33b",
+      "evidence_saved": true,
+      "evidence_sha256": "8b71923689560512cab908ee91d96d59d664c655c040f38402f374918ec46e06",
+      "license_file": "Licenses/steps_reserve-source-license.txt",
+      "license_file_sha256": "37c271dd942107e75cbfef08f1af888ce81270e00091dfa45df4779404acf8c5"
+    },
+    {
+      "id": "dirt_walk",
+      "title": "Footsteps Dirt 01",
+      "author": "aglinder",
+      "page": "https://freesound.org/people/aglinder/sounds/264469/",
+      "download": "https://cdn.freesound.org/previews/264/264469_1042839-hq.mp3",
+      "direct_file": "Selected/dirt_walk_aglinder_public_hq.mp3",
+      "covers": [
+        "A13-dirt-a",
+        "A13-dirt-b"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "license_file": "Licenses/dirt_walk-source-license.txt",
+      "verified_date": "2026-10-26",
+      "verification": "原作者页标为 Creative Commons 0；描述 walking and running on dirt/gravel。",
+      "evidence_file": "Evidence/aglinder_dirt_walk.html",
+      "evidence_saved": true,
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\dirt_walk_aglinder_public_hq.mp3",
+      "bytes": 683424,
+      "sha256": "3fff403aa63a5b50f5d0143afaa74e231b5c946adfb861318737ddd518f464ea",
+      "note": "公开 HQ MP3 试听源；非需登录的 WAV 原件。计划从真实走步中选两条，不将落地声冒充走步。",
+      "license_file_sha256": "5f697641f5d6b7f3d81b9450195166e0b02bb314c7dcf8610772c9829674bca2",
+      "evidence_sha256": "d3bc58a858a7e7fdddf8a5f38513203023a95d73eaab1641c9bc9762909be0bc"
+    },
+    {
+      "id": "grass_rustle",
+      "title": "grass_rustling_uncut.wav",
+      "author": "Clusman",
+      "page": "https://freesound.org/people/Clusman/sounds/543508/",
+      "download": "https://cdn.freesound.org/previews/543/543508_1218735-hq.mp3",
+      "direct_file": "Selected/grass_rustle_clusman_public_hq.mp3",
+      "covers": [
+        "A06"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "license_file": "Licenses/grass_rustle-source-license.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者/发布者页面明确提供 CC0，来源页与全文保存本地。",
+      "evidence_file": "Evidence/grass_rustle_clusman.html",
+      "evidence_saved": true,
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\grass_rustle_clusman_public_hq.mp3",
+      "bytes": 254736,
+      "sha256": "8e072fa6fe86a2e9ae5bedf83b1f37884d0f0d23c566e1d2467f3f79b2abda05",
+      "note": "真实草摩擦的公开 HQ MP3 试听源；原 WAV 要登录，未取得。",
+      "license_file_sha256": "1a0403c0eb9ce811f062b867a883039a759e2837e4cf3719dd69ca7669967500",
+      "evidence_sha256": "113f0b7c5d89b0560bc53f55b561ccd3aacf4b449a733f73e32c227d23bf554e"
+    },
+    {
+      "id": "leaf_rustle",
+      "title": "Random Sounds Samples: moving leaves stereo",
+      "author": "Augmentality (Brandon Morris); published by HaelDB",
+      "page": "https://opengameart.org/content/random-sounds-samples",
+      "download": "https://opengameart.org/sites/default/files/moving%20leaves%20stereo.ogg",
+      "direct_file": "Selected/leaf_rustle_augmentality.ogg",
+      "covers": [
+        "A06-reserve"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "license_file": "Licenses/leaf_rustle-source-license.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者/发布者页面明确提供 CC0，来源页与全文保存本地。",
+      "evidence_file": "Evidence/leaf_rustle_source.html",
+      "evidence_saved": true,
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\leaf_rustle_augmentality.ogg",
+      "bytes": 22317,
+      "sha256": "678c0da00ef1092f4be7c2d8c7b22c1c91c5fc8ca1f3f9570ce59de995c0138c",
+      "note": "页面同时提供 OGA-BY 3.0 与 CC0，本次选择 CC0。叶片摩擦备选；最终 A06 使用真实草摩擦。",
+      "license_file_sha256": "10275b5710998db5c7fc4720d65d8011de3e5e60bd6287bbbea53027a0a67f8f",
+      "evidence_sha256": "39cf01a2ff2d62e0ff13735bd29f66806a40a6cd04debaecc5e6d0c457cb3dea"
+    },
+    {
+      "id": "liquid_lap",
+      "title": "01 cat drinking",
+      "author": "lake_constance",
+      "page": "https://freesound.org/people/lake_constance/sounds/791359/",
+      "download": "https://cdn.freesound.org/previews/791/791359_11351249-hq.mp3",
+      "direct_file": "Selected/liquid_lap_cat_public_hq.mp3",
+      "covers": [
+        "A09"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "license_file": "Licenses/liquid_lap-source-license.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者/发布者页面明确提供 CC0，来源页与全文保存本地。",
+      "evidence_file": "Evidence/liquid_lap_cat.html",
+      "evidence_saved": true,
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\liquid_lap_cat_public_hq.mp3",
+      "bytes": 452600,
+      "sha256": "445ad10bd9d6063469d3cde62c0832f75f71d7ff09adf30b9b485d478c402cb4",
+      "note": "真实猫舔奶的液体接触声，不是动物叫声；公开 HQ MP3，原 AIFF 要登录未取得。",
+      "license_file_sha256": "a910909f5da5e1d9ee51370bdadf5b9465d71627ccda5f6e0aed36f15c38ff32",
+      "evidence_sha256": "420a4dc937a124d7cbadc84dfc89d6645d5cf105920e3e93f90b9d56b11c7228"
+    },
+    {
+      "id": "outdoor",
+      "title": "Random Sounds Samples: cricket ambience",
+      "author": "Augmentality (Brandon Morris); published by HaelDB",
+      "page": "https://opengameart.org/content/random-sounds-samples",
+      "download": "https://opengameart.org/sites/default/files/cricket%20ambienc276.ogg",
+      "direct_file": "Selected/outdoor_cricket_augmentality.ogg",
+      "covers": [
+        "B03"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "license_file": "Licenses/outdoor-source-license.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者/发布者页面明确提供 CC0，来源页与全文保存本地。",
+      "evidence_file": "Evidence/leaf_rustle_source.html",
+      "evidence_saved": true,
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\outdoor_cricket_augmentality.ogg",
+      "bytes": 212088,
+      "sha256": "0d672c93843afc5785cbf4eeb6df696a73188016724ff59bcbd9c623b8d223bf",
+      "note": "选择发布页提供的 CC0；作为低电平室外虫声底层，不作交谈动物语音。",
+      "license_file_sha256": "27bd94bbac44d897af7f83da60f0c86641333ad7b815474cb7f83c0f8c80bdcd",
+      "evidence_sha256": "39cf01a2ff2d62e0ff13735bd29f66806a40a6cd04debaecc5e6d0c457cb3dea"
+    },
+    {
+      "id": "shore",
+      "title": "Water Waves: wave 02",
+      "author": "transitking; excerpt by qubodup",
+      "page": "https://opengameart.org/content/water-waves",
+      "download": "https://opengameart.org/sites/default/files/wave_02_cc0-11505__transitking__wavesound.flac",
+      "direct_file": "Selected/shore_transitking_wave02.flac",
+      "covers": [
+        "B04"
+      ],
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_text": "Licenses/CC0-1.0-legalcode.txt",
+      "license_file": "Licenses/shore-source-license.txt",
+      "verified_date": "2026-10-26",
+      "verification": "作者/发布者页面明确提供 CC0，来源页与全文保存本地。",
+      "evidence_file": "Evidence/shore_waves_transitking.html",
+      "evidence_saved": true,
+      "downloaded_file": "C:\\unity project\\Weather House\\Tools\\LifeAudio\\Source\\Selected\\shore_transitking_wave02.flac",
+      "bytes": 583157,
+      "sha256": "afa112a66c4cafe06ef76d5e2d4d00a701d4520c58eef63b862afa771991d77a",
+      "note": "海岸岩面冲刷回流的短 FLAC 片段，源作者 CC0。原始全长来源 https://freesound.org/people/transitking/sounds/11505/ 。",
+      "license_file_sha256": "969d236571a880c8231aa243215ef2a0f0ed65b3326a94eec81f551ad7337637",
+      "evidence_sha256": "c918bc30aedbe8ba59bda681d371904788360c346873259ac5c9f9b322bf7088"
+    }
+  ],
+  "not_downloaded": [
+    {
+      "covers": [
+        "A06"
+      ],
+      "page": "https://freesound.org/people/morganpurkis/sounds/396016/",
+      "author": "morganpurkis",
+      "license": "CC0-1.0",
+      "reason": "原始下载要求登录；本轮不登录。仅存来源，不使用未下载素材。"
+    },
+    {
+      "covers": [
+        "A13-dirt"
+      ],
+      "page": "https://freesound.org/people/aglinder/sounds/264469/",
+      "author": "aglinder",
+      "license": "CC0-1.0",
+      "reason": "WAV 原件要求登录，未下载；改取作者页公开 HQ MP3 试听源，已另列 dirt_walk。"
+    },
+    {
+      "covers": [
+        "A13"
+      ],
+      "page": "https://opengameart.org/content/foot-walking-step-sounds-on-stone-water-snow-wood-and-dirt",
+      "author": "Jute",
+      "license": "GPL-2.0/GPL-3.0",
+      "reason": "未采用：本轮优先 CC0，避免额外再分发条件。"
+    },
+    {
+      "covers": [
+        "A09"
+      ],
+      "page": "https://freesound.org/people/RCSound99/sounds/654042/",
+      "author": "RCSound99",
+      "license": "CC0-1.0",
+      "reason": "已核查真实狗饮水；作者标注有项圈噪声，因此选用猫舔液体来源，未扩充此备选。"
+    },
+    {
+      "covers": [
+        "A09"
+      ],
+      "page": "https://freesound.org/people/Breviceps/sounds/445970/",
+      "author": "Breviceps",
+      "license": "CC0-1.0",
+      "reason": "已核查短饮水/吞咽，但更偏人类吞咽，未下载。"
+    },
+    {
+      "covers": [
+        "A09"
+      ],
+      "page": "https://opengameart.org/content/liquid-bottle-drink-set",
+      "author": "qubodup",
+      "license": "CC0-1.0",
+      "reason": "已核查人类冰茶瓶饮水包，适配度低且包较大，未下载。"
+    },
+    {
+      "covers": [
+        "B04"
+      ],
+      "page": "https://opengameart.org/content/beach-ocean-waves",
+      "author": "jasinski; qubodup",
+      "license": "CC0-1.0",
+      "reason": "上游原始录音评论多次指出有人声，因此改选 transitking 岸浪，不下载此包。"
+    }
+  ],
+  "animals": {
+    "external_assets_downloaded": false,
+    "mode": "另代理原创合成短音节，5 物种预设，同物种共用；制作工具不属于玩家 UI",
+    "workspace": "C:/unity project/Weather House/Tools/LifeAudio/VoiceDesigner/index.html"
+  }
+}

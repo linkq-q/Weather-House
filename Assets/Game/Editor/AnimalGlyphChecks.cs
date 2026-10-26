@@ -52,15 +52,17 @@ namespace WeatherHousePrototype.Editor
                 TextAsset asset = Resources.Load<TextAsset>("WeatherHouseGlyphs");
                 Check(asset != null, "Original glyph resource exists");
                 Glyph[] glyphs = JsonUtility.FromJson<Glyphs>(asset.text).glyphs;
-                Check(glyphs.Length == 24, "Original alphabet contains 24 glyphs");
+                Check(glyphs.Length == 31, "Approved alphabet contains the original 24 and seven new glyphs");
                 var ids = new HashSet<string>();
                 foreach (Glyph glyph in glyphs)
                 {
-                    Check(ids.Add(glyph.id) && Endpoints.ContainsKey(glyph.id), "Unique known glyph: " + glyph.id);
+                    Check(ids.Add(glyph.id), "Unique glyph: " + glyph.id);
                     List<List<Vector2>> paths = AnimalGlyphGraphic.ParseSvgBody(glyph.body);
-                    string[] expected = Endpoints[glyph.id].Split(';');
-                    Check(paths.Count == expected.Length, glyph.id + " stroke count");
-                    for (int i = 0; i < paths.Count; i++)
+                    string[] expected = Endpoints.TryGetValue(glyph.id, out string endpoint) ? endpoint.Split(';') : Array.Empty<string>();
+                    if (expected.Length > 0) Check(paths.Count == expected.Length, glyph.id + " stroke count");
+                    else Check(Array.IndexOf(new[] { "fox", "squirrel", "sheep", "deer", "sleep", "eat", "together" }, glyph.id) >= 0,
+                        "Only the approved seven extend the alphabet");
+                    for (int i = 0; i < expected.Length; i++)
                     {
                         string[] values = expected[i].Split(' ');
                         Vector2 from = new Vector2(float.Parse(values[0], CultureInfo.InvariantCulture), float.Parse(values[1], CultureInfo.InvariantCulture));
@@ -81,7 +83,7 @@ namespace WeatherHousePrototype.Editor
                             Check(rect.Contains(new Vector2(vertex.position.x, vertex.position.y)), glyph.id + " fits its rect");
                         }
                     }
-                    report.Add("PASS " + glyph.id + ": authored endpoints, three sizes, finite nonempty geometry.");
+                    report.Add("PASS " + glyph.id + ": " + (expected.Length > 0 ? "original authored endpoints, " : "approved extension, ") + "three sizes, finite nonempty geometry.");
                 }
                 var curve = AnimalGlyphGraphic.ParseSvgBody("<path d=\"M0 0 Q0 10 10 10\"/>")[0];
                 Check(curve.Exists(point => Vector2.Distance(point, new Vector2(2.5f, 7.5f)) < .001f), "Quadratic curve midpoint");
@@ -91,7 +93,7 @@ namespace WeatherHousePrototype.Editor
                 Reject("<g transform=\"rotate(20)\"><path d=\"M0 0 V10\"/></g>");
                 Reject("<circle cx=\"10\" cy=\"10\" r=\"5\"/>");
                 report.Add("PASS quadratic midpoint; unknown commands, malformed parameters, transforms, and elements reject explicitly.");
-                report.Add("PASS 24 original glyphs. This verifies geometry and parsing; visual review remains separate.");
+                report.Add("PASS 24 original glyphs plus seven approved extensions. This verifies geometry and parsing; visual review remains separate.");
             }
             catch (Exception exception)
             {

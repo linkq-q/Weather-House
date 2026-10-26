@@ -389,37 +389,46 @@ namespace WeatherHouse.Hillside
         private readonly WildlifeBodyPhysics bodyPhysics = new WildlifeBodyPhysics();
 
         public bool CanRotate(WildlifeAgent agent, Quaternion rotation)
+        { return CanRotateAt(agent, agent.transform.position, agent.transform.rotation, rotation); }
+
+        private bool CanRotateAt(WildlifeAgent agent, Vector3 origin, Quaternion fromRotation, Quaternion rotation)
         {
             return agent.locomotion != WildlifeLocomotion.Ground || (bodyPhysics.Clear(agent.BodyEnvelope,
-                agent.transform.position, agent.transform.rotation, agent.transform.position, rotation, obstacleMask,
+                origin, fromRotation, origin, rotation, obstacleMask,
                 owner: agent.transform, player: PlayerCollision, ignoreAnimals: true) &&
-                GroundBodiesAllowMove(agent, agent.transform.position, agent.transform.rotation, agent.transform.position, rotation));
+                GroundBodiesAllowMove(agent, origin, fromRotation, origin, rotation));
         }
 
         public bool TryMove(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing = null)
         { return TryMoveCore(agent, requested, out projected, facing, null); }
 
-        private bool TryMoveCore(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing, WildlifeAgent socialTarget)
+        // Layout queries use the real movement rules without moving the animal to the proposed start.
+        public bool TryMoveFrom(WildlifeAgent agent, Vector3 origin, Quaternion rotation, Vector3 requested, out Vector3 projected)
+        { return TryMoveCore(agent, requested, out projected, null, null, origin, rotation); }
+
+        private bool TryMoveCore(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing, WildlifeAgent socialTarget,
+            Vector3? queryOrigin = null, Quaternion? queryRotation = null)
         {
-            Vector3 origin = agent.transform.position;
+            Vector3 origin = queryOrigin ?? agent.transform.position;
+            Quaternion originRotation = queryRotation ?? agent.transform.rotation;
             projected = origin;
             Vector3 delta = requested - origin;
             bool groundBody = agent.locomotion == WildlifeLocomotion.Ground && agent.BodyEnvelope.Valid;
-            Quaternion heading = facing ?? WildlifeBodyEnvelope.Heading(delta, agent.transform.rotation);
-            if (groundBody && !facing.HasValue && !CanRotate(agent, heading)) return false;
+            Quaternion heading = facing ?? WildlifeBodyEnvelope.Heading(delta, originRotation);
+            if (groundBody && !facing.HasValue && !CanRotateAt(agent, origin, originRotation, heading)) return false;
             float horizontalDistance = new Vector2(delta.x, delta.z).magnitude;
             // Check the whole segment: checking only a safe endpoint would permit crossing a narrow pond.
             int steps = Mathf.Max(1, Mathf.CeilToInt(horizontalDistance / Mathf.Max(.12f, agent.Radius)));
             if (steps > 256) return false;
             Vector3 previous = origin;
-            Quaternion previousRotation = facing.HasValue ? agent.transform.rotation : heading;
+            Quaternion previousRotation = facing.HasValue ? originRotation : heading;
             for (int i = 1; i <= steps; i++)
             {
                 if (!TryProjectPosition(agent, Vector3.Lerp(origin, requested, (float)i / steps), out Vector3 sample)) return false;
                 if (agent.locomotion == WildlifeLocomotion.Ground && Mathf.Abs(sample.y - previous.y) > .45f) return false;
                 if (PlayerCollision && !PlayerCollision.AllowsAnimalMove(previous, sample, agent.Radius, agent.BodyEnvelope)) return false;
                 if (!ExternalBodiesAllowMove(agent, previous, sample)) return false;
-                Quaternion rotation = facing.HasValue ? Quaternion.Slerp(agent.transform.rotation, heading, (float)i / steps) : heading;
+                Quaternion rotation = facing.HasValue ? Quaternion.Slerp(originRotation, heading, (float)i / steps) : heading;
                 if (groundBody && !bodyPhysics.Clear(agent.BodyEnvelope, previous, previousRotation, sample, rotation, obstacleMask,
                     owner: agent.transform, player: PlayerCollision, ignoreAnimals: true)) return false;
                 if (groundBody && !GroundBodiesAllowMove(agent, previous, previousRotation, sample, rotation, socialTarget)) return false;

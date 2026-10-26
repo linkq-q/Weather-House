@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85b44bc32d79d47ce4475f71486699d2, type: 3}
+  m_Name: Catalog
+  m_EditorClassIdentifier:
+  sounds:
+  - cue: 0
+    clips:
+    - {fileID: 8300000, guid: d9d10b948483c822301cc7f5c72c5987, type: 3}
+    volume: 0.25
+    cooldown: 0.12
+    shortDuration: 0
+  - cue: 1
+    clips:
+    - {fileID: 8300000, guid: f650e1117bb46a2eb94093c6d69b1af1, type: 3}
+    volume: 0.36
+    cooldown: 0.5
+    shortDuration: 0
+  - cue: 2
+    clips:
+    - {fileID: 8300000, guid: 50cf47f733aad87236c1c30e2f1b47e5, type: 3}
+    volume: 0.65
+    cooldown: 0.2
+    shortDuration: 0
+  - cue: 3
+    clips:
+    - {fileID: 8300000, guid: a59b82230689bd422b3421e8137a1914, type: 3}
+    volume: 0.18
+    cooldown: 0
+    shortDuration: 0
+  - cue: 4
+    clips:
+    - {fileID: 8300000, guid: 7f3cb27ea7cda2c808d79e720f2a9ff5, type: 3}
+    volume: 0.7
+    cooldown: 0.25
+    shortDuration: 0
+  - cue: 5
+    clips:
+    - {fileID: 8300000, guid: 61ab5efefcd056ff3cc0d519f35e7638, type: 3}
+    volume: 0.38
+    cooldown: 0.2
+    shortDuration: 0.26
+  - cue: 6
+    clips:
+    - {fileID: 8300000, guid: d0228bc411763e5382d54e4ec7526b71, type: 3}
+    volume: 0.45
+    cooldown: 0.2
+    shortDuration: 0
+  - cue: 7
+    clips:
+    - {fileID: 8300000, guid: d80c04341e1bb58a1f460e664fadc907, type: 3}
+    - {fileID: 8300000, guid: 57c7a66560c46c92bee68f080c09a877, type: 3}
+    volume: 0.38
+    cooldown: 0.2
+    shortDuration: 0
+  - cue: 8
+    clips:
+    - {fileID: 8300000, guid: 29b20e0bbbfe8ee8450ea0d3b1f123b0, type: 3}
+    volume: 0.45
+    cooldown: 0.25
+    shortDuration: 0
+  - cue: 9
+    clips:
+    - {fileID: 8300000, guid: e92830df2b8b32bc287e568d0d9783f3, type: 3}
+    volume: 0.38
+    cooldown: 0.2
+    shortDuration: 0
+  - cue: 10
+    clips:
+    - {fileID: 8300000, guid: 59248e7bda33ff8618d8c87c2b06a8bc, type: 3}
+    volume: 0.2
+    cooldown: 0
+    shortDuration: 0
+  - cue: 11
+    clips:
+    - {fileID: 8300000, guid: b3c26ae6ed461aa295f081623b92251a, type: 3}
+    volume: 0.17
+    cooldown: 0
+    shortDuration: 0
+  - cue: 12
+    clips:
+    - {fileID: 8300000, guid: cd7c350ca3a7933de7ae82ecffd087ad, type: 3}
+    - {fileID: 8300000, guid: 34f99bc5b27e41af41f78ba45660f1c5, type: 3}
+    volume: 0.34
+    cooldown: 0.18
+    shortDuration: 0
+  - cue: 13
+    clips:
+    - {fileID: 8300000, guid: 4f682b6282a9c6c79a06e3b684bfd612, type: 3}
+    - {fileID: 8300000, guid: a2e688c3b41e876d984799aceba6a88b, type: 3}
+    volume: 0.35
+    cooldown: 0.18
+    shortDuration: 0
+  - cue: 14
+    clips:
+    - {fileID: 8300000, guid: 9d4ee0aedf2d90d36ea1dabcb00b751d, type: 3}
+    - {fileID: 8300000, guid: cf07e310f3e26413ca0d26e1b097887a, type: 3}
+    volume: 0.29
+    cooldown: 0.18
+    shortDuration: 0
+  - cue: 15
+    clips:
+    - {fileID: 8300000, guid: ea24b690af3578ae2e8caaa673789f99, type: 3}
+    volume: 0.13
+    cooldown: 0
+    shortDuration: 0
+  - cue: 16
+    clips:
+    - {fileID: 8300000, guid: c5dd9cdc2b6b12ecc11de3994178f9ff, type: 3}
+    volume: 0.24
+    cooldown: 0
+    shortDuration: 0
+  voices:
+  - speciesId: dog
+    clip: {fileID: 8300000, guid: 813baa492c17c8d006640f06ab091798, type: 3}
+  - speciesId: squirrel
+    clip: {fileID: 8300000, guid: 83aa18a2836add9c85826938c2ddfc65, type: 3}
+  - speciesId: fox
+    clip: {fileID: 8300000, guid: a17cc928f34a5c686caaf4313a1ec3f6, type: 3}
+  - speciesId: sheep
+    clip: {fileID: 8300000, guid: 0c0e4e79aa35f5878725317d84aea361, type: 3}
+  - speciesId: deer
+    clip: {fileID: 8300000, guid: 89a2230a6d2394ae1de6d566839087f2, type: 3}
+  terrainSurfaces:
+  - layer: {fileID: 8574412962073106934, guid: 7715d509466f18642b6edc10452e05a7, type: 2}
+    surface: 1
+  - layer: {fileID: 8574412962073106934, guid: 030183ae7baf3d742b5afd396d9c443d, type: 2}
+    surface: 2
+  - layer: {fileID: 8574412962073106934, guid: 05ba8563f926f0e4083e18b5750d599f, type: 2}
+    surface: 3
+  - layer: {fileID: 8574412962073106934, guid: 74c68d2c80621ea4e8d62a945bff9543, type: 2}
+    surface: 2
+  materialSurfaces:
+  - material: {fileID: 2100000, guid: 48235a3bec1ffac42b238feb64e16aba, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: 8a42e6d3eeb6eb54497fb256fbd4f50c, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: 9d92c93b9fdfc1a4182a0f94a4ccadf9, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: 962118416afb56688d975911da5bfebf, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: 17ccce907f4c588cb602abaf9ac2b99b, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: b1412d05691c5963b5206e4a1070cffa, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: a0a77e33bf50d074e9e02cda49599110, type: 2}
+    surface: 3
+  - material: {fileID: 2100000, guid: b70e72ce787017a4c83fa4efc2e38c7c, type: 2}
+    surface: 3

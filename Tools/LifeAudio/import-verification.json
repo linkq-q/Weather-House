@@ -1,0 +1,131 @@
+{
+  "result": "PASS",
+  "scope": "Offline bytes and typed YAML object references; Unity object resolution requires LifeAudioChecks.Run; source/listener output requires LifeAudioAudibilityChecks",
+  "imported": 26,
+  "terrainMappings": 4,
+  "materialMappings": 8,
+  "retuned": [
+    {
+      "id": "paper_move",
+      "gain": 0.65,
+      "effectiveRmsDb": -29.65822123765186,
+      "onsetSeconds": 0.0125,
+      "peakDb": -10.000126940172311,
+      "seconds": 0.3
+    },
+    {
+      "id": "camera_shutter",
+      "gain": 0.7,
+      "effectiveRmsDb": -34.624527274670584,
+      "onsetSeconds": 0.0020625,
+      "peakDb": -8.000117030469568,
+      "seconds": 0.208
+    }
+  ],
+  "clips": [
+    {
+      "id": "step_grass_a",
+      "sha256": "46169951c64ce7b5b01066c6d9af159cf260118c6e5321a52629246466907dc2"
+    },
+    {
+      "id": "step_grass_b",
+      "sha256": "cc98e656c7405778f6ba85c14f3f0c934ba8ee85ecb671717dc506ab5eda81d1"
+    },
+    {
+      "id": "step_dirt_a",
+      "sha256": "0ebc4622863229c993c7dbb7c35fdfc1c337b6a962bd367a1a640c9ff890462a"
+    },
+    {
+      "id": "step_dirt_b",
+      "sha256": "9eb8659e6e151855387387b9402fc07c6879606fd863bb3edbeaf01551d5f516"
+    },
+    {
+      "id": "step_stone_a",
+      "sha256": "3c21c074e254436a3e688df9567789906373d148e72ea33a87200e652c024387"
+    },
+    {
+      "id": "step_stone_b",
+      "sha256": "d4cb59116c3385a9ba97c2d5d62e75b261288989f50b4589eb89101f2ec14274"
+    },
+    {
+      "id": "ui_soft_tick",
+      "sha256": "cc4ee022d67091a7873a0b3c116e19eccaccb21fd242b1875f1b60056d8a75d0"
+    },
+    {
+      "id": "progress_soft",
+      "sha256": "dece08462521ec5d2200af5539379eb8bc6fe627a9adce302042de924a0f51d7"
+    },
+    {
+      "id": "paper_move",
+      "sha256": "b3942b5669f54ca0715d196a6020774fcaaba8211f708bb9e87d6bda1aadc228"
+    },
+    {
+      "id": "stroke_soft_loop",
+      "sha256": "4d31c5c5cc7e5483c851ce2ef0506c19375074d29151f7be10b5d2589675361d"
+    },
+    {
+      "id": "camera_shutter",
+      "sha256": "a6d6433fb18879bdaabb957e0e4b1a6606f5b2ddc3a5af2a91c8214f7c4c0af1"
+    },
+    {
+      "id": "grass_fiber_loop",
+      "sha256": "800f2c527ad7a40b641b671de904ad3a87a6d807ab5c3965846081d31ba87450"
+    },
+    {
+      "id": "soft_contact",
+      "sha256": "44ad9e14253bd6e141138e67f6cebea2c83b6f545fd3be21454e7575788c8295"
+    },
+    {
+      "id": "water_touch_a",
+      "sha256": "1824ddea5bf456514fbbf3ad3ea2f2786d8f5002f6d5b04b12876c37ca9a300f"
+    },
+    {
+      "id": "water_touch_b",
+      "sha256": "25cd2be32fc9aba2c5d0e49a0853bc3b3236a2b16704b79e358b49cdc8e3e017"
+    },
+    {
+      "id": "water_lap",
+      "sha256": "c95e1656d46ac3b28d646bbe40937119144452bf058122ac3232a27d3c9764d4"
+    },
+    {
+      "id": "weather_release",
+      "sha256": "b36d2af3689802680e9e31dfe6144f60d2451d3ed8d137a95cb6a4da451254c8"
+    },
+    {
+      "id": "rain_loop",
+      "sha256": "23cdeabb61974430ec51da5706f0d2c5c2b7ffc2ba54f2929b94723ee99d7f14"
+    },
+    {
+      "id": "wind_loop",
+      "sha256": "b56bbf8462d24854748a19678a5ee1afdd9cd387c26e7d4db37dc8a02e271c76"
+    },
+    {
+      "id": "outdoor_quiet_loop",
+      "sha256": "53780dc2f3c348dfad28692e4195161bc7fb6861ffba3cb739d46a07d5b24136"
+    },
+    {
+      "id": "shore_soft_loop",
+      "sha256": "f5d952dde331de94165836f3b39b8b68af47c44852352f3d0bafff85794596e4"
+    },
+    {
+      "id": "animal_syllable_dog",
+      "sha256": "a782c54ae82744e022bb9e14182c777fab789f1ce7879cf66d5c831684625f43"
+    },
+    {
+      "id": "animal_syllable_squirrel",
+      "sha256": "312dbe30bf856f680a217023e817819d0bd9557b0b32b10ae9af08dcad419acb"
+    },
+    {
+      "id": "animal_syllable_fox",
+      "sha256": "729985d1fcbf7817883734b3062086b8ac1e83036ff7c4af08f013f107885c8f"
+    },
+    {
+      "id": "animal_syllable_sheep",
+      "sha256": "a5c1bf0e15d750bed60579b27b3c7fb3dd7290bcd31e73acdb57d96a8c83fa7b"
+    },
+    {
+      "id": "animal_syllable_deer",
+      "sha256": "7a179ad0bb64b7d0fc17ddc48852e3472c71a8a00176437ddc05dd9046ba1673"
+    }
+  ]
+}

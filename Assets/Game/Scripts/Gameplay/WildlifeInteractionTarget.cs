@@ -17,6 +17,7 @@ namespace WeatherHousePrototype
         [SerializeField] private int memberId;
         [SerializeField] private string stableId;
         private Transform agentHead;
+        public string SpeciesId => herd ? "sheep" : agent ? agent.speciesId : null;
 
         private JourneyMember Member
         {
@@ -185,6 +186,22 @@ namespace WeatherHousePrototype
                 result[i] = actor;
             }
             return result;
+        }
+        public static AnimalActor BindRuntime(WildlifeAgent source, WildlifePopulation owner, string id, string name)
+        {
+            if (!CanConverse(source) || !owner || string.IsNullOrWhiteSpace(id) ||
+                owner.agents == null || Array.IndexOf(owner.agents, source) < 0)
+                throw new ArgumentException("Runtime interaction needs an animal owned by its population and a stable identity.");
+            var target = source.GetComponent<WildlifeInteractionTarget>();
+            if (target || source.GetComponent<AnimalActor>())
+                throw new InvalidOperationException("Runtime binding only accepts newly created, unbound animals.");
+            target = source.gameObject.AddComponent<WildlifeInteractionTarget>();
+            target.agent = source; target.population = owner; target.stableId = id; target.FindHead();
+            var actor = source.gameObject.AddComponent<AnimalActor>();
+            actor.BindExternalPresentation(target);
+            actor.animalId = id; actor.displayName = string.IsNullOrWhiteSpace(name) ? DisplayName(source.speciesId) : name;
+            actor.background = true; actor.requestGlyphIds = new[] { "hello" }; actor.satisfiedGlyphIds = new[] { "hello" };
+            return actor;
         }
         private void FindHead()
         {
