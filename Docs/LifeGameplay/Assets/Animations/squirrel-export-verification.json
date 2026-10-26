@@ -1,0 +1,92 @@
+[
+  {
+    "clip": "SquirrelIdle",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 3.2,
+    "maxReimportBonePositionError": 1.3563791696624344e-06,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 3.6983709472390583e-07,
+    "minimumSkinClearance": -4.250302959585284e-08
+  },
+  {
+    "clip": "SquirrelRestDown",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 2.0,
+    "maxReimportBonePositionError": 5.339525004377638e-07,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 3.6983709472390583e-07,
+    "minimumSkinClearance": 4.364580274973662e-08
+  },
+  {
+    "clip": "SquirrelRestLoop",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 3.2,
+    "maxReimportBonePositionError": 1.1655337373629909e-06,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 3.6983709472390583e-07,
+    "minimumSkinClearance": 4.3645802583203164e-08
+  },
+  {
+    "clip": "SquirrelRestUp",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 2.2,
+    "maxReimportBonePositionError": 0.00010112012307130005,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 3.6983709472390583e-07,
+    "minimumSkinClearance": 4.364580274973662e-08
+  },
+  {
+    "clip": "SquirrelDrink",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 3.0,
+    "maxReimportBonePositionError": 5.146836054077906e-07,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 3.6983709472390583e-07,
+    "minimumSkinClearance": 1.4412674276265136e-08
+  },
+  {
+    "clip": "SquirrelAccept",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 2.0,
+    "maxReimportBonePositionError": 3.888781991083508e-07,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 3.6983709472390583e-07,
+    "minimumSkinClearance": -1.993477510842112e-08
+  },
+  {
+    "seam": "SquirrelIdle -> SquirrelRestDown",
+    "status": "PASS",
+    "maxBonePositionError": 1.4975481660844222e-07
+  },
+  {
+    "seam": "SquirrelRestDown -> SquirrelRestLoop",
+    "status": "PASS",
+    "maxBonePositionError": 6.143906154658885e-08
+  },
+  {
+    "seam": "SquirrelRestLoop -> SquirrelRestUp",
+    "status": "PASS",
+    "maxBonePositionError": 6.143906154658885e-08
+  },
+  {
+    "seam": "SquirrelRestLoop -> SquirrelRestLoop",
+    "status": "PASS",
+    "maxBonePositionError": 0.0
+  },
+  {
+    "seam": "SquirrelRestUp -> SquirrelIdle",
+    "status": "PASS",
+    "maxBonePositionError": 1.4975481660844222e-07
+  },
+  {
+    "seam": "SquirrelIdle -> SquirrelIdle",
+    "status": "PASS",
+    "maxBonePositionError": 0.0
+  }
+]
