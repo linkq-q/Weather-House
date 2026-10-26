@@ -1,0 +1,132 @@
+{
+  "updatedUtc": "2026-10-26T19:26:22.349979+00:00",
+  "roaming": {
+    "status": "PASS",
+    "simulationSeconds": 24.01,
+    "wallSeconds": 24.06,
+    "maximumDisplacementMeters": 2.576877,
+    "secondaryMovedCount": 11,
+    "activeHelpPreempt": "PASS",
+    "release": "PASS",
+    "visualBoundary": "No dedicated roaming after screenshot or video exists; trace/statistics only.",
+    "habitatGuard": {
+      "existingAlarmAllowanceMultiplier": 1.45,
+      "source": "Assets/Game/Life/Editor/LifeRoamingPlayChecks.cs:145",
+      "boundary": "Per-frame boundary check retains the existing alarm allowance. Ordinary free destinations continue to be rejected outside habitatRadius."
+    }
+  },
+  "intermediateBaseline": {
+    "maximumDisplacementMeters": 0.537638,
+    "simulationSeconds": 24.03,
+    "provenance": "Reported by the root agent from the then-current real play-checks.txt tool output in this chat; full raw log was not separately archived. The original file was overwritten by the final run."
+  },
+  "world": {
+    "status": "PASS",
+    "startedUtc": "2026-10-26T19:04:30.0850704Z",
+    "checks": 57,
+    "seconds": 94.09467315673828,
+    "photoCapturedUtc": "2026-10-26T19:05:39.8361292Z"
+  },
+  "runtimeSourceChecks": [
+    {
+      "path": "Assets/Game/Life/World/LifeWorld.Roaming.cs",
+      "line": 10,
+      "sha256": "662731a0778bff0c325c973638f4cfec1f6f2e415cbff15d0af481092b0b8507",
+      "role": "已实施运行时文件"
+    },
+    {
+      "path": "Assets/Game/Life/World/LifeWorld.cs",
+      "line": 191,
+      "sha256": "8f098e30bef61a4d5a7518150c254980e06f0ca7ac4b486b3ea851033ff4a033",
+      "role": "已实施运行时文件"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs",
+      "line": 302,
+      "sha256": "8ec989cd7a9f1c8911448669aa5516ce013913e3bab6b65d4eba7d8c46e617af",
+      "role": "已实施运行时文件"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs",
+      "line": 459,
+      "sha256": "8ec989cd7a9f1c8911448669aa5516ce013913e3bab6b65d4eba7d8c46e617af",
+      "role": "已实施运行时文件"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifePopulation.cs",
+      "line": 409,
+      "sha256": "b5b9a87a47ef91a14f1f5786aa4a79f5b21e847ffee11bdb03237b553bc922cc",
+      "role": "既有完整段验证器参考"
+    }
+  ],
+  "designReferences": [
+    {
+      "url": "https://www.future-press.com/acnh/pdf/ACNH_Autumn-2021-Update_EN.pdf",
+      "scope": "Published exhibit layout, PDF page 3; no internal algorithm claim."
+    },
+    {
+      "url": "https://nhm.org/stories/my-virtual-museum-home",
+      "scope": "First-person gameplay observations of species motion; no internal algorithm claim."
+    },
+    {
+      "localRepository": "C:\\Users\\31483\\Documents\\GitHub\\Voxel-Resort",
+      "scope": "Read-only design reference. Its facility/wish scoring was not transplanted into Weather House."
+    }
+  ],
+  "artifacts": [
+    {
+      "relativePath": "证据/原站位租约失败.txt",
+      "source": "LifeGameplayReview\\20261027\\animal-roaming\\before-fixed-station.txt",
+      "bytes": 940,
+      "sha256": "5003b28f65b5a697f286a0dde8d7021c48609ab2c6eb83f6f1c5d348db1d2185",
+      "sourceModifiedUtc": "2026-10-26T17:39:08.234264+00:00"
+    },
+    {
+      "relativePath": "证据/最终漫游Play.txt",
+      "source": "LifeGameplayReview\\20261027\\animal-roaming\\play-checks.txt",
+      "bytes": 3923,
+      "sha256": "e68248882af6881dbde847361db0ed038d6e848217588bf9ddd8d71fba3254fd",
+      "sourceModifiedUtc": "2026-10-26T19:02:40.884578+00:00"
+    },
+    {
+      "relativePath": "证据/最终漫游生命周期.txt",
+      "source": "LifeGameplayReview\\20261026\\play\\roaming-play-result.txt",
+      "bytes": 4208,
+      "sha256": "70b71a79200f8a52904ff49edd525691a51f581e09b01df6bf26c8dde7fe29de",
+      "sourceModifiedUtc": "2026-10-26T19:02:40.913680+00:00"
+    },
+    {
+      "relativePath": "证据/世界动作57项.json",
+      "source": "LifeGameplayReview\\20261026\\play\\world-animation.json",
+      "bytes": 168845,
+      "sha256": "311b488130fae674eecee1613ac99488d0fbb298394a11ee2ab9e936d798913b",
+      "sourceModifiedUtc": "2026-10-26T19:06:08.533369+00:00"
+    },
+    {
+      "relativePath": "证据/P22共饮成功.json",
+      "source": "LifeGameplayReview\\20261026\\photo-flow\\actual-shared-drinking.json",
+      "bytes": 3157,
+      "sha256": "b9d8d451b299ec299a9d49a4871e1c9b72c55217fb214290a71404d0be418f7c",
+      "sourceModifiedUtc": "2026-10-26T19:05:39.968235+00:00"
+    },
+    {
+      "relativePath": "证据/P22共饮成功.png",
+      "source": "LifeGameplayReview\\20261026\\photo-flow\\actual-shared-drinking.png",
+      "bytes": 494540,
+      "sha256": "d67086874b6a579f44cbaa276a26ff1b6c9fb8cc6c146e510f11b02899d7f9e4",
+      "sourceModifiedUtc": "2026-10-26T19:05:39.967224+00:00"
+    },
+    {
+      "relativePath": "证据/P22同帧视角.txt",
+      "source": "LifeGameplayReview\\20261026\\photo-flow\\shared-drinking-views.txt",
+      "bytes": 2338,
+      "sha256": "a126caba55f0206a8e1386fd1a6fae90a7910949abf5ce6a7f2217bcc19e01bf",
+      "sourceModifiedUtc": "2026-10-26T19:05:48.704169+00:00"
+    },
+    {
+      "relativePath": "证据/运行源码核对.txt",
+      "bytes": 11713,
+      "sha256": "2f304d6069436c3dec7b4c6a270e3bf9ae15dd99ff6c358e57690c4e86290f53"
+    }
+  ]
+}

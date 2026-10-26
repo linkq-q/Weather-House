@@ -1,0 +1,36 @@
+PASS animal roaming
+PASS Checks require the root's isolated Play save
+PASS Fresh idle world starts with its real idle controller, no dialogue or active help
+PASS The key dog belongs to a running wildlife simulation
+PASS The player is safely outside the key dog's nearby interaction range
+PASS An idle key dog releases the fixed station lease instead of remaining pinned
+Dog habitat center=(-46.800, 3.000, -45.000), radius=8.000, routine=Ambient
+TRACE sim=0.00 position=(-43.854, 2.917, -45.444) destination=(-44.444, 2.908, -46.778) state=Greet speed=0.709 lease=False
+TRACE sim=1.02 position=(-43.328, 2.871, -45.638) destination=(-44.444, 2.908, -46.778) state=Greet speed=0.000 lease=False
+TRACE sim=2.12 position=(-43.328, 2.871, -45.638) destination=(-44.444, 2.908, -46.778) state=Idle speed=0.000 lease=False
+TRACE sim=3.15 position=(-43.328, 2.871, -45.638) destination=(-44.444, 2.908, -46.778) state=Idle speed=0.000 lease=False
+TRACE sim=4.15 position=(-43.328, 2.871, -45.638) destination=(-44.444, 2.908, -46.778) state=Idle speed=0.000 lease=False
+TRACE sim=5.17 position=(-43.383, 2.875, -45.643) destination=(-45.385, 2.995, -45.808) state=Wander speed=0.709 lease=False
+TRACE sim=6.20 position=(-44.114, 2.930, -45.703) destination=(-45.385, 2.995, -45.808) state=Wander speed=0.709 lease=False
+TRACE sim=7.22 position=(-44.832, 2.976, -45.762) destination=(-45.385, 2.995, -45.808) state=Wander speed=0.709 lease=False
+TRACE sim=8.24 position=(-45.111, 2.987, -45.785) destination=(-45.385, 2.995, -45.808) state=Idle speed=0.000 lease=False
+TRACE sim=9.25 position=(-45.111, 2.987, -45.785) destination=(-45.385, 2.995, -45.808) state=Idle speed=0.000 lease=False
+TRACE sim=10.26 position=(-45.111, 2.987, -45.785) destination=(-45.385, 2.995, -45.808) state=Idle speed=0.000 lease=False
+TRACE sim=11.27 position=(-45.111, 2.987, -45.785) destination=(-45.385, 2.995, -45.808) state=Idle speed=0.000 lease=False
+TRACE sim=12.27 position=(-45.111, 2.987, -45.785) destination=(-45.385, 2.995, -45.808) state=Idle speed=0.000 lease=False
+TRACE sim=13.28 position=(-45.120, 2.993, -45.431) destination=(-45.186, 3.011, -42.841) state=Wander speed=0.709 lease=False
+TRACE sim=14.31 position=(-45.139, 2.998, -44.698) destination=(-45.186, 3.011, -42.841) state=Wander speed=0.709 lease=False
+TRACE sim=15.35 position=(-45.158, 3.001, -43.958) destination=(-45.186, 3.011, -42.841) state=Wander speed=0.709 lease=False
+TRACE sim=16.38 position=(-45.176, 3.008, -43.232) destination=(-45.186, 3.011, -42.841) state=Wander speed=0.709 lease=False
+TRACE sim=17.40 position=(-45.496, 3.002, -43.885) destination=(-46.361, 3.000, -45.651) state=Wander speed=0.709 lease=False
+TRACE sim=18.43 position=(-45.816, 3.000, -44.539) destination=(-46.361, 3.000, -45.651) state=Wander speed=0.709 lease=False
+TRACE sim=19.46 position=(-46.137, 3.000, -45.195) destination=(-46.361, 3.000, -45.651) state=Wander speed=0.709 lease=False
+TRACE sim=20.47 position=(-46.199, 3.000, -45.320) destination=(-46.361, 3.000, -45.651) state=Forage speed=0.000 lease=False
+TRACE sim=21.49 position=(-46.199, 3.000, -45.320) destination=(-46.361, 3.000, -45.651) state=Forage speed=0.000 lease=False
+TRACE sim=22.52 position=(-46.199, 3.000, -45.320) destination=(-46.361, 3.000, -45.651) state=Forage speed=0.000 lease=False
+TRACE sim=23.55 position=(-46.199, 3.000, -45.320) destination=(-46.361, 3.000, -45.651) state=Forage speed=0.000 lease=False
+Observed simulation=24.01 s, wall=24.06 s, furthest=2.576877 m, secondary moved=11
+PASS An actual active-help state preempts roaming through the existing station lease
+PASS Removing active help restores ordinary life after the short lease expires
+PASS The key dog actually changes its ground position while remaining in its existing local habitat (max travel=2.576877 m)
+PASS At least three secondary animals visibly move within their own habitats during the observation (count=11)
