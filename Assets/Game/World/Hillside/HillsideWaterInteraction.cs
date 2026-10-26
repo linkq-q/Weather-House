@@ -1,284 +1,46 @@
 using ForestSpriteCharacter;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.Rendering;
 
 namespace WeatherHouse.Hillside
 {
-    /// <summary>Visual surface wakes; never changes the character's movement or buoyancy.</summary>
+    // Keep this component/GUID so existing Hillside and Waterside scenes retain their authored settings.
     [DisallowMultipleComponent, RequireComponent(typeof(Renderer)), DefaultExecutionOrder(200)]
-    public sealed class HillsideWaterInteraction : MonoBehaviour
+    public sealed class HillsideWaterInteraction : WaterInteraction
     {
-        public Renderer waterRenderer;
         public Terrain terrain;
         public WorldWaterSurface surface;
-        public ForestSpriteDemoController player;
-        public Shader simulationShader;
-        [Range(64, 512)] public int resolution = 256;
-        [Range(0, 3)] public float strength = 1;
-        [Range(.1f, 1.5f)] public float radius = .38f;
-        [Range(.2f, 4)] public float decay = 1.25f;
-        [Range(.2f, 3)] public float waveSpeed = 1.15f;
-        [Range(.25f, 10)] public float teleportDistance = 1.5f;
-        [Range(0, 3)] public float fieldPadding = .4f;
-
-        public RenderTexture CurrentTexture => normals == null ? null : normals.rt;
-        public Vector4 WorldRect { get; private set; }
-        public bool IsInWater { get; private set; }
-        public int LastStampCount { get; private set; }
-        public int TotalStampCount { get; private set; }
-        public int TeleportSkipCount { get; private set; }
-
-        static readonly int NormalTexId = Shader.PropertyToID("_InteractionNormalTex");
-        static readonly int WorldRectId = Shader.PropertyToID("_InteractionWorldRect");
-        static readonly int StrengthId = Shader.PropertyToID("_InteractionStrength");
-        static readonly int FieldRectId = Shader.PropertyToID("_FieldRect");
-        static readonly int CellId = Shader.PropertyToID("_Cell");
-        static readonly int StepId = Shader.PropertyToID("_Step");
-        static readonly int WakeId = Shader.PropertyToID("_Wake");
-        static readonly int WakeDirectionId = Shader.PropertyToID("_WakeDirection");
-        static readonly int RingId = Shader.PropertyToID("_Ring");
-
-        RTHandle state, nextState, normals;
-        Material simulation;
-        MaterialPropertyBlock properties;
-        Renderer boundRenderer;
-        ForestSpriteDemoController trackedPlayer;
-        CharacterController controller;
-        bool hasPrevious, previousWet, hasDisturbance;
-        Vector3 previousCenter;
-        Vector2 previousPoint;
-        int allocatedResolution;
-
-        void OnEnable()
-        {
-            if (!waterRenderer) waterRenderer = GetComponent<Renderer>();
-            hasPrevious = false;
-        }
 
         void Start()
         {
             if (!player) player = FindObjectOfType<ForestSpriteDemoController>();
         }
 
-        public Vector2 WorldToUV(Vector3 worldPosition) => new Vector2(
-            (worldPosition.x - WorldRect.x) * WorldRect.z,
-            (worldPosition.z - WorldRect.y) * WorldRect.w);
-
-        /// <summary>Wet ground footprint only. Body/surface intersection is reported by IsInWater.</summary>
-        public bool IsWet(Vector3 worldPosition)
+        protected override bool TryGetWetSurface(Vector3 point, out float waterHeight)
         {
-            if (!terrain || !terrain.terrainData || !waterRenderer) return false;
-            if (surface && !surface.Contains(worldPosition)) return false;
-            Bounds bounds = waterRenderer.bounds;
-            if (worldPosition.x < bounds.min.x || worldPosition.x > bounds.max.x ||
-                worldPosition.z < bounds.min.z || worldPosition.z > bounds.max.z) return false;
-            Vector3 origin = terrain.transform.position;
-            Vector3 size = terrain.terrainData.size;
-            if (worldPosition.x < origin.x || worldPosition.x > origin.x + size.x ||
-                worldPosition.z < origin.z || worldPosition.z > origin.z + size.z) return false;
-            float groundY = terrain.SampleHeight(worldPosition) + origin.y;
-            return groundY < (surface ? surface.Height(worldPosition) : bounds.center.y) - .015f;
+            waterHeight = 0;
+            if (!terrain || !terrain.terrainData || !IsInsideRenderer(point)) return false;
+            Vector3 origin = terrain.transform.position, size = terrain.terrainData.size;
+            if (point.x < origin.x || point.x > origin.x + size.x || point.z < origin.z || point.z > origin.z + size.z) return false;
+            if (surface)
+            {
+                if (!surface.TryGetHeight(point, out waterHeight)) return false;
+            }
+            else waterHeight = waterRenderer.bounds.center.y;
+            return terrain.SampleHeight(point) + origin.y < waterHeight - .015f;
         }
 
-        void LateUpdate()
+        protected override bool TryGetFieldBounds(out Bounds bounds)
         {
-            LastStampCount = 0;
-            if (!Application.isPlaying || !EnsureResources()) return;
-            float elapsed = Time.deltaTime;
-            if (!(elapsed > 0) || float.IsInfinity(elapsed)) { Bind(); return; }
-
-            Vector4 wake = Vector4.zero, direction = Vector4.zero, ring = Vector4.zero;
-            ReadMovement(elapsed, ref wake, ref direction, ref ring);
-            if (LastStampCount > 0) hasDisturbance = true;
-            // The cleared field stays exactly flat until its first stamp; never discard residual waves.
-            if (!hasDisturbance) { Bind(); return; }
-
-            float cellX = 1f / (WorldRect.z * allocatedResolution);
-            float cellZ = 1f / (WorldRect.w * allocatedResolution);
-            float speed = Mathf.Clamp(waveSpeed, .2f, 3);
-            // 2-D explicit wave equation: c*dt/minCell < 1/sqrt(2).
-            float stableStep = .45f * Mathf.Min(cellX, cellZ) / speed;
-            float simulationTime = Mathf.Min(elapsed, .1f, stableStep * 8);
-            int substeps = Mathf.Clamp(Mathf.CeilToInt(simulationTime / stableStep), 1, 8);
-            simulation.SetVector(FieldRectId, WorldRect);
-            simulation.SetVector(CellId, new Vector4(1f / allocatedResolution, 1f / allocatedResolution, cellX, cellZ));
-            simulation.SetVector(StepId, new Vector4(simulationTime / substeps,
-                Mathf.Exp(-Mathf.Clamp(decay, .2f, 4) * elapsed / substeps), speed * speed, 1f / substeps));
-            simulation.SetVector(WakeId, wake);
-            simulation.SetVector(WakeDirectionId, direction);
-            simulation.SetVector(RingId, ring);
-
-            CommandBuffer cmd = CommandBufferPool.Get("Painterly water interaction");
-            try
-            {
-                for (int i = 0; i < substeps; i++)
-                {
-                    Blitter.BlitCameraTexture(cmd, state, nextState, simulation, 0);
-                    RTHandle swap = state; state = nextState; nextState = swap;
-                }
-                Blitter.BlitCameraTexture(cmd, state, normals, simulation, 1);
-                Graphics.ExecuteCommandBuffer(cmd);
-            }
-            finally { CommandBufferPool.Release(cmd); }
-            Bind();
-        }
-
-        void ReadMovement(float elapsed, ref Vector4 wake, ref Vector4 direction, ref Vector4 ring)
-        {
-            if (trackedPlayer != player)
-            {
-                trackedPlayer = player;
-                controller = player ? player.GetComponent<CharacterController>() : null;
-                hasPrevious = false;
-            }
-            if (!player || !player.isActiveAndEnabled || !controller || !controller.enabled || !player.gameObject.activeInHierarchy)
-            {
-                hasPrevious = false;
-                IsInWater = false;
-                return;
-            }
-            Bounds body = controller.bounds;
-            Vector2 point = new Vector2(body.center.x, body.center.z);
-            float waterY = surface ? surface.Height(body.center) : waterRenderer.bounds.center.y;
-            bool wet = IsWet(body.center) && body.min.y <= waterY + .03f && body.max.y >= waterY - .03f;
-            IsInWater = wet;
-            if (hasPrevious)
-            {
-                Vector2 displacement = point - previousPoint;
-                float distance = displacement.magnitude;
-                if (Vector3.Distance(body.center, previousCenter) > Mathf.Max(.25f, teleportDistance))
-                    TeleportSkipCount++;
-                else
-                {
-                    float stampRadius = Mathf.Clamp(radius, .1f, 1.5f);
-                    if (wet && distance / elapsed > .04f)
-                    {
-                        Vector2 heading = displacement / Mathf.Max(distance, .00001f);
-                        // Total injection follows travelled distance, independent of frame/substep rate.
-                        wake = new Vector4(point.x, point.y, stampRadius, .28f * distance);
-                        direction = new Vector4(heading.x, heading.y, 0, 0);
-                        LastStampCount++;
-                    }
-                    if (wet != previousWet)
-                    {
-                        Vector2 at = wet ? point : previousPoint;
-                        ring = new Vector4(at.x, at.y, stampRadius, .014f);
-                        LastStampCount++;
-                    }
-                }
-            }
-            // First observation and teleports establish a new origin without a streak across the pond.
-            hasPrevious = true;
-            previousWet = wet;
-            previousPoint = point;
-            previousCenter = body.center;
-            TotalStampCount += LastStampCount;
-        }
-
-        bool EnsureResources()
-        {
-            if (!waterRenderer) waterRenderer = GetComponent<Renderer>();
-            if (!waterRenderer || !terrain) { IsInWater = false; ClearBinding(); return false; }
-            if (!simulationShader) simulationShader = Shader.Find("Hidden/WeatherHouse/WaterInteractionNormals");
-            if (!simulationShader || !simulationShader.isSupported) { ClearBinding(); return false; }
-            if (!simulation || simulation.shader != simulationShader)
-            {
-                if (simulation) CoreUtils.Destroy(simulation);
-                simulation = CoreUtils.CreateEngineMaterial(simulationShader);
-            }
-            Bounds bounds = waterRenderer.bounds;
-            // A world surface may include a distant ocean apron; wakes only exist over this terrain.
-            if (surface && terrain.terrainData)
-            {
-                Vector3 origin = terrain.transform.position, extent = terrain.terrainData.size;
-                Vector3 min = bounds.min, max = bounds.max;
-                min.x = Mathf.Max(min.x, origin.x); min.z = Mathf.Max(min.z, origin.z);
-                max.x = Mathf.Min(max.x, origin.x + extent.x); max.z = Mathf.Min(max.z, origin.z + extent.z);
-                if (max.x <= min.x || max.z <= min.z) { IsInWater = false; ClearBinding(); return false; }
-                bounds.SetMinMax(min, max);
-            }
-            float padding = Mathf.Clamp(fieldPadding, 0, 3);
-            float sizeX = Mathf.Max(.1f, bounds.size.x + padding * 2), sizeZ = Mathf.Max(.1f, bounds.size.z + padding * 2);
-            Vector4 rect = new Vector4(bounds.min.x - padding, bounds.min.z - padding, 1f / sizeX, 1f / sizeZ);
-            int size = Mathf.Clamp(Mathf.ClosestPowerOfTwo(resolution), 64, 512);
-            if (state != null && normals != null && allocatedResolution == size && WorldRect == rect) return true;
-            ReleaseTextures();
-            WorldRect = rect;
-            allocatedResolution = size;
-            state = RTHandles.Alloc(size, size, colorFormat: GraphicsFormat.R16G16_SFloat,
-                filterMode: FilterMode.Point, wrapMode: TextureWrapMode.Clamp, name: "Water interaction height A");
-            nextState = RTHandles.Alloc(size, size, colorFormat: GraphicsFormat.R16G16_SFloat,
-                filterMode: FilterMode.Point, wrapMode: TextureWrapMode.Clamp, name: "Water interaction height B");
-            normals = RTHandles.Alloc(size, size, colorFormat: GraphicsFormat.R16G16B16A16_SFloat,
-                filterMode: FilterMode.Bilinear, wrapMode: TextureWrapMode.Clamp, name: "Water interaction normals");
-            ClearField();
+            if (!base.TryGetFieldBounds(out bounds) || !terrain || !terrain.terrainData) return false;
+            if (!surface) return true;
+            // Offshore decoration must not spread the character's wake across the whole ocean apron.
+            Vector3 origin = terrain.transform.position, extent = terrain.terrainData.size;
+            Vector3 min = bounds.min, max = bounds.max;
+            min.x = Mathf.Max(min.x, origin.x); min.z = Mathf.Max(min.z, origin.z);
+            max.x = Mathf.Min(max.x, origin.x + extent.x); max.z = Mathf.Min(max.z, origin.z + extent.z);
+            if (max.x <= min.x || max.z <= min.z) return false;
+            bounds.SetMinMax(min, max);
             return true;
-        }
-
-        public void ClearField()
-        {
-            hasDisturbance = false;
-            hasPrevious = false;
-            previousWet = false;
-            IsInWater = false;
-            LastStampCount = TotalStampCount = TeleportSkipCount = 0;
-            if (state == null || nextState == null || normals == null) return;
-            CommandBuffer cmd = CommandBufferPool.Get("Clear water interaction");
-            try
-            {
-                CoreUtils.SetRenderTarget(cmd, state, ClearFlag.Color, Color.clear);
-                CoreUtils.SetRenderTarget(cmd, nextState, ClearFlag.Color, Color.clear);
-                CoreUtils.SetRenderTarget(cmd, normals, ClearFlag.Color, new Color(.5f, .5f, 1, 1));
-                Graphics.ExecuteCommandBuffer(cmd);
-            }
-            finally { CommandBufferPool.Release(cmd); }
-            Bind();
-        }
-
-        void Bind()
-        {
-            if (boundRenderer != waterRenderer) { ClearBinding(); boundRenderer = waterRenderer; }
-            if (!boundRenderer || normals == null) return;
-            if (properties == null) properties = new MaterialPropertyBlock();
-            // Reflection uses the same block; preserve every field owned by the other component.
-            boundRenderer.GetPropertyBlock(properties);
-            properties.SetTexture(NormalTexId, normals.rt);
-            properties.SetVector(WorldRectId, WorldRect);
-            properties.SetFloat(StrengthId, Mathf.Clamp(strength, 0, 3));
-            boundRenderer.SetPropertyBlock(properties);
-        }
-
-        void ClearBinding()
-        {
-            if (!boundRenderer) return;
-            if (properties == null) properties = new MaterialPropertyBlock();
-            boundRenderer.GetPropertyBlock(properties);
-            properties.SetTexture(NormalTexId, Texture2D.grayTexture);
-            properties.SetVector(WorldRectId, Vector4.zero);
-            properties.SetFloat(StrengthId, 0);
-            boundRenderer.SetPropertyBlock(properties);
-            boundRenderer = null;
-        }
-
-        void ReleaseTextures()
-        {
-            ClearBinding();
-            state?.Release(); nextState?.Release(); normals?.Release();
-            state = nextState = normals = null;
-            allocatedResolution = 0;
-        }
-
-        void OnDisable()
-        {
-            ReleaseTextures();
-            if (simulation) CoreUtils.Destroy(simulation);
-            simulation = null;
-            WorldRect = Vector4.zero;
-            IsInWater = hasPrevious = false;
-            LastStampCount = 0;
         }
     }
 }
-
-

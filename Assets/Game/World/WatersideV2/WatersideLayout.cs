@@ -309,6 +309,13 @@ namespace WeatherHouse.WatersideV2
             return false;
         }
 
+        // One exact sample serves both section membership and height; callers reject distant bounds first.
+        public static bool TryWaterHeight(float x, float z, int section, out float height)
+        {
+            WaterSample(x, z, out float distance, out height, out _, out int nearestSection);
+            return distance < 0 && (section == -2 || section == nearestSection);
+        }
+
         /// <summary>Nearest water surface, including outside its footprint. Test IsWater before use.</summary>
         public static float WaterHeight(float x, float z)
         { float distance, surface, depth; WaterSample(x, z, out distance, out surface, out depth); return surface; }

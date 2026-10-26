@@ -581,8 +581,10 @@ Shader "Weather House/Painterly Water"
                 // Zero strength and an unbound rectangle are strict neutral paths.
                 if (_InteractionStrength <= 0.0 || _InteractionWorldRect.z <= 0.0 || _InteractionWorldRect.w <= 0.0)
                     return 0;
+                if (waterDepth <= 0.015) return 0;
                 float2 uv = (worldXZ - _InteractionWorldRect.xy) * _InteractionWorldRect.zw;
                 float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
+                if (inside == 0) return 0;
                 // Field RGB encodes world X / world Z / up Y. Neutral is (0.5, 0.5, 1).
                 float3 tangentNormal = SAMPLE_TEXTURE2D_LOD(_InteractionNormalTex, sampler_InteractionNormalTex, saturate(uv), 0).rgb * 2.0 - 1.0;
                 float2 slope = tangentNormal.xy / max(tangentNormal.z, 0.35);
