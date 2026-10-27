@@ -13,6 +13,7 @@ namespace WeatherHouse.Life
         private LifeSession life;
         private GameplayHud hud;
         private Canvas canvas;
+        private bool onboardingCanvasHidden, onboardingCanvasWasEnabled;
         private RectTransform root, drawRoot, taskRoot, hintRoot, taskToggleRoot;
         private Text taskPageText, interactionText, helpText, drawHint;
         private Button previousTaskPage, nextTaskPage;
@@ -100,6 +101,10 @@ namespace WeatherHouse.Life
         private void Update()
         {
             if (!life || !canvas) return;
+            bool opening = LifeOnboarding.Blocks(life.Gameplay);
+            if (opening)
+            { if (!onboardingCanvasHidden) { onboardingCanvasWasEnabled = canvas.enabled; onboardingCanvasHidden = true; } canvas.enabled = false; return; }
+            if (onboardingCanvasHidden) { canvas.enabled = onboardingCanvasWasEnabled; onboardingCanvasHidden = false; }
             bool modal = Modal;
             UpdateTaskTimeIcon();
             if (worldMode && (modal || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.C))) Cancel();

@@ -62,9 +62,14 @@ namespace WeatherHousePrototype
             }
         }
 
-        public IEnumerator Judge(JudgementInput input, Action<JudgementResult> complete)
+        public IEnumerator Judge(JudgementInput input, Action<JudgementResult> complete, Func<bool> cancelled = null)
         {
             if (complete == null) throw new ArgumentNullException(nameof(complete));
+            if (cancelled != null && cancelled())
+            {
+                complete(Failure("语义判断已取消，猜测已保留。"));
+                yield break;
+            }
             AIConfiguration configuration;
             string configurationError;
             if (!TryLoadConfiguration(out configuration, out configurationError))
@@ -128,7 +133,13 @@ namespace WeatherHousePrototype
                     complete(Failure("无法启动AI请求，请检查本地配置与网络环境。"));
                     yield break;
                 }
-                yield return operation;
+                while (!operation.isDone && !(cancelled != null && cancelled())) yield return null;
+                if (cancelled != null && cancelled())
+                {
+                    request.Abort();
+                    complete(Failure("语义判断已取消，猜测已保留。"));
+                    yield break;
+                }
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     complete(Failure(request.responseCode > 0

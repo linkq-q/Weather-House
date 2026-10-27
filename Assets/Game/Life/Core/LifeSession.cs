@@ -25,6 +25,7 @@ namespace WeatherHouse.Life
         public string SavePath => Path.Combine(GameplaySession.PersistenceDirectory, "life-progress.json");
         public string InteractionHint => World ? World.InteractionHint : "";
         public string WeatherText => weather ? weather.Description : "自然天气";
+        public bool LocalRainActive => weather && weather.IsRain;
         public string ProgressHint => Progress.GetProgressHint(World ? World.Requests : Array.Empty<LifeRequest>());
         public int TaskPage { get; private set; }
         public int TaskPageCount => Mathf.Max(1, (Progress.tasks.Count(t => t.status == LifeTaskStatus.Active) + 1) / 2);
@@ -126,7 +127,7 @@ namespace WeatherHouse.Life
         private void OnGameplayChanged() => Changed?.Invoke();
         private void Update()
         {
-            if (!World || !Gameplay || !weather) return;
+            if (!World || !Gameplay || !weather || LifeOnboarding.Blocks(Gameplay)) return;
             weather.Apply(World, Time.deltaTime);
             if (range)
             {
@@ -156,7 +157,7 @@ namespace WeatherHouse.Life
         }
         public bool CanTalk(AnimalActor animal) => animal && animal.IsAvailableForObservation && Gameplay &&
             Vector3.Distance(Gameplay.PlayerTransform.position, animal.transform.position) <= TalkRadius;
-        public LifeRequest CurrentRequest(AnimalActor animal) => animal ? animal.GetComponent<LifeSpeaker>()?.Current : null;
+        public LifeRequest CurrentRequest(AnimalActor animal) => LifeOnboardingSpeech.Current(animal) ? LifeOnboardingSpeech.Current(animal).Request : animal ? animal.GetComponent<LifeSpeaker>()?.Current : null;
         public void NextTopic(AnimalActor animal)
         {
             if (Gameplay.Judging || !CanTalk(animal)) return;
@@ -201,7 +202,7 @@ namespace WeatherHouse.Life
             if (!IsGestureLearned(id)) { message = "先在 J 手账中学习并练习这个手势。"; return false; }
             if (!weather) { message = "天气还在准备中。"; return false; }
             bool success = weather.Cast(id, out message);
-            if (success) { World.RecordCast(id, weather.LastCastWeather); SaveAndNotify(message); }
+            if (success) { World.RecordCast(id, weather.LastCastWeather); LifeOnboarding.SuccessfulCast(this, id); SaveAndNotify(message); }
             return success;
         }
         public void SetGestureInput(bool active) { GestureInputActive = active; Gameplay?.RefreshInputBlocking(); }

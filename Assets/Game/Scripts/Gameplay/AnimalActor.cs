@@ -19,13 +19,13 @@ namespace WeatherHousePrototype
         public Material visualMaterial;
         public bool RequestSatisfied => !ExternalPresentation && region != null && region.Current == requestedWeather;
         private LifeSpeaker LifeSpeaker => GetComponent<LifeSpeaker>();
-        public string[] CurrentGlyphIds => LifeSpeaker && LifeSpeaker.Current != null ? LifeSpeaker.Current.glyphIds : ExternalPresentation ? (ecology ? ecology.CurrentGlyphIds : System.Array.Empty<string>()) :
+        public string[] CurrentGlyphIds => LifeOnboardingSpeech.Current(this) ? LifeOnboardingSpeech.Current(this).Request.glyphIds : LifeSpeaker && LifeSpeaker.Current != null ? LifeSpeaker.Current.glyphIds : ExternalPresentation ? (ecology ? ecology.CurrentGlyphIds : System.Array.Empty<string>()) :
             RequestSatisfied ? satisfiedGlyphIds : requestGlyphIds;
-        public string UtteranceId => LifeSpeaker && LifeSpeaker.Current != null ? animalId + "." + LifeSpeaker.Current.id + "." + LifeSpeaker.Revision : ExternalPresentation ? (ecology ? ecology.UtteranceId : animalId + ".unavailable") :
+        public string UtteranceId => LifeOnboardingSpeech.Current(this) ? LifeOnboardingSpeech.Current(this).Utterance : LifeSpeaker && LifeSpeaker.Current != null ? animalId + "." + LifeSpeaker.Current.id + "." + LifeSpeaker.Revision : ExternalPresentation ? (ecology ? ecology.UtteranceId : animalId + ".unavailable") :
             animalId + (RequestSatisfied ? ".satisfied" : ".request");
         public Transform VisualRoot => ExternalPresentation ? (ecology ? ecology.VisualRoot : null) : transform.Find("Visual");
         public bool IsAvailableForObservation => isActiveAndEnabled && (!ExternalPresentation || (ecology && ecology.IsAvailable));
-        public bool HasAmbientSpeech => (LifeSpeaker && LifeSpeaker.Current != null) || (ExternalPresentation && ecology && ecology.HasAmbientSpeech);
+        public bool HasAmbientSpeech => LifeOnboardingSpeech.Current(this) || (LifeSpeaker && LifeSpeaker.Current != null) || (ExternalPresentation && ecology && ecology.HasAmbientSpeech);
         public bool HasAmbientPresentation => ExternalPresentation && ecology && ecology.HasAmbientPresentation;
         public bool UsesAutomaticGreeting => ExternalPresentation;
         public Vector3 BubbleAnchor => ExternalPresentation ? (ecology ? ecology.BubbleAnchor : transform.position) :

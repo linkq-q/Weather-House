@@ -104,6 +104,43 @@ namespace WeatherHousePrototype
         private RawImage expandedImage;
         private Texture2D expandedTexture;
         private readonly LifePhotoCache photoCache = new LifePhotoCache();
+        public bool OnboardingReady => canvas != null;
+        public string OnboardingGestureSelected => selectedGesture;
+        public void OnboardingHighlight(params string[] targetNames)
+        {
+            var focus = GetComponent<LifeOnboardingBookFocus>();
+            if (!focus && (targetNames == null || targetNames.Length == 0)) return;
+            if (!focus) focus = gameObject.AddComponent<LifeOnboardingBookFocus>();
+            focus.Show(JournalOpen && !IsAlbumOpening ? albumRoot : null, JournalOpen && !IsAlbumOpening ? detailRoot : null,
+                targetNames, journal3D, selectedGesture);
+        }
+        public bool OnboardingDetailOpen => glyphDetailOpen || expandedPhoto != null;
+        public string OnboardingSelectedWord => glyphDetailOpen ? selectedGlyph : null;
+        bool onboardingCanvasHidden, onboardingCanvasWasEnabled;
+        bool ApplyOnboardingSuppression()
+        {
+            bool suppressed = LifeOnboarding.Blocks(session);
+            if (suppressed) { if (!onboardingCanvasHidden) { onboardingCanvasWasEnabled = canvas.enabled; onboardingCanvasHidden = true; } canvas.enabled = false; }
+            else if (onboardingCanvasHidden) { canvas.enabled = onboardingCanvasWasEnabled; onboardingCanvasHidden = false; }
+            return suppressed;
+        }
+        public void OnboardingSelectBook(int tab, string focus)
+        {
+            if (!JournalOpen || IsAlbumOpening) return;
+            albumPhotosSelected = tab == 1; albumGesturesSelected = tab == 2; albumTasksSelected = tab == 3;
+            expandedPhoto = null; publicTaskId = null; glyphDetailOpen = false; selectedGlyph = focus;
+            if (!string.IsNullOrEmpty(focus))
+            { int index = Array.FindIndex(session.Catalog.glyphs, glyph => glyph.id == focus); if (index >= 0) glyphPage = index / AlbumBookView.GlyphsPerPage; }
+            ClearFocus(); RebuildModal();
+        }
+        public void OnboardingSelectGesture(string id) { selectedGesture = id; OnboardingSelectBook(2, null); }
+        public void OnboardingOpenWord(string id)
+        {
+            if (!JournalOpen || IsAlbumOpening) return;
+            expandedPhoto = null; publicTaskId = null; selectedGlyph = guessGlyphId = id;
+            guessDraft = session.Notebook.GetWord(id)?.guess ?? ""; glyphDetailOpen = true;
+            if (albumRoot) albumRoot.gameObject.SetActive(true); ClearFocus(); ShowDetails();
+        }
         public int PhotoDecodeCount => photoCache.DecodedFrames;
         public int CachedPhotoTextureCount => photoCache.TextureCount;
         private ProceduralUiStyle appliedStyle;
@@ -179,7 +216,8 @@ namespace WeatherHousePrototype
             if (captureLabel != null)
                 captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
                     ? "记录中  " + Mathf.RoundToInt(session.Recorder.CaptureProgress * 100f) + "%"
-                    : hasMessage && !displayedStatus.StartsWith("走近动物，观察") ? displayedStatus : PhotoGuide;
+                    : GetComponent<LifeOnboarding>()?.State?.stage == LifeOnboardingStage.TakeSpeechPhoto ? "点下方圆形快门，或按空格拍照。左键点画面可以对焦。" :
+                        hasMessage && !displayedStatus.StartsWith("走近动物，观察") ? displayedStatus : PhotoGuide;
             statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !dialogueOpen && !echoVisible && !string.IsNullOrEmpty(text));
             statusLabel.text = text;
             float width = Mathf.Min(1120f, canvasRect.rect.width - 48f);
@@ -291,6 +329,7 @@ namespace WeatherHousePrototype
         private void Update()
         {
             if (session == null || canvas == null) return;
+            if (ApplyOnboardingSuppression()) return;
             if (inspectorDirty && !IsAlbumOpening) RebuildInspectorPreview();
             if (!string.IsNullOrEmpty(Input.compositionString)) lastCompositionFrame = Time.frameCount;
             UpdateStatus();
@@ -336,6 +375,7 @@ namespace WeatherHousePrototype
         private void LateUpdate()
         {
             if (session == null || canvas == null) return;
+            if (ApplyOnboardingSuppression()) return;
             PositionAnimalBubble();
             FitAlbum();
             FitDetails();
@@ -835,8 +875,7 @@ namespace WeatherHousePrototype
             Vector2 size = confirmed ? new Vector2(320f, 278f) :
                 encountered ? new Vector2(390f, 350f) : new Vector2(320f, 190f);
             var shade = detailLayer = Panel(modalRoot, "Word detail backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .38f));
-            var bubble = ProceduralUiLibrary.WhitePanel(shade, "Word detail", Vector2.zero, size, true);
-            var card = detailRoot = bubble.rectTransform;
+            var card = detailRoot = PaperPanel(shade, "Word detail", Vector2.zero, size, ProceduralUiLibrary.Cream);
             float center = 0f;
             FitDetails();
             CloseButton(card, new Vector2(size.x * .5f - 30f, size.y * .5f - 30f), CloseTop, null, 35f);
@@ -853,12 +892,20 @@ namespace WeatherHousePrototype
             {
                 Label(card, "Guess heading", "我的猜测", new Vector2(0f, center + 34f), new Vector2(300f, 24f), 19, Ink, TextAnchor.MiddleLeft);
                 guessInput = InputBox(card, "Word guess", guessDraft, "这个字可能是什么意思？", new Vector2(0f, center - 9f), new Vector2(300f, 54f));
+                guessInput.targetGraphic.color = Color.Lerp(ProceduralUiLibrary.Cream, Color.white, .35f);
+                guessInput.transition = Selectable.Transition.ColorTint;
+                var guessColors = guessInput.colors;
+                guessColors.highlightedColor = new Color(1f, .98f, .91f);
+                guessColors.selectedColor = new Color(1f, .96f, .82f);
+                guessColors.pressedColor = guessColors.selectedColor;
+                guessInput.colors = guessColors;
                 guessInput.characterLimit = 160;
                 guessInput.onValueChanged.AddListener(value => guessDraft = value);
-                TextButton(card, "Save guess", "记下来", new Vector2(0f, center - 64f), new Vector2(144f, 32f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); }, neutral: true);
+                TextButton(card, "Save guess", "提交猜测", new Vector2(0f, center - 64f), new Vector2(144f, 32f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); }, neutral: true);
             }
             TextButton(card, "Word evidence", "查看相关照片", new Vector2(0f, center - (confirmed ? 77f : 116f)), new Vector2(190f, 32f), () =>
-            { albumPhotosSelected = true; glyphDetailOpen = false; page = 0; ClearFocus(); RebuildModal(); }, neutral: true);
+            { LifeOnboarding.EvidenceOpened(session, selectedGlyph); albumPhotosSelected = true; glyphDetailOpen = false; page = 0; ClearFocus(); RebuildModal(); }, neutral: true);
+            LifeOnboarding.DecorateWord(session, card, font, selectedGlyph, confirmed);
         }
 
         private void BuildPhoto()
@@ -1028,8 +1075,9 @@ namespace WeatherHousePrototype
         {
             if (!isActiveAndEnabled || !canvas || !canvas.enabled || JournalOpen || !animal) return false;
             bool lifeUtterance = animal.GetComponent<LifeSpeaker>()?.Current != null;
-            if (!lifeUtterance && animal.HasAmbientSpeech) return true;
-            if (lifeUtterance && animal.HasAmbientPresentation) return false;
+            bool onboardingUtterance = LifeOnboardingSpeech.Current(animal);
+            if (!lifeUtterance && !onboardingUtterance && animal.HasAmbientSpeech) return true;
+            if ((lifeUtterance || onboardingUtterance) && animal.HasAmbientPresentation) return false;
             return bubbleAnimal == animal &&
                 bubbleUtterance == animal.UtteranceId && bubbleRoot && bubbleRoot.gameObject.activeInHierarchy &&
                 bubbleGroup && bubbleGroup.alpha >= ProceduralUiLibrary.SpeechVisibleAlpha && BubbleAnchorVisible(session.CurrentView, animal);
@@ -1060,6 +1108,7 @@ namespace WeatherHousePrototype
         private void GlyphLine(Transform parent, string[] ids, Vector2 center, float height, float maxWidth)
         {
             LifePhotoBook.TokenLine(parent, session, ids, center, height, maxWidth, font);
+            if (life) LifeOnboardingPhotoLinks.Add(parent, ids, center, height, maxWidth, OnboardingOpenWord);
         }
 
         private GlyphDefinition FindGlyph(string id)

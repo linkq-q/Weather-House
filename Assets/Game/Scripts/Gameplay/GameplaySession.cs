@@ -98,6 +98,7 @@ namespace WeatherHousePrototype
         private void Update()
         {
             RefreshInputBlocking();
+            if (LifeOnboarding.Blocks(this)) return;
             if (Time.unscaledTime < nextObservation) return;
             nextObservation = Time.unscaledTime + .2f;
             AnimalActor next = null;
@@ -153,6 +154,7 @@ namespace WeatherHousePrototype
         {
             bool movement = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.BlocksMovement;
             movement |= Life && Life.GestureInputActive;
+            movement |= LifeOnboarding.Blocks(this);
             bool photo = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.CameraMode;
             if (walker) { walker.InputBlocked = movement; walker.JumpBlocked = photo; walker.CameraInputBlocked = photo; }
             if (forestSprite)
@@ -165,6 +167,7 @@ namespace WeatherHousePrototype
 
         public void SaveGuess(string id, string guess)
         {
+            if (LifeOnboarding.TrySubmitGuess(this, id, guess)) return;
             Notebook.SetGuess(id, guess);
             bool saved = Save();
             if (saved) LifeAudio.Play(LifeAudioCue.Ui);
@@ -252,6 +255,7 @@ namespace WeatherHousePrototype
             { if (hud) hud.CloseDialogue(); Notify("它已经走远了，靠近后再继续交谈。"); return; }
             if (string.IsNullOrWhiteSpace(chinese)) { Notify("写下你想对它说的话。"); return; }
             var lifeRequest = Life ? Life.CurrentRequest(animal) : null;
+            if (LifeOnboarding.TryReplyRain(this, animal, chinese)) return;
             if (animal.background && lifeRequest == null) { Notify("你的话已经说出。它正在分享眼前的生活，可以继续观察它的动作和字语。"); return; }
             if (!Life && animal.RequestSatisfied) { Notify("它的请求已经得到回应。可以继续观察它的生活，把新发现留进手账。"); return; }
             var ids = (string[])animal.CurrentGlyphIds.Clone();
