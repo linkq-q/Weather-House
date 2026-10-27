@@ -87,6 +87,7 @@ namespace WeatherHouse.Life.Editor
                 check(Resources.Load<GameObject>("LifeAssets/"+resource),"模型引用 "+resource);
             CheckLeases(check);
             CheckDrinkApproach(check);
+            CheckCurrentSquirrelRig(check);
             CheckTailCache(check);
             string path=Path.Combine(Application.dataPath,"../Docs/LifeGameplay/World/world-rule-checks.json");
             Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -108,6 +109,25 @@ namespace WeatherHouse.Life.Editor
             check(Path(new Vector3(-.8f,4.46f,-5.7f),Quaternion.LookRotation(Vector3.left)),
                 "绕开伙伴身体的侧面接近及最终转向可以通过同一几何检查");
         }
+        static void CheckCurrentSquirrelRig(Action<bool,string> check)
+        {
+            const string modelPath="Assets/Characters/SquirrelOGA20261027/Squirrel_OGA_Natural_Unity.fbx";
+            var prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/World/Hillside/Generated/squirrel.prefab");
+            check(prefab,"当前正式松鼠prefab存在");
+            check(prefab.GetComponentsInChildren<WeatherHouseSquirrelLab.SquirrelTailWave>(true).Length==0,"当前OGA松鼠不挂旧27骨尾巴组件");
+            var animal=prefab.GetComponent<WildlifeAgent>();
+            var rig=animal && animal.visualRoot?animal.visualRoot.GetComponent<WeatherHouse.SquirrelOga.SquirrelOgaRig>():null;
+            check(rig && rig.HasLifeClips && rig.head && rig.headSkin && animal.animator && rig.head.IsChildOf(animal.animator.transform),"当前OGA头部和七段生活动画绑定完整");
+            check(animal.clips.idle==rig.idle && animal.clips.walk==rig.walk && animal.clips.run==rig.run &&
+                animal.clips.restDown==rig.restDown && animal.clips.restSleep==rig.restLoop && animal.clips.restUp==rig.restUp,"当前OGA行为动画引用对应新rig");
+            foreach(var clip in new[]{rig.idle,rig.walk,rig.run,rig.restDown,rig.restLoop,rig.restUp,rig.drink})
+            {
+                check(AssetDatabase.GetAssetPath(clip)==modelPath,"当前OGA动画来自新模型 "+clip.name);
+                var bindings=AnimationUtility.GetCurveBindings(clip);
+                check(bindings.Length>0 && bindings.Concat(AnimationUtility.GetObjectReferenceCurveBindings(clip)).All(binding=>
+                    string.IsNullOrEmpty(binding.path) || animal.animator.transform.Find(binding.path)),"当前OGA动画曲线绑定实际骨架 "+clip.name);
+            }
+        }
         static void CheckTailCache(Action<bool,string> check)
         {
             Scene preview=EditorSceneManager.NewPreviewScene();
@@ -122,11 +142,14 @@ namespace WeatherHouse.Life.Editor
                 var enable=typeof(WeatherHouseSquirrelLab.SquirrelTailWave).GetMethod("OnEnable",hidden);
                 enable.Invoke(cold,null);
                 check(!cold.IsInitialized && errors==0,"首次添加尾巴组件不抢先初始化空骨架");
-                GameObject prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/World/Hillside/Generated/squirrel.prefab");
-                check(prefab,"热重载回归使用正式松鼠骨架");
+                // This cache belongs to the original 27-bone model, not the current OGA prefab.
+                GameObject prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Experiments/Squirrel/Models/turn.fbx");
+                check(prefab,"热重载回归使用原27骨松鼠源模型");
+                var skins=prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+                check(skins.Length>0 && skins.All(s=>s.bones.Length==27),"旧尾巴回归模型保留完整27骨蒙皮");
                 model=UnityEngine.Object.Instantiate(prefab);SceneManager.MoveGameObjectToScene(model,preview);
                 var wave=model.GetComponent<WeatherHouseSquirrelLab.SquirrelTailWave>()??model.AddComponent<WeatherHouseSquirrelLab.SquirrelTailWave>();
-                check(wave.Initialize(model.transform),"正式尾巴骨架可以初始化");wave.EvaluateAt(.37f);
+                check(wave.Initialize(model.transform),"原27骨尾巴骨架可以初始化");wave.EvaluateAt(.37f);
                 var tail=(Transform[])wave.GetType().GetField("tail",hidden).GetValue(wave);
                 Quaternion[] expected=tail.Select(t=>t.rotation).ToArray();
                 foreach(string name in new[]{"tail","restRotation","bendAxis","distance"})
