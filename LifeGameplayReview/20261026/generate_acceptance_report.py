@@ -104,9 +104,9 @@ MAPPING = {
  'U02': ([HUD,LIFE+'UI/LifePhotoCache.cs',NOTEBOOK,PHOTO_BOOK], ['photo_ui','photo_capture','ui'],
   '摄影页显示字形并通过悬停气泡提示已知含义，完成任务可回看对应照片或公开互动记录；相册保留原语境，关闭手账释放纹理。',
   '亲自播放、翻页、返回、输入猜义，并观察3D投影后命中是否准确。'),
- 'U03': ([LIFE+'UI/LifeGestureBook.cs',LIFE+'UI/LifeGestureDemo.cs',CORE,BOOK], ['gesture','ui','core'],
-  '第三页签提供示范、单笔练习和奖励来源；确字后开放，练习成功再学会，重复回调不重复发放。',
-  '新玩家按示范完成雨手势，再验证未确认字的手势不可提前施放。'),
+ 'U03': ([LIFE+'UI/LifeGestureBook.cs',LIFE+'UI/LifeGesturePad.cs',LIFE+'UI/LifeGestureDemo.cs',CORE,BOOK], ['gesture','ui','core','gesture_pointer'],
+  '第三页签已有示范与练习组件，但用户实测按住拖动完全无笔迹。旧截图与直接学习调用未覆盖真实指针链路，书内练习仍待定位、修复和复测。',
+  '按J进入天气手势页，用真实按下、拖动、松开完成雨手势；须检查练习框命中、组件绑定、采样点、可见笔迹和实际学会。'),
  'U04': ([GESTURE,LIFE+'UI/LifeGesturePad.cs',LIFE+'UI/LifeGestureDemo.cs'], ['gesture','ui'],
   '六个确定性单笔模板，固定起点方向，允许平移/等比缩放与速度变化；22正例、14负例算法检查。',
   '实际鼠标手感、相近轨迹容错和失败反馈需要新玩家操作验证。'),
@@ -163,6 +163,24 @@ MAPPING = {
 def read_json(path):
     return json.loads(path.read_text(encoding='utf-8-sig'))
 
+def photography_tasks():
+    source=(ROOT/LIFE/'Photography/LifePhotoTasks.cs').read_text(encoding='utf-8-sig')
+    names={glyph['id']:glyph['name'] for glyph in read_json(ROOT/'Assets/Game/Resources/WeatherHouseGlyphs.json')['glyphs']}
+    pattern=r'new LifePhotoTask\{id="([^"]+)",title="([^"]+)",mode="([^"]+)",tokens=new\[\]\{([^}]*)\},rewards=new\[\]\{([^}]*)\},\s*action="([^"]*)",accept="([^"]*)",recovery="([^"]*)"\}'
+    tasks=[]
+    for match in re.finditer(pattern,source):
+        task=dict(zip(('id','designTitle','mode','tokens','rewards','action','accept','recovery'),match.groups()))
+        for field in ('tokens','rewards'):
+            task[field]=json.loads('['+task[field]+']')
+            missing=[token for token in task[field] if token not in names]
+            if missing: raise ValueError(f"{task['id']}: 字库中不存在 {', '.join(missing)}")
+        task['tokenMeanings']=[names[token] for token in task['tokens']]
+        task['title']='·'.join(task['tokenMeanings'])
+        tasks.append(task)
+    if len(tasks)!=26 or len({task['id'] for task in tasks})!=26:
+        raise ValueError('未能从当前源码完整读取26条摄影／互动任务')
+    return tasks
+
 def clock_text(timestamp):
     return datetime.fromtimestamp(timestamp).astimezone().strftime('%Y-%m-%d %H:%M:%S %z')
 
@@ -186,6 +204,7 @@ def evidence_specs():
       'scene': ('编辑器交还快照',REVIEW/'editor-state.json',[]),
       'dirty': ('原有修改保护',REVIEW/'dirty-preservation-latest.json',[]),
       'gesture': ('手势与书本资产检查',ROOT/'Docs/LifeGameplay/UI/gesture-checks.txt',[GESTURE]),
+      'gesture_pointer': ('书内绘制问题与指针链路缺口',ROOT/'LifeGameplayReview/20261027/gesture-practice/用户问题记录.json',[]),
       'world_rules': ('世界规则检查',ROOT/'Docs/LifeGameplay/World/world-rule-checks.json',[OBJECT]),
       'world_sync': ('正式场景同步物件检查',REVIEW/'play/world-interactions.json',world_watch),
       'roaming': ('实际群落漫游与帮助接管',REVIEW/'play/roaming-play-result.txt',[WORLD,LIFE+'World/LifeWorld.Roaming.cs',LIFE+'Editor/LifeRoamingPlayChecks.cs','Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs']),
@@ -338,7 +357,7 @@ def generate(output):
       'scope':'原39项任务、3D旧手账修订、全图同类采集、26段音效及31词摄影玩法修订（22摄影+4互动）。',
       'conclusion':'这是实现与证据映射，不能视为39项全部验收通过。Q03始终由用户实际试玩完成。',
       'counts':counts,'evidence':evidence,'tasks':tasks,'screenshots':screenshots,
-      'photographyTasks':read_json(DESKTOP/'拍照与文字玩法修订_20261026/任务清单.json'),
+      'photographyTasks':photography_tasks(),
       'refreshCommand':'python LifeGameplayReview/20261026/generate_acceptance_report.py',
       'freshnessRule':'证据晚于所列相关源码才能代表当前版本；旧PASS/FAIL保留原结果并标待复测。该时间规则是保守提示，最终仍需核对检查范围。',
       'latestDecisions':audit['latestUserDecisions']+[
@@ -382,8 +401,8 @@ def render_html(report,output):
         performance=f'<h2>性能与照片记录</h2><p>当前水岸主图的固定视角 A/B/A 诊断：20 秒原反射、10 秒关闭、10 秒恢复，切换前后预热排除。{esc(perf["detail"])} 渲染线程记录不可得。此结果不是旧水版本的 FPS 对比，Editor 与后台负载仍会影响间隔。</p><div class="table-scroll"><table><thead><tr><th>阶段</th><th>帧样本</th><th>平均帧间隔 ms</th><th>P95 ms</th><th>平均 GPU ms</th></tr></thead><tbody>{rows}</tbody></table></div><p class="muted">动态照片保留18帧；正式照片检查包含180ms慢捕获注入，逐Unity帧采样上限为1，避免同帧追赶。读回、编码与写盘仍有同步代价，具体耗时见照片证据。</p>'
     pending=[e for e in ev.values() if e['id'] in {'ui','world_async','photo_world','photo_capture','photo_ui','photo_interactions','audio_play','persistence','legacy_herd'}]
     pending_html=''.join('<li><b>'+esc(e['label'])+'</b>：'+esc(evidence_label(e))+(('。'+esc(error_summary(e))) if e['error'] else '')+'</li>' for e in pending)
-    photo_rows=''.join('<tr><td>'+esc(t['id'])+'</td><td>'+esc(t['title'])+'</td><td>'+esc(t['mode'])+'</td><td>'+esc(' / '.join(t['rewards']))+'</td><td>'+esc(t['accept'])+'</td></tr>' for t in report['photographyTasks'])
-    photo_section='<h2>追加修订 · 31词摄影与音效</h2><p>下表为批准的22个摄影任务与4个公开互动情境。29个可获取词均有奖励路径；想要／不想要初始已知。已知词不作为拍照门槛，AI只负责动物帮助理解。原39项中的旧跨动物确字要求已被本次修订替代。</p><p>'+file_link('Docs/LifeGameplay/摄影修订验收.md','摄影11个案例与证据边界')+' · '+file_link('Tools/LifeAudio/README.md','音效接入与试听说明')+' · '+file_link('Tools/LifeAudio/VoiceDesigner/index.html','动物音色制作工具')+'</p><p>共26段音频，三类脚步各2段，交互按动作复用素材；五种动物使用原创短音节。松鼠、狐狸、鹿明亮度均为100。音效自动检查验证触发、停止和地表选择，音色与响度留待实际试听。</p><details><summary>展开26个任务的最终验收条件</summary><div class="table-scroll"><table><thead><tr><th>ID</th><th>任务</th><th>方式</th><th>奖励ID</th><th>验收条件</th></tr></thead><tbody>'+photo_rows+'</tbody></table></div></details>'
+    photo_rows=''.join('<tr><td>'+esc(t['id'])+'</td><td>'+esc(t['title'])+'</td><td>'+esc(' · '.join(t['tokens']))+'</td><td>'+esc(t['mode'])+'</td><td>'+esc(' / '.join(t['rewards']))+'</td><td>'+esc(t['accept'])+'</td></tr>' for t in report['photographyTasks'])
+    photo_section='<h2>追加修订 · 31词摄影与音效</h2><p>下表为当前源码中的22个摄影任务与4个公开互动情境。任务名称按动物语正文的原字序直译，圆点只分隔词，不添加动作、位置或构图条件；游戏任务页仍显示原创字形。旧策划中的“树根后的尾巴”等为场景设计标题，不再充当实际任务名称。29个可获取词均有奖励路径；想要／不想要初始已知。已知词不作为拍照门槛，AI只负责动物帮助理解。原39项中的旧跨动物确字要求已被本次修订替代。</p><p>'+file_link('Docs/LifeGameplay/摄影任务清单.md','26条实际任务与动物语逐字对照')+' · '+file_link('Docs/LifeGameplay/摄影修订验收.md','摄影11个案例与证据边界')+' · '+file_link('Tools/LifeAudio/README.md','音效接入与试听说明')+' · '+file_link('Tools/LifeAudio/VoiceDesigner/index.html','动物音色制作工具')+'</p><p>共26段音频，三类脚步各2段，交互按动作复用素材；五种动物使用原创短音节。松鼠、狐狸、鹿明亮度均为100。音效自动检查验证触发、停止和地表选择，音色与响度留待实际试听。</p><details><summary>展开26个任务的最终验收条件</summary><div class="table-scroll"><table><thead><tr><th>ID</th><th>实际任务名称（动物语直译）</th><th>动物语ID顺序</th><th>方式</th><th>奖励ID</th><th>验收条件</th></tr></thead><tbody>'+photo_rows+'</tbody></table></div></details>'
     page='''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>天气屋 · 玩法实现验收</title><style>
 :root{--ink:#233c37;--muted:#5c6c65;--green:#285749;--line:#d7dfd3;--paper:#f4f2e9;--amber:#976722}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}a{color:#276656;text-underline-offset:3px}a:hover{color:#844e24}main{max-width:1240px;margin:auto;padding:0 28px 64px}.hero{padding:50px 0 28px;border-bottom:2px solid #9eaf99}.eyebrow{font-size:13px;letter-spacing:.15em;color:var(--green)}h1{font-size:42px;letter-spacing:.04em;margin:7px 0 14px;font-weight:650}h2{font-size:25px;margin:36px 0 14px}h3{font-size:19px;margin:0}h4{font-size:13px;color:var(--muted);margin:12px 0 6px}.hero p{max-width:930px;margin:10px 0}.meta,small,.muted{color:var(--muted);font-size:13px}.meta{line-height:1.9}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}.metric{border:1px solid var(--line);background:#fffdf6;padding:16px 18px}.metric b{display:block;font-size:30px;line-height:1.25}.metric span{font-size:14px}.notice{padding:18px 24px;background:#ede6d4;border-left:4px solid #a77b35}.notice p{margin:5px 0}.notice ul{margin:8px 0;padding-left:20px}.controls{display:flex;gap:10px;align-items:center;position:sticky;top:0;background:#f4f2e9f7;padding:16px 0;z-index:2;border-bottom:1px solid var(--line)}input,select{border:1px solid #aebdac;border-radius:4px;background:#fffdf6;padding:10px 12px;font:inherit;color:var(--ink)}input{flex:1;min-width:150px}label{font-size:13px}.task{background:#fffdf7;border:1px solid var(--line);border-left:4px solid #8fa68b;margin:16px 0;padding:20px 23px}.task[hidden]{display:none}.task header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.id{font:700 14px/1.3 ui-monospace,monospace;color:var(--green);min-width:48px}.badge{margin-left:auto;padding:3px 9px;border-radius:3px;font-size:12px;white-space:nowrap}.evidenced{background:#e1ecd9;color:#365b37}.retest{background:#f4e8cf;color:#865d24}.blocked{background:#f2d9d1;color:#9a4035}.manual{background:#f2f1e8}.badge.manual{background:#e6e4f0;color:#5b5477}.task>p{margin:12px 0}.task-columns{display:grid;grid-template-columns:1.05fr 1fr;gap:24px}.task-columns>.manual{padding:0 16px 13px}.files{font-size:13px;overflow-wrap:anywhere;margin:0}.evidence-list{list-style:none;padding:0;margin:0;font-size:13px}.evidence-list li{padding:4px 0;border-bottom:1px dotted #dde1d6}.evidence-list span{display:block;color:var(--muted);font-size:12px}.task details{font-size:13px}.task summary{cursor:pointer;color:#4f6e59}.task details ol{padding-left:20px}.shots{display:grid;grid-template-columns:1fr 1fr;gap:20px}figure{margin:0;background:#fffdf6;border:1px solid var(--line)}figure img{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#e4e5da}figcaption{padding:13px 17px}figcaption small{display:block}figcaption p{font-size:13px;margin:5px 0}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;background:#fffdf7}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:12px}th{background:#e9eddf;font-weight:600}td small{display:block;min-width:165px}.error{font-size:12px;color:#9a4035;max-width:420px;overflow-wrap:anywhere;margin:4px 0}footer{border-top:1px solid var(--line);margin-top:35px;padding-top:18px;font-size:13px}.links{display:flex;gap:18px;flex-wrap:wrap}button{font:inherit;border:1px solid #99aa94;background:#e4ebdc;color:var(--ink);border-radius:4px;padding:9px 13px;cursor:pointer}@media(max-width:760px){main{padding:0 16px 35px}.hero{padding:28px 0 18px}h1{font-size:31px}.summary{grid-template-columns:1fr 1fr}.controls{flex-wrap:wrap}.controls input{flex-basis:100%}.task-columns,.shots{grid-template-columns:1fr}.task{padding:16px}.badge{margin-left:0}.task-columns{gap:10px}.controls select{max-width:47%}}@media print{.controls{display:none}.task{break-inside:avoid}.task[hidden]{display:block}.shots{display:none}a{color:inherit}body{background:white}}
 </style></head><body><main>'''
