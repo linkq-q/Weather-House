@@ -1,0 +1,64 @@
+{
+  "status": "EDITORIAL_REVIEW_COMPLETE_NO_GAME_IMPLEMENTATION",
+  "reviewFile": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\新手引导V2\\九步方案专业评审正文.txt",
+  "chineseCharacters": 822,
+  "nonWhitespaceCharacters": 999,
+  "reviewSha256": "1f5bb5101ceb62d077897d82bf302770b1c4a663fe96ed5a3599866bdc3c11ca",
+  "inputs": [
+    "本chat用户九步原文与后续你好再见成对、雨练轨迹到真实施放及清除的确认",
+    "Docs/NightReview20261027/新手引导/新手引导策划.html",
+    "Docs/NightReview20261027/新手引导V2/新手引导策划V2.html"
+  ],
+  "scope": "独立专业评审正文；三个最高优先问题均给替代台词、触发与成功标准；包含最小路径、本地与AI判词、旧案和V2自审",
+  "sourceFacts": [
+    {
+      "file": "Assets/Game/Scripts/Gameplay/LanguageNotebook.cs",
+      "lines": "190-195",
+      "fact": "SetGuess只保存猜测",
+      "sha256": "e398e54d3fa8f291cdeb943a8154474ab9365560caf6f3af6f14e5bd543fd809"
+    },
+    {
+      "file": "Assets/Game/Scripts/Gameplay/LanguageNotebook.cs",
+      "lines": "203-213",
+      "fact": "FindEvidence按字筛ObservationRecord照片证据，不能称所有现场对话全文",
+      "sha256": "e398e54d3fa8f291cdeb943a8154474ab9365560caf6f3af6f14e5bd543fd809"
+    },
+    {
+      "file": "Assets/Game/Scripts/Gameplay/LanguageNotebook.cs",
+      "lines": "215-234",
+      "fact": "现有ConfirmFromJudgement要求当前话轮含字且跨个体CanVerify",
+      "sha256": "e398e54d3fa8f291cdeb943a8154474ab9365560caf6f3af6f14e5bd543fd809"
+    },
+    {
+      "file": "Assets/Game/Scripts/Gameplay/LanguageNotebook.cs",
+      "lines": "175-187",
+      "fact": "完成摄影任务会确认奖励词；新教程不得撤回或要求重考",
+      "sha256": "e398e54d3fa8f291cdeb943a8154474ab9365560caf6f3af6f14e5bd543fd809"
+    },
+    {
+      "file": "Assets/Game/Scripts/Gameplay/GameplaySession.cs",
+      "lines": "166-172",
+      "fact": "SaveGuess调用SetGuess和存档，无书内正确性判断",
+      "sha256": "f346f5eecf1809410fe3e0c371b1f3fb5589d0b990dc7c95df7e9937b4e221b0"
+    },
+    {
+      "file": "Assets/Game/Scripts/Gameplay/GameplaySession.cs",
+      "lines": "174-208",
+      "fact": "真实照片保留话语快照，成功拍摄后应用摄影任务",
+      "sha256": "f346f5eecf1809410fe3e0c371b1f3fb5589d0b990dc7c95df7e9937b4e221b0"
+    },
+    {
+      "file": "Assets/Game/Life/Photography/LifePhotoTasks.cs",
+      "lines": "47-50",
+      "fact": "P20/P21需真实问候/道别照片，普通肖像或走动不等价",
+      "sha256": "7a54b12465e89bd02f5601a4560a00bce8489b6b8714c655f58ea2e2931018df"
+    },
+    {
+      "file": "Assets/Game/Life/Core/LifeSession.cs",
+      "lines": "102-105",
+      "fact": "want/reject开场已知",
+      "sha256": "f4c98057be3ba2c851ac43c0434facf87bb2a349b33509cf7caf2f2ec01ef086"
+    }
+  ],
+  "boundary": "未操作Unity/真实Assets/存档，未实施教程。本次只读源码核对；不把缺少搜索命中当完整工程不存在证明，不声称已有全部现场对话查询、书内判词、线索库存或新开场。节奏时长为建议未试玩。"
+}
