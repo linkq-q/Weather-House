@@ -27,7 +27,7 @@ namespace WeatherHouse.Life
                 LifeObject obj=Nearest();
                 if(held && held.State.kind==LifeObjectKind.Bundle)
                     return NearbyFoodAnimal()!=null?"F 递草  ·  Shift+F 放下":obj && obj.State.kind==LifeObjectKind.Bowl?"F 浸湿草束  ·  Shift+F 放下":"F 编成草垫  ·  Shift+F 放下";
-                if(!obj)return held?"F 放下"+held.Description:"";
+                if(!obj)return held?"F 放下"+held.Description:ClosedBuildingHint();
                 if(!held && DemonstrationBlocked(obj))return "先收起当前魔法，再按 F 重放它的演示";
                 switch(obj.State.kind)
                 {
