@@ -1,0 +1,867 @@
+{
+  "status": "PASS_EXTERNAL_HEAD_ONLY_CANDIDATE_NO_INDEX_OR_WORKTREE_WRITE",
+  "baseCommit": "397f8126377f5369e254f30e078f36d58d8b315f",
+  "scene": "Assets/Scenes/WeatherHouse_WatersideV2.unity",
+  "baseSceneBlob": "9928bd81e21d5182d41f0871d2e673e2089304cd",
+  "baseSceneSha256": "20b195d97a5c17cd287c4e43b9c14ca30178f277a77a8140669f6847e550073c",
+  "candidateSceneBlob": "2928f34c3a2fb03065108efc923872d2c48daa29",
+  "candidateSceneSha256": "16ce281cdfe0dfc1d7dba3b52babee774f7db5294c0c28f25d5d756944a10f54",
+  "previewSha256": "4fae950c10d78679145d8c1120fb1df185a9374fe9972e6b0731a6c2121aa816",
+  "rootCount": 44,
+  "deletedYamlDocuments": 328,
+  "changedParentTransformIds": [
+    173843765,
+    566012408
+  ],
+  "removedParentChildReferences": 44,
+  "unchangedSurvivingDocuments": 16301,
+  "addedLines": 0,
+  "deletedLines": 7710,
+  "extraIncomingReferences": [],
+  "newDanglingLocalReferences": [],
+  "externalPatchCheckPassed": true,
+  "realIndexSha256Before": "ccb48df3f42e1e979fbf74ca50019417c017e850c9ab7ec2429916f4e6970602",
+  "realIndexSha256After": "ccb48df3f42e1e979fbf74ca50019417c017e850c9ab7ec2429916f4e6970602",
+  "workspaceSceneSha256Before": "4021a3ac3f48df75de1884d02de4e194215ecbbda3cc2bf2aae5f28761c15cc0",
+  "workspaceSceneSha256After": "4021a3ac3f48df75de1884d02de4e194215ecbbda3cc2bf2aae5f28761c15cc0",
+  "headDescendantDifferences": [
+    {
+      "rootTransform": 169550666,
+      "alreadyAbsentWorkingChildTransform": 1702973385,
+      "childName": "Rock_2_LOD0",
+      "sameRockMeshGuid": "7e5233458219e2946b88e2c3986faa85",
+      "headTransforms": 2,
+      "reviewedCurrentTransforms": 1,
+      "reason": "Deleting the selected whole HEAD rock also removes its old static LOD child; this child was already absent from the user's working scene."
+    },
+    {
+      "rootTransform": 2022298063,
+      "alreadyAbsentWorkingChildTransform": 717767887,
+      "childName": "Rock_1_LOD0",
+      "sameRockMeshGuid": "97788248928a2aa44a00dd20efee487e",
+      "headTransforms": 2,
+      "reviewedCurrentTransforms": 1,
+      "reason": "Deleting the selected whole HEAD rock also removes its old static LOD child; this child was already absent from the user's working scene."
+    }
+  ],
+  "rows": [
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1232310724-0",
+      "name": "潮洞 4 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1232310724,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1232310723,
+        1232310724,
+        1232310725,
+        1232310726,
+        1232310727,
+        1232310728,
+        1786408171,
+        1786408172,
+        1786408173,
+        1786408174
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1248807630-0",
+      "name": "潮洞 2 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1248807630,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1248807629,
+        1248807630,
+        1248807631,
+        1248807632,
+        1248807633,
+        1248807634,
+        1498142990,
+        1498142991,
+        1498142992,
+        1498142993
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1341092348-0",
+      "name": "潮洞 1 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1341092348,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        724068937,
+        724068938,
+        724068939,
+        724068940,
+        1341092347,
+        1341092348,
+        1341092349,
+        1341092350,
+        1341092351,
+        1341092352
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-137706970-0",
+      "name": "潮洞 3 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 137706970,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        137706969,
+        137706970,
+        137706971,
+        137706972,
+        137706973,
+        137706974,
+        1570587168,
+        1570587169,
+        1570587170,
+        1570587171
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1384739551-0",
+      "name": "潮洞 4 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1384739551,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        781409643,
+        781409644,
+        781409645,
+        781409646,
+        1384739550,
+        1384739551,
+        1384739552,
+        1384739553,
+        1384739554,
+        1384739555
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-139289699-0",
+      "name": "潮洞 1 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 139289699,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        139289698,
+        139289699,
+        139289700,
+        139289701,
+        139289702,
+        139289703,
+        2136727174,
+        2136727175,
+        2136727176,
+        2136727177
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1396010504-0",
+      "name": "潮洞 6 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1396010504,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1396010503,
+        1396010504,
+        1396010505,
+        1396010506,
+        1396010507,
+        1396010508,
+        1698294366,
+        1698294367,
+        1698294368,
+        1698294369
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1509363311-0",
+      "name": "潮洞 1 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1509363311,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        853369470,
+        853369471,
+        853369472,
+        853369473,
+        1509363310,
+        1509363311,
+        1509363312,
+        1509363313,
+        1509363314,
+        1509363315
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1594464214-0",
+      "name": "潮洞 2 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1594464214,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        289922370,
+        289922371,
+        289922372,
+        289922373,
+        1594464213,
+        1594464214,
+        1594464215,
+        1594464216,
+        1594464217,
+        1594464218
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1681487737-0",
+      "name": "潮洞 3 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1681487737,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1681487736,
+        1681487737,
+        1681487738,
+        1681487739,
+        1681487740,
+        1681487741,
+        2101343619,
+        2101343620,
+        2101343621,
+        2101343622
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1690502332-0",
+      "name": "潮洞 4 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1690502332,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        385404937,
+        385404938,
+        385404939,
+        385404940,
+        1690502331,
+        1690502332,
+        1690502333,
+        1690502334,
+        1690502335,
+        1690502336
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-169550666-0",
+      "name": "潮洞 6 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 169550666,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        169550665,
+        169550666,
+        169550667,
+        169550668,
+        169550669,
+        169550670,
+        1702973384,
+        1702973385,
+        1702973386,
+        1702973387
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1722978163-0",
+      "name": "潮洞 5 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1722978163,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1323727874,
+        1323727875,
+        1323727876,
+        1323727877,
+        1722978162,
+        1722978163,
+        1722978164,
+        1722978165,
+        1722978166,
+        1722978167
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1724499643-0",
+      "name": "潮洞 5 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1724499643,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1254544568,
+        1254544569,
+        1254544570,
+        1254544571,
+        1724499642,
+        1724499643,
+        1724499644,
+        1724499645,
+        1724499646,
+        1724499647
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1795401480-0",
+      "name": "潮洞 4 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 1795401480,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        300922590,
+        300922591,
+        300922592,
+        300922593,
+        1795401479,
+        1795401480,
+        1795401481,
+        1795401482,
+        1795401483,
+        1795401484
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1803783260-0",
+      "name": "潮洞 1 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1803783260,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        1607950067,
+        1607950068,
+        1607950069,
+        1607950070,
+        1803783259,
+        1803783260,
+        1803783261,
+        1803783262,
+        1803783263,
+        1803783264
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1963417832-0",
+      "name": "潮洞 3 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1963417832,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        466746769,
+        466746770,
+        466746771,
+        466746772,
+        1963417831,
+        1963417832,
+        1963417833,
+        1963417834,
+        1963417835,
+        1963417836
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-1984542537-0",
+      "name": "潮洞 2 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 1984542537,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        125746417,
+        125746418,
+        125746419,
+        125746420,
+        1984542536,
+        1984542537,
+        1984542538,
+        1984542539,
+        1984542540,
+        1984542541
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-2022298063-0",
+      "name": "潮洞 6 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 2022298063,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        717767886,
+        717767887,
+        717767888,
+        717767889,
+        2022298062,
+        2022298063,
+        2022298064,
+        2022298065,
+        2022298066,
+        2022298067
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-2117841470-0",
+      "name": "潮洞 4 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 2117841470,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        150341563,
+        150341564,
+        150341565,
+        150341566,
+        2117841469,
+        2117841470,
+        2117841471,
+        2117841472,
+        2117841473,
+        2117841474
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-438189041-0",
+      "name": "潮洞 1 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 438189041,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        88604072,
+        88604073,
+        88604074,
+        88604075,
+        438189040,
+        438189041,
+        438189042,
+        438189043,
+        438189044,
+        438189045
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-1182790019",
+      "name": "新潮池断续礁石 · 4",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 1182790020,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        1182790019,
+        1182790020
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-1193079583",
+      "name": "新潮池断续礁石 · 13",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 1193079584,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        1193079583,
+        1193079584
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-1203681962",
+      "name": "新潮池断续礁石 · 1",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 1203681963,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        1203681962,
+        1203681963
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-1397713159",
+      "name": "新潮池断续礁石 · 15",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 1397713160,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        1397713159,
+        1397713160
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-1508830091",
+      "name": "新潮池断续礁石 · 9",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 1508830092,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        1508830091,
+        1508830092
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-163899940",
+      "name": "新潮池断续礁石 · 3",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 163899941,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        163899940,
+        163899941
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-17940990",
+      "name": "新潮池断续礁石 · 11",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 17940991,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        17940990,
+        17940991
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-185114511",
+      "name": "新潮池断续礁石 · 7",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 185114512,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        185114511,
+        185114512
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-2129967159",
+      "name": "新潮池断续礁石 · 0",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 2129967160,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        2129967159,
+        2129967160
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-262756253",
+      "name": "新潮池断续礁石 · 5",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 262756254,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        262756253,
+        262756254
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-481071587",
+      "name": "新潮池断续礁石 · 14",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 481071588,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        481071587,
+        481071588
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-49152213",
+      "name": "新潮池断续礁石 · 2",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 49152214,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        49152213,
+        49152214
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-557142659",
+      "name": "新潮池断续礁石 · 6",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 557142660,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        557142659,
+        557142660
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-5610936729227722695-77177043",
+      "name": "新潮池断续礁石 · 8",
+      "kind": "whole-prefab-instance",
+      "localRootTransform": 77177044,
+      "parentTransform": 566012408,
+      "deletedDocumentIds": [
+        77177043,
+        77177044
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-621377067-0",
+      "name": "潮洞 3 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 621377067,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        178537137,
+        178537138,
+        178537139,
+        178537140,
+        621377066,
+        621377067,
+        621377068,
+        621377069,
+        621377070,
+        621377071
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-63766011-0",
+      "name": "潮洞 2 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 63766011,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        63766010,
+        63766011,
+        63766012,
+        63766013,
+        63766014,
+        63766015,
+        939847237,
+        939847238,
+        939847239,
+        939847240
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-702593139-0",
+      "name": "潮洞 5 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 702593139,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        702593138,
+        702593139,
+        702593140,
+        702593141,
+        702593142,
+        702593143,
+        1452587507,
+        1452587508,
+        1452587509,
+        1452587510
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-846794210-0",
+      "name": "潮洞 5 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 846794210,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        846794209,
+        846794210,
+        846794211,
+        846794212,
+        846794213,
+        846794214,
+        2123446117,
+        2123446118,
+        2123446119,
+        2123446120
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-860389508-0",
+      "name": "潮洞 3 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 860389508,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        305315049,
+        305315050,
+        305315051,
+        305315052,
+        860389507,
+        860389508,
+        860389509,
+        860389510,
+        860389511,
+        860389512
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-885120083-0",
+      "name": "潮洞 2 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 885120083,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        80267044,
+        80267045,
+        80267046,
+        80267047,
+        885120082,
+        885120083,
+        885120084,
+        885120085,
+        885120086,
+        885120087
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-927268977-0",
+      "name": "潮洞 1 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 927268977,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        224161477,
+        224161478,
+        224161479,
+        224161480,
+        927268976,
+        927268977,
+        927268978,
+        927268979,
+        927268980,
+        927268981
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-971946328-0",
+      "name": "潮洞 5 · 半浸潮池厚礁 2",
+      "kind": "unpacked-root",
+      "localRootTransform": 971946328,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        971946327,
+        971946328,
+        971946329,
+        971946330,
+        971946331,
+        971946332,
+        2012083627,
+        2012083628,
+        2012083629,
+        2012083630
+      ],
+      "transformCountIncludingRoot": 2
+    },
+    {
+      "globalObjectId": "GlobalObjectId_V1-2-0d5e02f552d97b34a8c818aceb185e42-99521820-0",
+      "name": "潮洞 3 · 半浸潮池厚礁 1",
+      "kind": "unpacked-root",
+      "localRootTransform": 99521820,
+      "parentTransform": 173843765,
+      "deletedDocumentIds": [
+        99521819,
+        99521820,
+        99521821,
+        99521822,
+        99521823,
+        99521824,
+        1926582106,
+        1926582107,
+        1926582108,
+        1926582109
+      ],
+      "transformCountIncludingRoot": 2
+    }
+  ],
+  "roofHeadSceneAudit": [
+    {
+      "id": "A01",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    },
+    {
+      "id": "A02",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    },
+    {
+      "id": "A03",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    },
+    {
+      "id": "A04",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    },
+    {
+      "id": "A06",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    },
+    {
+      "id": "A07",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    },
+    {
+      "id": "A09",
+      "headSceneInstances": 1,
+      "headAppearanceOverrides": [],
+      "prefabOnlyAppearanceCommitSufficientIfSaved": true
+    }
+  ],
+  "sourcePrefabs": {
+    "Assets/HIGHLANDS - Stylized Environment/Prefabs/Forest/Rock_1.prefab": {
+      "guid": "2f1f1a99a03849746adb662fa05676c2",
+      "sha256": "66e3709f3749f23d2e489c0b2efbea9917e0b3bb5ac17eeda556e32d0755e1b9"
+    }
+  }
+}
