@@ -191,6 +191,10 @@ namespace WeatherHouse.Life.Editor
             Require(!book.IsAnimating, "Journal reopens after queued close", checks);
             Set(hud, "albumGesturesSelected", true); Call(hud, "RebuildModal");
             yield return null; yield return null;
+            IEnumerator practicePointer = LifeGesturePointerChecks.Run(life, checks);
+            while (practicePointer.MoveNext()) yield return practicePointer.Current;
+            // Learning notifies the HUD and schedules one page rebuild and deferred cleanup.
+            yield return new WaitForEndOfFrame(); yield return null;
             int materials = OwnedMaterials(), targets = JournalTargets();
             RenderTexture view = book.ViewTexture;
             for (int i = 0; i < 50; i++) { Call(hud, "RebuildModal"); yield return null; }
@@ -217,9 +221,10 @@ namespace WeatherHouse.Life.Editor
                 Set(hud, "expandedPhoto", missing); Call(hud, "RebuildModal");
                 var image = Get<RawImage>(hud, "expandedImage");
                 Require(image && image.texture == Resources.Load<Texture2D>("AlbumBook/PhotoMissing"), "Missing photo uses its readable placeholder on visit " + (visit + 1), checks);
-                string context = Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Text>().First(t => t.name == "Original photo context").text;
-                Require(context.Contains(restored.locationName) && context.Contains(restored.speakerName) && !context.Contains("123") && !context.Contains("567"),
-                    "Photo context displays captured names and place without XYZ coordinates", checks);
+                Require(!Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Text>().Any(t => t.name == "Original photo context"),
+                    "Photo detail omits the explanatory footer requested for removal", checks);
+                Require(missing.context == restored && missing.context.speakerName == snapshot.speakerName && missing.context.anchorPosition == snapshot.anchorPosition,
+                    "Removing the visible photo explanation preserves the actual saved context", checks);
                 CheckDetailSizes(hud, checks);
                 Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Button>().First(b => b.name == "Play motion photo").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.7f);
@@ -261,6 +266,10 @@ namespace WeatherHouse.Life.Editor
                     {
                         word.onClick.Invoke();
                         Require(Get<RectTransform>(hud, "albumRoot").GetInstanceID() == bookId, "Word detail keeps the book instance, cycle " + (i + 1), checks);
+                        var wordPanel = Get<RectTransform>(hud, "detailRoot");
+                        Require(wordPanel.GetComponent<ProceduralUiGraphic>().mark == UiMark.PlayerBubble &&
+                            !wordPanel.GetComponentsInChildren<Button>().Any(button => button.name == "Learn word reward"),
+                            "Word detail uses a tail-free panel without the removed gesture shortcut", checks);
                         Call(hud, "CloseTop");
                     }
                     elapsed.Stop();
@@ -272,6 +281,12 @@ namespace WeatherHouse.Life.Editor
                         photo.onClick.Invoke();
                         Require(Get<RectTransform>(hud, "albumRoot").GetInstanceID() == bookId && !album.gameObject.activeSelf,
                             "Photo detail retains and temporarily hides the same book, cycle " + (visit + 1), checks);
+                        var photoPanel = Get<RectTransform>(hud, "detailRoot");
+                        var photoImage = Get<RawImage>(hud, "expandedImage");
+                        Require(Mathf.Abs(photoImage.rectTransform.sizeDelta.x / photoImage.rectTransform.sizeDelta.y - 16f / 9f) < .001f &&
+                            photoPanel.GetComponentsInChildren<Text>().First(text => text.name == "Photo title").fontSize == Mathf.RoundToInt(44f * ProceduralUiStyle.Current.fontScale) &&
+                            Get<Text>(hud, "playbackLabel").text == "播放",
+                            "Photo keeps 16:9, enlarged title and concise play label", checks);
                         Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Button>().First(b => b.name == "Play motion photo").onClick.Invoke();
                         // Execute the normal playback update at each due instant, without waiting 60 seconds.
                         for (int frame = 1; frame < 18; frame++) { Set(hud, "nextFrameAt", 0f); Call(hud, "UpdatePlayback"); }

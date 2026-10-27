@@ -20,11 +20,17 @@ namespace WeatherHouse.Life.Editor
             using (var mesh = new VertexHelper())
             {
                 LifeStrokeGraphic.PopulateStroke(mesh, new[] { new Vector2(0, 60), new Vector2(0, -60), new Vector2(40, -20) }, 4f, Color.white);
-                Require(mesh.currentVertCount == 8 && mesh.currentIndexCount == 12, "Two stroke segments produce drawable quads.");
+                Require(mesh.currentVertCount == 47 && mesh.currentIndexCount == 120, "Two stroke segments and three round brush joins produce drawable geometry.");
                 var vertex = new UIVertex(); mesh.PopulateUIVertex(ref vertex, 0);
                 Require(vertex.color.a == 255 && vertex.uv0.y == 0, "Stroke edge retains opaque color and lower UV.");
                 mesh.PopulateUIVertex(ref vertex, 1);
                 Require(vertex.color.a == 255 && vertex.uv0.y == 1, "Stroke edges span the shader opacity profile.");
+                mesh.PopulateUIVertex(ref vertex, 8);
+                Require((Vector2)vertex.position == new Vector2(0, 60) && Mathf.Approximately(vertex.uv0.y, .5f),
+                    "The first round brush end retains an opaque center at the actual stroke start.");
+                mesh.PopulateUIVertex(ref vertex, 9);
+                Require(Mathf.Abs(Vector2.Distance(vertex.position, new Vector2(0, 60)) - 4f) < .001f,
+                    "Round brush ends keep the same radius as the stroke half-width.");
             }
             string path = "Docs/LifeGameplay/UI/gesture-checks.txt";
             Directory.CreateDirectory(Path.GetDirectoryName(path)); File.WriteAllText(path, report);

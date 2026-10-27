@@ -585,10 +585,9 @@ namespace WeatherHousePrototype
         {
             Vector2 size = FitBubbleSize(playerBubbleSize, new Vector2(300f, 100f));
             float scale = Mathf.Min(size.x / 900f, size.y / 190f);
-            var bubble = ProceduralUiLibrary.Create(modalRoot, "Player reply bubble", UiMark.PlayerBubble,
-                PlayerBubblePosition(size), size, ProceduralUiLibrary.Grass);
+            var bubble = ProceduralUiLibrary.WhitePanel(modalRoot, "Player reply bubble", PlayerBubblePosition(size), size);
             replyInput = InputBox(bubble.transform, "Chinese reply", replyDraft, "写下你想说的话，Enter 发送…",
-                Vector2.zero, new Vector2(size.x * .82f, size.y * .68f), scale, true);
+                Vector2.zero, new Vector2(size.x * .82f, size.y * .64f), scale, true);
             replyInput.lineType = InputField.LineType.SingleLine;
             replyInput.characterLimit = 240;
             replyInput.onValueChanged.AddListener(value => { replyDraft = value; FitReplyInput(bubble.rectTransform, size); });
@@ -602,12 +601,6 @@ namespace WeatherHousePrototype
                 if (dialogueOpen && replyInput != null) replyInput.ActivateInputField();
             });
             replyInput.ActivateInputField();
-            if (life && dialogueTarget && dialogueTarget.GetComponent<LifeSpeaker>())
-                TextButton(bubble.transform, "Next conversation topic", "再听另一句话", new Vector2(0f, size.y * .5f + 38f), new Vector2(220f, 42f), () =>
-                {
-                    if (session.Judging) return;
-                    life.NextTopic(dialogueTarget); replyDraft = ""; ClearFocus(); RebuildModal();
-                });
         }
 
         private void SubmitReply()
@@ -628,17 +621,16 @@ namespace WeatherHousePrototype
             if (echoRoot != null) Destroy(echoRoot.gameObject);
             Vector2 size = FitBubbleSize(playerBubbleSize, new Vector2(300f, 100f));
             float scale = Mathf.Min(size.x / 900f, size.y / 190f);
-            var bubble = ProceduralUiLibrary.Create(canvasRect, "Player spoken reply", UiMark.PlayerBubble,
-                PlayerBubblePosition(size), size, ProceduralUiLibrary.Grass);
+            var bubble = ProceduralUiLibrary.WhitePanel(canvasRect, "Player spoken reply", PlayerBubblePosition(size), size);
             echoRoot = bubble.rectTransform;
-            var viewport = Rect(echoRoot, "Reply viewport", Vector2.zero, new Vector2(size.x - 64f, size.y * .68f));
+            var viewport = Rect(echoRoot, "Reply viewport", Vector2.zero, new Vector2(size.x - 64f, size.y * .64f));
             viewport.gameObject.AddComponent<RectMask2D>();
             var text = Label(viewport, "Original Chinese reply", lastReply, Vector2.zero, viewport.sizeDelta,
                 Mathf.RoundToInt(Mathf.Max(12, Mathf.RoundToInt(42f * scale)) * 1.3f), Ink);
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             float width = Mathf.Clamp(text.preferredWidth + 64f, size.x, canvasRect.rect.width - 48f);
             echoRoot.sizeDelta = new Vector2(width, size.y);
-            viewport.sizeDelta = new Vector2(width - 64f, size.y * .68f);
+            viewport.sizeDelta = new Vector2(width - 64f, size.y * .64f);
             text.rectTransform.sizeDelta = new Vector2(Mathf.Max(text.preferredWidth, viewport.sizeDelta.x), viewport.sizeDelta.y);
             if (text.preferredWidth > viewport.sizeDelta.x)
             {
@@ -677,12 +669,15 @@ namespace WeatherHousePrototype
             float width = Mathf.Clamp(preferred + 64f, minimum.x, canvasRect.rect.width - 48f);
             bubble.sizeDelta = new Vector2(width, minimum.y);
             var inputRect = (RectTransform)replyInput.transform;
-            inputRect.sizeDelta = new Vector2(width - 64f, minimum.y * .68f);
+            inputRect.sizeDelta = new Vector2(width - 64f, minimum.y * .64f);
+            inputRect.anchoredPosition = Vector2.zero;
             text.rectTransform.sizeDelta = placeholder.rectTransform.sizeDelta = inputRect.sizeDelta;
         }
 
         private void BuildJournal()
         {
+            // LifeSession adds this component during startup, after the HUD may cache it.
+            if (life && !gestureInput) gestureInput = GetComponent<LifeGestureInput>();
             albumRoot = AlbumBookView.Create(modalRoot, albumPhotosSelected,
                 () => { albumPhotosSelected = false; albumGesturesSelected = false; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
                 () => { albumPhotosSelected = true; albumGesturesSelected = false; albumTasksSelected = false; selectedGlyph = null; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
@@ -833,71 +828,59 @@ namespace WeatherHousePrototype
 
         private void BuildGlyphDetail()
         {
-            var shade = detailLayer = Panel(modalRoot, "Word detail backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .38f));
-            var card = detailRoot = PaperPanel(shade, "Word detail", Vector2.zero, new Vector2(620f, 400f), Paper);
-            FitDetails();
-            CloseButton(card, new Vector2(263f, 153f), CloseTop);
             GlyphDefinition definition = FindGlyph(selectedGlyph);
             GlyphKnowledge selected = session.Notebook.GetWord(selectedGlyph);
-            if (definition != null && (!life || selected?.encountered == true)) Glyph(card, definition, new Vector2(0f, 113f), new Vector2(50f, 60f));
-            if (selected == null || !selected.encountered)
+            bool encountered = selected != null && selected.encountered;
+            bool confirmed = encountered && selected.confirmed;
+            Vector2 size = confirmed ? new Vector2(320f, 278f) :
+                encountered ? new Vector2(390f, 350f) : new Vector2(320f, 190f);
+            var shade = detailLayer = Panel(modalRoot, "Word detail backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .38f));
+            var bubble = ProceduralUiLibrary.WhitePanel(shade, "Word detail", Vector2.zero, size, true);
+            var card = detailRoot = bubble.rectTransform;
+            float center = 0f;
+            FitDetails();
+            CloseButton(card, new Vector2(size.x * .5f - 30f, size.y * .5f - 30f), CloseTop, null, 35f);
+            if (definition != null && (!life || encountered))
+                Glyph(card, definition, new Vector2(0f, center + (confirmed ? 64f : 104f)), new Vector2(50f, 60f));
+            if (!encountered)
             {
-                Label(card, "Unseen meaning", "还没有认识这个字。\n带着相机去看看吧。", new Vector2(0f, -35f), new Vector2(500f, 100f), 21, Ink);
+                Label(card, "Unseen meaning", "还没有认识这个字。\n带着相机去看看吧。", new Vector2(0f, center), new Vector2(240f, 70f), 21, Ink);
                 return;
             }
-            if (selected.confirmed)
-                Label(card, "Confirmed meaning", "已确认\n" + (definition == null ? "" : definition.meaning), new Vector2(0f, 5f), new Vector2(500f, 100f), 21, Ink);
+            if (confirmed)
+                Label(card, "Confirmed meaning", definition == null ? "" : definition.name, new Vector2(0f, center - 4f), new Vector2(250f, 34f), 26, Ink);
             else
             {
-                Label(card, "Guess heading", "我的猜测", new Vector2(0f, 40f), new Vector2(480f, 34f), 19, Ink, TextAnchor.MiddleLeft);
-                guessInput = InputBox(card, "Word guess", guessDraft, "这个字可能是什么意思？", new Vector2(0f, -15f), new Vector2(480f, 54f));
+                Label(card, "Guess heading", "我的猜测", new Vector2(0f, center + 34f), new Vector2(300f, 24f), 19, Ink, TextAnchor.MiddleLeft);
+                guessInput = InputBox(card, "Word guess", guessDraft, "这个字可能是什么意思？", new Vector2(0f, center - 9f), new Vector2(300f, 54f));
                 guessInput.characterLimit = 160;
                 guessInput.onValueChanged.AddListener(value => guessDraft = value);
-                TextButton(card, "Save guess", "记下来", new Vector2(0f, -84f), new Vector2(144f, 43f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); });
+                TextButton(card, "Save guess", "记下来", new Vector2(0f, center - 64f), new Vector2(144f, 32f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); }, neutral: true);
             }
-            TextButton(card, "Word evidence", "查看相关照片", new Vector2(0f, -151f), new Vector2(190f, 38f), () =>
-            { albumPhotosSelected = true; glyphDetailOpen = false; page = 0; ClearFocus(); RebuildModal(); });
-            if (life && selected.confirmed && GestureCatalog.Find(selectedGlyph) != null)
-                TextButton(card, "Learn word reward", "练习手势", new Vector2(0, 66), new Vector2(250, 37), () =>
-                { selectedGesture = selectedGlyph; albumGesturesSelected = true; glyphDetailOpen = false; ClearFocus(); RebuildModal(); });
+            TextButton(card, "Word evidence", "查看相关照片", new Vector2(0f, center - (confirmed ? 77f : 116f)), new Vector2(190f, 32f), () =>
+            { albumPhotosSelected = true; glyphDetailOpen = false; page = 0; ClearFocus(); RebuildModal(); }, neutral: true);
         }
 
         private void BuildPhoto()
         {
             detailLayer = Rect(modalRoot, "Photo detail layer", Vector2.zero, new Vector2(4000, 3000));
-            var card = detailRoot = PaperPanel(detailLayer, "Expanded motion photo", Vector2.zero, new Vector2(1240f, life ? 940f : 850f), Paper);
+            var card = detailRoot = PaperPanel(detailLayer, "Expanded motion photo", Vector2.zero, new Vector2(1120f, 830f), Color.white);
             FitDetails();
-            Label(card, "Photo title", "留下的片刻", new Vector2(life ? -366f : -470f, 378f), new Vector2(life ? 468f : 260f, 40f), 25, Ink, TextAnchor.MiddleLeft);
-            CloseButton(card, new Vector2(559f, 380f), CloseTop);
-            expandedImage = Raw(card, "Motion photo frame", new Vector2(0f, 38f), new Vector2(1024f, 576f));
+            Label(card, "Photo title", "留下的片刻", new Vector2(-272f, 355f), new Vector2(480f, 62f), 44, Ink, TextAnchor.MiddleLeft);
+            CloseButton(card, new Vector2(510f, 355f), CloseTop);
+            expandedImage = Raw(card, "Motion photo frame", new Vector2(0f, 4f), new Vector2(1024f, 576f));
             currentFrame = Mathf.Clamp(currentFrame, 0, Mathf.Max(0, expandedPhoto.frameCount - 1));
             LoadExpandedFrame();
-            GlyphLine(card, expandedPhoto.glyphIds, new Vector2(0f, -293f), 45f, 950f);
-            var play = TextButton(card, "Play motion photo", "播放这段片刻", new Vector2(0f, -372f), new Vector2(220f, 48f), () =>
+            GlyphLine(card, expandedPhoto.glyphIds, new Vector2(0f, -317f), 38f, 950f);
+            var play = TextButton(card, "Play motion photo", "播放", new Vector2(0f, -370f), new Vector2(140f, 40f), () =>
             {
                 playingPhoto = !playingPhoto;
                 if (playingPhoto && currentFrame >= expandedPhoto.frameCount - 1) { currentFrame = 0; LoadExpandedFrame(); }
                 nextFrameAt = Time.unscaledTime + 1f / Mathf.Max(1f, expandedPhoto.framesPerSecond);
                 UpdatePlaybackLabel();
-            });
+            }, neutral: true);
             playbackLabel = play.GetComponentInChildren<Text>();
-            var contextLines = new List<string>();
-            if (life && expandedPhoto.context != null)
-            {
-                LifeContextSnapshot context = expandedPhoto.context;
-                string position = "当时指向：" + (string.IsNullOrEmpty(context.locationName) ? "照片中的位置" : context.locationName);
-                string participants = "说话者 " + (string.IsNullOrEmpty(context.speakerName) ? PhotoParticipant(context.speakerId) : context.speakerName) +
-                    "   听者 " + (string.IsNullOrEmpty(context.listenerName) ? PhotoParticipant(context.listenerId) : context.listenerName);
-                string captured = expandedPhoto.capturedUtcTicks > 0 && expandedPhoto.capturedUtcTicks <= DateTime.MaxValue.Ticks
-                    ? new DateTime(expandedPhoto.capturedUtcTicks, DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") : "时间未记录";
-                contextLines.Add(participants + "   拍摄开始 " + captured);
-                contextLines.Add(position + " · " + PhotoVisibleState(context.objectState) + "   " + context.weatherState);
-            }
-            if (expandedPhoto.photoSnapshot?.contexts != null)
-                foreach (LifePublicContext context in expandedPhoto.photoSnapshot.contexts)
-                    if (context != null && !string.IsNullOrWhiteSpace(context.description) && !contextLines.Contains(context.description)) contextLines.Add(context.description);
-            if (contextLines.Count > 0)
-                Label(card, "Original photo context", string.Join("\n", contextLines), new Vector2(0, -425), new Vector2(1140, 82), 16, Ink);
+
         }
 
         private void BuildPublicRecord()
@@ -944,7 +927,7 @@ namespace WeatherHousePrototype
 
         private void UpdatePlaybackLabel()
         {
-            if (playbackLabel != null) playbackLabel.text = playingPhoto ? "暂停  " + (currentFrame + 1) + " / " + expandedPhoto.frameCount : "播放这段片刻";
+            if (playbackLabel != null) playbackLabel.text = playingPhoto ? "暂停" : "播放";
         }
 
         private void LoadExpandedFrame()
@@ -1144,14 +1127,14 @@ namespace WeatherHousePrototype
             return text;
         }
 
-        private Button TextButton(Transform parent, string name, string text, Vector2 position, Vector2 size, UnityEngine.Events.UnityAction clicked, float scale = 1f)
+        private Button TextButton(Transform parent, string name, string text, Vector2 position, Vector2 size, UnityEngine.Events.UnityAction clicked, float scale = 1f, bool neutral = false)
         {
-            var rect = PaperPanel(parent, name, position, size, ProceduralUiLibrary.Grass);
+            var rect = PaperPanel(parent, name, position, size, neutral ? Color.white : ProceduralUiLibrary.Grass);
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = rect.GetComponent<Graphic>();
             var colors = button.colors;
-            colors.highlightedColor = new Color(1f, .99f, .91f);
-            colors.pressedColor = new Color(.80f, .85f, .70f);
+            colors.highlightedColor = neutral ? new Color(.96f, .96f, .96f) : new Color(1f, .99f, .91f);
+            colors.pressedColor = neutral ? new Color(.86f, .86f, .86f) : new Color(.80f, .85f, .70f);
             button.colors = colors;
             button.onClick.AddListener(clicked);
             button.onClick.AddListener(() => LifeAudio.Play(LifeAudioCue.Ui));
@@ -1168,16 +1151,19 @@ namespace WeatherHousePrototype
 
         private InputField InputBox(Transform parent, string name, string value, string placeholder, Vector2 position, Vector2 size, float scale = 1f, bool reply = false)
         {
-            var rect = Panel(parent, name, position, size, reply ? Color.clear : new Color(.90f, .92f, .81f));
+            var rect = reply ? Panel(parent, name, position, size, Color.clear) :
+                ProceduralUiLibrary.WhitePanel(parent, name, position, size, true).rectTransform;
             var input = rect.gameObject.AddComponent<InputField>();
             int textSize = Mathf.Max(12, Mathf.RoundToInt((reply ? 46f : 24f) * scale));
             if (reply) textSize = Mathf.RoundToInt(textSize * 1.3f);
-            input.textComponent = Label(rect, "Input text", "", Vector2.zero, size - new Vector2(24f, 10f) * scale, textSize, Ink, TextAnchor.MiddleLeft);
-            input.placeholder = Label(rect, "Placeholder", placeholder, Vector2.zero, size - new Vector2(24f, 10f) * scale, textSize, new Color(.40f, .46f, .39f, .85f), TextAnchor.MiddleLeft);
+            Vector2 center = Vector2.zero;
+            input.textComponent = Label(rect, "Input text", "", center, size - new Vector2(24f, 10f) * scale, textSize, Ink, TextAnchor.MiddleLeft);
+            input.placeholder = Label(rect, "Placeholder", placeholder, center, size - new Vector2(24f, 10f) * scale, textSize, new Color(.40f, .46f, .39f, .85f), TextAnchor.MiddleLeft);
             input.customCaretColor = true;
             input.caretColor = Ink;
-            input.selectionColor = new Color(.55f, .65f, .43f, .35f);
-            input.targetGraphic = rect.GetComponent<Image>();
+            input.selectionColor = new Color(.40f, .40f, .40f, .20f);
+            input.targetGraphic = rect.GetComponent<Graphic>();
+            input.transition = Selectable.Transition.None;
             input.lineType = InputField.LineType.SingleLine;
             input.contentType = InputField.ContentType.Standard;
             input.text = value ?? "";

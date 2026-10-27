@@ -23,6 +23,12 @@ namespace WeatherHouse.Life.Editor
             try
             {
                 if (command == "state") State();
+                else if (command == "gesture-checks") { LifeGestureChecks.Run(); State(); }
+                else if (command.StartsWith("menu:Weather House/Review 20261027/",StringComparison.Ordinal))
+                {
+                    if(!EditorApplication.ExecuteMenuItem(command.Substring(5))) throw new InvalidOperationException("Review menu was not found.");
+                    State();
+                }
                 else if (command == "spatial") LifeSpatialAudit.Run();
                 else if (command == "poses") LifeSquirrelPoseAudit.Run();
                 else if (command == "audio-surfaces") LifeAudioSurfaceAudit.Inspect();
@@ -50,6 +56,10 @@ namespace WeatherHouse.Life.Editor
                 else if (command == "roaming-only") LifePlayReview.BeginRoamingOnly();
                 else if (command == "ui-capture-only") LifePlayReview.BeginUiCaptureOnly();
                 else if (command == "ai") LifeAiReview.Begin();
+                else if (command == "journey-checks")
+                    File.WriteAllText(Folder+"/journey-existing-checks.txt",
+                        WeatherHouse.WildlifeJourney.Editor.JourneyNavigationChecks.RunLogicChecks()+"\n"+
+                        WeatherHouse.WildlifeJourney.Editor.JourneyHerdChecks.RunLogicChecks());
                 else if (command == "checks")
                 {
                     LifeCoreChecks.Run(); LifeGestureChecks.Run(); LifeWorldChecks.Run();
@@ -61,7 +71,7 @@ namespace WeatherHouse.Life.Editor
                 }
                 else throw new ArgumentException("Unknown Life review command");
                 bool asynchronous=command=="play" || command=="play-ai" || command=="ai" || command.EndsWith("-only",StringComparison.Ordinal);
-                File.WriteAllText(Folder + "/last-result.txt", command + (asynchronous ? " STARTED " : " PASS ") + DateTime.UtcNow.ToString("O"));
+                File.WriteAllText(Folder + "/last-result.txt", command + (command.StartsWith("menu:",StringComparison.Ordinal) ? " DISPATCHED_FEATURE_REPORT_REQUIRED " : asynchronous ? " STARTED " : " PASS ") + DateTime.UtcNow.ToString("O"));
             }
             catch (Exception e) { File.WriteAllText(Folder + "/last-result.txt",command + " FAIL\n" + e); Debug.LogException(e); }
         }

@@ -35,9 +35,8 @@ Shader "Weather House/Life/Gesture Ink"
             half4 frag(Varyings i) : SV_Target
             {
                 float edge = abs(i.uv.y * 2 - 1);
-                float core = 1 - smoothstep(.18, .65, edge);
-                float glow = (1 - edge) * (1 - edge);
-                half4 color = half4(lerp(i.color.rgb, half3(1, .99, .85), core * .38), i.color.a * (core * .64 + glow * .36));
+                float coverage = 1 - smoothstep(.82, 1, edge);
+                half4 color = half4(i.color.rgb, i.color.a * coverage);
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(i.localPosition, _ClipRect);
                 #endif

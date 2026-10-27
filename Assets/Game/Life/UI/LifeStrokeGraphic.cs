@@ -7,7 +7,7 @@ namespace WeatherHouse.Life
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class LifeStrokeGraphic : MaskableGraphic
     {
-        public float width = 7f;
+        public float width = 11f;
         private readonly List<Vector2> points = new List<Vector2>();
         private Material ink;
         public void SetPath(IList<Vector2> path)
@@ -35,6 +35,22 @@ namespace WeatherHouse.Life
                 vh.AddVert(b + normal, tint, new Vector2(1, 1));
                 vh.AddVert(b - normal, tint, new Vector2(1, 0));
                 vh.AddTriangle(index, index + 1, index + 2); vh.AddTriangle(index + 2, index + 3, index);
+            }
+            // Round ends and corners keep a broad, even brush stroke at direction changes.
+            if (path.Count < 2) return;
+            const int sides = 12;
+            foreach (Vector2 point in path)
+            {
+                int center = vh.currentVertCount;
+                vh.AddVert(point, tint, new Vector2(.5f, .5f));
+                for (int i = 0; i < sides; i++)
+                {
+                    float angle = i * Mathf.PI * 2f / sides;
+                    vh.AddVert(point + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * strokeWidth,
+                        tint, new Vector2(.5f, 1f));
+                }
+                for (int i = 0; i < sides; i++)
+                    vh.AddTriangle(center, center + 1 + i, center + 1 + (i + 1) % sides);
             }
         }
         protected override void OnDestroy() { if (ink) Destroy(ink); base.OnDestroy(); }

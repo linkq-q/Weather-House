@@ -43,12 +43,31 @@ namespace WeatherHouse.Life
                         string animal = speaker && speaker.Actor ? speaker.Actor.displayName : "动物";
                         string distance = speaker && Gameplay.PlayerTransform ?
                             " · " + Vector3.Distance(Gameplay.PlayerTransform.position, speaker.transform.position).ToString("F0") + "米" : "";
-                        return animal + distance + "\n" + r.objective;
+                        return animal + distance + "\n" + TaskReminder(r.condition);
                     });
                 string text = string.Join("\n", tasks);
                 return text;
             }
         }
+        private static string TaskReminder(string condition)
+        {
+            switch (condition)
+            {
+                case "rain_seen": return "想看一场雨";
+                case "water_retained": return "想要喝水";
+                case "dry_mat": return "想睡得干爽";
+                case "fed": return "想吃些草";
+                case "arrive": return "想请你过去";
+                case "animal_arrived": return "想回住处";
+                case "wind_weak": return "想吹一点风";
+                case "rain_weak": return "想淋一点小雨";
+                case "warm_rest": return "想暖和地歇一歇";
+                case "common_rest": return "想和朋友歇一歇";
+                case "walk_sequence": case "walk_reverse": return "想请你走一小段";
+                default: return "有件事想请你帮忙";
+            }
+        }
+
         private LifeLocalWeather weather;
         private LifeCastRange range;
         private bool saveBlocked;

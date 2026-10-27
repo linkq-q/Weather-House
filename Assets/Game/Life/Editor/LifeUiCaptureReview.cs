@@ -138,6 +138,37 @@ namespace WeatherHouse.Life.Editor
             var game = life.Gameplay; var hud = life.GetComponent<GameplayHud>(); var input = life.GetComponent<LifeGestureInput>(); var world = life.World;
             Job Make(string id, string state, string entry, string condition, Action setup, Func<bool> ready = null) => new Job { id = id, state = state, entry = entry, condition = condition, setup = setup, ready = ready };
             bool BookReady() => !hud.IsAlbumOpening;
+            bool TaskCardReady()
+            {
+                var card = Get<RectTransform>(input, "taskRoot");
+                if (!card.gameObject.activeSelf) return false;
+                foreach (string part in new[] { "Paper", "Bookmark", "Meadow", "Day", "Night" })
+                {
+                    var image = card.Find("Weather task " + part).GetComponent<RawImage>();
+                    Require(image && image.texture && image.texture == Resources.Load<Texture2D>("HudIcons/WeatherTask/" + part), "Task card keeps the approved separate " + part + " texture");
+                }
+                var mood = UnityEngine.Object.FindObjectOfType<WatersideMood>();
+                bool night = mood && mood.Current == WatersideMood.Mode.Night;
+                Require(Get<RawImage>(input, "taskNight").gameObject.activeSelf == night && Get<RawImage>(input, "taskDay").gameObject.activeSelf != night, "Task icon follows the current scene mood; no automatic clock is claimed");
+                Require(!card.GetComponent<ProceduralUiGraphic>(), "Task card must not retain the old tailed bubble");
+                int expectedRows = Mathf.Min(2, (life.TaskText.Split('\n').Length + 1) / 2);
+                var marks = Get<LifeTaskMarkGraphic[]>(input, "taskMarks");
+                if (marks.Count(mark => mark.gameObject.activeSelf) != expectedRows) return false;
+                float removed = (2 - expectedRows) * (48f + 22f * .85f);
+                Require(Mathf.Abs(card.sizeDelta.y - (256f - removed)) < .01f && card.sizeDelta.x == 430f && card.localScale == Vector3.one,
+                    "Single-task page removes the empty row without scaling the widget");
+                foreach (var mark in marks) Require(mark.transform.parent == card && mark.rectTransform.sizeDelta == new Vector2(24f, 24f), "Markers keep their authored parent and dimensions");
+                foreach (var line in Get<Text[]>(input, "taskLines")) Require(line.transform.parent == card && line.fontSize == 21 && line.rectTransform.sizeDelta == new Vector2(286f, 24f), "Task text keeps 21-point type and horizontal dimensions");
+                var paperRect = (RectTransform)card.Find("Weather task Paper");
+                Require(Mathf.Abs(paperRect.sizeDelta.y - (220f - removed)) < .01f, "Paper height follows the visible task rows");
+                foreach (var button in new[] { Get<Button>(input, "previousTaskPage"), Get<Button>(input, "nextTaskPage") })
+                    Require(((RectTransform)button.transform).sizeDelta.x >= 36 && ((RectTransform)button.transform).sizeDelta.y >= 36, "Small leaf arrows retain usable hit areas");
+                Text label = Get<Text[]>(input, "taskLines")[0];
+                string longLine = "这是用于检查很长中文名字及任务内容不会越过天气便笺边缘的文字";
+                string fitted = (string)typeof(LifeGestureInput).GetMethod("FitTaskLine", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { label, longLine });
+                Require(fitted.EndsWith("…") && label.fontSize == 21 && label.cachedTextGeneratorForLayout.GetPreferredWidth(fitted, label.GetGenerationSettings(Vector2.zero)) / label.pixelsPerUnit <= label.rectTransform.sizeDelta.x, "Long Chinese is ellipsized without shrinking the selected font");
+                return true;
+            }
             void Rebuild() => Call(hud, "RebuildModal");
             yield return Make("U01", "idle", "Production idle HUD", "Fresh isolated world", () => game.Notify(""));
             yield return Make("U02", "success", "GameplaySession.Notify", "Existing success text fixture; not a new photo-save claim", () => game.Notify("照片已放进手账。"));
@@ -147,12 +178,28 @@ namespace WeatherHouse.Life.Editor
             var tasks = world.Requests.Where(request => request.HasTask).GroupBy(request => request.speakerKey).Select(group => group.First()).Take(3).ToArray();
             void AddTask(LifeRequest request) => life.Progress.tasks.Add(new LifeTask { requestId = request.id, animalId = world.FindSpeaker(request.speakerKey).Actor.animalId, eventId = request.eventId, status = LifeTaskStatus.Active });
             string originalProgress = JsonUtility.ToJson(life.Progress);
-            yield return Make("U16", "one-task", "LifeSession.TaskText / LifeGestureInput.Update", "One authored Active task UI fixture, no AI acceptance claimed", () => { game.Notify(""); life.Progress.tasks.Clear(); AddTask(tasks[0]); });
-            yield return Make("U16", "paged-tasks", "Actual task paging controls", "Three authored Active tasks arranged in isolated Progress", () => { foreach (var task in tasks.Skip(1)) AddTask(task); });
-            yield return Make("U16", "page-two", "LifeSession.ChangeTaskPage(1)", "Actual second page of arranged tasks", () => life.ChangeTaskPage(1));
+            yield return Make("U16", "task-icon", "LifeGestureInput / folded task toggle", "One authored Active task, default folded icon; no AI acceptance claimed", () => { game.Notify(""); life.Progress.tasks.Clear(); Set(input, "taskExpanded", false); AddTask(tasks[0]); }, () => Get<RectTransform>(input, "taskToggleRoot").gameObject.activeSelf && !Get<RectTransform>(input, "taskRoot").gameObject.activeSelf);
+            yield return Make("U16", "one-task", "Actual task icon button", "Click unfolds the approved weather note", () => Get<RectTransform>(input, "taskToggleRoot").GetComponent<Button>().onClick.Invoke(), TaskCardReady);
+            yield return Make("U16", "paged-tasks", "Actual task paging controls", "Three authored Active tasks arranged in isolated Progress", () => { foreach (var task in tasks.Skip(1)) AddTask(task); }, () => TaskCardReady() && life.TaskPageCount == 2 && Get<Button>(input, "nextTaskPage").gameObject.activeSelf);
+            yield return Make("U16", "page-two", "Actual next-page leaf button", "Actual second page of arranged tasks", () => Get<Button>(input, "nextTaskPage").onClick.Invoke(), () => life.TaskPage==1 && TaskCardReady());
+            var taskMood = UnityEngine.Object.FindObjectOfType<WatersideMood>();
+            WatersideMood.Snapshot taskMoodSnapshot = null;
+            try
+            {
+                yield return Make("U16", "night-task", "WatersideMood.Apply(Night) / layered task icon", "Actual scene Night mode and moon layer; current game has F8 mood switching, no advancing game clock", () =>
+                {
+                    Require(taskMood, "Night capture requires the actual scene mood");
+                    taskMoodSnapshot = taskMood.CaptureState(); taskMood.Apply(WatersideMood.Mode.Night);
+                }, () => Get<RawImage>(input, "taskNight").gameObject.activeSelf && TaskCardReady());
+            }
+            finally
+            {
+                if (taskMood && taskMoodSnapshot != null) taskMood.RestoreState(taskMoodSnapshot);
+            }
+            report.notes.Add("U16 night-task uses actual WatersideMood.Apply(Night) and restores its captured state in finally. There is no advancing in-game clock; F8 currently changes the scene mood.");
             yield return Make("U18", "expanded-hint", "LifeGestureInput.Guidance", "H expansion state set; current production sentence", () => { JsonUtility.FromJsonOverwrite(originalProgress, life.Progress); Set(input, "tipLevel", 1); });
             var dog = world.FindSpeaker("dog");
-            yield return Make("U04", "reply-input", "GameplayHud.ToggleDialogue / InputField", "Supported nearby player, authored hello and draft arranged; no provider call", () => { Set(input, "tipLevel", 0); PlaceNear(life, dog.transform.position, 2.4f); dog.topicIndex = Array.FindIndex(dog.requests, request => request.id == "dog.hello"); Property(game, "Observed", dog.Actor); hud.ToggleDialogue(); Require(hud.IsDialogueOpen, "Near dialogue did not open"); Get<InputField>(hud, "replyInput").text = "你好，我想听听你在说什么。"; });
+            yield return Make("U04", "reply-input", "GameplayHud.ToggleDialogue / InputField", "Supported nearby player, authored hello and draft arranged; no provider call", () => { Set(input, "tipLevel", 0); PlaceNear(life, dog.transform.position, 2.4f); dog.topicIndex = Array.FindIndex(dog.requests, request => request.id == "dog.hello"); Property(game, "Observed", dog.Actor); hud.ToggleDialogue(); Require(hud.IsDialogueOpen, "Near dialogue did not open"); Get<InputField>(hud, "replyInput").text = "你好，我想听听你在说什么。"; var reply = Get<InputField>(hud, "replyInput"); Require(reply.GetComponent<Graphic>().color.a == 0 && Mathf.Approximately(reply.selectionColor.r, reply.selectionColor.g) && Mathf.Approximately(reply.selectionColor.g, reply.selectionColor.b), "Reply background is transparent and selection is neutral"); Require(reply.transform.parent.GetComponent<ProceduralUiGraphic>().mark == UiMark.PlayerBubble && !reply.transform.parent.GetComponentsInChildren<Button>().Any(button => button.name == "Next conversation topic"), "Reply has no tail and no removed next-conversation button"); });
             yield return Make("U05", "short-reply", "GameplayHud.BuildReplyEcho", "Short draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed", () => { hud.CloseDialogue(); game.Notify(""); Call(hud, "UpdateStatus"); Set(hud, "lastReply", ShortReply); Set(hud, "echoUntil", Time.unscaledTime + 8); Call(hud, "BuildReplyEcho"); });
             yield return Make("U05", "long-reply", "GameplayHud.BuildReplyEcho", "Long draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed", () => { game.Notify(""); Call(hud, "UpdateStatus"); Set(hud, "lastReply", LongReply); Set(hud, "echoUntil", Time.unscaledTime + 8); Call(hud, "BuildReplyEcho"); });
             yield return Make("U06", "camera", "GameplayHud.SetCameraMode", "Actual viewfinder UI at arranged viewpoint", () => { Set(hud, "echoUntil", 0f); hud.SetCameraMode(true, true); });

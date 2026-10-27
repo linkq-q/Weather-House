@@ -49,6 +49,15 @@ namespace WeatherHousePrototype
             return graphic;
         }
 
+        public static ProceduralUiGraphic WhitePanel(Transform parent, string name, Vector2 position, Vector2 size, bool raycastTarget = false)
+        {
+            var panel = Create(parent, name, UiMark.PlayerBubble, position, size, Color.white, 3f, raycastTarget);
+            panel.bubbleRadius = .15f;
+            panel.waviness = .004f;
+            panel.SetVerticesDirty();
+            return panel;
+        }
+
         public static Button Button(Transform parent, string name, UiMark mark, Vector2 position,
             Vector2 size, Color color, float lineWidth = 3f)
         {

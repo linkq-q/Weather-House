@@ -71,9 +71,18 @@ namespace WeatherHouse.Life.Editor
         {
             if (EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Review needs Edit mode.");
             var scene=SceneManager.GetActiveScene();
-            if(scene.path!="Assets/Scenes/WeatherHouse_WatersideV2.unity" || scene.isDirty)
+            bool uiReview=mode==ReviewMode.Ui || mode==ReviewMode.UiCapture;
+            if(scene.path!="Assets/Scenes/WeatherHouse_WatersideV2.unity" || (scene.isDirty && !uiReview))
                 throw new InvalidOperationException("Review needs the clean WatersideV2 scene already open; it never opens or saves scenes.");
             Directory.CreateDirectory(Folder);
+            if(scene.isDirty)
+            {
+                // UI-only validation can preserve an in-progress map without saving over it.
+                string snapshot=Folder+"/before-ui-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmssfff")+".unity";
+                if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene,snapshot,true) || !scene.isDirty || scene.path!="Assets/Scenes/WeatherHouse_WatersideV2.unity")
+                    throw new InvalidOperationException("UI review must preserve the active dirty scene and its original path.");
+                File.WriteAllText(Folder+"/ui-dirty-scene-backup.txt",Path.GetFullPath(snapshot)+"\nActive scene remains dirty; original scene was not saved.\n"+DateTime.UtcNow.ToString("O"));
+            }
             Environment.SetEnvironmentVariable("WEATHERHOUSE_LIFE_REVIEW_SAVE",Path.GetFullPath(Folder+"/save-"+DateTime.UtcNow.ToString("HHmmss")));
             SessionState.SetBool(Key+".Background",Application.runInBackground);
             SessionState.SetInt(Key+".Mode",(int)mode);
@@ -142,7 +151,7 @@ namespace WeatherHouse.Life.Editor
                     }
                     if(Mode==ReviewMode.Ui)
                     {
-                        uiResult=null;uiRoutine=life.StartCoroutine(LifeUiPlayChecks.Run(life,result=>{uiResult=result;File.WriteAllText(Folder+"/ui-lifecycle.txt",result);}));
+                        uiResult=null;uiRoutine=life.StartCoroutine(WeatherHouse.SquirrelOga.Editor.SquirrelOgaPlayChecks.RunWithUi(life,result=>{uiResult=result;File.WriteAllText(Folder+"/ui-lifecycle.txt",result);}));
                         stage=21;nextStage=EditorApplication.timeSinceStartup+.5;return;
                     }
                     if(Mode==ReviewMode.Photo)
