@@ -1,0 +1,552 @@
+{
+  "utc": "2026-10-27T10:45:07.489660+00:00",
+  "head": "6b2e6b1fb45fc387c206ab2deed42f8db28c3d4a",
+  "normalization": "CRLF to LF only; no whitespace or BOM removal for byte equality",
+  "gitCommands": [
+    "rev-parse HEAD",
+    "rev-parse --git-path index",
+    "show <pinnedHead>:<prefabPath>"
+  ],
+  "unityOperations": [],
+  "workspaceWrites": [],
+  "gitIndexWrites": [],
+  "prefabs": [
+    {
+      "id": "A01",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A01.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A01_20261027_080343971.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A01_20261027_080343971.prefab",
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A01_20261027_102404404.prefab"
+      ],
+      "backupRawSha256": "d33a39e19605235422ef3fb52ebcd81dc18e267285c9c2bae33277b0f7d12f4e",
+      "headRawSha256": "d33a39e19605235422ef3fb52ebcd81dc18e267285c9c2bae33277b0f7d12f4e",
+      "backupLfSha256": "d33a39e19605235422ef3fb52ebcd81dc18e267285c9c2bae33277b0f7d12f4e",
+      "headLfSha256": "d33a39e19605235422ef3fb52ebcd81dc18e267285c9c2bae33277b0f7d12f4e",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "53ecb9badc90b2b8539757bd24d1afbbb2032c9ddd94ddf7fc7a0b5fe96460fa",
+      "currentLfSha256": "53ecb9badc90b2b8539757bd24d1afbbb2032c9ddd94ddf7fc7a0b5fe96460fa",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "83281274179400821",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.data[3]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "7232620345085203619",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.data[3]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "9184558857259867161",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.data[3]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    },
+    {
+      "id": "A02",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A02.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A02_20261027_080355759.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A02_20261027_080355759.prefab",
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A02_20261027_102413601.prefab"
+      ],
+      "backupRawSha256": "b10e90f60930b77168b2dd07e6b4b5d8927017516674c91dd296bceebd47da7c",
+      "headRawSha256": "b10e90f60930b77168b2dd07e6b4b5d8927017516674c91dd296bceebd47da7c",
+      "backupLfSha256": "b10e90f60930b77168b2dd07e6b4b5d8927017516674c91dd296bceebd47da7c",
+      "headLfSha256": "b10e90f60930b77168b2dd07e6b4b5d8927017516674c91dd296bceebd47da7c",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "22e7ee511bd8ee4a88585b61be2d85427dfd03aa635ae14b6379593a48aecef9",
+      "currentLfSha256": "22e7ee511bd8ee4a88585b61be2d85427dfd03aa635ae14b6379593a48aecef9",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "964362426497519556",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "5737400834853388785",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "8546405960975171921",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    },
+    {
+      "id": "A03",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A03.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A03_20261027_102418380.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A03_20261027_102418380.prefab"
+      ],
+      "backupRawSha256": "44f2cfda47902f04c92f1ead994d843e12268502cfd5bdee999da10b918f3428",
+      "headRawSha256": "44f2cfda47902f04c92f1ead994d843e12268502cfd5bdee999da10b918f3428",
+      "backupLfSha256": "44f2cfda47902f04c92f1ead994d843e12268502cfd5bdee999da10b918f3428",
+      "headLfSha256": "44f2cfda47902f04c92f1ead994d843e12268502cfd5bdee999da10b918f3428",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "f6c769ffc23a506da0f27de9e85920bf1298de4c95ea0860462c1afaa491456b",
+      "currentLfSha256": "f6c769ffc23a506da0f27de9e85920bf1298de4c95ea0860462c1afaa491456b",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "4434579167243834197",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "7088284327534785071",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "8246675248174186148",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    },
+    {
+      "id": "A04",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A04.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A04_20261027_102425793.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A04_20261027_102425793.prefab"
+      ],
+      "backupRawSha256": "e80125ba949afe153c298b0c1df420aebd24294c43bc3f6880b1c0800b30b5e3",
+      "headRawSha256": "e80125ba949afe153c298b0c1df420aebd24294c43bc3f6880b1c0800b30b5e3",
+      "backupLfSha256": "e80125ba949afe153c298b0c1df420aebd24294c43bc3f6880b1c0800b30b5e3",
+      "headLfSha256": "e80125ba949afe153c298b0c1df420aebd24294c43bc3f6880b1c0800b30b5e3",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "bfff2d454eda0cfbaed0d569d588c8f3bbb3a54f29136a467dc070ab96a64703",
+      "currentLfSha256": "bfff2d454eda0cfbaed0d569d588c8f3bbb3a54f29136a467dc070ab96a64703",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "1665330233903869439",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "3793938383753998784",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "4835857797548539097",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    },
+    {
+      "id": "A06",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A06.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A06_20261027_102432329.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A06_20261027_102432329.prefab"
+      ],
+      "backupRawSha256": "ffde8f4ef36058afd6186813bfe16eaf2763025d1b8c73794474c042a4fa7486",
+      "headRawSha256": "ffde8f4ef36058afd6186813bfe16eaf2763025d1b8c73794474c042a4fa7486",
+      "backupLfSha256": "ffde8f4ef36058afd6186813bfe16eaf2763025d1b8c73794474c042a4fa7486",
+      "headLfSha256": "ffde8f4ef36058afd6186813bfe16eaf2763025d1b8c73794474c042a4fa7486",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "0b28bde2c6773bea4d18767d48e45f5c67ef954f13876b58e8a539cb2c075024",
+      "currentLfSha256": "0b28bde2c6773bea4d18767d48e45f5c67ef954f13876b58e8a539cb2c075024",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "1144860810735150174",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "5411806535152078463",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "6767922129697599237",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    },
+    {
+      "id": "A07",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A07.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A07_20261027_102440015.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A07_20261027_102440015.prefab"
+      ],
+      "backupRawSha256": "9bd45d9749d2f808a9418f220e6071fb930dd20adad86e28dd22aee11b312481",
+      "headRawSha256": "9bd45d9749d2f808a9418f220e6071fb930dd20adad86e28dd22aee11b312481",
+      "backupLfSha256": "9bd45d9749d2f808a9418f220e6071fb930dd20adad86e28dd22aee11b312481",
+      "headLfSha256": "9bd45d9749d2f808a9418f220e6071fb930dd20adad86e28dd22aee11b312481",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "6c0345da78b8015fc09226d01264ddd447d5951a62abdb5812d6b7ced325430a",
+      "currentLfSha256": "6c0345da78b8015fc09226d01264ddd447d5951a62abdb5812d6b7ced325430a",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "195888006839893085",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "4426913952082301378",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.data[3]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "8515108108175817395",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.data[2]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    },
+    {
+      "id": "A09",
+      "prefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A09.prefab",
+      "firstBackup": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A09_20261027_072248180.prefab",
+      "allBackups": [
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A09_20261027_072248180.prefab",
+        "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\Backups\\A09_20261027_102446629.prefab"
+      ],
+      "backupRawSha256": "e4cad4e476490efc9995a06e29c97e7fb5939e6cbf96eecec455aa3a2e7ba589",
+      "headRawSha256": "e4cad4e476490efc9995a06e29c97e7fb5939e6cbf96eecec455aa3a2e7ba589",
+      "backupLfSha256": "e4cad4e476490efc9995a06e29c97e7fb5939e6cbf96eecec455aa3a2e7ba589",
+      "headLfSha256": "e4cad4e476490efc9995a06e29c97e7fb5939e6cbf96eecec455aa3a2e7ba589",
+      "rawBytesEqual": true,
+      "canonicalLfBytesEqual": true,
+      "preexistingChangesVsHead": [],
+      "preexistingNonAppearanceChanges": [],
+      "currentRawSha256": "be782cd5c7dbb51a69ea0daf3cfabeb1a791bede7bae4bb1adc22ca1fea6687c",
+      "currentLfSha256": "be782cd5c7dbb51a69ea0daf3cfabeb1a791bede7bae4bb1adc22ca1fea6687c",
+      "currentChangesVsFirstBackup": [
+        {
+          "fileID": "3327254318579117262",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "4377367149601214913",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        },
+        {
+          "fileID": "6373817938477479091",
+          "change": "modified",
+          "class": 1001,
+          "fields": [
+            "m_Modification"
+          ],
+          "appearanceOnly": true,
+          "nestedPrefabOverrideRemainderByteEqual": true,
+          "allowedAppearanceOverridePaths": [
+            "m_Enabled",
+            "m_Materials.Array.data[0]",
+            "m_Materials.Array.data[1]",
+            "m_Materials.Array.size",
+            "m_Mesh"
+          ]
+        }
+      ],
+      "currentNonAppearanceChangesVsFirstBackup": [],
+      "wholePrefabStageScopeSupported": true
+    }
+  ],
+  "indexSha256Before": "564ef224e00f7f392366c23d28da677f8e8430700927d75616c1bc4d2a94d31f",
+  "indexSha256After": "564ef224e00f7f392366c23d28da677f8e8430700927d75616c1bc4d2a94d31f",
+  "gitIndexUnchangedDuringAudit": true,
+  "headAfter": "6b2e6b1fb45fc387c206ab2deed42f8db28c3d4a",
+  "headUnchangedDuringAudit": true,
+  "workspacePrefabHashesUnchangedDuringAudit": true,
+  "status": "ALL_SEVEN_BASELINES_EQUAL_HEAD_AND_ONLY_APPEARANCE_DELTAS"
+}
