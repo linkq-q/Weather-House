@@ -1,0 +1,262 @@
+{
+  "status": "PASS_BLENDER_FBX_ROUNDTRIP_UNITY_PENDING",
+  "rigName": "Armature",
+  "boneCount": 34,
+  "boneNames": [
+    "Main",
+    "Pan",
+    "Backbone",
+    "Backbone.001",
+    "Neck",
+    "Head",
+    "Mouth",
+    "Arm_L",
+    "Arm_L.001",
+    "Arm_L.002",
+    "Arm_R",
+    "Arm_R.001",
+    "Arm_R.002",
+    "Leg_L",
+    "Leg_L.001",
+    "Leg_L.002",
+    "Leg_L.003",
+    "Leg_R",
+    "Leg_R.001",
+    "Leg_R.002",
+    "Leg_R.003",
+    "Tail",
+    "Tail.001",
+    "Tail.002",
+    "Tail.003",
+    "Tail.004",
+    "Tail.005",
+    "IK-Pan",
+    "IK-Tail",
+    "IK-Leg_L",
+    "IK-Leg_R",
+    "IK-Arm_L",
+    "IK-Arm_R",
+    "IK-Head"
+  ],
+  "sourceBonesMissing": [],
+  "meshes": [
+    {
+      "name": "SquirrelBodyMesh",
+      "vertices": 1839,
+      "triangles": 3674,
+      "materials": [
+        "OGA Natural Chestnut Fur",
+        "OGA Natural Cream Belly",
+        "OGA Natural Tail",
+        "OGA Natural Muzzle",
+        "OGA Natural Eyes Nose",
+        "OGA Natural Paws",
+        "OGA Natural Incisors"
+      ]
+    },
+    {
+      "name": "SquirrelHeadNaturalMesh",
+      "vertices": 1460,
+      "triangles": 2880,
+      "materials": [
+        "OGA Natural Chestnut Fur",
+        "OGA Natural Muzzle",
+        "OGA Natural Eyes Nose",
+        "OGA Natural Inner Ear"
+      ]
+    },
+    {
+      "name": "SquirrelPawsMesh",
+      "vertices": 120,
+      "triangles": 200,
+      "materials": [
+        "OGA Natural Chestnut Fur",
+        "OGA Natural Cream Belly",
+        "OGA Natural Tail",
+        "OGA Natural Muzzle",
+        "OGA Natural Eyes Nose",
+        "OGA Natural Paws",
+        "OGA Natural Incisors"
+      ]
+    }
+  ],
+  "headWeightSumRange": [
+    0.9999999599531293,
+    1.0000000298023224
+  ],
+  "headWeightedBones": [
+    "Arm_L",
+    "Arm_R",
+    "Backbone.001",
+    "Head",
+    "Mouth",
+    "Neck"
+  ],
+  "blendshapes": [
+    "Basis",
+    "EyesClosed"
+  ],
+  "restSeamsMetres": {
+    "down_to_loop": 2.107342425006209e-07,
+    "loop_to_up": 2.107342425006209e-07
+  },
+  "actions": [
+    {
+      "action": "Armature|Armature|Drink_Derived",
+      "frames": [
+        1.0,
+        73.0
+      ],
+      "lowestZRange": [
+        0.00199951627291739,
+        0.002000211738049984
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.000",
+      "frames": [
+        1.0,
+        20.0
+      ],
+      "lowestZRange": [
+        4.5997424535926257e-07,
+        0.0006014937534928322
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.001",
+      "frames": [
+        1.0,
+        36.0
+      ],
+      "lowestZRange": [
+        4.5997424535926257e-07,
+        0.0006005162140354514
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.002",
+      "frames": [
+        1.0,
+        52.0
+      ],
+      "lowestZRange": [
+        4.5997424535926257e-07,
+        0.0005974644445814192
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.004",
+      "frames": [
+        1.0,
+        39.0
+      ],
+      "lowestZRange": [
+        -0.002417253563180566,
+        4.5997424535926257e-07
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|RestDown_Derived",
+      "frames": [
+        1.0,
+        25.0
+      ],
+      "lowestZRange": [
+        0.001999397063627839,
+        0.002000222448259592
+      ],
+      "endpointMaxVertexGap": 0.6070495843887329
+    },
+    {
+      "action": "Armature|Armature|RestLoop_Derived",
+      "frames": [
+        1.0,
+        49.0
+      ],
+      "lowestZRange": [
+        0.0019993965979665518,
+        0.001999619882553816
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|RestUp_Derived",
+      "frames": [
+        1.0,
+        25.0
+      ],
+      "lowestZRange": [
+        0.001999397063627839,
+        0.002000222448259592
+      ],
+      "endpointMaxVertexGap": 0.6070495843887329
+    },
+    {
+      "action": "Armature|Armature|Run",
+      "frames": [
+        1.0,
+        10.0
+      ],
+      "lowestZRange": [
+        -0.017090588808059692,
+        0.06691727042198181
+      ],
+      "endpointMaxVertexGap": 0.0053658210672438145
+    },
+    {
+      "action": "Armature|Armature|Run.Begin",
+      "frames": [
+        1.0,
+        9.0
+      ],
+      "lowestZRange": [
+        -0.014801437966525555,
+        0.0005166164482943714
+      ],
+      "endpointMaxVertexGap": 0.6106229424476624
+    },
+    {
+      "action": "Armature|Armature|Run.End",
+      "frames": [
+        1.0,
+        9.0
+      ],
+      "lowestZRange": [
+        -0.014801437966525555,
+        0.0005165687762200832
+      ],
+      "endpointMaxVertexGap": 0.6106229424476624
+    },
+    {
+      "action": "Armature|Armature|RunGrounded_Derived",
+      "frames": [
+        1.0,
+        10.0
+      ],
+      "lowestZRange": [
+        0.002062699291855097,
+        0.08607079088687897
+      ],
+      "endpointMaxVertexGap": 0.005365973804146051
+    },
+    {
+      "action": "Armature|Armature|RunSlow_Derived",
+      "frames": [
+        1.0,
+        19.0
+      ],
+      "lowestZRange": [
+        0.002062580082565546,
+        0.08606725931167603
+      ],
+      "endpointMaxVertexGap": 0.005365973804146051
+    }
+  ],
+  "boundary": "FBX roundtrip in Blender only. Unity importer/avatar/forward/material/contacts not verified by this script."
+}

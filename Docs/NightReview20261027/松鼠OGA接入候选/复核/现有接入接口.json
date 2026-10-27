@@ -1,0 +1,82 @@
+{
+  "status": "READ_ONLY_SOURCE_AUDIT",
+  "files": [
+    {
+      "path": "Assets/Game/World/Hillside/Generated/squirrel.prefab",
+      "sha256": "6a3c7bc01e9eca1f7e1782fec27b31e45c31b4626aca800bd64f7b68388f5f42"
+    },
+    {
+      "path": "Assets/Game/World/Hillside/Editor/HillsideAnimalBuilder.cs",
+      "sha256": "f7d2a55cb558996eefb3322d7b47ab8c68b3b6bee24348a813492f4767c40300"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeTypes.cs",
+      "sha256": "726540125fb78c6140e30051115790e875a1c33c2c10a32578eae1e5ab68c37f"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAnimation.cs",
+      "sha256": "56b4cdd3bb332284d9f97b1261391973976bcdfbf66011ef6d5763a0c2bd5c3d"
+    },
+    {
+      "path": "Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs",
+      "sha256": "8ec989cd7a9f1c8911448669aa5516ce013913e3bab6b65d4eba7d8c46e617af"
+    },
+    {
+      "path": "Assets/Game/Life/World/LifeWorld.Setup.cs",
+      "sha256": "53748c0a3df0e1442f3a5f78e1e2913dd38b7c4e0ada6505f872d2372193fe7f"
+    },
+    {
+      "path": "Assets/Game/Life/World/LifeWorld.Drinking.cs",
+      "sha256": "40cbf0b147e5d19d2e6273fbcfaa6f734dd5dc672adc6ac56011c324bf17e582"
+    },
+    {
+      "path": "Assets/Game/Life/World/LifeWorld.Feeding.cs",
+      "sha256": "d83ada4a972ae64b6428a6fa0d35156f385246d79567652bf2882cf55ae4a6a5"
+    }
+  ],
+  "bindings": {
+    "basePrefab": "Assets/Game/World/Hillside/Generated/squirrel.prefab",
+    "currentVisualScale": 0.5965396,
+    "currentVisualPosition": [
+      0.17737702,
+      0.24906777,
+      -0.115068674
+    ],
+    "currentBodyRadius": 0.19440001,
+    "walkSpeed": 0.65,
+    "runSpeed": 1.4,
+    "builderCurrentClips": {
+      "idle": "turn.fbx",
+      "forage": "turn.fbx",
+      "walk": "walk_biped.fbx",
+      "run": "run_biped.fbx",
+      "greet": "wave.fbx"
+    },
+    "lifeOverride": [
+      "SquirrelIdle",
+      "SquirrelRestDown",
+      "SquirrelRestLoop",
+      "SquirrelRestUp"
+    ],
+    "drinkClip": "SquirrelDrink",
+    "oldMouthHeadLocal": [
+      -0.00236940026,
+      0.00106350422,
+      -0.0002709702
+    ],
+    "oldDrinkRootContact": [
+      0.178034385,
+      0.101095977,
+      0.18899363
+    ]
+  },
+  "criticalBlockers": [
+    "34-bone OGA rig cannot inherit 27-bone source clips",
+    "LifeWorld.Bind overrides squirrel idle/rest if old resource clips remain",
+    "BeginDrink searches Head by name, loads old SquirrelDrink and hardcoded tiny old-rig offsets",
+    "No native Walk/Turn/RestDown/Sleep/RestUp/Drink/Eat in OGA action names",
+    "Current builder replaces every squirrel material with a single Animal_squirrel BaseMap material and adds old SquirrelTailWave",
+    "Body bounds, facing, speed-phase sync and mouth-water contacts require actual isolated Unity validation"
+  ],
+  "proposal": "Create independent OGA actor prefab and explicit rig-family animation/contact profile; retain original on main scene until missing rest/drink are resolved; do not globally replace resource IDs or auto-run old builder."
+}

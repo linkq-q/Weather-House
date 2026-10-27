@@ -4,6 +4,7 @@ using UnityEngine;
 using WeatherHousePrototype;
 using WeatherHouse.Hillside;
 using WeatherHouse.WildlifeJourney;
+using WeatherHouse.SquirrelOga;
 
 namespace WeatherHouse.Life
 {
@@ -33,11 +34,13 @@ namespace WeatherHouse.Life
             if(b.wildlife && b.wildlife.speciesId=="squirrel")
             {
                 PrepareInitialLifePosition(b);
-                AnimationClip down=Clip("SquirrelRestDown"),sleep=Clip("SquirrelRestLoop"),up=Clip("SquirrelRestUp");
+                SquirrelOgaRig oga=b.wildlife.GetComponentInChildren<SquirrelOgaRig>(true);
+                // An installed OGA model must never receive the former 27-bone clips.
+                AnimationClip down=oga?oga.restDown:Clip("SquirrelRestDown"),sleep=oga?oga.restLoop:Clip("SquirrelRestLoop"),up=oga?oga.restUp:Clip("SquirrelRestUp");
                 if(down&&sleep&&up)
                 {
                     b.oldIdle=b.wildlife.clips.idle;b.oldDown=b.wildlife.clips.restDown;b.oldSleep=b.wildlife.clips.restSleep;b.oldUp=b.wildlife.clips.restUp;b.changedClips=true;
-                    b.wildlife.ConfigureLifeRest(down,sleep,up,Clip("SquirrelIdle"));
+                    b.wildlife.ConfigureLifeRest(down,sleep,up,oga?oga.idle:Clip("SquirrelIdle"));
                     b.tailWave=b.wildlife.GetComponentInChildren<WeatherHouseSquirrelLab.SquirrelTailWave>();
                     if(b.tailWave){b.oldTailEnabled=b.tailWave.enabled;b.tailWave.enabled=false;}
                 }

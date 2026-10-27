@@ -1,0 +1,2325 @@
+{
+  "source": "C:\\Users\\31483\\Desktop\\天气屋\\夜间完善_20261027\\松鼠动画\\候选模型\\OGA-undeadsquirrel\\squirrel-anim.blend",
+  "sourceSha256": "150016dac5a6a700f5726c84e18bb66f7d03b23c35f2b7d636a41f413980927f",
+  "blender": "5.1.1",
+  "sceneFPS": [
+    24,
+    1.0
+  ],
+  "units": {
+    "system": "NONE",
+    "scaleLength": 1.0
+  },
+  "objects": [
+    {
+      "name": "Ears",
+      "vertices": 36,
+      "triangles": 32,
+      "materials": [
+        "Ear-Hair"
+      ],
+      "materialPolygonCounts": {
+        "0": 16
+      },
+      "localBounds": [
+        [
+          -0.7286064,
+          -1.3977909,
+          1.9157504
+        ],
+        [
+          0.7286064,
+          -0.7327797,
+          2.9662983
+        ]
+      ],
+      "worldBounds": [
+        [
+          -0.476471,
+          -1.9705489,
+          1.778563
+        ],
+        [
+          0.2770749,
+          -0.6492807,
+          3.0425763
+        ]
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": "Armature",
+      "uvLayers": [
+        "UV-Head"
+      ],
+      "vertexGroups": [
+        "Pan",
+        "Backbone",
+        "Backbone.001",
+        "Neck",
+        "Head",
+        "Mouth",
+        "Arm_L",
+        "Arm_L.001",
+        "Arm_L.002",
+        "Arm_R",
+        "Arm_R.001",
+        "Arm_R.002",
+        "Leg_L",
+        "Leg_L.001",
+        "Leg_L.002",
+        "Leg_L.003",
+        "Leg_R",
+        "Leg_R.001",
+        "Leg_R.002",
+        "Leg_R.003",
+        "Tail",
+        "Tail.001",
+        "Tail.002",
+        "Tail.003",
+        "Tail.004",
+        "Tail.005"
+      ],
+      "modifiers": [
+        "ARMATURE"
+      ]
+    },
+    {
+      "name": "Fingers",
+      "vertices": 120,
+      "triangles": 200,
+      "materials": [
+        "Head"
+      ],
+      "materialPolygonCounts": {
+        "0": 100
+      },
+      "localBounds": [
+        [
+          -0.6335109,
+          -1.8484262,
+          0.9536588
+        ],
+        [
+          0.6335109,
+          -1.6600884,
+          1.1832777
+        ]
+      ],
+      "worldBounds": [
+        [
+          -0.961544,
+          -1.2881463,
+          0.9677408
+        ],
+        [
+          0.1020329,
+          -0.4319654,
+          1.3546304
+        ]
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": "Armature",
+      "uvLayers": [
+        "UV-Head"
+      ],
+      "vertexGroups": [
+        "Pan",
+        "Backbone",
+        "Backbone.001",
+        "Neck",
+        "Head",
+        "Mouth",
+        "Arm_L",
+        "Arm_L.001",
+        "Arm_L.002",
+        "Arm_R",
+        "Arm_R.001",
+        "Arm_R.002",
+        "Leg_L",
+        "Leg_L.001",
+        "Leg_L.002",
+        "Leg_L.003",
+        "Leg_R",
+        "Leg_R.001",
+        "Leg_R.002",
+        "Leg_R.003",
+        "Tail",
+        "Tail.001",
+        "Tail.002",
+        "Tail.003",
+        "Tail.004",
+        "Tail.005"
+      ],
+      "modifiers": [
+        "ARMATURE"
+      ]
+    },
+    {
+      "name": "Head",
+      "vertices": 781,
+      "triangles": 1552,
+      "materials": [
+        "Body",
+        "Head"
+      ],
+      "materialPolygonCounts": {
+        "0": 0,
+        "1": 776
+      },
+      "localBounds": [
+        [
+          -0.4720605,
+          -1.8013031,
+          1.3778086
+        ],
+        [
+          0.4720605,
+          -0.7188649,
+          2.5290103
+        ]
+      ],
+      "worldBounds": [
+        [
+          -1.0439763,
+          -1.6349752,
+          1.4116933
+        ],
+        [
+          0.1620229,
+          -0.6645945,
+          2.6184261
+        ]
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": "Armature",
+      "uvLayers": [
+        "UV-Head"
+      ],
+      "vertexGroups": [
+        "Pan",
+        "Backbone",
+        "Backbone.001",
+        "Neck",
+        "Head",
+        "Mouth",
+        "Arm_L",
+        "Arm_L.001",
+        "Arm_L.002",
+        "Arm_R",
+        "Arm_R.001",
+        "Arm_R.002",
+        "Leg_L",
+        "Leg_L.001",
+        "Leg_L.002",
+        "Leg_L.003",
+        "Leg_R",
+        "Leg_R.001",
+        "Leg_R.002",
+        "Leg_R.003",
+        "Tail",
+        "Tail.001",
+        "Tail.002",
+        "Tail.003",
+        "Tail.004",
+        "Tail.005"
+      ],
+      "modifiers": [
+        "ARMATURE"
+      ]
+    },
+    {
+      "name": "Plane",
+      "vertices": 4,
+      "triangles": 2,
+      "materials": [
+        "Body.001"
+      ],
+      "materialPolygonCounts": {
+        "0": 1
+      },
+      "localBounds": [
+        [
+          -1.0,
+          -1.0,
+          0.0
+        ],
+        [
+          1.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "worldBounds": [
+        [
+          -1.0,
+          -1.0,
+          0.0
+        ],
+        [
+          1.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        7.3256612,
+        7.3256612,
+        7.3256612
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": null,
+      "uvLayers": [],
+      "vertexGroups": [],
+      "modifiers": []
+    },
+    {
+      "name": "Squirrel",
+      "vertices": 1839,
+      "triangles": 3664,
+      "materials": [
+        "Body",
+        "Head"
+      ],
+      "materialPolygonCounts": {
+        "0": 1832,
+        "1": 0
+      },
+      "localBounds": [
+        [
+          -0.7606944,
+          -1.8123399,
+          -0.000573
+        ],
+        [
+          0.7606944,
+          1.8494296,
+          3.1606505
+        ]
+      ],
+      "worldBounds": [
+        [
+          -0.9134139,
+          -1.2716149,
+          -0.0229049
+        ],
+        [
+          2.1927838,
+          2.0486703,
+          3.0106876
+        ]
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": "Armature",
+      "uvLayers": [
+        "UV-Head"
+      ],
+      "vertexGroups": [
+        "Pan",
+        "Backbone",
+        "Backbone.001",
+        "Neck",
+        "Head",
+        "Mouth",
+        "Arm_L",
+        "Arm_L.001",
+        "Arm_L.002",
+        "Arm_R",
+        "Arm_R.001",
+        "Arm_R.002",
+        "Leg_L",
+        "Leg_L.001",
+        "Leg_L.002",
+        "Leg_L.003",
+        "Leg_R",
+        "Leg_R.001",
+        "Leg_R.002",
+        "Leg_R.003",
+        "Tail",
+        "Tail.001",
+        "Tail.002",
+        "Tail.003",
+        "Tail.004",
+        "Tail.005"
+      ],
+      "modifiers": [
+        "ARMATURE"
+      ]
+    },
+    {
+      "name": "Teeth",
+      "vertices": 56,
+      "triangles": 72,
+      "materials": [
+        "Head"
+      ],
+      "materialPolygonCounts": {
+        "0": 36
+      },
+      "localBounds": [
+        [
+          -0.2419228,
+          -1.6438186,
+          1.3829527
+        ],
+        [
+          0.2419228,
+          -1.2086303,
+          1.7377204
+        ]
+      ],
+      "worldBounds": [
+        [
+          -0.9126186,
+          -1.2472935,
+          1.4267263
+        ],
+        [
+          -0.4153495,
+          -0.7634048,
+          1.8937838
+        ]
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": "Armature",
+      "uvLayers": [
+        "UV-Head"
+      ],
+      "vertexGroups": [
+        "Pan",
+        "Backbone",
+        "Backbone.001",
+        "Neck",
+        "Head",
+        "Mouth",
+        "Arm_L",
+        "Arm_L.001",
+        "Arm_L.002",
+        "Arm_R",
+        "Arm_R.001",
+        "Arm_R.002",
+        "Leg_L",
+        "Leg_L.001",
+        "Leg_L.002",
+        "Leg_L.003",
+        "Leg_R",
+        "Leg_R.001",
+        "Leg_R.002",
+        "Leg_R.003",
+        "Tail",
+        "Tail.001",
+        "Tail.002",
+        "Tail.003",
+        "Tail.004",
+        "Tail.005",
+        "IK-Head"
+      ],
+      "modifiers": [
+        "ARMATURE"
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "Body",
+      "use_nodes": true,
+      "diffuse": [
+        0.8,
+        0.8,
+        0.8,
+        1.0
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0,
+      "nodes": [
+        {
+          "name": "Frame",
+          "type": "NodeFrame",
+          "inputs": {}
+        },
+        {
+          "name": "Material Output",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Principled BSDF",
+          "type": "ShaderNodeBsdfPrincipled",
+          "inputs": {
+            "Base Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Metallic": 0.0,
+            "Roughness": 0.5,
+            "IOR": 1.5,
+            "Alpha": 1.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0,
+            "Diffuse Roughness": 0.0,
+            "Subsurface Weight": 0.0,
+            "Subsurface Radius": [
+              1.0,
+              0.20000000298023224,
+              0.10000000149011612
+            ],
+            "Subsurface Scale": 0.05000000074505806,
+            "Subsurface IOR": 1.399999976158142,
+            "Subsurface Anisotropy": 0.0,
+            "Specular IOR Level": 0.0,
+            "Specular Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Anisotropic": 0.0,
+            "Anisotropic Rotation": 0.0,
+            "Tangent": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Transmission Weight": 0.0,
+            "Coat Weight": 0.0,
+            "Coat Roughness": 0.029999999329447746,
+            "Coat IOR": 1.5,
+            "Coat Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Coat Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Sheen Weight": 0.0,
+            "Sheen Roughness": 0.5,
+            "Sheen Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Color": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Strength": 0.0,
+            "Thin Film Thickness": 0.0,
+            "Thin Film IOR": 1.3300000429153442
+          }
+        },
+        {
+          "name": "Material Output.001",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Diffuse BSDF",
+          "type": "ShaderNodeBsdfDiffuse",
+          "inputs": {
+            "Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Roughness": 0.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0
+          }
+        }
+      ],
+      "links": [
+        {
+          "from": "Principled BSDF.BSDF",
+          "to": "Material Output.Surface"
+        },
+        {
+          "from": "Diffuse BSDF.BSDF",
+          "to": "Material Output.001.Surface"
+        }
+      ]
+    },
+    {
+      "name": "Body.001",
+      "use_nodes": true,
+      "diffuse": [
+        0.8,
+        0.8,
+        0.8,
+        1.0
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0,
+      "nodes": [
+        {
+          "name": "Frame",
+          "type": "NodeFrame",
+          "inputs": {}
+        },
+        {
+          "name": "Material Output",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Principled BSDF",
+          "type": "ShaderNodeBsdfPrincipled",
+          "inputs": {
+            "Base Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Metallic": 0.0,
+            "Roughness": 0.5,
+            "IOR": 1.5,
+            "Alpha": 1.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0,
+            "Diffuse Roughness": 0.0,
+            "Subsurface Weight": 0.0,
+            "Subsurface Radius": [
+              1.0,
+              0.20000000298023224,
+              0.10000000149011612
+            ],
+            "Subsurface Scale": 0.05000000074505806,
+            "Subsurface IOR": 1.399999976158142,
+            "Subsurface Anisotropy": 0.0,
+            "Specular IOR Level": 0.0,
+            "Specular Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Anisotropic": 0.0,
+            "Anisotropic Rotation": 0.0,
+            "Tangent": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Transmission Weight": 0.0,
+            "Coat Weight": 0.0,
+            "Coat Roughness": 0.029999999329447746,
+            "Coat IOR": 1.5,
+            "Coat Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Coat Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Sheen Weight": 0.0,
+            "Sheen Roughness": 0.5,
+            "Sheen Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Color": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Strength": 0.0,
+            "Thin Film Thickness": 0.0,
+            "Thin Film IOR": 1.3300000429153442
+          }
+        },
+        {
+          "name": "Material Output.001",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Diffuse BSDF",
+          "type": "ShaderNodeBsdfDiffuse",
+          "inputs": {
+            "Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Roughness": 0.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0
+          }
+        }
+      ],
+      "links": [
+        {
+          "from": "Principled BSDF.BSDF",
+          "to": "Material Output.Surface"
+        },
+        {
+          "from": "Diffuse BSDF.BSDF",
+          "to": "Material Output.001.Surface"
+        }
+      ]
+    },
+    {
+      "name": "Ear-Hair",
+      "use_nodes": true,
+      "diffuse": [
+        0.8,
+        0.8,
+        0.8,
+        1.0
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0,
+      "nodes": [
+        {
+          "name": "Frame",
+          "type": "NodeFrame",
+          "inputs": {}
+        },
+        {
+          "name": "Material Output",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Principled BSDF",
+          "type": "ShaderNodeBsdfPrincipled",
+          "inputs": {
+            "Base Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Metallic": 0.0,
+            "Roughness": 0.5,
+            "IOR": 1.5,
+            "Alpha": 1.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0,
+            "Diffuse Roughness": 0.0,
+            "Subsurface Weight": 0.0,
+            "Subsurface Radius": [
+              1.0,
+              0.20000000298023224,
+              0.10000000149011612
+            ],
+            "Subsurface Scale": 0.05000000074505806,
+            "Subsurface IOR": 1.399999976158142,
+            "Subsurface Anisotropy": 0.0,
+            "Specular IOR Level": 0.0,
+            "Specular Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Anisotropic": 0.0,
+            "Anisotropic Rotation": 0.0,
+            "Tangent": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Transmission Weight": 0.0,
+            "Coat Weight": 0.0,
+            "Coat Roughness": 0.029999999329447746,
+            "Coat IOR": 1.5,
+            "Coat Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Coat Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Sheen Weight": 0.0,
+            "Sheen Roughness": 0.5,
+            "Sheen Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Color": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Strength": 0.0,
+            "Thin Film Thickness": 0.0,
+            "Thin Film IOR": 1.3300000429153442
+          }
+        },
+        {
+          "name": "Material Output.001",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Diffuse BSDF",
+          "type": "ShaderNodeBsdfDiffuse",
+          "inputs": {
+            "Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Roughness": 0.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0
+          }
+        }
+      ],
+      "links": [
+        {
+          "from": "Principled BSDF.BSDF",
+          "to": "Material Output.Surface"
+        },
+        {
+          "from": "Diffuse BSDF.BSDF",
+          "to": "Material Output.001.Surface"
+        }
+      ]
+    },
+    {
+      "name": "Head",
+      "use_nodes": true,
+      "diffuse": [
+        0.8,
+        0.8,
+        0.8,
+        1.0
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0,
+      "nodes": [
+        {
+          "name": "Frame",
+          "type": "NodeFrame",
+          "inputs": {}
+        },
+        {
+          "name": "Material Output",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Principled BSDF",
+          "type": "ShaderNodeBsdfPrincipled",
+          "inputs": {
+            "Base Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Metallic": 0.0,
+            "Roughness": 0.5,
+            "IOR": 1.5,
+            "Alpha": 1.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0,
+            "Diffuse Roughness": 0.0,
+            "Subsurface Weight": 0.0,
+            "Subsurface Radius": [
+              1.0,
+              0.20000000298023224,
+              0.10000000149011612
+            ],
+            "Subsurface Scale": 0.05000000074505806,
+            "Subsurface IOR": 1.399999976158142,
+            "Subsurface Anisotropy": 0.0,
+            "Specular IOR Level": 0.0,
+            "Specular Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Anisotropic": 0.0,
+            "Anisotropic Rotation": 0.0,
+            "Tangent": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Transmission Weight": 0.0,
+            "Coat Weight": 0.0,
+            "Coat Roughness": 0.029999999329447746,
+            "Coat IOR": 1.5,
+            "Coat Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Coat Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Sheen Weight": 0.0,
+            "Sheen Roughness": 0.5,
+            "Sheen Tint": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Color": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "Emission Strength": 0.0,
+            "Thin Film Thickness": 0.0,
+            "Thin Film IOR": 1.3300000429153442
+          }
+        },
+        {
+          "name": "Material Output.001",
+          "type": "ShaderNodeOutputMaterial",
+          "inputs": {
+            "Displacement": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Thickness": 0.0
+          }
+        },
+        {
+          "name": "Diffuse BSDF",
+          "type": "ShaderNodeBsdfDiffuse",
+          "inputs": {
+            "Color": [
+              0.800000011920929,
+              0.800000011920929,
+              0.800000011920929,
+              1.0
+            ],
+            "Roughness": 0.0,
+            "Normal": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Weight": 0.0
+          }
+        }
+      ],
+      "links": [
+        {
+          "from": "Principled BSDF.BSDF",
+          "to": "Material Output.Surface"
+        },
+        {
+          "from": "Diffuse BSDF.BSDF",
+          "to": "Material Output.001.Surface"
+        }
+      ]
+    }
+  ],
+  "armature": {
+    "name": "Armature",
+    "location": [
+      0.0,
+      0.2997346,
+      0.6065817
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "boneCount": 34,
+    "bones": [
+      {
+        "name": "Main",
+        "head": [
+          -0.0,
+          -0.5755352,
+          -0.6065817
+        ],
+        "tail": [
+          -0.0,
+          -1.2997346,
+          -0.6065817
+        ],
+        "deform": true,
+        "parent": null
+      },
+      {
+        "name": "Pan",
+        "head": [
+          0.0,
+          -0.0473635,
+          -0.0947271
+        ],
+        "tail": [
+          0.0,
+          -0.0120987,
+          0.3464727
+        ],
+        "deform": true,
+        "parent": "Main"
+      },
+      {
+        "name": "Backbone",
+        "head": [
+          0.0,
+          -0.0120987,
+          0.3464727
+        ],
+        "tail": [
+          -0.0,
+          -0.5779928,
+          1.1428308
+        ],
+        "deform": true,
+        "parent": "Pan"
+      },
+      {
+        "name": "Backbone.001",
+        "head": [
+          -0.0,
+          -0.5779928,
+          1.1428308
+        ],
+        "tail": [
+          -0.0,
+          -0.9607108,
+          1.2071075
+        ],
+        "deform": true,
+        "parent": "Backbone"
+      },
+      {
+        "name": "Neck",
+        "head": [
+          -0.0,
+          -0.9607108,
+          1.2071075
+        ],
+        "tail": [
+          -0.0,
+          -1.2318883,
+          1.2891699
+        ],
+        "deform": true,
+        "parent": "Backbone.001"
+      },
+      {
+        "name": "Head",
+        "head": [
+          -0.0,
+          -1.2318883,
+          1.2891699
+        ],
+        "tail": [
+          -0.0,
+          -1.8169272,
+          1.5683657
+        ],
+        "deform": true,
+        "parent": "Neck"
+      },
+      {
+        "name": "Mouth",
+        "head": [
+          -0.0,
+          -1.3061438,
+          1.2191921
+        ],
+        "tail": [
+          -0.0,
+          -1.6414704,
+          0.8025608
+        ],
+        "deform": true,
+        "parent": "Head"
+      },
+      {
+        "name": "Arm_L",
+        "head": [
+          0.3056301,
+          -0.8458679,
+          1.0925167
+        ],
+        "tail": [
+          0.6058625,
+          -1.2690575,
+          0.6299717
+        ],
+        "deform": true,
+        "parent": "Backbone.001"
+      },
+      {
+        "name": "Arm_L.001",
+        "head": [
+          0.6058625,
+          -1.2690575,
+          0.6299717
+        ],
+        "tail": [
+          0.5493647,
+          -1.8941386,
+          0.6294311
+        ],
+        "deform": true,
+        "parent": "Arm_L"
+      },
+      {
+        "name": "Arm_L.002",
+        "head": [
+          0.5493647,
+          -1.8941386,
+          0.6294311
+        ],
+        "tail": [
+          0.5306675,
+          -2.0913939,
+          0.4612999
+        ],
+        "deform": true,
+        "parent": "Arm_L.001"
+      },
+      {
+        "name": "Arm_R",
+        "head": [
+          -0.3056301,
+          -0.8458679,
+          1.0925167
+        ],
+        "tail": [
+          -0.6058625,
+          -1.2690575,
+          0.6299717
+        ],
+        "deform": true,
+        "parent": "Backbone.001"
+      },
+      {
+        "name": "Arm_R.001",
+        "head": [
+          -0.6058625,
+          -1.2690575,
+          0.6299717
+        ],
+        "tail": [
+          -0.5493647,
+          -1.8941386,
+          0.6294311
+        ],
+        "deform": true,
+        "parent": "Arm_R"
+      },
+      {
+        "name": "Arm_R.002",
+        "head": [
+          -0.5493647,
+          -1.8941386,
+          0.6294311
+        ],
+        "tail": [
+          -0.5306675,
+          -2.0913939,
+          0.4612999
+        ],
+        "deform": true,
+        "parent": "Arm_R.001"
+      },
+      {
+        "name": "Leg_L",
+        "head": [
+          0.2491503,
+          -0.0473635,
+          -0.0947271
+        ],
+        "tail": [
+          0.456718,
+          -0.566105,
+          0.395822
+        ],
+        "deform": true,
+        "parent": "Pan"
+      },
+      {
+        "name": "Leg_L.001",
+        "head": [
+          0.456718,
+          -0.566105,
+          0.395822
+        ],
+        "tail": [
+          0.4049977,
+          -0.5322741,
+          -0.5133787
+        ],
+        "deform": true,
+        "parent": "Leg_L"
+      },
+      {
+        "name": "Leg_L.002",
+        "head": [
+          0.4049977,
+          -0.5322741,
+          -0.5133787
+        ],
+        "tail": [
+          0.4247552,
+          -0.798532,
+          -0.5486247
+        ],
+        "deform": true,
+        "parent": "Leg_L.001"
+      },
+      {
+        "name": "Leg_L.003",
+        "head": [
+          0.4247552,
+          -0.798532,
+          -0.5486247
+        ],
+        "tail": [
+          0.4402758,
+          -1.13527,
+          -0.5760336
+        ],
+        "deform": true,
+        "parent": "Leg_L.002"
+      },
+      {
+        "name": "Leg_R",
+        "head": [
+          -0.2491503,
+          -0.0473635,
+          -0.0947271
+        ],
+        "tail": [
+          -0.456718,
+          -0.566105,
+          0.395822
+        ],
+        "deform": true,
+        "parent": "Pan"
+      },
+      {
+        "name": "Leg_R.001",
+        "head": [
+          -0.456718,
+          -0.566105,
+          0.395822
+        ],
+        "tail": [
+          -0.4049977,
+          -0.5322741,
+          -0.5133787
+        ],
+        "deform": true,
+        "parent": "Leg_R"
+      },
+      {
+        "name": "Leg_R.002",
+        "head": [
+          -0.4049977,
+          -0.5322741,
+          -0.5133787
+        ],
+        "tail": [
+          -0.4247552,
+          -0.798532,
+          -0.5486247
+        ],
+        "deform": true,
+        "parent": "Leg_R.001"
+      },
+      {
+        "name": "Leg_R.003",
+        "head": [
+          -0.4247552,
+          -0.798532,
+          -0.5486247
+        ],
+        "tail": [
+          -0.4402758,
+          -1.13527,
+          -0.5760336
+        ],
+        "deform": true,
+        "parent": "Leg_R.002"
+      },
+      {
+        "name": "Tail",
+        "head": [
+          0.0,
+          -0.0473635,
+          -0.0947271
+        ],
+        "tail": [
+          -0.0,
+          0.0418888,
+          -0.3671815
+        ],
+        "deform": true,
+        "parent": "Pan"
+      },
+      {
+        "name": "Tail.001",
+        "head": [
+          -0.0,
+          0.0418888,
+          -0.3671815
+        ],
+        "tail": [
+          0.0,
+          0.4787553,
+          -0.0007773
+        ],
+        "deform": true,
+        "parent": "Tail"
+      },
+      {
+        "name": "Tail.002",
+        "head": [
+          0.0,
+          0.4787553,
+          -0.0007773
+        ],
+        "tail": [
+          0.0,
+          0.7230247,
+          0.9997878
+        ],
+        "deform": true,
+        "parent": "Tail.001"
+      },
+      {
+        "name": "Tail.003",
+        "head": [
+          0.0,
+          0.7230247,
+          0.9997878
+        ],
+        "tail": [
+          0.0,
+          0.1969059,
+          2.0567226
+        ],
+        "deform": true,
+        "parent": "Tail.002"
+      },
+      {
+        "name": "Tail.004",
+        "head": [
+          0.0,
+          0.1969059,
+          2.0567226
+        ],
+        "tail": [
+          0.0,
+          1.0048741,
+          2.1976473
+        ],
+        "deform": true,
+        "parent": "Tail.003"
+      },
+      {
+        "name": "Tail.005",
+        "head": [
+          0.0,
+          1.0048741,
+          2.1976473
+        ],
+        "tail": [
+          0.0,
+          1.4558331,
+          2.0802102
+        ],
+        "deform": true,
+        "parent": "Tail.004"
+      },
+      {
+        "name": "IK-Pan",
+        "head": [
+          0.0,
+          -0.0473635,
+          -0.0947271
+        ],
+        "tail": [
+          0.0,
+          -0.0120987,
+          0.3464727
+        ],
+        "deform": true,
+        "parent": "Main"
+      },
+      {
+        "name": "IK-Tail",
+        "head": [
+          0.0,
+          1.0048741,
+          2.1976473
+        ],
+        "tail": [
+          0.0,
+          1.4558331,
+          2.0802102
+        ],
+        "deform": true,
+        "parent": null
+      },
+      {
+        "name": "IK-Leg_L",
+        "head": [
+          0.4247552,
+          -0.798532,
+          -0.5486247
+        ],
+        "tail": [
+          0.4402758,
+          -1.13527,
+          -0.5760336
+        ],
+        "deform": true,
+        "parent": null
+      },
+      {
+        "name": "IK-Leg_R",
+        "head": [
+          -0.4247552,
+          -0.798532,
+          -0.5486247
+        ],
+        "tail": [
+          -0.4402758,
+          -1.13527,
+          -0.5760336
+        ],
+        "deform": true,
+        "parent": null
+      },
+      {
+        "name": "IK-Arm_L",
+        "head": [
+          0.5493647,
+          -1.8941386,
+          0.6294311
+        ],
+        "tail": [
+          0.5306675,
+          -2.0913939,
+          0.4612999
+        ],
+        "deform": true,
+        "parent": null
+      },
+      {
+        "name": "IK-Arm_R",
+        "head": [
+          -0.5493647,
+          -1.8941386,
+          0.6294311
+        ],
+        "tail": [
+          -0.5306675,
+          -2.0913939,
+          0.4612999
+        ],
+        "deform": true,
+        "parent": null
+      },
+      {
+        "name": "IK-Head",
+        "head": [
+          -0.0,
+          -1.2318883,
+          1.2891699
+        ],
+        "tail": [
+          -0.0,
+          -1.8169272,
+          1.5683657
+        ],
+        "deform": true,
+        "parent": null
+      }
+    ]
+  },
+  "actions": [
+    {
+      "name": "Attack.000",
+      "frameRange": [
+        0.0,
+        22.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457858324050903,
+        -0.06704550981521606
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Attack.001",
+      "frameRange": [
+        0.0,
+        22.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457858324050903,
+        -0.06552869081497192
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Attack.002",
+      "frameRange": [
+        0.0,
+        22.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.08386498689651489,
+        -0.014970719814300537
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Attack.003",
+      "frameRange": [
+        0.0,
+        22.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.0862155556678772,
+        -0.014984130859375
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Attack.Begin",
+      "frameRange": [
+        0.0,
+        7.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457858324050903,
+        0.0018768310546875
+      ],
+      "endpointVertexGapMax": 2.070545196533203
+    },
+    {
+      "name": "Attack.End",
+      "frameRange": [
+        0.0,
+        7.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457858324050903,
+        0.001877129077911377
+      ],
+      "endpointVertexGapMax": 2.070545196533203
+    },
+    {
+      "name": "Attack.Hold",
+      "frameRange": [
+        0.0,
+        12.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457858324050903,
+        -0.07457739114761353
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Die.000",
+      "frameRange": [
+        0.0,
+        11.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.2926013469696045,
+        0.002329707145690918
+      ],
+      "endpointVertexGapMax": 3.778719186782837
+    },
+    {
+      "name": "Die.001",
+      "frameRange": [
+        0.0,
+        11.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.5041837692260742,
+        -0.04708510637283325
+      ],
+      "endpointVertexGapMax": 5.269798755645752
+    },
+    {
+      "name": "Idle",
+      "frameRange": [
+        0.0,
+        2228.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.022905170917510986,
+        0.0024372339248657227
+      ],
+      "endpointVertexGapMax": 0.33457621932029724
+    },
+    {
+      "name": "Idle.000",
+      "frameRange": [
+        0.0,
+        19.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.0005729198455810547,
+        0.0024394989013671875
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Idle.001",
+      "frameRange": [
+        0.0,
+        35.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.0005729198455810547,
+        0.0024175047874450684
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Idle.002",
+      "frameRange": [
+        0.0,
+        51.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.0005729198455810547,
+        0.0024394989013671875
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Idle.003",
+      "frameRange": [
+        0.0,
+        77.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.0005729198455810547,
+        0.0024394989013671875
+      ],
+      "endpointVertexGapMax": 0.4034808874130249
+    },
+    {
+      "name": "Idle.004",
+      "frameRange": [
+        0.0,
+        38.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.012663304805755615,
+        0.002150237560272217
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Jump.Attack",
+      "frameRange": [
+        0.0,
+        20.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.06646949052810669,
+        0.9647558927536011
+      ],
+      "endpointVertexGapMax": 3.1965084075927734
+    },
+    {
+      "name": "Jump.Begin",
+      "frameRange": [
+        0.0,
+        18.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.014002025127410889,
+        0.3271152973175049
+      ],
+      "endpointVertexGapMax": 3.1965084075927734
+    },
+    {
+      "name": "Jump.End",
+      "frameRange": [
+        0.0,
+        18.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.216844379901886,
+        0.8018836975097656
+      ],
+      "endpointVertexGapMax": 3.1965084075927734
+    },
+    {
+      "name": "Jump.Fly",
+      "frameRange": [
+        0.0,
+        12.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        0.26627469062805176,
+        0.6871654391288757
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Pain.000",
+      "frameRange": [
+        0.0,
+        14.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.009343862533569336,
+        -0.0005729198455810547
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Pain.001",
+      "frameRange": [
+        0.0,
+        14.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.009344100952148438,
+        -0.0005729198455810547
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Pain.002",
+      "frameRange": [
+        0.0,
+        14.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.3356245160102844,
+        -0.07457786798477173
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Pain.003",
+      "frameRange": [
+        0.0,
+        14.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.3356558084487915,
+        -0.07437878847122192
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Run",
+      "frameRange": [
+        0.0,
+        9.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07707887887954712,
+        0.33750057220458984
+      ],
+      "endpointVertexGapMax": 0.026829762384295464
+    },
+    {
+      "name": "Run.Begin",
+      "frameRange": [
+        0.0,
+        8.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457786798477173,
+        0.001877427101135254
+      ],
+      "endpointVertexGapMax": 3.0374157428741455
+    },
+    {
+      "name": "Run.End",
+      "frameRange": [
+        0.0,
+        8.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457786798477173,
+        0.00187760591506958
+      ],
+      "endpointVertexGapMax": 3.0374157428741455
+    },
+    {
+      "name": "Stand",
+      "frameRange": [
+        0.0,
+        0.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.0005729198455810547,
+        -0.0005729198455810547
+      ],
+      "endpointVertexGapMax": 0.0
+    },
+    {
+      "name": "Stand.001",
+      "frameRange": [
+        0.0,
+        0.0
+      ],
+      "fps": 24.0,
+      "mainBoneWorldDeltaEnd": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mainBoneWorldMotionRange": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lowestSurfaceRange": [
+        -0.07457786798477173,
+        -0.07457786798477173
+      ],
+      "endpointVertexGapMax": 0.0
+    }
+  ],
+  "images": [
+    {
+      "name": "Body",
+      "file": "//squirrel-body.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": false
+    },
+    {
+      "name": "Head",
+      "file": "//squirrel-head.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": false
+    },
+    {
+      "name": "Render Result",
+      "file": "",
+      "size": [
+        0,
+        0
+      ],
+      "packed": false
+    },
+    {
+      "name": "squirrel-body-norm.png",
+      "file": "//squirrel-body-norm.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": false
+    },
+    {
+      "name": "squirrel-head-norm.png",
+      "file": "//squirrel-head-norm.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "packed": false
+    }
+  ]
+}

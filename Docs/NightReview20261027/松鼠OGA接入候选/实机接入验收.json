@@ -1,0 +1,36 @@
+{
+  "status": "INSTALLED_AND_ACTUAL_PLAY_PASS",
+  "installedUtc": "2026-10-27T07:29:27.0757502Z",
+  "sceneAnimals": 6,
+  "savedSpeciesPrefab": true,
+  "savedScene": false,
+  "functionalChecks": [
+    "All loaded squirrels bind complete same-FBX OGA clips and runtime animation bounds.",
+    "Actual controller walked and turned with RunSlow_Derived mixer weight and changing limb pose; no SampleAnimation.",
+    "Same-rig restDown/loop and runtime closed-eye control execute over real frames.",
+    "Same-rig restUp returns to standing without replacing clips or posing bones manually.",
+    "Actual bowl interaction uses OGA Drink, actual visible-mouth contact, one 0.12 water consumption and returns through the normal rest controller."
+  ],
+  "metrics": {
+    "walkDistance": 1.1167824268341064,
+    "turnDegrees": 90.0000228881836,
+    "footPoseDelta": 0.12516455352306366,
+    "waterBefore": 0.800000011920929,
+    "waterAfter": 0.6800000071525574,
+    "down": true,
+    "sleep": true,
+    "up": true,
+    "drinkPlayed": true,
+    "contact": true,
+    "consumed": true,
+    "returnedToRest": true
+  },
+  "evidence": {
+    "install": "LifeGameplayReview\\20261027\\squirrel-oga\\install-latest.json",
+    "validation": "LifeGameplayReview\\20261027\\squirrel-oga\\validate-latest.json",
+    "play": "LifeGameplayReview\\20261027\\squirrel-oga\\play\\play-latest.json"
+  },
+  "visualReview": "Root viewed actual walk-turn, rest-loop and drink frames. Ordinary brown/cream URP materials; continuous human animation acceptance remains separate.",
+  "boundary": "Existing isolated-save formal-scene Play only. Fixture commands target the real WildlifeAgent controller; real frames and Playables advance walk/turn/restDown/loop/up. Bowl F calls production Interact and production Drink contact/consumption. Initial bowl water and rest destinations are arranged, not a complete quest/AI/gesture test. Frames render the actual Play scene without SampleAnimation. Main scene and real saves are never saved/reset. Human animation/material acceptance remains separate.",
+  "modelSha256": "7ec1e1cc7de63fe9b01c2a44a350b33584e314c63127e43f563a17b5698bc8b8"
+}

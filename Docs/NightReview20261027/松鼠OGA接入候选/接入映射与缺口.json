@@ -1,0 +1,58 @@
+{
+  "status": "OFFLINE_READY_UNITY_EXPLICIT_INSTALL_PENDING",
+  "modelAsset": "Assets/Characters/SquirrelOGA20261027/Squirrel_OGA_Natural_Unity.fbx",
+  "fbxSha256": "7ec1e1cc7de63fe9b01c2a44a350b33584e314c63127e43f563a17b5698bc8b8",
+  "slots": [
+    {
+      "slot": "idle",
+      "clip": "Idle.000",
+      "kind": "native"
+    },
+    {
+      "slot": "walk",
+      "clip": "RunSlow_Derived",
+      "kind": "derived: retimed native Run; no independently authored Walk"
+    },
+    {
+      "slot": "run",
+      "clip": "RunGrounded_Derived",
+      "kind": "derived: native Run + constant vertical correction"
+    },
+    {
+      "slot": "restDown",
+      "clip": "RestDown_Derived",
+      "kind": "derived"
+    },
+    {
+      "slot": "restSleep",
+      "clip": "RestLoop_Derived",
+      "kind": "derived + runtime EyesClosed"
+    },
+    {
+      "slot": "restUp",
+      "clip": "RestUp_Derived",
+      "kind": "derived"
+    },
+    {
+      "slot": "drink",
+      "clip": "Drink_Derived",
+      "kind": "derived; new Head/Muzzle profile independently calibrated by explicit Unity installer"
+    },
+    {
+      "slot": "forage/greet/alert",
+      "clip": "Idle.000",
+      "kind": "native idle fallback; no claim of eating/greeting action"
+    }
+  ],
+  "sameRigOnly": true,
+  "sourceSkeletonBones": 34,
+  "legacySkeletonBones": 27,
+  "verified": "Blender roundtrip 34 bones/3 skins/13 takes/normalized weights/EyesClosed, finite poses, rest seams <2e-5m; rendered front/side/back, native Run, derived rest and drink personally inspected",
+  "unityPending": [
+    "Explicit installer + independent bone-skin geometry check",
+    "All loaded scene squirrel instances and old clip override migration",
+    "Actual bowl water contact and pair approach/return-rest during Play",
+    "Final lighting/color, scale, ground and animation visual acceptance"
+  ],
+  "sourceLicense": "CC0 https://opengameart.org/content/undead-squirrel-animated"
+}

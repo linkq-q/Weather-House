@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using WeatherHouse.Hillside;
+using WeatherHouse.SquirrelOga;
 
 namespace WeatherHouse.Life
 {
@@ -9,7 +10,7 @@ namespace WeatherHouse.Life
     {
         sealed class Drink
         {
-            public Binding animal;public LifeObject bowl;public Transform mouthBone;
+            public Binding animal;public LifeObject bowl;public Transform mouthBone;public Vector3 mouthLocal;
             public Vector3 returnTarget,stand,forward;public bool returnRest,consumed,approaching,planning;
             public float expires,started=-1,restartAfter,retryAt;public AnimationClip clip;
             public bool shared;public int sharedRounds;
@@ -29,10 +30,12 @@ namespace WeatherHouse.Life
             if(drinks.Count==1 && bowl.State.water<.38f){owner.SaveAndNotify("再接一些水，才够同伴一起喝。");return false;}
             Binding animal=bindings.Values.Where(b=>b.wildlife && b.wildlife.isActiveAndEnabled && b.wildlife.speciesId=="squirrel" &&
                 !drinks.Any(d=>d.animal==b) && Flat(b.speaker.transform.position,bowl.transform.position)<3.5f).OrderBy(b=>Flat(b.speaker.transform.position,bowl.transform.position)).FirstOrDefault();
-            AnimationClip clip=Clip("SquirrelDrink");
-            Transform mouth=animal?.wildlife.GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name=="Head");
+            SquirrelOgaRig oga=animal?.wildlife.GetComponentInChildren<SquirrelOgaRig>(true);
+            AnimationClip clip=oga?oga.drink:Clip("SquirrelDrink");
+            Transform mouth=oga?oga.head:animal?.wildlife.GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name=="Head");
             if(animal==null || !clip || !mouth || !bowl.waterVisual)return false;
-            SkinnedMeshRenderer skin=animal.wildlife.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.sharedMesh).OrderByDescending(s=>s.sharedMesh.vertexCount).FirstOrDefault();
+            // The new muzzle belongs to its own skin, not to the larger body renderer.
+            SkinnedMeshRenderer skin=oga?oga.headSkin:animal.wildlife.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.sharedMesh).OrderByDescending(s=>s.sharedMesh.vertexCount).FirstOrDefault();
             if(!skin)return false;
             Vector3 forward=bowl.transform.position-animal.speaker.transform.position;forward.y=0;
             if(forward.sqrMagnitude<.01f)forward=animal.speaker.transform.forward;
@@ -42,7 +45,7 @@ namespace WeatherHouse.Life
             {owner.SaveAndNotify("碗前的路被挡住了。");return false;}
             bool sharing=drinks.Count>0;
             foreach(Drink partner in drinks){partner.shared=true;partner.expires=Time.time+32;}
-            drinks.Add(new Drink{animal=animal,bowl=bowl,mouthBone=mouth,clip=clip,returnTarget=animal.target,returnRest=animal.rest,expires=Time.time+(sharing?32:18),shared=sharing,
+            drinks.Add(new Drink{animal=animal,bowl=bowl,mouthBone=mouth,mouthLocal=oga?oga.mouthHeadLocal:DrinkMouthLocal,clip=clip,returnTarget=animal.target,returnRest=animal.rest,expires=Time.time+(sharing?32:18),shared=sharing,
                 facing=facing,stand=at,forward=forward,planning=!planned,retryAt=Time.time+.5f,approaching=planned && Flat(approach,at)>.001f,
                 skin=skin,baked=new Mesh{name="Squirrel mouth contact sample"}});
             animal.target=planned?approach:animal.speaker.transform.position;animal.rest=false;
@@ -51,10 +54,12 @@ namespace WeatherHouse.Life
         bool FindDrinkStand(Binding animal,LifeObject bowl,Vector3 forward,out Vector3 at,out Quaternion facing,out Vector3 approach)
         {
             at=approach=default;facing=Quaternion.identity;float rim=.29f*Mathf.Abs(bowl.waterVisual.lossyScale.x)*.72f;
+            SquirrelOgaRig oga=animal.wildlife.GetComponentInChildren<SquirrelOgaRig>(true);
+            Vector3 contact=oga?Vector3.Scale(oga.drinkRootContact,animal.wildlife.transform.lossyScale):DrinkRootContact;
             foreach(float angle in new[]{0f,25f,-25f,50f,-50f,75f,-75f,180f})
             {
                 facing=Quaternion.LookRotation(Quaternion.Euler(0,angle,0)*forward);
-                Vector3 point=bowl.waterVisual.position-facing*Vector3.forward*rim-facing*(DrinkRootContact*animal.wildlife.ScaleFactor);
+                Vector3 point=bowl.waterVisual.position-facing*Vector3.forward*rim-facing*(contact*animal.wildlife.ScaleFactor);
                 Terrain terrain=Terrain.activeTerrain;if(terrain)point.y=terrain.SampleHeight(point)+terrain.transform.position.y;
                 bool separated=true;
                 foreach(Drink other in drinks)
@@ -164,7 +169,7 @@ namespace WeatherHouse.Life
             if(!d.mouthBone || !d.bowl.waterVisual || d.started<0 || Time.time-d.started<.75f || Time.time-d.started>2.3f)return false;
             if(d.contactFrame==Time.frameCount)return d.touching;
             d.contactFrame=Time.frameCount;
-            Vector3 point=d.mouthBone.TransformPoint(DrinkMouthLocal),water=d.bowl.waterVisual.position;
+            Vector3 point=d.mouthBone.TransformPoint(d.mouthLocal),water=d.bowl.waterVisual.position;
             d.skin.BakeMesh(d.baked,true);d.baked.GetVertices(d.skinVertices);float nearest=float.MaxValue;
             foreach(Vector3 vertex in d.skinVertices)nearest=Mathf.Min(nearest,(d.skin.transform.TransformPoint(vertex)-point).sqrMagnitude);
             d.skinDistance=Mathf.Sqrt(nearest);
