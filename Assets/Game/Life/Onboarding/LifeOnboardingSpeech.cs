@@ -15,7 +15,7 @@ namespace WeatherHouse.Life
         {
             var actor = GetComponent<AnimalActor>(); serial++;
             Request = new LifeRequest { id = "onboarding." + word + "." + serial, speakerKey = GetComponent<LifeSpeaker>()?.key,
-                listenerKey = "player", condition = "conversation", glyphIds = new[] { word },
+                listenerKey = "player", condition = "conversation", glyphIds = word == "hello" ? new[] { "you", "hello" } : new[] { word },
                 meaning = word == "hello" ? "见面时向朋友问好" : "分别时向朋友道别", context = word == "hello" ? "它看向刚刚走近的朋友。" : "你走远时，它仍留在原地，向你道别。" };
             Utterance = actor.animalId + "." + Request.id; until = Time.unscaledTime + seconds; heardUtterance = null;
         }
@@ -35,7 +35,8 @@ namespace WeatherHouse.Life
         {
             var hud = owner.GetComponent<GameplayHud>();
             if (!actor || !speech || !speech.Active || !hud || !hud.IsAnimalSpeechVisible(actor)) return;
-            string word = speech.Request.glyphIds[0];
+            string word = Array.Find(speech.Request.glyphIds, id => id == "hello" || id == "goodbye");
+            if (word == null) return;
             PublishPhotoContext(new LifePublicContext { id = speech.Utterance, kind = word, actorId = actor.animalId,
                 listenerId = "player", glyphIds = (string[])speech.Request.glyphIds.Clone(), occurredUtc = DateTime.UtcNow.ToString("O"),
                 anchor = actor.transform.position, origin = Player.position, description = speech.Request.context }, 10);

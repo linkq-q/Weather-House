@@ -117,7 +117,7 @@ namespace WeatherHouse.Life.Editor
                 {
                     album = Get<RectTransform>(hud, "albumRoot");
                     var symbols = album.GetComponentsInChildren<AnimalGlyphGraphic>(true).Where(g => g.transform.parent.name.StartsWith("Word ", StringComparison.Ordinal)).ToArray();
-                    Check(symbols.Length == (page == 0 ? 22 : 9), "31 glyphs use 22 + 9 slots, page " + (page + 1), checks);
+                    Check(symbols.Length == (page == 0 ? 22 : 11), "33 glyphs use 22 + 11 slots, page " + (page + 1), checks);
                     foreach (var symbol in symbols)
                     {
                         string id = symbol.name.Substring("Glyph ".Length); seen.Add(id);
@@ -143,7 +143,7 @@ namespace WeatherHouse.Life.Editor
                         while (book.IsAnimating && Time.realtimeSinceStartup < deadline) yield return null;
                     }
                 }
-                Check(seen.Count == 31, "Both pages cover every original and added glyph exactly once", checks);
+                Check(seen.Count == 33, "Both pages cover every original and added glyph exactly once", checks);
                 album.Find("Photography tasks tab").GetComponent<Button>().onClick.Invoke();
                 Call(hud, "CloseTop"); Check(book.IsClosing, "Closing during a tab page turn queues the close", checks);
                 hud.ToggleJournal(); Check(!book.IsClosing, "A second journal toggle cancels the queued close", checks);

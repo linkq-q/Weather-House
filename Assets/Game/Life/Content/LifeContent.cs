@@ -9,10 +9,10 @@ namespace WeatherHouse.Life
         public static LifeRequest[] Build()
         {
             var r = new List<LifeRequest>();
-            Add(r,"dog.hello","E0","dog","hello,want","它向刚走近的玩家问好，想交流。","回应院门的问候","conversation","dog.here",true);
+            Add(r,"dog.hello","E0","dog","you,hello,want","它向刚走近的玩家问好，想交流。","听听院门的问候","conversation","dog.here",true);
             Add(r,"dog.bye","E0","dog","bye","它留在院门向准备离开的玩家道别。","","","dog.here");
-            Add(r,"fox.hello","E0","fox","hello","狐狸从林间回来，向仍站在原地的玩家问好。","","","fox.here");
-            Add(r,"fox.bye","E0","fox","bye","狐狸准备返回地面住处，向留在这里的玩家道别。","","","fox.home");
+            Add(r,"fox.hello","E0","fox","you,hello","狐狸从林间走来，向仍站在原地的玩家问好。","","","fox.here");
+            Add(r,"fox.bye","E0","fox","bye","狐狸准备去地面住处休息，向留在这里的玩家道别。","","","fox.home");
             Add(r,"dog.rain.lesson","E0","dog","want,rain","它想让玩家在身边画出雨手势，观察落下的雨。","在院门的圈内画雨手势","rain_seen","dog.bowl",true);
             Add(r,"dog.water","E1","dog","want,water","它想要身边容器里的水；请下雨接水，然后停雨，水仍留在容器中。","在狗身边用容器接水并停雨","water_retained","dog.bowl",true);
             Add(r,"dog.rain","E1","dog","rain,reject","它不想继续淋雨；落下的是雨，碗里留下的是水。","","","dog.bowl");
@@ -30,7 +30,7 @@ namespace WeatherHouse.Life
             Add(r,"squirrel.tree","E3","squirrel","tree,home","松鼠指向自己的树根窝，再看向另一棵没有窝的树；树不一定是住处。","走到松鼠指向的树旁","arrive","squirrel.tree",true);
             Add(r,"squirrel.home","E3","squirrel","home,tree","松鼠的住处在树根，临时站的地方不是住处。","","","squirrel.nest");
             Add(r,"fox.tree","E3","fox","tree","狐狸把树当作路标，它的住处在地面。","走到狐狸指向的路标树旁","arrive","fox.tree");
-            Add(r,"fox.home","E3","fox","home","狐狸离开住处后仍指向属于它的地面窝。","请狐狸返回附近的地面住处","animal_arrived","fox.home");
+            Add(r,"fox.home","E3","fox","home","狐狸离开住处后仍指向属于它的地面窝。","请狐狸去附近的地面住处休息","animal_arrived","fox.home");
             Add(r,"sheep.wind","E4","sheep","wind,strong,reject,weak,want","绵羊不想要强风，想让这里保持弱风；弱风仍在吹，不能完全关闭。","把绵羊附近的风调成弱风","wind_weak","sheep.ribbon",true);
             Add(r,"sheep.strong","E4","sheep","wind,strong","同一块布条在同样范围、同样时长的强风下摆幅更大。","","","sheep.ribbon");
             Add(r,"sheep.weak","E4","sheep","wind,weak","弱风仍吹动草穗和布条，停风则不再摆动。","","","sheep.ribbon");
@@ -51,7 +51,7 @@ namespace WeatherHouse.Life
             Add(r,"fox.go","E6b","fox","go,tree","狐狸请玩家从当前交谈点去它指向的树旁。","步行去狐狸指向的树旁","arrive","fox.tree");
             Add(r,"squirrel.sequence","E7","squirrel","first,rain,then,sun,water,dry","松鼠想先用雨接水，再用日照把垫子晾干，最后水碗有水、窝垫干燥，请附近同伴一起歇脚。","让共同歇脚点有水和干垫，并邀请附近两只动物","common_rest","squirrel.common",true);
             Add(r,"fox.sequence","E7","fox","first,come,here,then,go,tree","狐狸邀请玩家先来它指的这里，再去树旁；第二步的终点是树旁。","先到狐狸的近处站位，再步行到路标树","walk_sequence","fox.tree");
-            Add(r,"fox.reverse","E7","fox","first,go,tree,then,come,here","这次计划倒过来，先去树旁，再来狐狸这里，最后停在狐狸身边。","先去树旁，再返回狐狸的近处站位","walk_reverse","fox.here");
+            Add(r,"fox.reverse","E7","fox","first,go,tree,then,come,here","这次计划倒过来，先去树旁，再来狐狸这里，最后停在狐狸身边。","先去树旁，再到狐狸的近处站位","walk_reverse","fox.here");
             foreach(LifeRequest request in r)
             {
                 request.openForPhotography=request.eventId=="E6a" || request.eventId=="E6b" ||

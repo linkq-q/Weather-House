@@ -24,12 +24,15 @@ namespace WeatherHouse.Life.Editor
             var lines = new List<string>();
             void Check(bool condition, string label) { if (!condition) throw new InvalidOperationException(label); lines.Add("PASS " + label); }
             var book = new LanguageNotebook(); book.Normalize(catalog);
-            Check(catalog.glyphs.Length == 31 && catalog.glyphs.Select(g => g.id).Distinct().Count() == 31, "31 unique stable glyph IDs");
+            Check(catalog.glyphs.Length == 33 && catalog.glyphs.Select(g => g.id).Distinct().Count() == 33, "33 unique stable glyph IDs");
             Check(LifePhotoRules.Tasks.Count == 26 && LifePhotoRules.Tasks.Select(t => t.id).Distinct().Count() == 26, "26 unique approved task IDs");
             Check(LifePhotoRules.Tasks.All(t => t.rewards.Length >= 1 && t.rewards.Length <= 2 &&
                 t.tokens.Concat(t.rewards).All(id => catalog.glyphs.Any(g => g.id == id))), "Every token and 1-2 word reward exists in the catalog");
-            Check(catalog.glyphs.Where(g => g.id != "want" && g.id != "reject").All(g =>
-                LifePhotoRules.Tasks.Any(t => t.rewards.Contains(g.id))), "All 29 obtainable words have a task reward");
+            var photoWords = catalog.glyphs.Where(g => g.id != "want" && g.id != "reject" && g.id != "clear" && g.id != "there").ToArray();
+            Check(photoWords.Length == 29 && photoWords.All(g => LifePhotoRules.Tasks.Any(t => t.rewards.Contains(g.id))),
+                "All 29 existing photo words retain task sources; clear and there are not granted by legacy photo tasks");
+            Check(new[] { "clear", "there" }.All(id => book.GetWord(id) != null && !book.GetWord(id).encountered && !book.GetWord(id).confirmed),
+                "New clear and there words stay unknown until explicitly encountered");
             book.AddObservation(Photo("landscape"));
             Check(book.ApplyPhotoTasks() == 0 && book.observations.Count == 1, "An animal-free, unmatched landscape is retained");
             var fox = new LifePhotoEntity { id = "fox-one", kind = "animal", speciesId = "fox", bodyVisible = true, sleeping = true };
@@ -121,9 +124,9 @@ namespace WeatherHouse.Life.Editor
                 "Replaying completed legacy tasks preserves existing confirmations and only repairs missing encounters");
             var legacy = JsonUtility.FromJson<LanguageNotebook>("{\"words\":[{\"glyphId\":\"rain\",\"guess\":\"旧猜测\",\"encountered\":true,\"confirmed\":true}],\"observations\":[{\"id\":\"legacy\",\"animalId\":\"old\",\"glyphIds\":[\"rain\"]}]}");
             legacy.Normalize(catalog);
-            Check(legacy.words.Count == 31 && legacy.GetWord("rain").confirmed && legacy.GetWord("rain").guess == "旧猜测" &&
-                new[] { "fox", "squirrel", "sheep", "deer", "sleep", "eat", "together" }.All(id => !legacy.GetWord(id).confirmed),
-                "Legacy knowledge and guesses survive while the seven additions start unknown");
+            Check(legacy.words.Count == 33 && legacy.GetWord("rain").confirmed && legacy.GetWord("rain").guess == "旧猜测" &&
+                new[] { "fox", "squirrel", "sheep", "deer", "sleep", "eat", "together", "clear", "there" }.All(id => !legacy.GetWord(id).confirmed),
+                "Legacy knowledge and guesses survive while added words start unknown");
             Check(legacy.ApplyPhotoTasks() == 0 && legacy.observations.Count == 1, "Legacy photos remain visible without inventing missing shutter evidence");
             return lines;
         }

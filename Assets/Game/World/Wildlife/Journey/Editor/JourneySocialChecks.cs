@@ -224,12 +224,12 @@ namespace WeatherHouse.WildlifeJourney.Editor
             Require(social.Completed.Count == 1, "Visible dialogue was not recorded exactly once.");
             JourneyConversation recorded = social.Completed[0];
             live.glyphIds[0] = "rain";
-            Require(recorded.glyphIds[0] == "hello" && recorded.speakerId != recorded.listenerId && recorded.turnIndex == 1 &&
+            Require(recorded.glyphIds.Length == 2 && recorded.glyphIds[0] == "you" && recorded.glyphIds[1] == "hello" && recorded.speakerId != recorded.listenerId && recorded.turnIndex == 1 &&
                 recorded.observed && recorded.speakerPosition != recorded.listenerPosition,
                 "Recorded evidence lost its immutable words, participants, turn or spatial context.");
             JourneyConversation restored = JsonUtility.FromJson<JourneyConversation>(JsonUtility.ToJson(recorded));
             Require(restored.sequenceId == recorded.sequenceId && restored.speakerId == recorded.speakerId &&
-                restored.listenerId == recorded.listenerId && restored.glyphIds[0] == "hello", "Saved context did not retain the original speaker/listener.");
+                restored.listenerId == recorded.listenerId && restored.glyphIds.Length == 2 && restored.glyphIds[0] == "you" && restored.glyphIds[1] == "hello", "Saved context did not retain the original speaker/listener.");
             Object.DestroyImmediate(social.gameObject); Object.DestroyImmediate(camera.gameObject);
         }
 
@@ -250,7 +250,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 var active = social.ActiveConversation;
                 if (active == null) continue;
                 foreach (string id in active.glyphIds) Require(ids.Contains(id), "Social speech invented an undefined glyph.");
-                if (!active.isClue) { sawGreeting |= active.glyphIds.Length == 1 && active.glyphIds[0] == "hello"; continue; }
+                if (!active.isClue) { sawGreeting |= active.glyphIds.Length == 2 && active.glyphIds[0] == "you" && active.glyphIds[1] == "hello"; continue; }
                 Require(active.glyphIds.Length == 1 && active.glyphIds[0] == "you", "Listener clue changed into an unauthored sentence.");
                 participants[0].root.rotation = participants[1].root.rotation = Quaternion.identity;
                 Require(!social.ObserveFrom(camera), "Ambiguous listeners were accepted without facing each other.");
@@ -299,6 +299,7 @@ namespace WeatherHouse.WildlifeJourney.Editor
             ShowFully(social);
             var background = social.GetComponentInChildren<ProceduralUiGraphic>();
             var glyph = social.GetComponentInChildren<AnimalGlyphGraphic>();
+            var shownGlyphs = social.GetComponentsInChildren<AnimalGlyphGraphic>();
             var canvas = social.GetComponentInChildren<Canvas>();
             Require(social.VisibleBubbleCount == 1 && background != null && background.mark == UiMark.AnimalBubble &&
                 background.color == ProceduralUiLibrary.Cream && background.waviness == ProceduralUiStyle.Current.waviness &&
@@ -306,7 +307,9 @@ namespace WeatherHouse.WildlifeJourney.Editor
                 social.GetComponentsInChildren<Image>(true).Length == 0,
                 "Social presentation did not reuse the game's procedural AnimalBubble, cream color and authored silhouette.");
             Require(glyph != null && glyph.color == ProceduralUiLibrary.Ink && glyph.rectTransform.sizeDelta.y >= 40f &&
-                Mathf.Abs(background.rectTransform.sizeDelta.x - background.rectTransform.sizeDelta.y) < 1f &&
+                shownGlyphs.Length == 2 && shownGlyphs[0].SvgBody != shownGlyphs[1].SvgBody &&
+                shownGlyphs[0].rectTransform.anchoredPosition.x < shownGlyphs[1].rectTransform.anchoredPosition.x &&
+                shownGlyphs[1].rectTransform.sizeDelta.y >= 40f && background.rectTransform.sizeDelta.x > background.rectTransform.sizeDelta.y &&
                 background.rectTransform.sizeDelta.y >= 70f &&
                 canvas != null && canvas.worldCamera == camera &&
                 canvas.GetComponent<CanvasScaler>().referenceResolution == new Vector2(1600f, 1000f),

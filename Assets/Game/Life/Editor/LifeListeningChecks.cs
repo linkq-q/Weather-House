@@ -155,6 +155,8 @@ namespace WeatherHouse.Life.Editor
                     speeches[i].Speak("hello", 9);
                 }
                 string dogGreeting = speeches[0].Utterance, sheepGreeting = speeches[1].Utterance;
+                Check(speeches.All(s => s.Request.glyphIds.SequenceEqual(new[] { "you", "hello" })),
+                    "Temporary greetings say you followed by the greeting glyph");
                 Check(speeches[0].Request.id == speeches[1].Request.id && dogGreeting != sheepGreeting,
                     "Temporary greeting fixture shares request IDs but retains distinct animal utterance identities");
                 Focus(dog); journal.SetValue(hud, true); hud.InteractPrimary(); journal.SetValue(hud, false);
@@ -163,6 +165,8 @@ namespace WeatherHouse.Life.Editor
                 Check(speeches[0].Active && dog.Actor.UtteranceId == dogGreeting && !life.Progress.HasHeard("dog.hello") &&
                     life.Progress.tasks.Count == 0 && game.Notebook.encounters.Any(e => e.utteranceId == dogGreeting),
                     "First E hears only the temporary greeting and does not complete the authored dog greeting");
+                CheckGreetingPhotoContext(life, hud, dog.Actor, speeches[0]);
+                lines.Add("PASS A composed temporary greeting retains hello photo context and qualifies for P20");
                 Focus(sheep); hud.InteractPrimary();
                 Check(speeches[1].Active && sheep.Actor.UtteranceId == sheepGreeting && life.Progress.tasks.Count == 0 &&
                     game.Notebook.encounters.Any(e => e.utteranceId == sheepGreeting),
@@ -195,6 +199,39 @@ namespace WeatherHouse.Life.Editor
                 sheep.topicIndex = sheepTopic; state.SetValue(tutorial, oldState); suppressed.SetValue(null, oldSuppressed);
             }
         }
+
+        static void CheckGreetingPhotoContext(LifeSession life, WeatherHousePrototype.GameplayHud hud,
+            WeatherHousePrototype.AnimalActor actor, LifeOnboardingSpeech speech)
+        {
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var contexts = (List<LifePublicContext>)typeof(LifeWorld).GetField("photoContexts", flags).GetValue(life.World);
+            var until = (Dictionary<string, float>)typeof(LifeWorld).GetField("photoContextUntil", flags).GetValue(life.World);
+            var oldContexts = contexts.ToArray(); var oldUntil = new Dictionary<string, float>(until);
+            var view = life.Gameplay.CurrentView; Vector3 position = view.transform.position; Quaternion rotation = view.transform.rotation;
+            CanvasGroup group = null;
+            try
+            {
+                // Arrange a visible, fully faded-in bubble; this is a context check, not a screenshot acceptance.
+                view.transform.position = actor.BubbleAnchor + Vector3.up * .2f + Vector3.back * 1.5f;
+                view.transform.LookAt(actor.BubbleAnchor);
+                hud.GetType().GetMethod("ClearAnimalBubble", flags).Invoke(hud, null);
+                hud.GetType().GetMethod("UpdateAnimalBubble", flags).Invoke(hud, null);
+                group = (CanvasGroup)hud.GetType().GetField("bubbleGroup", flags).GetValue(hud);
+                if (!group) throw new InvalidOperationException("The composed greeting fixture did not create its animal bubble.");
+                group.alpha = 1f;
+                life.World.ObserveOnboardingUtterance(actor, speech);
+                var context = contexts.SingleOrDefault(c => c.id == speech.Utterance);
+                if (context == null || context.kind != "hello" || !context.glyphIds.SequenceEqual(new[] { "you", "hello" }) ||
+                    !LifePhotoRules.Match(new LifePhotoSnapshot { entities = new[] { new LifePhotoEntity { id = actor.animalId, kind = "animal", bodyVisible = true } },
+                        contexts = new[] { context } }, Array.Empty<LifePublicContext>()).Contains("P20"))
+                    throw new InvalidOperationException("A composed temporary greeting must retain hello photo context and qualify for P20.");
+            }
+            finally
+            {
+                if (group) group.alpha = 0f; view.transform.SetPositionAndRotation(position, rotation);
+                contexts.Clear(); contexts.AddRange(oldContexts); until.Clear(); foreach (var entry in oldUntil) until.Add(entry.Key, entry.Value);
+            }
+        }
 #endif
 
         public static string[] CheckModel()
@@ -215,6 +252,9 @@ namespace WeatherHouse.Life.Editor
 
             var content = LifeContent.Build();
             var greeting = content.Single(r => r.id == "dog.hello");
+            Check(greeting.glyphIds.SequenceEqual(new[] { "you", "hello", "want" }) &&
+                content.Single(r => r.id == "fox.hello").glyphIds.SequenceEqual(new[] { "you", "hello" }),
+                "Authored dog and fox greetings compose you plus greeting while retaining the dog's wish");
             var rain = content.Single(r => r.id == "dog.rain.lesson");
             var progress = new LifeProgress();
             Check(!Hear(progress, null, "dog") && !Hear(progress, rain, "") &&

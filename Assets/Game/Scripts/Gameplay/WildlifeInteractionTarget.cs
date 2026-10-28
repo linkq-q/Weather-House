@@ -52,7 +52,7 @@ namespace WeatherHousePrototype
             {
                 JourneyConversation turn = VisibleConversation;
                 return turn != null ? (turn.glyphIds != null ? (string[])turn.glyphIds.Clone() : Array.Empty<string>()) :
-                    IsAvailable ? new[] { "hello" } : Array.Empty<string>();
+                    IsAvailable ? new[] { "you", "hello" } : Array.Empty<string>();
             }
         }
         public string UtteranceId
@@ -101,7 +101,7 @@ namespace WeatherHousePrototype
                 WildlifeSolitaryRoutine routine = agent.SolitaryRoutine;
                 if (routine != null)
                 {
-                    if (routine.ReturningHome) return "沿着可通行的路线返回自己的休息地";
+                    if (routine.ReturningHome) return "沿着可通行的路线前往自己的休息地";
                     string place = routine.Activity == SolitaryActivity.Drink ? "饮水处" : routine.Activity == SolitaryActivity.Forage ? "觅食处" :
                         routine.Activity == SolitaryActivity.Rest ? "休息处" : routine.Activity == SolitaryActivity.Patrol ? "巡游地点" : "观察点";
                     if (!routine.IsWorking) return routine.HasTarget ? "正在前往选定的" + place : "停下来寻找可到达的活动地点";
@@ -118,7 +118,7 @@ namespace WeatherHousePrototype
                 {
                     case WildlifeState.Greet: return "正在和附近的动物打招呼";
                     case WildlifeState.Forage: return "停下来觅食";
-                    case WildlifeState.ReturnHome: return "正在返回熟悉的活动区域";
+                    case WildlifeState.ReturnHome: return "正在前往熟悉的活动区域";
                     case WildlifeState.Takeoff: return "正在起飞";
                     case WildlifeState.Fly: return "正在空中飞行";
                     case WildlifeState.Landing: return "正在寻找落脚处降落";
@@ -182,7 +182,7 @@ namespace WeatherHousePrototype
                 var actor = source.root.GetComponent<AnimalActor>() ?? source.root.gameObject.AddComponent<AnimalActor>();
                 actor.BindExternalPresentation(target);
                 actor.animalId = source.id; actor.displayName = DisplayName(source.species); actor.background = true;
-                actor.requestGlyphIds = new[] { "hello" }; actor.satisfiedGlyphIds = new[] { "hello" };
+                actor.requestGlyphIds = new[] { "you", "hello" }; actor.satisfiedGlyphIds = new[] { "you", "hello" };
                 result[i] = actor;
             }
             return result;
@@ -200,7 +200,7 @@ namespace WeatherHousePrototype
             var actor = source.gameObject.AddComponent<AnimalActor>();
             actor.BindExternalPresentation(target);
             actor.animalId = id; actor.displayName = string.IsNullOrWhiteSpace(name) ? DisplayName(source.speciesId) : name;
-            actor.background = true; actor.requestGlyphIds = new[] { "hello" }; actor.satisfiedGlyphIds = new[] { "hello" };
+            actor.background = true; actor.requestGlyphIds = new[] { "you", "hello" }; actor.satisfiedGlyphIds = new[] { "you", "hello" };
             return actor;
         }
         private void FindHead()
