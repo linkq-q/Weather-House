@@ -32,7 +32,7 @@ namespace WeatherHouse.Life.Editor
             Require(!life.IsGestureLearned("rain"), "A reverse stroke through pointer events does not learn rain", checks);
             pad.ResetStroke();
             Draw(pad,definition.points,checks);
-            Require(life.IsGestureLearned("rain") && pad.feedback.text.Contains("学会"), "A correct pointer stroke learns rain through production practice feedback", checks);
+            Require(life.IsGestureLearned("rain") && !pad.feedback, "A correct pointer stroke learns rain without restoring removed practice text", checks);
             var saved=JsonUtility.FromJson<LifeProgress>(File.ReadAllText(life.SavePath));
             Require(saved.learnedGestures.Contains("rain"), "Pointer practice persists rain only in the isolated save", checks);
             Require(Field<List<Vector2>>(pad,"points").Count>12, "The pad samples the dragged screen coordinates instead of injected ink", checks);

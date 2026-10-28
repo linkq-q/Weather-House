@@ -95,5 +95,12 @@ namespace WeatherHouse.Life.Editor
                 throw new InvalidOperationException("Refresh feedback code only between isolated Play runs.");
             AssetDatabase.Refresh();
         }
+        [MenuItem("Weather House/Review 20261027/Check feedback social greetings")]
+        public static void CheckSocialGreetings()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Run social checks after finishing feedback Play.");
+            Directory.CreateDirectory(Folder);
+            File.WriteAllText(Folder + "/social-greeting-checks.txt", WeatherHouse.WildlifeJourney.Editor.JourneySocialChecks.RunLogicChecks());
+        }
     }
 }

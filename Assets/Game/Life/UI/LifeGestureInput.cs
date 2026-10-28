@@ -27,11 +27,12 @@ namespace WeatherHouse.Life
         private const float TaskGapScale = .85f;
         private LifeStrokeGraphic stroke;
         private readonly List<Vector2> points = new List<Vector2>();
-        private bool drawing, worldMode, taskExpanded;
+        private bool drawing, worldMode, taskExpanded, practiceStarted;
         private int tipLevel;
         private float feedbackUntil;
         public bool IsWorldDrawing => worldMode;
         public bool IsStrokeActive => drawing || (life && life.GestureInputActive && !worldMode);
+        public bool HasStartedPractice => practiceStarted;
 
         private void Start()
         {
@@ -228,7 +229,11 @@ namespace WeatherHouse.Life
         }
 
         public bool CanPractice(string id) => life && life.IsGestureUnlocked(id) && hud && hud.JournalOpen && !hud.IsAlbumOpening;
-        public void SetPracticeDrawing(bool active) { if (life && !worldMode) life.SetGestureInput(active); }
+        public void SetPracticeDrawing(bool active)
+        {
+            if (active) practiceStarted = true;
+            if (life && !worldMode) life.SetGestureInput(active);
+        }
         public void CompletePractice(string expected, IList<Vector2> path, Text feedback, LifeStrokeGraphic ink)
         {
             string id = null; float score = 0;
@@ -237,9 +242,9 @@ namespace WeatherHouse.Life
             if (success)
             {
                 life.LearnGesture(expected);
-                feedback.text = "学会了。合上手账，按 G 试试。";
+                if (feedback) feedback.text = "学会了。合上手账，按 G 试试。";
             }
-            else feedback.text = recognized ? "跟着这一页的笔尖，再画一次。" : "画大一点，按笔尖的方向一笔画完。";
+            else if (feedback) feedback.text = recognized ? "跟着这一页的笔尖，再画一次。" : "画大一点，按笔尖的方向一笔画完。";
             ink.color = success ? new Color(.27f, .64f, .38f) : new Color(.76f, .42f, .29f);
         }
         public static bool ValidStroke(IList<Vector2> path) => GestureCatalog.IsUsableStroke(path);
