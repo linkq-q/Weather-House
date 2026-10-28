@@ -53,6 +53,7 @@ namespace WeatherHouse.Life.Editor
                 int selected = tasks ? 3 : gestures ? 2 : photos ? 1 : 0;
                 if (selected != pair.Item2) throw new InvalidOperationException("Icon tab opens the wrong page: " + pair.Item1);
                 checks.Add("PASS Icon tab retains its page action: " + pair.Item1);
+                if (pair.Item2 == 3) Frame(life, "04_摄影任务仅字形.png");
             }
             hud.OnboardingSelectGesture("rain");
             for (int i = 0; i < 5; i++) yield return null;

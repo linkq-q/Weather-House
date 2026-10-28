@@ -26,8 +26,7 @@ namespace WeatherHouse.Life
                 var row = LifeUi.Rect(book, "Photo task " + task.id, position, new Vector2(485, 155));
                 bool complete = session.Notebook.IsPhotoTaskComplete(task.id);
                 var paper = LifeUi.Panel(row, "Task paper", Vector2.zero, new Vector2(485, 154), new Color(.80f, .83f, .68f, .16f), complete);
-                LifeUi.Text(row, "Task kind", task.IsInteraction ? "相遇" : "拍一张", new Vector2(-191, 54), new Vector2(90, 25), font, 18, new Color(.47f, .51f, .36f));
-                TokenLine(row, session, task.tokens, new Vector2(-8, 5), 51, 370, font);
+                TokenLine(row, session, task.tokens, new Vector2(-8, 5), 51, 370, font, false);
                 if (complete)
                 {
                     var mark = LifeUi.Rect(row, "Recorded seal", new Vector2(209, 42), new Vector2(33, 33));
@@ -44,7 +43,7 @@ namespace WeatherHouse.Life
             LifeUi.Button(book, "Next photography page", "→", new Vector2(355, -305), new Vector2(95, 38), font, () => turn(1));
         }
 
-        public static void TokenLine(Transform parent, GameplaySession session, string[] ids, Vector2 center, float height, float width, Font font)
+        public static void TokenLine(Transform parent, GameplaySession session, string[] ids, Vector2 center, float height, float width, Font font, bool showMeanings = true)
         {
             if (ids == null || ids.Length == 0) return;
             float step = Mathf.Min(height * 1.5f, width / ids.Length);
@@ -56,7 +55,7 @@ namespace WeatherHouse.Life
                 Vector2 at = center + Vector2.right * ((i - (ids.Length - 1) * .5f) * step);
                 var graphic = LifeUi.Rect(parent, "Token " + glyph.id, at, new Vector2(height * 5 / 6, height)).gameObject.AddComponent<AnimalGlyphGraphic>();
                 graphic.SvgBody = glyph.body; graphic.lineWidth = 3.8f; graphic.color = LifeUi.Ink; graphic.raycastTarget = false;
-                if (session.Notebook.GetWord(glyph.id)?.confirmed == true)
+                if (showMeanings && session.Notebook.GetWord(glyph.id)?.confirmed == true)
                     LifeUi.Text(parent, "Meaning " + glyph.id, glyph.name, at + Vector2.down * (height * .5f + 15), new Vector2(step + 5, 27), font, 20, LifeUi.Ink, TextAnchor.MiddleCenter);
             }
         }
