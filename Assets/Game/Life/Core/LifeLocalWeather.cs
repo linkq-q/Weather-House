@@ -54,8 +54,8 @@ namespace WeatherHouse.Life
                 case "clear": skyActive = false; windActive = false; break;
                 case "weak": case "strong":
                     if (windSelected && windActive) windStrength = id == "strong" ? 2 : 1;
-                    else if (skyActive && skyKind == LocalWeather.Rain) skyStrength = id == "strong" ? 2 : 1;
-                    else { message = "先唤起雨或风，再用强、弱改变它。停止天气请画停息手势。"; return false; }
+                    else if (skyActive) skyStrength = id == "strong" ? 2 : 1;
+                    else { message = ""; return false; }
                     break;
                 default: message = "没有认出可用的天气手势。"; return false;
             }

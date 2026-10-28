@@ -219,12 +219,16 @@ namespace WeatherHouse.Life
         private void SubmitStroke()
         {
             LifeAudio.StopStroke();
-            bool success = false; string message;
+            bool success = false, noWeatherTarget = false; string message;
             if (!ValidStroke(points) || !GestureCatalog.TryRecognize(points, out string id, out float score)) message = "跟着手账里的笔尖，再画一次。";
             else if (!life.IsGestureUnlocked(id)) message = "";
-            else success = life.TryCast(id, out message);
+            else
+            {
+                success = life.TryCast(id, out message);
+                noWeatherTarget = !success && (id == "strong" || id == "weak") && string.IsNullOrEmpty(message);
+            }
             stroke.color = success ? new Color(.66f, .95f, .73f) : new Color(1f, .54f, .36f);
-            drawHint.text = message + "\n可以再次描画，Esc 收起";
+            drawHint.text = noWeatherTarget ? "" : message + "\n可以再次描画，Esc 收起";
             feedbackUntil = Time.unscaledTime + 2.2f;
         }
 

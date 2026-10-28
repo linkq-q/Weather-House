@@ -14,7 +14,7 @@ namespace WeatherHouse.Life.Editor
     // Review-only rendering of the running scene and its actual canvases. No scene or player save writes.
     public static class LifeFeedbackVisualReview
     {
-        const string Folder = "LifeGameplayReview/20261028/in-game-ui-resumed";
+        const string Folder = "LifeGameplayReview/20261028/in-game-ui-white-icons";
         [MenuItem("Weather House/Review 20261027/Capture feedback UI")]
         public static void Begin()
         {
@@ -53,6 +53,7 @@ namespace WeatherHouse.Life.Editor
                 int selected = tasks ? 3 : gestures ? 2 : photos ? 1 : 0;
                 if (selected != pair.Item2) throw new InvalidOperationException("Icon tab opens the wrong page: " + pair.Item1);
                 checks.Add("PASS Icon tab retains its page action: " + pair.Item1);
+                if (pair.Item2 == 1) Frame(life, "05_照片页与书签.png");
                 if (pair.Item2 == 3) Frame(life, "04_摄影任务仅字形.png");
             }
             hud.OnboardingSelectGesture("rain");
@@ -63,7 +64,7 @@ namespace WeatherHouse.Life.Editor
             hud.ToggleJournal();
         }
         struct CanvasState { public Canvas canvas; public RenderMode mode; public Camera camera; public float distance; }
-        static void Frame(LifeSession life, string name)
+        internal static void Frame(LifeSession life, string name, string folder = Folder)
         {
             Camera camera = life.Gameplay.CurrentView;
             if (!camera) throw new InvalidOperationException("Game camera is missing.");
@@ -79,7 +80,7 @@ namespace WeatherHouse.Life.Editor
                 { saved.canvas.renderMode = RenderMode.ScreenSpaceCamera; saved.canvas.worldCamera = camera; saved.canvas.planeDistance = camera.nearClipPlane + .1f; }
                 Canvas.ForceUpdateCanvases(); camera.Render(); RenderTexture.active = target;
                 pixels.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0); pixels.Apply();
-                File.WriteAllBytes(Path.Combine(Folder, name), pixels.EncodeToPNG());
+                File.WriteAllBytes(Path.Combine(folder, name), pixels.EncodeToPNG());
             }
             finally
             {

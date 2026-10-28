@@ -41,7 +41,7 @@ namespace WeatherHousePrototype
                 Time.deltaTime / (Current == LocalWeather.Sun ? 12f : 24f));
             if (sunshine != null)
                 sunshine.intensity = Mathf.MoveTowards(sunshine.intensity,
-                    weatherActive && Current == LocalWeather.Sun ? 3f : 0f, Time.deltaTime * 2f);
+                    weatherActive && Current == LocalWeather.Sun ? (localPlayerWeather && strength == 2 ? 3.8f : 3f) : 0f, Time.deltaTime * 2f);
             if (localPlayerWeather) { BoundParticles(rain); BoundParticles(leaves); }
         }
 
