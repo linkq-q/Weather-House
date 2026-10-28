@@ -178,14 +178,18 @@ namespace WeatherHousePrototype
 
         private void BuildChrome()
         {
-            var controls = controlsRoot = Rect(canvasRect, "Controls", Vector2.zero, new Vector2(340f, 64f));
+            var controls = controlsRoot = Rect(canvasRect, "Controls", Vector2.zero, new Vector2(336f, 104f));
             controls.anchorMin = controls.anchorMax = Vector2.zero;
-            controls.anchoredPosition = new Vector2(184f, 48f);
+            controls.anchoredPosition = new Vector2(176f, 64f);
             Color hint = new Color(.91f, .93f, .82f, .88f);
-            HudIcon(controls, "Photo icon", "Camera", new Vector2(-140f, 0f), new Vector2(44f, 34f), new Rect(.12f, .20f, .74f, .60f));
-            Label(controls, "Photo shortcut", "C 拍照", new Vector2(-74f, -4f), new Vector2(90f, 32f), 21, hint);
-            HudIcon(controls, "Journal icon", "Journal", new Vector2(20f, 0f), new Vector2(34f, 44f), new Rect(.18f, .08f, .63f, .82f));
-            Label(controls, "Journal shortcut", "J 手账", new Vector2(86f, -4f), new Vector2(90f, 32f), 21, hint);
+            HudIcon(controls, "Photo icon", "Camera", new Vector2(-132f, 10f), new Vector2(44f, 34f), new Rect(.12f, .20f, .74f, .60f));
+            HudIcon(controls, "Magic book icon", "MagicBook", new Vector2(-44f, 10f), new Vector2(34f, 44f), new Rect(0, 0, 1, 1));
+            HudIcon(controls, "Dictionary icon", "DictionaryBook", new Vector2(44f, 10f), new Vector2(34f, 44f), new Rect(0, 0, 1, 1));
+            HudIcon(controls, "Photo tasks icon", "PhotoTasksBook", new Vector2(132f, 10f), new Vector2(34f, 44f), new Rect(0, 0, 1, 1));
+            Label(controls, "Photo shortcut", "C", new Vector2(-132f, -30f), new Vector2(44f, 28f), 21, hint);
+            Label(controls, "Magic book shortcut", "M", new Vector2(-44f, -30f), new Vector2(44f, 28f), 21, hint);
+            Label(controls, "Dictionary shortcut", "J", new Vector2(44f, -30f), new Vector2(44f, 28f), 21, hint);
+            Label(controls, "Photo tasks shortcut", "L", new Vector2(132f, -30f), new Vector2(44f, 28f), 21, hint);
             statusRoot = Rect(canvasRect, "Bottom status", Vector2.zero, new Vector2(880f, 72f));
             statusRoot.anchorMin = statusRoot.anchorMax = new Vector2(.5f, 0f);
             statusRoot.anchoredPosition = new Vector2(0f, 140f);
@@ -334,7 +338,9 @@ namespace WeatherHousePrototype
             UpdateAnimalBubble();
             UpdatePlayback();
             if (InputFocused()) return;
-            if (Input.GetKeyDown(KeyCode.J)) { ToggleJournal(); return; }
+            if (Input.GetKeyDown(KeyCode.J)) { UseBookShortcut(KeyCode.J); return; }
+            if (Input.GetKeyDown(KeyCode.M)) { UseBookShortcut(KeyCode.M); return; }
+            if (Input.GetKeyDown(KeyCode.L)) { UseBookShortcut(KeyCode.L); return; }
             if (IsAlbumOpening) return;
             if (JournalOpen && expandedPhoto == null && publicTaskId == null && !glyphDetailOpen && !albumGesturesSelected)
             {
@@ -384,6 +390,22 @@ namespace WeatherHousePrototype
             float scale = Mathf.Min(1f, Mathf.Max(1f, canvasRect.rect.width - 48f) / size.x,
                 Mathf.Max(1f, canvasRect.rect.height - 48f) / size.y);
             detailRoot.localScale = Vector3.one * scale;
+        }
+
+        public void UseBookShortcut(KeyCode key)
+        {
+            int tab = key == KeyCode.J ? 0 : key == KeyCode.M ? 2 : key == KeyCode.L ? 3 : -1;
+            if (tab < 0) return;
+            int current = albumTasksSelected ? 3 : albumGesturesSelected ? 2 : albumPhotosSelected ? 1 : 0;
+            if (JournalOpen && current == tab && !glyphDetailOpen && expandedPhoto == null && publicTaskId == null)
+            { ToggleJournal(); return; }
+            if (IsAlbumOpening) return;
+            if (gestureInput) gestureInput.Cancel();
+            albumPhotosSelected = false; albumGesturesSelected = tab == 2; albumTasksSelected = tab == 3;
+            expandedPhoto = null; publicTaskId = null; glyphDetailOpen = false; selectedGlyph = null;
+            ClearFocus();
+            if (JournalOpen) RebuildJournalPage();
+            else ToggleJournal();
         }
 
         public void ToggleJournal()
@@ -626,6 +648,7 @@ namespace WeatherHousePrototype
                 { albumGesturesSelected = true; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); });
                 LifeJournalChrome.PhotographyTab(albumRoot, albumTasksSelected, () =>
                 { albumTasksSelected = true; albumGesturesSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); });
+                LifeJournalChrome.BookIcons(albumRoot, albumPhotosSelected, albumGesturesSelected, albumTasksSelected);
                 if (albumTasksSelected)
                 {
                     LifePhotoBook.Build(albumRoot, session, photoTaskPage, font, id =>

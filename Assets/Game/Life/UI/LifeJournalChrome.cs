@@ -52,24 +52,50 @@ namespace WeatherHouse.Life
             var rect = LifeUi.Rect(book, "Photography tasks tab", new Vector2(547f - 836f, 377f), new Vector2(82, 69));
             rect.SetSiblingIndex(3);
             var graphic = rect.gameObject.AddComponent<LifeJournalTabGraphic>();
-            graphic.selected = selected; graphic.photography = true;
+            graphic.selected = selected;
             var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = graphic;
             button.onClick.AddListener(click);
             ColorBlock colors = button.colors; colors.highlightedColor = new Color(1, .98f, .92f); colors.pressedColor = new Color(.86f, .88f, .8f); colors.selectedColor = Color.white; colors.fadeDuration = .12f; button.colors = colors;
+        }
+
+        public static void BookIcons(RectTransform book, bool photos, bool gestures, bool tasks)
+        {
+            TabSymbol((RectTransform)book.Find("Symbols tab"), LifeJournalTabGraphic.Symbol.Dictionary, !photos && !gestures && !tasks);
+            TabSymbol((RectTransform)book.Find("Photos tab"), LifeJournalTabGraphic.Symbol.Photo, photos && !gestures && !tasks);
+            TabSymbol((RectTransform)book.Find("Gesture learning tab"), LifeJournalTabGraphic.Symbol.Sun, gestures);
+            TabSymbol((RectTransform)book.Find("Photography tasks tab"), LifeJournalTabGraphic.Symbol.Photo, tasks);
+        }
+
+        private static void TabSymbol(RectTransform tab, LifeJournalTabGraphic.Symbol symbol, bool selected)
+        {
+            var button = tab.GetComponent<Button>();
+            var original = tab.GetComponent<RawImage>();
+            var paper = button.targetGraphic as LifeJournalTabGraphic;
+            if (original)
+            {
+                // Keep the original texture reference for page selection; draw one shared paper style.
+                original.enabled = false;
+                paper = LifeUi.Rect(tab, "Tab paper", Vector2.zero, tab.sizeDelta).gameObject.AddComponent<LifeJournalTabGraphic>();
+                button.targetGraphic = paper;
+            }
+            paper.selected = selected;
+            paper.symbol = symbol;
+            paper.SetVerticesDirty();
         }
     }
 
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class LifeJournalTabGraphic : MaskableGraphic
     {
-        public bool selected, photography;
+        public enum Symbol { Sun, Dictionary, Photo }
+        public bool selected;
+        public Symbol symbol;
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear();
             Rect rect = GetPixelAdjustedRect();
             Color paper = selected ? new Color32(180, 140, 108, 255) : new Color32(246, 241, 216, 255);
-            Color ink = selected ? new Color32(246, 241, 216, 255) : new Color32(180, 140, 108, 255);
-            paper *= color; ink *= color;
+            paper *= color;
             const int steps = 10;
             mesh.AddVert(rect.center, paper, Vector2.zero);
             mesh.AddVert(new Vector2(rect.xMin, rect.yMin), paper, Vector2.zero);
@@ -86,34 +112,49 @@ namespace WeatherHouse.Life
             mesh.AddVert(new Vector2(rect.xMax, rect.yMin), paper, Vector2.zero);
             int count = mesh.currentVertCount - 1;
             for (int i = 1; i <= count; i++) mesh.AddTriangle(0, i, i == count ? 1 : i + 1);
-            if (photography)
+
+            Color ink = (selected ? new Color32(246, 241, 216, 255) : new Color32(180, 140, 108, 255)) * color;
+            // Reuse the approved SVG's internal paths, centered on the existing tab symbol position.
+            Vector2 Point(float x, float y) => new Vector2((x - 20f) * 2f, 8f + (19f - y) * 2f);
+            void Stroke(float x1, float y1, float x2, float y2) => Line(mesh, Point(x1, y1), Point(x2, y2), 1.9f, ink);
+            if (symbol == Symbol.Dictionary)
             {
-                Vector2[] corners = { new Vector2(-20, -4), new Vector2(-20, 20), new Vector2(-9, 20), new Vector2(-6, 26), new Vector2(7, 26), new Vector2(10, 20), new Vector2(20, 20), new Vector2(20, -4), new Vector2(-20, -4) };
-                for (int i = 1; i < corners.Length; i++) Line(mesh, corners[i - 1], corners[i], 2, ink);
-                for (int i = 0; i < 24; i++)
+                for (int y = 13; y <= 25; y += 6) { Stroke(13, y, 16, y); Stroke(20, y, y == 25 ? 24 : 27, y); }
+            }
+            else if (symbol == Symbol.Photo)
+            {
+                Stroke(12.5f, 12, 28.5f, 12); Stroke(28.5f, 12, 28.5f, 28);
+                Stroke(28.5f, 28, 12.5f, 28); Stroke(12.5f, 28, 12.5f, 12);
+                Stroke(13, 25, 18, 19); Stroke(18, 19, 21, 22); Stroke(21, 22, 24, 18); Stroke(24, 18, 28, 23);
+                int at = mesh.currentVertCount; Vector2 center = Point(17, 16);
+                mesh.AddVert(center, ink, Vector2.zero);
+                for (int i = 0; i <= 12; i++)
                 {
-                    float a = i * Mathf.PI * 2 / 24, b = (i + 1) * Mathf.PI * 2 / 24;
-                    Line(mesh, new Vector2(Mathf.Cos(a) * 8, 7 + Mathf.Sin(a) * 8), new Vector2(Mathf.Cos(b) * 8, 7 + Mathf.Sin(b) * 8), 2, ink);
+                    float a = i * Mathf.PI * 2f / 12f;
+                    mesh.AddVert(center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * 1.4f, ink, Vector2.zero);
+                    if (i > 0) mesh.AddTriangle(at, at + i, at + i + 1);
                 }
-                return;
             }
-            // A small sun keeps the same simple ink language as the old tabs.
-            Vector2 sun = new Vector2(0, 8); float radius = 10;
-            for (int i = 0; i < 32; i++)
+            else
             {
-                float a = i * Mathf.PI * 2 / 32, b = (i + 1) * Mathf.PI * 2 / 32;
-                Line(mesh, sun + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * radius, sun + new Vector2(Mathf.Cos(b), Mathf.Sin(b)) * radius, 2.5f, ink);
-            }
-            for (int i = 0; i < 8; i++)
-            {
-                float a = i * Mathf.PI * .25f; Vector2 d = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
-                Line(mesh, sun + d * 16, sun + d * 20, 2, ink);
+                for (int i = 0; i < 32; i++)
+                {
+                    float a = i * Mathf.PI * 2f / 32f, b = (i + 1) * Mathf.PI * 2f / 32f;
+                    Stroke(20 + Mathf.Cos(a) * 3.5f, 19 + Mathf.Sin(a) * 3.5f,
+                        20 + Mathf.Cos(b) * 3.5f, 19 + Mathf.Sin(b) * 3.5f);
+                }
+                Stroke(20, 10, 20, 12); Stroke(20, 26, 20, 28); Stroke(11, 19, 13, 19); Stroke(27, 19, 29, 19);
+                Stroke(13.6f, 12.6f, 15, 14); Stroke(25, 24, 26.4f, 25.4f);
+                Stroke(13.6f, 25.4f, 15, 24); Stroke(25, 14, 26.4f, 12.6f);
             }
         }
-        internal static void Line(VertexHelper mesh, Vector2 a, Vector2 b, float width, Color tint)
+
+        private static void Line(VertexHelper mesh, Vector2 a, Vector2 b, float width, Color tint)
         {
             Vector2 delta = b - a, n = new Vector2(-delta.y, delta.x).normalized * width;
-            int at = mesh.currentVertCount; mesh.AddVert(a - n, tint, Vector2.zero); mesh.AddVert(a + n, tint, Vector2.zero); mesh.AddVert(b + n, tint, Vector2.zero); mesh.AddVert(b - n, tint, Vector2.zero);
+            int at = mesh.currentVertCount;
+            mesh.AddVert(a - n, tint, Vector2.zero); mesh.AddVert(a + n, tint, Vector2.zero);
+            mesh.AddVert(b + n, tint, Vector2.zero); mesh.AddVert(b - n, tint, Vector2.zero);
             mesh.AddTriangle(at, at + 1, at + 2); mesh.AddTriangle(at, at + 2, at + 3);
         }
     }
