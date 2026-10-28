@@ -132,7 +132,7 @@ namespace WeatherHouse.Life
             if (range)
             {
                 if (weather.Active || GestureInputActive) range.Show(Gameplay.PlayerTransform.position, CastRadius,
-                    weather.IsRain ? new Color(.3f, .72f, 1f) : new Color(1f, .83f, .4f), GestureInputActive ? .7f : .22f);
+                    new Color(1f, .82f, .43f), weather.Active ? .9f : .45f, weather.Active);
                 else range.Hide();
             }
             var hud = Gameplay.GetComponent<GameplayHud>();
