@@ -176,11 +176,11 @@ namespace WeatherHousePrototype
         {
             var task = LifePhotoRules.Tasks.FirstOrDefault(item => item.id == id);
             if (task == null) return false;
-            // Also repairs a partially written old record without repeating the completion reward.
+            // Restore encounters from old task records without revealing meanings or undoing guesses.
             foreach (string glyphId in task.rewards)
             {
                 var word = EnsureWord(glyphId);
-                word.encountered = word.confirmed = true;
+                word.encountered = true;
             }
             if (IsPhotoTaskComplete(id)) return false;
             completedPhotoTasks.Add(id);
@@ -211,6 +211,8 @@ namespace WeatherHousePrototype
                     result.Add(record);
             return result;
         }
+
+        public bool HasPhotoEvidence(string glyphId) => FindEvidence(glyphId).Any(photo => photo.frameCount > 0);
 
         public bool CanVerify(string glyphId, string currentAnimalId)
         {

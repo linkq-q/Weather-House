@@ -184,7 +184,7 @@ namespace WeatherHouse.Life
         public bool IsGestureUnlocked(string id)
         {
             if (id == "rain" || id == "clear") return true;
-            return new[] { "sunlight", "wind", "weak", "strong" }.Contains(id) && Gameplay?.Notebook?.GetWord(id)?.confirmed == true;
+            return new[] { "sunlight", "wind", "weak", "strong" }.Contains(id) && Gameplay?.Notebook?.HasPhotoEvidence(id) == true;
         }
         public bool IsGestureLearned(string id) => Progress.learnedGestures.Contains(id) && IsGestureUnlocked(id);
         public bool LearnGesture(string id)
@@ -199,7 +199,7 @@ namespace WeatherHouse.Life
         }
         public bool TryCast(string id, out string message)
         {
-            if (!IsGestureLearned(id)) { message = "先在 J 手账中学习并练习这个手势。"; return false; }
+            if (!IsGestureUnlocked(id)) { message = ""; return false; }
             if (!weather) { message = "天气还在准备中。"; return false; }
             bool success = weather.Cast(id, out message);
             if (success) { World.RecordCast(id, weather.LastCastWeather); LifeOnboarding.SuccessfulCast(this, id); SaveAndNotify(message); }

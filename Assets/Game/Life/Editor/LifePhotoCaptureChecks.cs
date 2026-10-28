@@ -57,8 +57,9 @@ namespace WeatherHouse.Life.Editor
                 var reread = JsonUtility.FromJson<ObservationRecord>(File.ReadAllText(Path.Combine(Folder(id), "metadata.json")));
                 Check(reread.liveTruncated && reread.context.anchorPosition == new Vector3(1, 2, 3) && reread.photoSnapshot.entities[0].sleeping,
                     "Saved replay context survives metadata reload");
-                Check(book.ApplyPhotoTasks() == 2 && book.GetWord("fox").confirmed && book.GetWord("sleep").confirmed,
-                    "A truncated Live photo still pays its independent portrait and sleep tasks");
+                Check(book.ApplyPhotoTasks() == 2 && book.GetWord("fox").encountered && book.GetWord("sleep").encountered &&
+                    !book.GetWord("fox").confirmed && !book.GetWord("sleep").confirmed,
+                    "A truncated Live photo completes portrait and sleep tasks without confirming their meanings");
                 var texture = MotionPhotoRecorder.LoadFrame(truncated, 0);
                 Check(texture.width == 512 && texture.height == 288, "Retained still loads through the real album decoder");
                 Object.Destroy(texture);

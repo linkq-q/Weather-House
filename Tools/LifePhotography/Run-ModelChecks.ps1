@@ -1,4 +1,4 @@
-param([switch]$Mutation)
+param([switch]$Mutation, [string]$OutputFolder = 'LifeGameplayReview/20261026/photo-flow')
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $runtimeDir = Join-Path $PSScriptRoot '.runtime'
@@ -26,7 +26,7 @@ namespace UnityEngine {
 }
 namespace UnityEditor { public class MenuItem:Attribute { public MenuItem(string value){} } }
 namespace WeatherHouse.Life {
- public sealed class LifeObjectState { public const float DryThreshold=.18f; }
+ public sealed class LifeObjectState { public const float DryThreshold=.18f, WaterVisibleThreshold=.01f; }
  public sealed class LifeContextSnapshot {
   public string speakerId,listenerId,targetId,sequenceId,objectState,weatherState,speakerName,listenerName,locationName;
   public UnityEngine.Vector3 speakerPosition,listenerPosition,anchorPosition;
@@ -64,7 +64,9 @@ Push-Location $projectRoot
 try {
     $result = @(& $dotnet $dll 2>&1)
     $resultCode = $LASTEXITCODE
-    $report = Join-Path $projectRoot ('LifeGameplayReview/20261026/photo-flow/' + $(if ($Mutation) {'mutation-model.txt'} else {'offline-model.txt'}))
+    $reportDirectory = Join-Path $projectRoot $OutputFolder
+    New-Item -ItemType Directory -Force -Path $reportDirectory | Out-Null
+    $report = Join-Path $reportDirectory $(if ($Mutation) {'mutation-model.txt'} else {'offline-model.txt'})
     $result | Set-Content -LiteralPath $report -Encoding utf8
     $result
     if ($Mutation) { if ($resultCode -eq 0) { throw 'Snapshot-copy mutation was not detected.' }; Write-Output 'PASS expected mutation was rejected.' }

@@ -76,14 +76,14 @@ namespace WeatherHouse.Life.Editor
                 Check(game.Notebook.ApplyPhotoTasks() == 2, "One sleeping-fox photo pays P01 and P09 in the UI fixture", checks);
                 game.Notify("摄影 UI 回归检查"); yield return null; yield return null;
                 album = Get<RectTransform>(hud, "albumRoot"); p01 = album.Find("Photo task P01");
-                Check(p01.Find("Recorded seal") && p01.GetComponentsInChildren<Text>(true).Any(t => t.name == "Meaning fox" && t.text == "狐狸"),
-                    "The open task page refreshes immediately to confirmed fox meaning", checks);
+                Check(p01.Find("Recorded seal") && !p01.GetComponentsInChildren<Text>(true).Any(t => t.name == "Meaning fox"),
+                    "The open task page marks completion without revealing the fox meaning", checks);
                 p01.GetComponentInChildren<Button>(true).onClick.Invoke();
                 Check(Get<ObservationRecord>(hud, "expandedPhoto")?.id == fixture.record.id && Get<RawImage>(hud, "expandedImage").texture &&
                     Get<RawImage>(hud, "expandedImage").texture != Resources.Load<Texture2D>("AlbumBook/PhotoMissing"), "Clicking the completed task opens its actual saved PNG evidence", checks);
                 var detail = Get<RectTransform>(hud, "detailRoot");
-                Check(detail.GetComponentsInChildren<Text>(true).Any(t => t.name == "Meaning fox" && t.text == "狐狸") &&
-                    detail.GetComponentsInChildren<Text>(true).Any(t => t.name == "Meaning sleep" && t.text == "睡觉"), "Replay uses current global meanings while preserving original glyph IDs", checks);
+                Check(!detail.GetComponentsInChildren<Text>(true).Any(t => t.name == "Meaning fox" || t.name == "Meaning sleep"),
+                    "Replay preserves the photographed glyphs without automatically revealing meanings", checks);
                 Screenshot("photography-evidence.png"); yield return null; yield return null; Call(hud, "CloseTop");
                 Check(hud.JournalOpen && Get<ObservationRecord>(hud, "expandedPhoto") == null, "Closing evidence returns to the same open book", checks);
 
@@ -92,8 +92,9 @@ namespace WeatherHouse.Life.Editor
                 CheckTabs(hud, true, checks);
                 deadline = Time.realtimeSinceStartup + 8;
                 while (book.IsAnimating && Time.realtimeSinceStartup < deadline) yield return null;
-                Check(!book.IsAnimating && Get<RectTransform>(hud, "albumRoot").Find("Photo task P09").GetComponentsInChildren<Text>(true)
-                    .Any(t => t.name == "Meaning sleep" && t.text == "睡觉"), "The same photo marks sleep known on another task spread", checks);
+                var sleepTask = Get<RectTransform>(hud, "albumRoot").Find("Photo task P09");
+                Check(!book.IsAnimating && sleepTask.Find("Recorded seal") && !sleepTask.GetComponentsInChildren<Text>(true)
+                    .Any(t => t.name == "Meaning sleep"), "The same photo completes sleep on another spread without confirming its meaning", checks);
                 Screenshot("photography-sleep-known.png");
                 yield return null; yield return null;
 
