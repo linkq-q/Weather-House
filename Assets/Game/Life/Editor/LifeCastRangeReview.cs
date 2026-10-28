@@ -17,6 +17,7 @@ namespace WeatherHouse.Life.Editor
     {
         const string Key = "WeatherHouse.CastRangeReview20261028";
         const string Folder = "LifeGameplayReview/20261028/weather-rim-runtime";
+        const string ReleaseRequest = Folder + "/release-idle-editor.txt";
         const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         static LifeCastRangeReview() { EditorApplication.update += Tick; }
 
@@ -30,7 +31,18 @@ namespace WeatherHouse.Life.Editor
         }
         static void Tick()
         {
-            if (!Application.isBatchMode || EditorApplication.isCompiling) return;
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating) return;
+            if (!Application.isBatchMode)
+            {
+                // Explicit handoff only: never stop Play or discard any loaded scene's edits.
+                if (!File.Exists(ReleaseRequest)) return;
+                string request = File.ReadAllText(ReleaseRequest).Trim(); File.Delete(ReleaseRequest);
+                bool dirty = Enumerable.Range(0, SceneManager.sceneCount).Any(i => SceneManager.GetSceneAt(i).isDirty);
+                if (request != "release-for-isolated-range-review" || EditorApplication.isPlayingOrWillChangePlaymode || dirty)
+                { File.WriteAllText(Folder + "/editor-release.txt", "REFUSED: editor is not idle and clean, or request is invalid."); return; }
+                File.WriteAllText(Folder + "/editor-release.txt", "RELEASED idle clean editor\n" + SceneManager.GetActiveScene().path + "\n" + DateTime.UtcNow.ToString("O"));
+                EditorApplication.Exit(0); return;
+            }
             if (SessionState.GetBool(Key + ".quit", false) && !EditorApplication.isPlayingOrWillChangePlaymode &&
                 !SessionState.GetBool("WeatherHouse.FeedbackReview20261028", false))
             { SessionState.SetBool(Key + ".quit", false); LifeFeedbackReview.ExitBatch(); return; }
@@ -85,7 +97,10 @@ namespace WeatherHouse.Life.Editor
                 Check(life.TryCast("rain", out _), "Rain starts through the production spell entry");
                 yield return new WaitForSeconds(.9f);
                 Check(weather.IsRain && view.enabled && Property("_Flames") > .95f, "Rain maintains visible flames after the activation sweep");
-                Check(Property("_Reveal") > .99f, "Activation completes its sweep without removing the maintained boundary");
+                // Startup frames can be long; observe completed LateUpdate state rather than an earlier frame's block.
+                float revealDeadline = Time.time + 2f;
+                while (Property("_Reveal") < .99f && Time.time < revealDeadline) yield return null;
+                Check(Property("_Reveal") > .99f, "Activation completes its sweep without removing the maintained boundary; reveal=" + Property("_Reveal"));
                 var points = range.GetComponent<MeshFilter>().sharedMesh.vertices;
                 float radius = LifeSession.CastRadius;
                 Check(points.Length > 400 && points.Where((p,i) => i % 4 == 2).All(p => Mathf.Abs(new Vector2(p.x,p.z).magnitude-radius)<.005f),
