@@ -88,9 +88,9 @@ namespace WeatherHousePrototype.Editor
             var walker = session.walker;
             var rig = session.PhotoRig;
             var recorder = session.Recorder;
-            string[] hudNames = { "<JournalOpen>k__BackingField", "selectedGlyph", "guessGlyphId", "guessDraft", "replyDraft", "lastReply",
-                "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen", "dialogueOpen", "expandedPhoto", "currentFrame", "playingPhoto",
-                "nextFrameAt", "echoUntil", "focusMarkUntil", "dirty", "inspectorDirty", "useAlbumDesignSamples", "displayedStatus", "statusUntil" };
+            string[] hudNames = { "<JournalOpen>k__BackingField", "selectedGlyph", "guessGlyphId", "guessDraft",
+                "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen", "expandedPhoto", "currentFrame", "playingPhoto",
+                "nextFrameAt", "focusMarkUntil", "dirty", "inspectorDirty", "useAlbumDesignSamples", "displayedStatus", "statusUntil" };
             var hudState = Snapshot(hud, hudNames);
             var sessionState = Snapshot(session, "<Notebook>k__BackingField", "<Status>k__BackingField", "<Judging>k__BackingField", "<Observed>k__BackingField", "nextObservation");
             var recorderState = Snapshot(recorder, "<IsRecording>k__BackingField", "<CaptureProgress>k__BackingField");
@@ -138,7 +138,7 @@ namespace WeatherHousePrototype.Editor
                     Set(recorder, "<CaptureProgress>k__BackingField", 0f);
                     hud.SetCameraMode(false);
                     Set(hud, "<JournalOpen>k__BackingField", false);
-                    Set(hud, "dialogueOpen", false); Set(hud, "expandedPhoto", null); Set(hud, "glyphDetailOpen", false);
+                    Set(hud, "expandedPhoto", null); Set(hud, "glyphDetailOpen", false);
                     Set(hud, "playingPhoto", false); Set(hud, "selectedGlyph", null); Set(hud, "page", 0); Set(hud, "glyphPage", 0);
                     Set(session, "<Judging>k__BackingField", false);
                     Set(session, "<Observed>k__BackingField", null);
@@ -175,15 +175,6 @@ namespace WeatherHousePrototype.Editor
                 var shots = new List<Entry>();
                 Add(shots, 1, "正常HUD与快捷键", "进入游戏", "底部呼吸提示、左下键位提示", "实际HUD；保留当前会话状态文案", reset);
                 Add(shots, 2, "动物字语与交谈提示", "走近动物", "原始字形气泡、动物名和E交谈", "真实场景动物和字语；临时摆放玩家视角，无观察入档", () => { reset(); observe(); });
-                Add(shots, 3, "中文回应空输入", "E交谈", "无白底的大字输入、Enter回应、Esc收起", "真实BuildDialogue；模拟打开状态，无发送", () =>
-                { Set(hud, "replyDraft", ""); Set(hud, "dialogueOpen", true); Call(hud, "RebuildModal"); });
-                Add(shots, 4, "中文回应输入草稿", "在回应框输入", "直接在绿色气泡内输入中文", "实际InputField草稿；无发送、无网络", () =>
-                    Find<InputField>(hud, "Chinese reply").text = "你希望雨停下来，让湿松果晒干，对吗？");
-                Add(shots, 5, "发送后人物回显", "回应提交后", "人物说话气泡", "模拟已发送状态，直接调用BuildReplyEcho；未调用Reply或SubmitReply", () =>
-                {
-                    reset(); observe(); Set(hud, "lastReply", "你希望雨停下来，让湿松果晒干，对吗？");
-                    Set(hud, "echoUntil", Time.unscaledTime + 120f); Call(hud, "BuildReplyEcho");
-                });
                 Add(shots, 6, "相机取景35毫米", "C举起相机", "取景框、中心点、快门、焦距与操作提示、关闭", "真实相机模式与场景渲染；无拍照", () =>
                 {
                     reset(); observe(); hud.SetCameraMode(true); rig.Zoom((35f - rig.FocalLength) / 5f);
@@ -219,10 +210,6 @@ namespace WeatherHousePrototype.Editor
                     notebook.observations = new List<ObservationRecord> { new ObservationRecord { id = id, clipFolder = "MotionPhotos/" + id, frameCount = 1, framesPerSecond = 6f, glyphIds = new[] { glyph.id } } };
                     album(); Require(Find<Text>(hud, "Missing frame").text == "照片暂时无法读取", "The missing-photo UI message is absent.");
                 });
-                Add(shots, 16, "回应判断中状态", "动物等待AI判断", "动物在听你说……", "模拟Judging及Status，真实底部呼吸状态控件；无AI请求", () =>
-                { reset(); observe(); Set(session, "<Judging>k__BackingField", true); Status(session, hud, "动物在听你说……"); });
-                Add(shots, 17, "回应失败状态", "AI请求失败或超时", "可重试错误提示", "使用LanguageJudgementClient现有错误文案模拟Status；无网络请求", () =>
-                { Set(session, "<Judging>k__BackingField", false); Status(session, hud, "AI请求失败或超时，本次未确认任何词义，可以重试。"); });
                 Add(shots, 18, "相关照片为空", "字符详情点击查看相关照片", "相框内部显示空相片插画", "清空克隆照片列表后点击真实Word evidence按钮；未修改存档", () =>
                 {
                     notebook.observations.Clear(); detail(); Find<Button>(hud, "Word evidence").onClick.Invoke();
@@ -234,7 +221,7 @@ namespace WeatherHousePrototype.Editor
                     Require(Find<InputField>(hud, "Word guess").text == "", "The guess input is not empty.");
                 });
 
-                File.WriteAllText(Output + "/capture.txt", "Actual Play Canvas inventory. No TakePhoto, Reply, SubmitReply or SaveGuess call.\n");
+                File.WriteAllText(Output + "/capture.txt", "Actual Play Canvas inventory. Retired reply UI (3-5,16-17) is excluded. No TakePhoto or SaveGuess call.\n");
                 Font uiFont = Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular");
                 Require(uiFont != null, "The packaged ZCOOL XiaoWei font is missing.");
                 foreach (Entry shot in shots)
@@ -271,7 +258,7 @@ namespace WeatherHousePrototype.Editor
                     walker.Teleport(position); walker.transform.rotation = rotation; Restore(walker, walkerState);
                     walker.viewCamera.transform.SetPositionAndRotation(viewPosition, viewRotation);
                     Restore(hud, hudState);
-                    Set(hud, "replyInput", null); Set(hud, "guessInput", null);
+                    Set(hud, "guessInput", null);
                     hud.SetCameraMode(cameraMode);
                     Restore(rig, rigState);
                     rig.CaptureCamera.focalLength = rig.FocalLength;

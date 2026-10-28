@@ -199,6 +199,8 @@ namespace WeatherHouse.Life
             lastSpeaker = actor; lastRequest = request; lastRevision = revision; lastUtterance = utterance;
             return changed;
         }
+        public void Listen(AnimalActor actor) => Speak(actor, true);
+
         void Speak(AnimalActor actor, bool important)
         {
             if (!actor || Vector3.Distance(player.position, actor.transform.position) > 8 || Time.unscaledTime < lastProgress + .5f) return;

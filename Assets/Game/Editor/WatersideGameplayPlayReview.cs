@@ -51,7 +51,7 @@ namespace WeatherHousePrototype.Editor
         [Serializable] sealed class Report
         {
             public string status = "RUNNING", error = "", scene, sceneHash, profilePath, profileHash, profileTempHash, startedUtc, finishedUtc;
-            public string inputEvidence = "Calls the same ToggleDialogue action used by GameplayHud's E branch, plus production C/J/Esc actions. No claim of hardware-key injection.";
+            public string inputEvidence = "Calls the same ListenToAnimal action used by GameplayHud's E branch, plus production C/J/Esc actions. No claim of hardware-key injection.";
             public bool returnedToEdit, sceneDirtyAfter, sceneFileUnchanged, notebookRestored, editorOptionsRestored, screenshotsWritten;
             public float blockedHorizontalMotion, restoredHorizontalMotion, photoHorizontalMotion, photoDirectionAgreement;
             public string observed;
@@ -70,6 +70,8 @@ namespace WeatherHousePrototype.Editor
         public static void Begin()
         {
             if (Active || EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Start UI review from Edit mode.");
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEATHERHOUSE_LIFE_REVIEW_SAVE")))
+                throw new InvalidOperationException("Listening review requires an isolated Life save directory.");
             WatersideGameplayInstaller.CheckBindings();
             var scene = SceneManager.GetActiveScene();
             if (string.IsNullOrEmpty(scene.path) || Enumerable.Range(0, SceneManager.sceneCount).Any(i => SceneManager.GetSceneAt(i).isDirty))
@@ -202,16 +204,16 @@ namespace WeatherHousePrototype.Editor
                         stage = 10; next = Time.unscaledTime + .3f; break;
                     case 10:
                         dialogueAnimal = session.Observed;
-                        hud.ToggleDialogue(); session.RefreshInputBlocking();
-                        Require(session.GetComponentsInChildren<InputField>(true).Any(i => i.gameObject.activeInHierarchy), "E action opened the original reply InputField.");
-                        Require(hud.BlocksMovement && player.InputBlocked && orbit.InputBlocked, "Dialogue locks movement and orbit input.");
+                        hud.ListenToAnimal(); session.RefreshInputBlocking();
+                        Require(!session.GetComponentsInChildren<InputField>(true).Any(i => i.gameObject.activeInHierarchy), "E listening creates no player reply InputField.");
+                        Require(!hud.BlocksMovement && !player.InputBlocked && !orbit.InputBlocked, "Listening leaves movement and orbit input available.");
                         blockedPosition = player.transform.position; player.SetScriptedInput(Vector2.down, false, false);
                         stage = 2; next = Time.unscaledTime + .4f; break;
                     case 2:
                         report.blockedHorizontalMotion = Flat(player.transform.position - blockedPosition);
-                        Require(report.blockedHorizontalMotion < .025f, "A real requested movement is blocked while the reply bubble is open.");
-                        Require(session.Observed == dialogueAnimal && hud.DialogueTarget == dialogueAnimal, "The E conversation retains its original animal while typing.");
-                        Capture("02_original_reply_bubble");
+                        Require(report.blockedHorizontalMotion > .12f, "Real requested movement continues after E listening.");
+                        Require(!hud.IsDialogueOpen && hud.DialogueTarget == null, "Listening does not retain a typing target or modal.");
+                        Capture("02_listening_without_reply");
                         stage = 11; next = Time.unscaledTime + .3f; break;
                     case 11:
                         CloseTop(); session.RefreshInputBlocking();
@@ -289,9 +291,9 @@ namespace WeatherHousePrototype.Editor
                         stage = 15; next = Time.unscaledTime + .3f; break;
                     case 15:
                         if (!session.Observed) { PlaceNearAnimal(); next = Time.unscaledTime + .4f; break; }
-                        hud.ToggleDialogue(); Require(hud.IsDialogueOpen, "Reply is open before disabling HUD.");
+                        hud.ListenToAnimal(); Require(!hud.IsDialogueOpen, "Listening does not open a reply before disabling HUD.");
                         hud.enabled = false;
-                        Require(!player.InputBlocked && !orbit.InputBlocked && !hud.BlocksMovement && !session.PhotoRig.Active, "Disabling HUD closes dialogue and releases gameplay input.");
+                        Require(!player.InputBlocked && !orbit.InputBlocked && !hud.BlocksMovement && !session.PhotoRig.Active, "Disabling HUD preserves released gameplay input after listening.");
                         Require(!session.GetComponentsInChildren<Canvas>().Single(c => c.name == "Weather House HUD").enabled, "Disabled HUD is not left visible or interactive.");
                         hud.enabled = true;
                         hud.ToggleJournal(); hud.enabled = false;

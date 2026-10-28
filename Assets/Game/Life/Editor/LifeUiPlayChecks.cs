@@ -502,7 +502,6 @@ namespace WeatherHouse.Life.Editor
             try
             {
                 observedProperty.SetValue(life.Gameplay, speaker.Actor);
-                Set(hud, "dialogueOpen", true); Set(hud, "dialogueTarget", speaker.Actor);
                 // Warm each authored size once, then exercise the same clear/rebind path used after fade-out.
                 for (int i = 0; i < speaker.requests.Length; i++) { speaker.topicIndex = i; Call(hud, "ClearAnimalBubble"); Call(hud, "UpdateAnimalBubble"); }
                 RectTransform bubble = Get<RectTransform>(hud, "bubbleRoot"); int instance = bubble.GetInstanceID();
@@ -514,7 +513,7 @@ namespace WeatherHouse.Life.Editor
                         "Warm animal presentation reuses the bubble and every glyph slot, cycle " + (i + 1), checks);
                     CheckBubbleLayout(hud, checks);
                 }
-                if (!life.Progress.understoodRequests.Contains("dog.hello")) life.Progress.understoodRequests.Add("dog.hello");
+                if (!life.Progress.HasHeard("dog.hello")) life.Progress.heardRequests.Add("dog.hello");
                 speaker.topicIndex = Array.FindIndex(speaker.requests, request => request.id == "dog.rain.lesson");
                 Require(speaker.topicIndex >= 0 && speaker.Current?.id == "dog.rain.lesson" && speaker.Actor.CurrentGlyphIds.SequenceEqual(new[] { "want", "rain" }),
                     "After the greeting prerequisite, the actual current utterance is the authored want/rain lesson", checks);
@@ -556,7 +555,7 @@ namespace WeatherHouse.Life.Editor
                 JsonUtility.FromJsonOverwrite(notebook, life.Gameplay.Notebook);
                 JsonUtility.FromJsonOverwrite(progress, life.Progress);
                 speaker.topicIndex = topic; observedProperty.SetValue(life.Gameplay, observed);
-                Set(hud, "dialogueOpen", false); Set(hud, "dialogueTarget", null); Call(hud, "ClearAnimalBubble");
+                Call(hud, "ClearAnimalBubble");
                 life.Gameplay.RefreshInputBlocking();
             }
         }

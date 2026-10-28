@@ -118,8 +118,6 @@ namespace WeatherHouse.Life
             if (word != selectedWord)
             {
                 selectedWord = word; revision++;
-                if (!string.IsNullOrEmpty(word) && State.stage == LifeOnboardingStage.GuessBook && (word == "hello" || word == "goodbye"))
-                    Feedback(word == "hello" ? "朋友刚见面时会说什么？" : "朋友要分开时，留下的一方也会说。", 12);
             }
             switch (State.stage)
             {
@@ -140,18 +138,18 @@ namespace WeatherHouse.Life
                     if (dog && LifeSession.InsideCircle(game.PlayerTransform.position, dog.transform.position, LifeSession.TalkRadius))
                     {
                         SilenceAll();
-                        if (!life.Progress.understoodRequests.Contains("dog.hello"))
-                        { int greeting = Array.FindIndex(dog.requests, r => r.id == "dog.hello"); if (greeting >= 0 && !hud.IsDialogueOpen) dog.topicIndex = greeting; break; }
+                        if (!life.Progress.HasHeard("dog.hello"))
+                        { int greeting = Array.FindIndex(dog.requests, r => r.id == "dog.hello"); if (greeting >= 0) dog.topicIndex = greeting; break; }
                         SelectRainRequest(dog);
                         if (game.Observed == dog.Actor && hud.IsAnimalSpeechVisible(dog.Actor) && Array.IndexOf(dog.Actor.CurrentGlyphIds, "rain") >= 0)
                             SetStage(LifeOnboardingStage.WeatherBook);
                     }
                     break;
                 case LifeOnboardingStage.WeatherBook:
-                    if (life.IsGestureLearned("rain") && life.IsGestureLearned("clear") && !hud.JournalOpen) SetStage(LifeOnboardingStage.UnderstandRain);
+                    if (State.booksIntroduced.Contains("weather") && !hud.JournalOpen) SetStage(LifeOnboardingStage.UnderstandRain);
                     break;
                 case LifeOnboardingStage.UnderstandRain:
-                    var speaker = life.World.FindSpeaker("dog"); if (speaker && !hud.IsDialogueOpen) SelectRainRequest(speaker);
+                    var speaker = life.World.FindSpeaker("dog"); if (speaker) SelectRainRequest(speaker);
                     if (life.Progress.FindTask("dog.rain.lesson") != null) SetStage(LifeOnboardingStage.CastRain);
                     break;
                 case LifeOnboardingStage.CastRain:
@@ -229,19 +227,6 @@ namespace WeatherHouse.Life
                         action = () => { if (State.photoBookPage++ == 0) { hud.OnboardingSelectBook(3, null); Persist(); } else SetStage(LifeOnboardingStage.FindRainRequest); };
                     }
                     break;
-                case LifeOnboardingStage.FindRainRequest: text = life.Progress.understoodRequests.Contains("dog.hello") ?
-                    "回到院门的小狗身边，听听它还想说什么。" : "靠近院门的小狗，按 E 回应它的招呼。"; break;
-                case LifeOnboardingStage.WeatherBook:
-                    text = !hud.JournalOpen ? "按 J，看看奶奶留下的天气笔迹。" : !life.IsGestureLearned("rain") ?
-                        "按住左键，在下面的纸上照着画。金圈是起笔的位置。" : !life.IsGestureLearned("clear") ?
-                        (hud.OnboardingGestureSelected == "clear" ? "再照着画一遍。这个笔迹能把天气收起来。" : "雨练好了。再学学怎样收起天气。") :
-                        "按 J 合上书，再按 E 听听小狗的请求。";
-                    if (hud.JournalOpen && life.IsGestureLearned("rain") && !life.IsGestureLearned("clear") && hud.OnboardingGestureSelected != "clear")
-                    { button = "学收雨"; action = () => hud.OnboardingSelectGesture("clear"); }
-                    break;
-                case LifeOnboardingStage.UnderstandRain: text = "靠近小狗按 E，用自己的话说说它想要什么。"; break;
-                case LifeOnboardingStage.CastRain: text = "站在小狗身边，按 G，按住左键画出雨。"; break;
-                case LifeOnboardingStage.ClearWeather: text = "再按 G，画出收起天气的笔迹。雨会停，碗里的水会留下。"; break;
                 case LifeOnboardingStage.ReturnVisit: text = State.returnAway ? "回去看看小狗，它还会怎样招呼你？" : "走开一点，听听它的道别。然后再回来看看。"; break;
             }
             RenderNote(text, button, action);
@@ -268,9 +253,7 @@ namespace WeatherHouse.Life
                     else hud.OnboardingHighlight("First photo");
                     break;
                 case LifeOnboardingStage.WeatherBook:
-                    if (life.IsGestureLearned("rain") && !life.IsGestureLearned("clear") && hud.OnboardingGestureSelected != "clear") hud.OnboardingHighlight("Gesture clear");
-                    else if (!life.IsGestureLearned(hud.OnboardingGestureSelected)) hud.OnboardingHighlight("Practice pad", "Practice start");
-                    else hud.OnboardingHighlight();
+                    hud.OnboardingHighlight("Close album");
                     break;
                 default: hud.OnboardingHighlight(); break;
             }
@@ -331,16 +314,22 @@ namespace WeatherHouse.Life
         public static bool Blocks(GameplaySession session) => For(session)?.IsBlockingInput == true;
         public static bool TrySubmitGuess(GameplaySession session, string id, string guess)
         {
-            var tutorial = For(session); if (!tutorial || !tutorial.ready || tutorial.State == null || !tutorial.State.started || reviewSuppressed) return false;
+            if (!session || session.Notebook == null) return false;
+            var tutorial = For(session);
+            if (!tutorial) tutorial = session.gameObject.AddComponent<LifeOnboarding>();
+            tutorial.game = session; tutorial.hud = session.GetComponent<GameplayHud>();
+            if (!tutorial.hud) return false;
+            // Dictionary judgement also serves saves that never started the opening tutorial.
+            if (tutorial.guessJudge == null) tutorial.guessJudge = new LifeGlyphGuessJudge(session.GetComponent<LanguageJudgementClient>(), session.Catalog);
             tutorial.SubmitGuess(id, guess); return true;
         }
         void SubmitGuess(string id, string guess)
         {
             var word = game.Notebook.GetWord(id);
-            if (word == null || !word.encountered) { Feedback("先看看岛上的朋友什么时候说这个字。", 5); return; }
-            if (word.confirmed) { Feedback("这个字的意思已经记下，不必重新回答。", 4); return; }
+            if (word == null || !word.encountered || word.confirmed) return;
             if (judging || string.IsNullOrWhiteSpace(guess)) return;
-            game.Notebook.SetGuess(id, guess); game.SaveNotebook();
+            game.Notebook.SetGuess(id, guess);
+            if (!game.SaveNotebook()) Feedback("猜测保留在本次游戏中，手账暂时无法写入磁盘。", 8);
             int submitted = ++revision; judging = true;
             StartCoroutine(JudgeGuess(id, guess, submitted));
         }
@@ -350,16 +339,18 @@ namespace WeatherHouse.Life
             yield return guessJudge.Judge(id, guess, value => result = value, () => submitted != revision || !hud.JournalOpen || hud.OnboardingSelectedWord != id);
             judging = false;
             if (submitted != revision || !hud.JournalOpen || hud.OnboardingSelectedWord != id || result == null) yield break;
-            if (Known(id)) { Feedback("这个字的意思已经记下，不必重新回答。", 4); yield break; }
+            if (Known(id)) yield break;
             if (result.Status == LifeGlyphGuessStatus.Accepted)
             {
-                var word = game.Notebook.GetWord(id); if (!word.confirmed) { word.confirmed = true; if (game.SaveNotebook()) { State.TrackConfirmed(game.Notebook); Persist(); } LifeAudio.Play(LifeAudioCue.Progress); }
-                Feedback("猜对了。每认出三个新字，就能多看一条线索。", 7);
+                game.Notebook.GetWord(id).confirmed = true;
+                bool saved = game.SaveNotebook();
+                if (saved && State != null) { State.TrackConfirmed(game.Notebook); Persist(); }
+                LifeAudio.Play(LifeAudioCue.Progress);
+                Feedback(saved ? "猜对了。" : "猜对了。手账暂时无法写入磁盘，本次游戏仍保留结果。", 7);
             }
             else if (result.Status == LifeGlyphGuessStatus.Rejected)
-            { if (id == "hello" && !State.teachingHintRead) State.teachingHintAvailable = true; Persist();
-              Feedback(id == "hello" && !State.teachingHintRead ? "再想想它在什么时候说。卡住了，可以点一次免费线索。" : "再看看相关照片，比较它说话的时机。", 9); }
-            else Feedback("暂时没核对成功。猜法留着，重试不扣线索。", 8);
+            { if (State != null && id == "hello" && !State.teachingHintRead) { State.teachingHintAvailable = true; Persist(); } }
+            else Feedback("语义判断暂不可用。猜测已保留，可以稍后重试。", 8);
         }
         void ReadHint(string id)
         {
@@ -402,25 +393,6 @@ namespace WeatherHouse.Life
             if (id == "rain" && tutorial.State.stage == LifeOnboardingStage.CastRain) tutorial.State.rainCast = true;
             if (id == "clear" && tutorial.State.stage == LifeOnboardingStage.ClearWeather) tutorial.State.clearCast = true;
             tutorial.Persist();
-        }
-        public static bool TryReplyRain(GameplaySession game, AnimalActor animal, string text)
-        {
-            var tutorial = For(game); if (!tutorial || !tutorial.SocialGreetingsEnabled || !tutorial.life.CanTalk(animal)) return false;
-            var request = tutorial.life.CurrentRequest(animal);
-            if (request != null && request.id.StartsWith("onboarding.", StringComparison.Ordinal) && request.glyphIds.Length == 1 && LifeGlyphGuessJudge.TryAccept(request.glyphIds[0], text))
-            { game.Notify("它回应了你。说话时记住对方的眼神和时机，也是一种证据。"); return true; }
-            if (tutorial.State.stage == LifeOnboardingStage.FindRainRequest && request?.id == "dog.hello" && LifeGlyphGuessJudge.TryAccept("hello", text))
-            {
-                tutorial.life.AcceptUnderstanding(animal, animal.UtteranceId,
-                    new JudgementResult { success = true, understood = true, evidenceGlyphIds = new[] { "hello" } }, out _);
-                game.Notify("它回应了你的招呼。再听听它接下来想说什么。"); return true;
-            }
-            if (tutorial.State.stage != LifeOnboardingStage.UnderstandRain || request?.id != "dog.rain.lesson") return false;
-            string input = string.Concat((text ?? "").Where(c => !char.IsWhiteSpace(c) && !char.IsPunctuation(c)));
-            var accepted = new[] { "想下雨", "想要雨", "想要下雨", "希望下雨", "希望这里下雨", "你想下雨", "你想要下雨", "你想这里下雨", "你想要雨", "你想看一场雨", "它想让这里下雨", "你想要我施雨", "你希望这里下雨", "小狗想要下雨" };
-            if (!accepted.Contains(input)) return false;
-            var result = new JudgementResult { success = true, understood = true, evidenceGlyphIds = new[] { "want", "rain" } };
-            tutorial.life.AcceptUnderstanding(animal, animal.UtteranceId, result, out _); game.Notify("你听懂了它想要一场雨。现在可以试试刚学会的笔迹。"); return true;
         }
         void OnApplicationPause(bool paused) { if (paused) Persist(); }
         void OnApplicationQuit() => Persist();

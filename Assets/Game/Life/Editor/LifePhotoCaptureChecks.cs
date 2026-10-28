@@ -224,7 +224,7 @@ namespace WeatherHouse.Life.Editor
 
                 var life = game.GetComponent<LifeSession>(); var speaker = life.World.FindSpeaker("dog");
                 int oldTopic = speaker.topicIndex; Vector3 oldPosition = game.PlayerTransform.position;
-                string world = life.World.CaptureJson();
+                string world = life.World.CaptureJson(), progress = JsonUtility.ToJson(life.Progress);
                 try
                 {
                     speaker.topicIndex = Array.FindIndex(speaker.requests, request => request.glyphIds.Contains("hello"));
@@ -239,7 +239,7 @@ namespace WeatherHouse.Life.Editor
                     deadline = Time.realtimeSinceStartup + 3f;
                     while (Time.realtimeSinceStartup < deadline && game.Notebook.publicHistory.Find(c => c.id == greetingId)?.occurredUtc == priorUtc) yield return null;
                     var greeting = game.Notebook.publicHistory.Find(c => c.id == greetingId);
-                    Check(hud.IsDialogueOpen && greeting != null && greeting.occurredUtc != priorUtc && greeting.actorId == speaker.Actor.animalId &&
+                    Check(!hud.IsDialogueOpen && life.Progress.HasHeard(speaker.Current.id) && greeting != null && greeting.occurredUtc != priorUtc && greeting.actorId == speaker.Actor.animalId &&
                         greeting.glyphIds.SequenceEqual(speaker.Current.glyphIds) && game.Notebook.publicHistory.Count == historyCount + (priorGreeting == null ? 1 : 0),
                         "First actual HUD dialogue records its visible greeting without requiring NextTopic");
                     historyCount = game.Notebook.publicHistory.Count; priorUtc = greeting.occurredUtc;
@@ -254,7 +254,7 @@ namespace WeatherHouse.Life.Editor
                 finally
                 {
                     hud.CloseDialogue(); speaker.topicIndex = oldTopic; game.PlayerTransform.position = oldPosition;
-                    life.World.RestoreJson(world); life.World.RestorePublicPhotoContexts(JsonUtility.FromJson<LanguageNotebook>(original).publicHistory);
+                    JsonUtility.FromJsonOverwrite(progress, life.Progress); life.World.RestoreJson(world); life.SaveAndNotify(""); life.World.RestorePublicPhotoContexts(JsonUtility.FromJson<LanguageNotebook>(original).publicHistory);
                 }
             }
             finally

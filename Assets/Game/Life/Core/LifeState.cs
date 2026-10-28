@@ -41,6 +41,8 @@ namespace WeatherHouse.Life
         public List<LifeTask> tasks = new List<LifeTask>();
         public List<string> learnedGestures = new List<string>();
         public List<string> friendlyAnimals = new List<string>();
+        public List<string> heardRequests = new List<string>();
+        // Retained only to migrate existing saves; listening never adds understanding.
         public List<string> understoodRequests = new List<string>();
         public string worldJson = "";
         public bool rainTutorialSeen;
@@ -51,6 +53,9 @@ namespace WeatherHouse.Life
             learnedGestures = learnedGestures ?? new List<string>();
             friendlyAnimals = friendlyAnimals ?? new List<string>();
             understoodRequests = understoodRequests ?? new List<string>();
+            heardRequests = heardRequests ?? new List<string>();
+            foreach (string id in understoodRequests) RememberHeard(id);
+            foreach (LifeTask task in tasks) if (task != null) RememberHeard(task.requestId);
         }
 
         public LifeTask FindTask(string requestId)
@@ -59,12 +64,17 @@ namespace WeatherHouse.Life
             return null;
         }
 
-        // This gate is shared by the live AI callback and the regression tests.
-        public bool Accept(LifeRequest request, string animalId, JudgementResult result, bool requestStillCurrent, bool nearby)
+        public bool HasHeard(string requestId) => !string.IsNullOrEmpty(requestId) && heardRequests.Contains(requestId);
+        void RememberHeard(string requestId)
+        {
+            if (!string.IsNullOrEmpty(requestId) && !heardRequests.Contains(requestId)) heardRequests.Add(requestId);
+        }
+
+        public bool Hear(LifeRequest request, string animalId, bool requestStillCurrent, bool nearby)
         {
             if (request == null || string.IsNullOrEmpty(request.id) || string.IsNullOrEmpty(animalId) ||
-                result == null || !result.success || !result.understood || !requestStillCurrent || !nearby) return false;
-            if (!understoodRequests.Contains(request.id)) understoodRequests.Add(request.id);
+                !requestStillCurrent || !nearby) return false;
+            RememberHeard(request.id);
             if (!request.HasTask || FindTask(request.id) != null) return false;
             tasks.Add(new LifeTask { requestId = request.id, animalId = animalId, eventId = request.eventId,
                 status = LifeTaskStatus.Active, acceptedUtcTicks = DateTime.UtcNow.Ticks });
@@ -88,7 +98,7 @@ namespace WeatherHouse.Life
             {
                 if (request == null || request.eventId != eventId || !request.requiredForEvent) continue;
                 hasRequired = true;
-                bool done = request.condition == "conversation" ? understoodRequests.Contains(request.id) :
+                bool done = request.condition == "conversation" ? HasHeard(request.id) :
                     FindTask(request.id)?.status == LifeTaskStatus.Complete;
                 if (!done) return false;
             }
@@ -99,10 +109,10 @@ namespace WeatherHouse.Life
         {
             if (request == null) return false;
             if (request.openForPhotography) return true;
-            // Understanding and accepted help remain available on every return visit.
-            if (understoodRequests.Contains(request.id) || FindTask(request.id) != null) return true;
+            // Heard requests and accepted help remain available on every return visit.
+            if (HasHeard(request.id) || FindTask(request.id) != null) return true;
             if (!request.HasTask && !request.requiredForEvent) return true;
-            if (request.id == "dog.rain.lesson") return understoodRequests.Contains("dog.hello");
+            if (request.id == "dog.rain.lesson") return HasHeard("dog.hello");
             switch (request.eventId)
             {
                 case "E0": return true;
@@ -120,9 +130,9 @@ namespace WeatherHouse.Life
 
         public string GetProgressHint(IEnumerable<LifeRequest> content)
         {
-            if (!EventComplete("E0", content)) return understoodRequests.Contains("dog.rain.lesson") ?
+            if (!EventComplete("E0", content)) return HasHeard("dog.rain.lesson") ?
                 "在它身边试试手账里最初的手势，看看周围的变化。" :
-                understoodRequests.Contains("dog.hello") ? "听完它的下一句话，再说说你的理解。" :
+                HasHeard("dog.hello") ? "听听它的下一句话，看看可以怎样帮忙。" :
                 "走近院门的动物，先听它说些什么。";
             if (!EventComplete("E1", content)) return "看看雨落下时与停下后，院边的碗有什么不同。";
             if (!EventComplete("E2", content)) return "看看窝垫和旁边的草，比较它们淋湿前后的样子。";
@@ -164,14 +174,14 @@ namespace WeatherHouse.Life
                     if (!Available(requests[topicIndex]))
                     {
                         int next = Array.FindIndex(requests, r => Available(r) && r.requiredForEvent &&
-                            !progress.understoodRequests.Contains(r.id));
+                            !progress.HasHeard(r.id));
                         if (next < 0) next = Array.FindIndex(requests, Available);
                         if (next >= 0) topicIndex = next;
                     }
                     if (Available(requests[topicIndex])) selected = requests[topicIndex];
                 }
                 // AnimalActor includes Revision in its utterance ID: migrating a locked topic
-                // invalidates an in-flight answer just like an explicit topic change.
+                // invalidates a captured interaction just like an explicit topic change.
                 if (!ReferenceEquals(lastCurrent, selected)) { lastCurrent = selected; Revision++; }
                 return selected;
             }
@@ -188,6 +198,27 @@ namespace WeatherHouse.Life
                 _ = Current;
                 return;
             }
+        }
+
+        public void AdvanceAfterHeard()
+        {
+            var current = Current;
+            if (current == null || !progress.HasHeard(current.id) ||
+                (current.HasTask && progress.FindTask(current.id)?.status != LifeTaskStatus.Complete)) return;
+            // Prefer the next unfinished authored request, then new observations, then revisit known topics.
+            for (int priority = 0; priority < 3; priority++)
+                for (int step = 1; step < requests.Length; step++)
+                {
+                    int next = (topicIndex + step) % requests.Length;
+                    var candidate = requests[next];
+                    if (!Available(candidate)) continue;
+                    if (priority == 0 && (!candidate.requiredForEvent ||
+                        (candidate.HasTask ? progress.FindTask(candidate.id)?.status == LifeTaskStatus.Complete : progress.HasHeard(candidate.id)))) continue;
+                    if (priority == 1 && progress.HasHeard(candidate.id)) continue;
+                    topicIndex = next;
+                    _ = Current;
+                    return;
+                }
         }
     }
 }

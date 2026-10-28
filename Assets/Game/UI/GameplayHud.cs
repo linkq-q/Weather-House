@@ -25,25 +25,19 @@ namespace WeatherHousePrototype
         [Tooltip("原始 100×120 字形坐标中的描边宽度；作用于气泡和照片详情。书页字符按设计稿使用独立的描边比例。")]
         public float animalGlyphStrokeWidth = 5f;
 
-        [Header("人物对话气泡")]
-        [InspectorName("人物气泡尺寸")]
-        [Tooltip("输入和已发送的中文气泡共用这个尺寸；文字按气泡尺寸成比例排布，回车发送，Esc 收起。")]
-        public Vector2 playerBubbleSize = new Vector2(900f, 190f);
-
         [Header("相册符号页")]
         [InspectorName("使用 P1 示例照片与完整字形")]
         [Tooltip("用于设计稿对照；只影响符号页展示，不解锁字库或写入存档。相片页签始终显示实际拍摄记录。")]
         public bool useAlbumDesignSamples = true;
 
         public bool CameraMode { get; private set; }
-        public AnimalActor DialogueTarget => dialogueOpen ? dialogueTarget : null;
-        public bool IsDialogueOpen => dialogueOpen;
-        private AnimalActor dialogueTarget;
+        public AnimalActor DialogueTarget => null;
+        public bool IsDialogueOpen => false;
         public bool JournalOpen { get; private set; }
         public bool IsAlbumOpening => (journal3D && journal3D.IsAnimating) || (albumOpening != null && albumOpening.IsPlaying);
-        public bool BlocksMovement => JournalOpen || dialogueOpen || InputFocused();
+        public bool BlocksMovement => JournalOpen || InputFocused();
         public LifePrimaryAction PrimaryInteraction => LifeInteractionRules.Primary(
-            !session || BlocksMovement || CameraMode || IsAlbumOpening || session.Judging ||
+            !session || BlocksMovement || CameraMode || IsAlbumOpening || session.Judging || session.Recorder.IsRecording || LifeOnboarding.Blocks(session) ||
             !string.IsNullOrEmpty(Input.compositionString) || Time.frameCount<=lastCompositionFrame+1 ||
             (life && life.GestureInputActive) || (gestureInput && gestureInput.IsWorldDrawing),
             session && session.Observed && (!life || life.CanTalk(session.Observed)),life && life.World && life.World.CanGather);
@@ -52,7 +46,7 @@ namespace WeatherHousePrototype
         {
             switch(PrimaryInteraction)
             {
-                case LifePrimaryAction.Talk:ToggleDialogue();break;
+                case LifePrimaryAction.Talk:ListenToAnimal();break;
                 case LifePrimaryAction.Gather:life.World.TryGather();break;
             }
         }
@@ -61,7 +55,7 @@ namespace WeatherHousePrototype
         private LifeSession life;
         private LifeGestureInput gestureInput;
         private Canvas canvas;
-        private RectTransform canvasRect, controlsRoot, bubbleRoot, modalRoot, cameraRoot, echoRoot, focusMark;
+        private RectTransform canvasRect, controlsRoot, bubbleRoot, modalRoot, cameraRoot, focusMark;
         private float focusMarkUntil;
         private const string PhotoGuide = "留下你想记住的风景与片刻。";
         private float photoControlScale = -1f;
@@ -76,7 +70,7 @@ namespace WeatherHousePrototype
         private string displayedStatus;
         private float statusUntil;
         private int lastCompositionFrame = -10;
-        private InputField replyInput, guessInput;
+        private InputField guessInput;
         private Font font, albumCountFont;
         private RectTransform albumRoot;
         private RectTransform detailRoot;
@@ -91,15 +85,15 @@ namespace WeatherHousePrototype
         private readonly List<AnimalGlyphGraphic> bubbleGlyphs = new List<AnimalGlyphGraphic>();
         private readonly List<Text> bubbleMeanings = new List<Text>();
         private readonly RaycastHit[] bubbleSightHits = new RaycastHit[16];
-        private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "", replyDraft = "", lastReply;
+        private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "";
         private int page, currentFrame;
         private int glyphPage;
         private bool albumPhotosSelected, glyphDetailOpen, albumGesturesSelected, albumTasksSelected;
         private int photoTaskPage;
         private string publicTaskId;
         private string selectedGesture = "rain";
-        private bool dialogueOpen, dirty, playingPhoto, inspectorDirty;
-        private float nextFrameAt, echoUntil;
+        private bool dirty, playingPhoto, inspectorDirty;
+        private float nextFrameAt;
         private ObservationRecord expandedPhoto;
         private RawImage expandedImage;
         private Texture2D expandedTexture;
@@ -209,16 +203,15 @@ namespace WeatherHousePrototype
             }
             bool hasMessage = !string.IsNullOrEmpty(displayedStatus) && Time.unscaledTime < statusUntil;
             if (session.Observed != null && displayedStatus != null && displayedStatus.StartsWith("走近动物，观察")) hasMessage = false;
-            string text = session.Judging ? "动物在听你说……" : hasMessage ? displayedStatus : "";
-            if (!session.Judging && !dialogueOpen && !CameraMode && session.Observed != null && !hasMessage)
-                text = session.Observed.displayName + (life && !life.CanTalk(session.Observed) ? "   ·   再走近一点才能交谈" : "   ·   E 交谈");
-            bool echoVisible = echoRoot != null && Time.unscaledTime < echoUntil && !hasMessage && !session.Judging;
+            string text = hasMessage ? displayedStatus : "";
+            if (!CameraMode && session.Observed != null && !hasMessage)
+                text = session.Observed.displayName + (life && !life.CanTalk(session.Observed) ? "" : "   ·   E");
             if (captureLabel != null)
                 captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
                     ? "记录中  " + Mathf.RoundToInt(session.Recorder.CaptureProgress * 100f) + "%"
                     : GetComponent<LifeOnboarding>()?.State?.stage == LifeOnboardingStage.TakeSpeechPhoto ? "点下方圆形快门，或按空格拍照。左键点画面可以对焦。" :
                         hasMessage && !displayedStatus.StartsWith("走近动物，观察") ? displayedStatus : PhotoGuide;
-            statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !dialogueOpen && !echoVisible && !string.IsNullOrEmpty(text));
+            statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !string.IsNullOrEmpty(text));
             statusLabel.text = text;
             float width = Mathf.Min(1120f, canvasRect.rect.width - 48f);
             float height = Mathf.Clamp(Mathf.Ceil(text.Length * statusLabel.fontSize / (width - 24f)) * statusLabel.fontSize * 1.4f + 12f, 54f, 140f);
@@ -286,9 +279,7 @@ namespace WeatherHousePrototype
         {
             inspectorDirty = false;
             if (!ApplyInspectorStyle()) return;
-            bool restoreReplyFocus = replyInput != null && replyInput.isFocused;
             bool restoreGuessFocus = guessInput != null && guessInput.isFocused;
-            if (replyInput != null) replyDraft = replyInput.text;
             if (guessInput != null) guessDraft = guessInput.text;
             ClearFocus();
             ReleasePhotoTextures();
@@ -297,7 +288,7 @@ namespace WeatherHousePrototype
                 child.gameObject.SetActive(false);
                 Destroy(child.gameObject);
             }
-            bubbleRoot = modalRoot = cameraRoot = echoRoot = null;
+            bubbleRoot = modalRoot = cameraRoot = null;
             bubbleShape = null; bubbleGlyphs.Clear(); bubbleMeanings.Clear();
             captureLabel = playbackLabel = null;
             cameraGroup = null;
@@ -309,8 +300,6 @@ namespace WeatherHousePrototype
             if (CameraMode) BuildCameraChrome();
             UpdateAnimalBubble();
             RebuildModal();
-            if (!string.IsNullOrEmpty(lastReply) && Time.unscaledTime < echoUntil) BuildReplyEcho();
-            if (restoreReplyFocus && replyInput != null) replyInput.ActivateInputField();
             if (restoreGuessFocus && guessInput != null) guessInput.ActivateInputField();
             dirty = false;
         }
@@ -344,7 +333,6 @@ namespace WeatherHousePrototype
             }
             UpdateAnimalBubble();
             UpdatePlayback();
-            if (echoRoot != null) echoRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !dialogueOpen && !statusRoot.gameObject.activeSelf && Time.unscaledTime < echoUntil);
             if (InputFocused()) return;
             if (Input.GetKeyDown(KeyCode.J)) { ToggleJournal(); return; }
             if (IsAlbumOpening) return;
@@ -353,9 +341,9 @@ namespace WeatherHousePrototype
                 if (Input.GetKeyDown(KeyCode.RightArrow)) { TurnJournalPage(1); return; }
                 if (Input.GetKeyDown(KeyCode.LeftArrow)) { TurnJournalPage(-1); return; }
             }
-            if (Input.GetKeyDown(KeyCode.C) && !JournalOpen && !dialogueOpen) SetCameraMode(!cameraRequested);
+            if (Input.GetKeyDown(KeyCode.C) && !JournalOpen) SetCameraMode(!cameraRequested);
             if (Input.GetKeyDown(KeyCode.E)) InteractPrimary();
-            if (JournalOpen || dialogueOpen) return;
+            if (JournalOpen) return;
             if (CameraMode && cameraRequested && Input.GetMouseButtonDown(0) && (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
             {
                 session.PhotoRig.FocusAt(Input.mousePosition);
@@ -409,7 +397,6 @@ namespace WeatherHousePrototype
                 return;
             }
             JournalOpen = true;
-            dialogueOpen = false;
             expandedPhoto = null;
             publicTaskId = null;
             glyphDetailOpen = false;
@@ -425,22 +412,29 @@ namespace WeatherHousePrototype
             session.RefreshInputBlocking();
         }
 
-        public void ToggleDialogue()
+        public void ListenToAnimal()
         {
-            if (JournalOpen || CameraMode || session == null || session.Observed == null || !session.Observed.IsAvailableForObservation) return;
-            if (life && !life.CanTalk(session.Observed)) { life.SaveAndNotify("再走近一点。"); return; }
-            if (gestureInput) gestureInput.Cancel();
-            dialogueOpen = !dialogueOpen;
-            dialogueTarget = dialogueOpen ? session.Observed : null;
-            if (dialogueOpen) session.BeginDialogue(dialogueTarget);
-            RebuildModal();
-            session.RefreshInputBlocking();
+            if (!isActiveAndEnabled || PrimaryInteraction != LifePrimaryAction.Talk) return;
+            AnimalActor animal = session.Observed;
+            string utterance = animal.UtteranceId;
+            if (life)
+            {
+                if (!life.Listen(animal, utterance)) return;
+            }
+            else
+            {
+                session.Notebook.Observe(animal.animalId, utterance, animal.CurrentGlyphIds);
+                session.SaveNotebook();
+            }
+            session.BeginDialogue(animal);
+            UpdateAnimalBubble();
         }
 
+        // Kept for callers that previously opened/closed the reply modal.
+        public void ToggleDialogue() => ListenToAnimal();
         public void CloseDialogue()
         {
-            dialogueOpen = false; dialogueTarget = null; ClearFocus();
-            if (canvasRect) RebuildModal();
+            ClearFocus();
             if (session) session.RefreshInputBlocking();
         }
 
@@ -566,7 +560,6 @@ namespace WeatherHousePrototype
             ClearFocus();
             if (expandedPhoto != null || glyphDetailOpen || publicTaskId != null) { HideDetails(); return; }
             if (JournalOpen) { CloseJournal(); return; }
-            else if (dialogueOpen) dialogueOpen = false;
             else if (CameraMode) { SetCameraMode(false); return; }
             RebuildModal();
             session.RefreshInputBlocking();
@@ -581,17 +574,15 @@ namespace WeatherHousePrototype
             playingPhoto = false;
             expandedImage = null;
             playbackLabel = null;
-            replyInput = null;
             guessInput = null;
             albumRoot = null;
             detailRoot = null;
             detailLayer = null;
             albumOpening = null;
             if (modalRoot != null) { modalRoot.gameObject.SetActive(false); Destroy(modalRoot.gameObject); modalRoot = null; }
-            if (!JournalOpen && !dialogueOpen) return;
+            if (!JournalOpen) return;
             modalRoot = Panel(canvasRect, "Modal backdrop", Vector2.zero, new Vector2(4000f, 3000f), new Color(.13f, .19f, .16f, .48f));
-            if (JournalOpen) BuildJournal();
-            else BuildDialogue();
+            BuildJournal();
             if (JournalOpen && (expandedPhoto != null || glyphDetailOpen || publicTaskId != null)) ShowDetails();
         }
 
@@ -619,99 +610,6 @@ namespace WeatherHousePrototype
             if (detailLayer) { detailLayer.gameObject.SetActive(false); Destroy(detailLayer.gameObject); }
             detailLayer = detailRoot = null; expandedImage = null; expandedTexture = null;
             playbackLabel = null; playingPhoto = false; guessInput = null;
-        }
-
-        private void BuildDialogue()
-        {
-            Vector2 size = FitBubbleSize(playerBubbleSize, new Vector2(300f, 100f));
-            float scale = Mathf.Min(size.x / 900f, size.y / 190f);
-            var bubble = ProceduralUiLibrary.WhitePanel(modalRoot, "Player reply bubble", PlayerBubblePosition(size), size);
-            replyInput = InputBox(bubble.transform, "Chinese reply", replyDraft, "写下你想说的话，Enter 发送…",
-                Vector2.zero, new Vector2(size.x * .82f, size.y * .64f), scale, true);
-            replyInput.lineType = InputField.LineType.SingleLine;
-            replyInput.characterLimit = 240;
-            replyInput.onValueChanged.AddListener(value => { replyDraft = value; FitReplyInput(bubble.rectTransform, size); });
-            FitReplyInput(bubble.rectTransform, size);
-            replyInput.onSubmit.AddListener(_ =>
-            {
-                // Enter used to commit an IME candidate must not send the reply as well.
-                if (!string.IsNullOrEmpty(Input.compositionString) || Time.frameCount <= lastCompositionFrame + 1)
-                { replyInput.ActivateInputField(); return; }
-                SubmitReply();
-                if (dialogueOpen && replyInput != null) replyInput.ActivateInputField();
-            });
-            replyInput.ActivateInputField();
-        }
-
-        private void SubmitReply()
-        {
-            if (session.Judging || string.IsNullOrWhiteSpace(replyDraft)) return;
-            lastReply = replyDraft;
-            session.Reply(replyDraft);
-            dialogueOpen = false;
-            ClearFocus();
-            RebuildModal();
-            session.RefreshInputBlocking();
-            echoUntil = Time.unscaledTime + 8f;
-            BuildReplyEcho();
-        }
-
-        private void BuildReplyEcho()
-        {
-            if (echoRoot != null) Destroy(echoRoot.gameObject);
-            Vector2 size = FitBubbleSize(playerBubbleSize, new Vector2(300f, 100f));
-            float scale = Mathf.Min(size.x / 900f, size.y / 190f);
-            var bubble = ProceduralUiLibrary.WhitePanel(canvasRect, "Player spoken reply", PlayerBubblePosition(size), size);
-            echoRoot = bubble.rectTransform;
-            var viewport = Rect(echoRoot, "Reply viewport", Vector2.zero, new Vector2(size.x - 64f, size.y * .64f));
-            viewport.gameObject.AddComponent<RectMask2D>();
-            var text = Label(viewport, "Original Chinese reply", lastReply, Vector2.zero, viewport.sizeDelta,
-                Mathf.RoundToInt(Mathf.Max(12, Mathf.RoundToInt(42f * scale)) * 1.3f), Ink);
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            float width = Mathf.Clamp(text.preferredWidth + 64f, size.x, canvasRect.rect.width - 48f);
-            echoRoot.sizeDelta = new Vector2(width, size.y);
-            viewport.sizeDelta = new Vector2(width - 64f, size.y * .64f);
-            text.rectTransform.sizeDelta = new Vector2(Mathf.Max(text.preferredWidth, viewport.sizeDelta.x), viewport.sizeDelta.y);
-            if (text.preferredWidth > viewport.sizeDelta.x)
-            {
-                var scroll = viewport.gameObject.AddComponent<ScrollRect>();
-                viewport.gameObject.AddComponent<Image>().color = Color.clear;
-                scroll.viewport = viewport; scroll.content = text.rectTransform; scroll.vertical = false;
-                scroll.movementType = ScrollRect.MovementType.Clamped;
-                text.rectTransform.pivot = new Vector2(0f, .5f);
-                text.rectTransform.anchorMin = text.rectTransform.anchorMax = new Vector2(0f, .5f);
-                text.rectTransform.anchoredPosition = Vector2.zero;
-            }
-            if (modalRoot != null) modalRoot.SetAsLastSibling();
-        }
-
-        private Vector2 FitBubbleSize(Vector2 requested, Vector2 minimum)
-        {
-            Vector2 size = new Vector2(Mathf.Max(minimum.x, requested.x), Mathf.Max(minimum.y, requested.y));
-            float fit = Mathf.Min(1f, (canvasRect.rect.width - 48f) / size.x, canvasRect.rect.height * .65f / size.y);
-            return size * Mathf.Max(.1f, fit);
-        }
-
-        private Vector2 PlayerBubblePosition(Vector2 size)
-        {
-            return new Vector2(0f, canvasRect.rect.yMin + canvasRect.rect.height * .2f);
-        }
-
-        private void FitReplyInput(RectTransform bubble, Vector2 minimum)
-        {
-            var text = replyInput.textComponent;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            var placeholder = (Text)replyInput.placeholder;
-            placeholder.horizontalOverflow = HorizontalWrapMode.Overflow;
-            var settings = text.GetGenerationSettings(Vector2.zero);
-            string content = string.IsNullOrEmpty(replyDraft) ? placeholder.text : replyDraft;
-            float preferred = text.cachedTextGeneratorForLayout.GetPreferredWidth(content, settings) / text.pixelsPerUnit;
-            float width = Mathf.Clamp(preferred + 64f, minimum.x, canvasRect.rect.width - 48f);
-            bubble.sizeDelta = new Vector2(width, minimum.y);
-            var inputRect = (RectTransform)replyInput.transform;
-            inputRect.sizeDelta = new Vector2(width - 64f, minimum.y * .64f);
-            inputRect.anchoredPosition = Vector2.zero;
-            text.rectTransform.sizeDelta = placeholder.rectTransform.sizeDelta = inputRect.sizeDelta;
         }
 
         private void BuildJournal()
@@ -891,7 +789,7 @@ namespace WeatherHousePrototype
             else
             {
                 Label(card, "Guess heading", "我的猜测", new Vector2(0f, center + 34f), new Vector2(300f, 24f), 19, Ink, TextAnchor.MiddleLeft);
-                guessInput = InputBox(card, "Word guess", guessDraft, "这个字可能是什么意思？", new Vector2(0f, center - 9f), new Vector2(300f, 54f));
+                guessInput = InputBox(card, "Word guess", guessDraft, "", new Vector2(0f, center - 9f), new Vector2(300f, 54f));
                 guessInput.targetGraphic.color = Color.Lerp(ProceduralUiLibrary.Cream, Color.white, .35f);
                 guessInput.transition = Selectable.Transition.ColorTint;
                 var guessColors = guessInput.colors;
@@ -901,6 +799,7 @@ namespace WeatherHousePrototype
                 guessInput.colors = guessColors;
                 guessInput.characterLimit = 160;
                 guessInput.onValueChanged.AddListener(value => guessDraft = value);
+                guessInput.ActivateInputField();
                 TextButton(card, "Save guess", "提交猜测", new Vector2(0f, center - 64f), new Vector2(144f, 32f), () => { session.SaveGuess(selectedGlyph, guessDraft); ClearFocus(); }, neutral: true);
             }
             TextButton(card, "Word evidence", "查看相关照片", new Vector2(0f, center - (confirmed ? 77f : 116f)), new Vector2(190f, 32f), () =>
@@ -1198,13 +1097,11 @@ namespace WeatherHousePrototype
             button.onClick.AddListener(() => LifeAudio.Play(LifeAudioCue.Ui));
         }
 
-        private InputField InputBox(Transform parent, string name, string value, string placeholder, Vector2 position, Vector2 size, float scale = 1f, bool reply = false)
+        private InputField InputBox(Transform parent, string name, string value, string placeholder, Vector2 position, Vector2 size, float scale = 1f)
         {
-            var rect = reply ? Panel(parent, name, position, size, Color.clear) :
-                ProceduralUiLibrary.WhitePanel(parent, name, position, size, true).rectTransform;
+            var rect = ProceduralUiLibrary.WhitePanel(parent, name, position, size, true).rectTransform;
             var input = rect.gameObject.AddComponent<InputField>();
-            int textSize = Mathf.Max(12, Mathf.RoundToInt((reply ? 46f : 24f) * scale));
-            if (reply) textSize = Mathf.RoundToInt(textSize * 1.3f);
+            int textSize = Mathf.Max(12, Mathf.RoundToInt(24f * scale));
             Vector2 center = Vector2.zero;
             input.textComponent = Label(rect, "Input text", "", center, size - new Vector2(24f, 10f) * scale, textSize, Ink, TextAnchor.MiddleLeft);
             input.placeholder = Label(rect, "Placeholder", placeholder, center, size - new Vector2(24f, 10f) * scale, textSize, new Color(.40f, .46f, .39f, .85f), TextAnchor.MiddleLeft);
@@ -1269,7 +1166,7 @@ namespace WeatherHousePrototype
             if (gestureInput) gestureInput.Cancel();
             ClearFocus();
             ClearAnimalBubble();
-            JournalOpen = dialogueOpen = false; dialogueTarget = null;
+            JournalOpen = false;
             if (session && session.PhotoRig) SetCameraMode(false, true);
             if (canvasRect) RebuildModal();
             if (canvas) canvas.enabled = false;

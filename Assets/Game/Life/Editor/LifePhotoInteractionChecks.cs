@@ -158,15 +158,16 @@ namespace WeatherHouse.Life.Editor
                 void Verify(string id, params string[] rewards)
                 {
                     foreach (string reward in rewards) earned.Add(reward);
-                    Check(report, game.Notebook.IsPhotoTaskComplete(id) && rewards.All(word => game.Notebook.GetWord(word).confirmed) &&
+                    Check(report, game.Notebook.IsPhotoTaskComplete(id) && rewards.All(word => game.Notebook.GetWord(word).encountered && !game.Notebook.GetWord(word).confirmed) &&
                         report.emitted.Count(c => c.kind == "interaction" && c.targetId == id && c.completed) == 1,
                         id + " reaches the notebook through exactly one real completed public event");
-                    Check(report, new HashSet<string>(game.Notebook.words.Where(w => w.confirmed).Select(w => w.glyphId)).SetEquals(earned),
-                        id + " grants only its preset meanings and preserves earlier rewards");
+                    Check(report, new HashSet<string>(game.Notebook.words.Where(w => w.confirmed).Select(w => w.glyphId)).SetEquals(new[] { "want", "reject" }) &&
+                        earned.All(word => game.Notebook.GetWord(word).encountered),
+                        id + " records its glyphs without confirming meanings or losing earlier encounters");
                     var saved = JsonUtility.FromJson<LanguageNotebook>(File.ReadAllText(game.SavePath));
                     Check(report, string.IsNullOrEmpty(game.LastSaveError) && saved.IsPhotoTaskComplete(id) &&
-                        rewards.All(word => saved.GetWord(word).confirmed) && saved.publicHistory.Any(c => c.kind == "interaction" && c.targetId == id && c.completed),
-                        id + " public evidence and meanings survive the actual notebook disk round trip");
+                        rewards.All(word => saved.GetWord(word).encountered && !saved.GetWord(word).confirmed) && saved.publicHistory.Any(c => c.kind == "interaction" && c.targetId == id && c.completed),
+                        id + " public evidence and unconfirmed glyphs survive the actual notebook disk round trip");
                 }
                 IEnumerable<object> Show(string requestId, string kind, bool arrange = true)
                 {
@@ -187,7 +188,7 @@ namespace WeatherHouse.Life.Editor
                         "Actual visible HUD bubble " + requestId)) yield return step;
                     foreach (object step in Await(() => game.Notebook.publicHistory.FirstOrDefault(c => c.id == id)?.occurredUtc != prior,
                         4, "Visible dialogue source " + requestId)) yield return step;
-                    Check(report, hud.IsDialogueOpen && hud.DialogueTarget == speaker.Actor && hud.IsAnimalSpeechVisible(speaker.Actor) &&
+                    Check(report, !hud.IsDialogueOpen && life.Progress.HasHeard(request.id) && hud.IsAnimalSpeechVisible(speaker.Actor) &&
                         game.Notebook.publicHistory.Single(c => c.id == id).glyphIds.SequenceEqual(request.glyphIds),
                         "Actual HUD dialogue publishes its authored public context: " + requestId);
                 }

@@ -10,13 +10,13 @@ using WeatherHousePrototype;
 
 namespace WeatherHouse.Life.Editor
 {
-    // Runs the actual HUD -> GameplaySession -> configured provider callback, in the isolated review save.
+    // Runs the actual E listening/task and photo entry points in the isolated review save.
     public static class LifeDialoguePlayChecks
     {
         [Serializable] sealed class Report
         {
             public string status="RUNNING",utc,error;
-            public string boundary="Actual provider and gameplay entry points. Player placement and topic selection are test setup; no human keyboard usability claim.";
+            public string boundary="Actual listening and gameplay entry points; no response or semantic judgement request. Player placement and topic selection are test setup; no human keyboard usability claim.";
             public List<string> checks=new List<string>();
             public List<MotionPhotoRecorder.CaptureCost> captureCosts=new List<MotionPhotoRecorder.CaptureCost>();
             public List<MotionPhotoRecorder.CaptureCost> injectedSlowCosts=new List<MotionPhotoRecorder.CaptureCost>();
@@ -92,42 +92,42 @@ namespace WeatherHouse.Life.Editor
                 Check(report,dog.topicIndex>=0,"Authored dialogue exists: "+id);
                 typeof(GameplaySession).GetProperty("Observed").SetValue(game,dog.Actor);
                 hud.ToggleDialogue();
-                Check(report,hud.IsDialogueOpen && hud.DialogueTarget==dog.Actor && life.CanTalk(dog.Actor),"Near dialogue opens through HUD: "+id);
+                Check(report,!hud.IsDialogueOpen && hud.DialogueTarget==null && !hud.BlocksMovement && life.Progress.HasHeard(id),"E listens through HUD without opening a player reply: "+id);
             };
             if(!photoOnly)
             {
             var greeting=dog.requests.First(r=>r.condition=="conversation");
-            open(greeting.id);game.Reply("你的意思是："+greeting.meaning);
-            while(game.Judging)yield return null;
-            Check(report,life.Progress.understoodRequests.Contains(greeting.id) && life.Progress.tasks.Count==0,"Real AI understands greeting without creating a help task");
-
-            open("dog.rain.lesson");game.Reply("好呀，我帮你。");
-            while(game.Judging)yield return null;
-            Check(report,game.Status.Contains("还需要") && life.Progress.tasks.Count==0,"Vague reply is rejected by actual provider without task or reward");
-
-            // Reopen the very same topic while its network request is outstanding.
-            game.Reply("你想让这里下雨。");
-            Check(report,game.Judging,"Correct reply starts an asynchronous provider request");
+            open(greeting.id);
+            Check(report,life.Progress.HasHeard(greeting.id) && life.Progress.tasks.Count==0,"Listening records greeting without an action task");
             open("dog.rain.lesson");
-            while(game.Judging)yield return null;
-            Check(report,game.Status.Contains("情况已经变化") && life.Progress.tasks.Count==0,"Reopening the same topic rejects the older real callback");
-
-            game.Reply("你想让这里下雨。");
-            while(game.Judging)yield return null;
             var task=life.Progress.FindTask("dog.rain.lesson");
-            Check(report,task!=null && task.status==LifeTaskStatus.Active && life.Progress.tasks.Count==1,"Real correct interpretation activates only the current rain request");
+            Check(report,task!=null && task.status==LifeTaskStatus.Active && life.Progress.tasks.Count==1,"Listening accepts only the current nearby request");
+            long acceptedAt=task.acceptedUtcTicks;
+            string acceptedWorld=life.World.CaptureJson();
+            open("dog.rain.lesson");
+            Check(report,life.Progress.tasks.Count==1 && task.acceptedUtcTicks==acceptedAt && life.World.CaptureJson()==acceptedWorld,"Repeated E does not reset task or world baseline");
+            Check(report,!game.Judging && !hud.GetComponentsInChildren<Transform>(true).Any(t=>t.name=="Player reply bubble" || t.name=="Chinese reply" || t.name=="Player spoken reply"),"Listening creates no reply UI or response request");
+            Check(report,game.Notebook.GetWord("rain")?.confirmed!=true,"Listening does not confirm a word meaning");
+            string currentUtterance=dog.Actor.UtteranceId;
+            Check(report,!life.Listen(dog.Actor,currentUtterance+".stale"),"Stale listening cannot accept a request");
+            hud.SetCameraMode(true,true);
+            Check(report,!life.Listen(dog.Actor,currentUtterance),"Camera blocks direct listening calls");
+            hud.SetCameraMode(false,true);
+            Vector3 near=game.PlayerTransform.position;
+            game.PlayerTransform.position=dog.transform.position+Vector3.right*20f;
+            Check(report,!life.Listen(dog.Actor,currentUtterance),"Distance blocks direct listening calls");
+            game.PlayerTransform.position=near;
             hud.CloseDialogue();yield return null;
             var panel=(RectTransform)typeof(LifeGestureInput).GetField("taskRoot",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(life.GetComponent<LifeGestureInput>());
-            Check(report,panel.gameObject.activeSelf && life.TaskText.Contains("雨"),"Confirmed rain request appears in the actual task panel");
-            ScreenCapture.CaptureScreenshot(Path.GetFullPath("LifeGameplayReview/20261026/play/05-real-ai-task.png"));
+            Check(report,panel && life.TaskText.Contains("雨"),"Heard rain request retains its task panel and explanation");
+            ScreenCapture.CaptureScreenshot(Path.GetFullPath("LifeGameplayReview/20261026/play/05-listening-task.png"));
             yield return null;
-            life.LearnGesture("rain");
-            Check(report,life.TryCast("rain",out _),"Learned rain executes after real task acceptance");
+            Check(report,life.TryCast("rain",out _),"Unlocked rain executes without practice after listening");
             float deadline=Time.realtimeSinceStartup+10;
             while(task.status!=LifeTaskStatus.Complete && Time.realtimeSinceStartup<deadline)yield return null;
             Check(report,task.status==LifeTaskStatus.Complete,"Nearby actual rainfall completes the accepted request through the normal update");
             Check(report,life.Progress.friendlyAnimals.Contains(dog.Actor.animalId),"Physical completion records the animal relationship");
-            Check(report,game.Notebook.GetWord("rain")?.confirmed!=true && !life.IsGestureUnlocked("sunlight"),"AI-understood help does not unlock a photography word or another gesture");
+            Check(report,game.Notebook.GetWord("rain")?.confirmed!=true && !life.IsGestureUnlocked("sunlight"),"Heard help does not unlock a photography word or another gesture");
             }
             UnityEngine.Object.FindObjectOfType<LifeLocalWeather>().Cast("clear",out _);
 

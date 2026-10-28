@@ -22,7 +22,7 @@ namespace WeatherHouse.Life.Editor
             LifeRequest Find(string id) => content.Single(r => r.id == id);
             var progress = new LifeProgress();
             check(progress.CanPresent(Find("dog.hello"), content), "新档可交谈问候");
-            check(!progress.CanPresent(Find("dog.rain.lesson"), content), "未理解问候前不跳入施雨教学");
+            check(!progress.CanPresent(Find("dog.rain.lesson"), content), "未听取问候前不跳入施雨教学");
             check(!progress.CanPresent(Find("dog.water"), content) && !progress.CanPresent(Find("squirrel.mat"), content), "新档不提前发布后续主任务");
             check(progress.CanPresent(Find("squirrel.sequence"), content) && progress.CanPresent(Find("fox.sequence"), content), "摄影两步教学可提前参与，不由主线进度锁住");
             check(new[]{"sheep.self.player","sheep.self.deer","deer.self.sheep","sheep.here","fox.go"}.All(id=>progress.CanPresent(Find(id),content)),"I01至I03公开关系与短路演示无需先通主线");
@@ -31,24 +31,21 @@ namespace WeatherHouse.Life.Editor
             foreach (string id in new[] { "fox.home", "sheep.warm", "fox.warm" })
             {
                 LifeRequest request = Find(id); var help = new LifeProgress();
-                var misunderstood = new WeatherHousePrototype.JudgementResult { success = true, understood = false };
-                var understood = new WeatherHousePrototype.JudgementResult { success = true, understood = true };
-                check(request.HasTask && !help.Accept(request, "photo-context-check", misunderstood, true, true) &&
-                    !help.Accept(request, "photo-context-check", understood, false, true) &&
-                    !help.Accept(request, "photo-context-check", understood, true, false) &&
-                    help.tasks.Count == 0 && help.understoodRequests.Count == 0,
-                    "开放摄影话轮不会把未理解、过期或远处回答接为帮助：" + id);
-                check(help.Accept(request, "photo-context-check", understood, true, true) &&
-                    !help.Accept(request, "photo-context-check", understood, true, true) && help.tasks.Count == 1,
-                    "当前近处话轮正确理解后仍只接受一次真实帮助：" + id);
+                check(request.HasTask && !help.Hear(request, "photo-context-check", false, true) &&
+                    !help.Hear(request, "photo-context-check", true, false) &&
+                    help.tasks.Count == 0 && help.heardRequests.Count == 0,
+                    "开放摄影话轮不会把过期或远处听取接为帮助：" + id);
+                check(help.Hear(request, "photo-context-check", true, true) &&
+                    !help.Hear(request, "photo-context-check", true, true) && help.tasks.Count == 1,
+                    "当前近处话轮听取后仍只接受一次真实帮助：" + id);
             }
             check(new[] { "dog.sun", "fox.sun", "sheep.strong", "deer.wind", "squirrel.grass", "squirrel.wet", "squirrel.dry" }
                 .All(id => progress.CanPresent(Find(id), content)), "提前探索仍有跨动物日照风与材料观察证据");
             string initialHint = progress.GetProgressHint(content);
             check(!initialHint.Contains("河岛") && !initialHint.Contains("先雨后"), "初始提示不公开结尾目标或解法");
-            progress.understoodRequests.Add("dog.hello");
-            check(progress.CanPresent(Find("dog.rain.lesson"), content), "理解问候后开放雨教学");
-            check(!progress.CanPresent(Find("dog.water"), content), "只理解问候不算完成雨教学");
+            progress.heardRequests.Add("dog.hello");
+            check(progress.CanPresent(Find("dog.rain.lesson"), content), "听取问候后开放雨教学");
+            check(!progress.CanPresent(Find("dog.water"), content), "只听取问候不算完成雨教学");
             CompleteEvent(progress, content, "E0");
             check(progress.CanPresent(Find("dog.water"), content) && !progress.CanPresent(Find("squirrel.mat"), content), "E0完成仅推进到接水主任务");
             CompleteEvent(progress, content, "E1");
@@ -67,9 +64,9 @@ namespace WeatherHouse.Life.Editor
             check(progress.GetProgressHint(content).Contains("回访"), "结尾后保留自由回访提示");
 
             var returning = new LifeProgress();
-            returning.understoodRequests.Add("fox.sequence");
+            returning.heardRequests.Add("fox.sequence");
             returning.tasks.Add(new LifeTask { requestId = "squirrel.sequence", status = LifeTaskStatus.Active });
-            check(returning.CanPresent(Find("fox.sequence"), content) && returning.CanPresent(Find("squirrel.sequence"), content), "已有理解或任务永久保留回访，兼容已有存档");
+            check(returning.CanPresent(Find("fox.sequence"), content) && returning.CanPresent(Find("squirrel.sequence"), content), "已有听取或任务永久保留回访，兼容已有存档");
             var holder = new GameObject("Life progression isolated check") { hideFlags = HideFlags.HideAndDontSave };
             try
             {
@@ -81,7 +78,7 @@ namespace WeatherHouse.Life.Editor
                 int before = speaker.Revision;
                 var fresh = new LifeProgress();
                 speaker.ConfigureProgress(fresh, content);
-                check(speaker.Current.id != "squirrel.mat" && speaker.Revision > before, "迁移不再开放的帮助话轮会使旧回答版本过期");
+                check(speaker.Current.id != "squirrel.mat" && speaker.Revision > before, "迁移不再开放的帮助话轮会使旧话轮版本过期");
                 int stable = speaker.Revision;
                 _ = speaker.Current;
                 check(speaker.Revision == stable, "重复读取同一话轮不伪造新版本");
@@ -93,17 +90,17 @@ namespace WeatherHouse.Life.Editor
                     speaker.SelectNext();
                 }
                 check(!visited.Contains("squirrel.mat") && visited.Contains("squirrel.sequence"), "新档仅开放指定摄影教学，其他帮助前置条件仍在");
-                check(fresh.tasks.Count == 0 && fresh.understoodRequests.Count == 0, "选话轮不会自动理解或自动接任务");
-                fresh.understoodRequests.Add("squirrel.sequence");
+                check(fresh.tasks.Count == 0 && fresh.heardRequests.Count == 0, "选话轮不会自动听取或自动接任务");
+                fresh.heardRequests.Add("squirrel.sequence");
                 speaker.topicIndex = Array.FindIndex(speaker.requests, r => r.id == "squirrel.sequence");
-                check(speaker.Current.id == "squirrel.sequence", "理解过的后期话轮仍可再次选择");
+                check(speaker.Current.id == "squirrel.sequence", "听取过的后期话轮仍可再次选择");
                 foreach (string id in new[] { "fox.home", "sheep.warm", "fox.warm" })
                 {
                     LifeRequest request = Find(id); var early = new LifeProgress();
                     speaker.requests = content.Where(r => r.speakerKey == request.speakerKey).ToArray();
                     speaker.ConfigureProgress(early, content);
                     speaker.topicIndex = Array.FindIndex(speaker.requests, r => r.id == id);
-                    check(speaker.Current.id == id && early.tasks.Count == 0 && early.understoodRequests.Count == 0,
+                    check(speaker.Current.id == id && early.tasks.Count == 0 && early.heardRequests.Count == 0,
                         "新档实际话轮选择保留摄影公开语境且不自动接受帮助：" + id);
                 }
             }
@@ -117,10 +114,10 @@ namespace WeatherHouse.Life.Editor
 
         static void CompleteEvent(LifeProgress progress, LifeRequest[] content, string eventId)
         {
-            // Fixture only: real progress is still written by understood dialogue and nearby world completion.
+            // Fixture only: real progress is written by explicit listening and nearby world completion.
             foreach (LifeRequest request in content.Where(r => r.eventId == eventId && r.requiredForEvent))
             {
-                if (!progress.understoodRequests.Contains(request.id)) progress.understoodRequests.Add(request.id);
+                if (!progress.heardRequests.Contains(request.id)) progress.heardRequests.Add(request.id);
                 if (request.condition != "conversation")
                     progress.tasks.Add(new LifeTask { requestId = request.id, eventId = eventId, status = LifeTaskStatus.Complete });
             }

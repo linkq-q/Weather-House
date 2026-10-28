@@ -6,9 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using WeatherHousePrototype;
 
 namespace WeatherHouse.Life.Editor
@@ -41,7 +39,7 @@ namespace WeatherHouse.Life.Editor
             }
             while (stack.Count > 0) try { (stack.Pop() as IDisposable)?.Dispose(); } catch (Exception error) { failure = failure ?? error; }
             string result = (failure == null ? "PASS" : "FAIL") + " onboarding weather continuation\n" + string.Join("\n", lines) +
-                "\nBOUNDARY: actual formal-scene gameplay and isolated checkpoint; player/camera pose are declared fixtures. Book practice uses real raycast/pointer handlers. World ink samples enter the existing SubmitStroke recognition/TryCast path through reflection; OS G/mouse and visual pacing remain manual checks. No tutorial stage/word/task completion was assigned.\n" + failure;
+                "\nBOUNDARY: actual formal-scene gameplay and isolated checkpoint; player/camera pose are declared fixtures. Book practice is deliberately skipped. World ink samples enter the existing SubmitStroke recognition/TryCast path through reflection; OS G/mouse and visual pacing remain manual checks. No tutorial stage/word/task completion was assigned.\n" + failure;
             Guard(life); File.WriteAllText(Path.Combine(GameplaySession.PersistenceDirectory, "onboarding-weather-checks.txt"), result);
             Directory.CreateDirectory("LifeGameplayReview/20261027/onboarding"); File.WriteAllText("LifeGameplayReview/20261027/onboarding/weather-checks.txt", result);
         }
@@ -60,26 +58,20 @@ namespace WeatherHouse.Life.Editor
             {
                 Near(game, capsule, dog.Actor, 2.2f); Aim(camera, dog.Actor);
                 yield return Wait(() => game.Observed == dog.Actor && life.CurrentRequest(dog.Actor)?.id == "dog.hello", 10, "Actual authored greeting is selected");
-                Reply(hud, "打个招呼", checks);
-                yield return Wait(() => life.Progress.understoodRequests.Contains("dog.hello"), 5, "Actual local greeting response satisfies the authored prerequisite");
+                Listen(hud, checks);
+                yield return Wait(() => life.Progress.HasHeard("dog.hello"), 5, "Listening to the authored greeting satisfies the request prerequisite");
                 yield return Wait(() => tutorial.State.stage == LifeOnboardingStage.WeatherBook, 10, "Visible authored rain glyph reaches the fourth book cue");
                 Require(life.CurrentRequest(dog.Actor)?.id == "dog.rain.lesson" && hud.IsAnimalSpeechVisible(dog.Actor), "Actual want/rain request is visible before the weather book", checks);
                 hud.ToggleJournal(); yield return WaitBook(hud); yield return null;
-                var pad = hud.GetComponentsInChildren<LifeGesturePad>().Single();
-                yield return LifeOnboardingSmokeFrames.Capture(life, "weather-practice-rain");
-                DrawPractice(pad, "rain", checks);
-                Require(life.IsGestureLearned("rain") && !life.IsGestureLearned("clear") && !life.LocalRainActive, "Paper rain trace learns the gesture without making world rain", checks);
-                yield return null; Click(tutorial.GetComponentInChildren<LifeOnboardingView>().transform, "Continue note", checks); yield return null;
-                pad = hud.GetComponentsInChildren<LifeGesturePad>().Single();
-                yield return LifeOnboardingSmokeFrames.Capture(life, "weather-practice-clear");
-                DrawPractice(pad, "clear", checks);
-                Require(life.IsGestureLearned("clear") && tutorial.State.booksIntroduced.Distinct().Count() == 4, "Rain and clear are learned in the fourth distinct contextual book visit", checks);
+                yield return LifeOnboardingSmokeFrames.Capture(life, "weather-book-practice-optional");
+                Require(!life.IsGestureLearned("rain") && !life.IsGestureLearned("clear") && !life.LocalRainActive,
+                    "The weather book can be visited without practising either initial spell", checks);
                 hud.ToggleJournal(); yield return Wait(() => !hud.JournalOpen, 14, "Weather book closes");
                 yield return Wait(() => tutorial.State.stage == LifeOnboardingStage.UnderstandRain && game.Observed == dog.Actor, 5, "Returns to the live request");
-                Reply(hud, "你希望这里下雨", checks);
-                yield return Wait(() => tutorial.State.stage == LifeOnboardingStage.CastRain && life.Progress.FindTask("dog.rain.lesson")?.status == LifeTaskStatus.Active, 5, "Real request response creates the active rain task");
+                Listen(hud, checks);
+                yield return Wait(() => tutorial.State.stage == LifeOnboardingStage.CastRain && life.Progress.FindTask("dog.rain.lesson")?.status == LifeTaskStatus.Active, 5, "Listening creates the active task without requiring a written reply or correct word meaning");
                 var input = game.GetComponent<LifeGestureInput>(); SubmitWorldInk(input, "rain", checks);
-                Require(life.LocalRainActive && tutorial.State.rainCast, "Production recognition triggers real local rain and its successful-cast hook", checks);
+                Require(life.LocalRainActive && tutorial.State.rainCast && !life.IsGestureLearned("rain"), "Production recognition casts unlocked rain without prior book practice", checks);
                 yield return Wait(() => life.Progress.FindTask("dog.rain.lesson")?.status == LifeTaskStatus.Complete && tutorial.State.stage == LifeOnboardingStage.ClearWeather, 12, "Actual world rainfall satisfies the post-acceptance rain task");
                 input.Cancel(); SubmitWorldInk(input, "clear", checks); input.Cancel();
                 yield return Wait(() => tutorial.State.stage == LifeOnboardingStage.ReturnVisit && !life.LocalRainActive, 5, "Real clear gesture stops the local weather");
@@ -110,16 +102,9 @@ namespace WeatherHouse.Life.Editor
                 !Path.GetFullPath(path).StartsWith(root, StringComparison.OrdinalIgnoreCase) || Path.GetFullPath(path) != Path.GetFullPath(GameplaySession.PersistenceDirectory) ||
                 SceneManager.GetActiveScene().path != "Assets/Scenes/WeatherHouse_WatersideV2.unity") throw new InvalidOperationException("Dedicated opted-in isolated formal-scene Play required.");
         }
-        static void Reply(GameplayHud hud, string text, List<string> checks)
+        static void Listen(GameplayHud hud, List<string> checks)
         {
-            hud.InteractPrimary(); Require(hud.IsDialogueOpen, "Existing E interaction opens the actual dialogue", checks);
-            var field = Field<InputField>(hud, "replyInput"); field.text = text; field.onSubmit.Invoke(text);
-            Require(!hud.IsDialogueOpen, "Existing reply submit callback returns to the world", checks);
-        }
-        static void DrawPractice(LifeGesturePad pad, string id, List<string> checks)
-        {
-            Require(pad && pad.gestureId == id && pad.input.CanPractice(id), "Actual practice pad is bound to " + id, checks);
-            typeof(LifeGesturePointerChecks).GetMethod("Draw", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { pad, GestureCatalog.Find(id).points, checks });
+            hud.InteractPrimary(); Require(!hud.IsDialogueOpen, "E listens once without opening a player reply", checks);
         }
         static void SubmitWorldInk(LifeGestureInput input, string id, List<string> checks)
         {
@@ -136,14 +121,6 @@ namespace WeatherHouse.Life.Editor
         }
         static void Aim(Camera camera, AnimalActor animal)
         { camera.transform.position = animal.BubbleAnchor + new Vector3(4f, 3.2f, -4f); camera.transform.LookAt(animal.BubbleAnchor); }
-        static void Click(Transform root, string name, List<string> checks)
-        {
-            var button = root.GetComponentsInChildren<Button>().Single(b => b.name == name); Canvas.ForceUpdateCanvases();
-            var e = new PointerEventData(EventSystem.current) { position = RectTransformUtility.WorldToScreenPoint(null, button.transform.position), button = PointerEventData.InputButton.Left };
-            var hits = new List<RaycastResult>(); EventSystem.current.RaycastAll(e, hits);
-            Require(button.IsInteractable() && hits.Count > 0 && hits[0].gameObject.GetComponentInParent<Button>() == button, "Actual pointer raycast reaches " + name, checks);
-            ExecuteEvents.Execute(button.gameObject, e, ExecuteEvents.pointerClickHandler);
-        }
         static IEnumerator Wait(Func<bool> done, float timeout, string label)
         { float end = Time.realtimeSinceStartup + timeout; while (!done() && Time.realtimeSinceStartup < end) yield return null; if (!done()) throw new TimeoutException(label); }
         static IEnumerator WaitBook(GameplayHud hud) => Wait(() => hud.JournalOpen && !hud.IsAlbumOpening, 18, "Physical weather book settles");

@@ -21,7 +21,7 @@ namespace WeatherHouse.Life.Editor
         [Serializable] sealed class Report
         {
             public string status="RUNNING",utc,error;
-            public string boundary="Isolated-save world and animation integration. Player fixture positions are arranged; animals move only through their original population, bodies and collision. Weather is invoked through the local-weather controller. A declared already-understood E7 help fixture enters LifeProgress.Accept and World.OnTaskAccepted before crafting; its active-help lease holds the main animal at its current position, with no claimed AI service judgement. Audio focus input is set true for consumption checks then restored; counts prove dispatched audio requests, not human listening. Bone contact and animation weights supplement, not replace, human visual acceptance.";
+            public string boundary="Isolated-save world and animation integration. Player fixture positions are arranged; animals move only through their original population, bodies and collision. Weather is invoked through the local-weather controller. A declared already-heard E7 help fixture enters LifeProgress.Hear and World.OnTaskAccepted before crafting; its active-help lease holds the main animal at its current position, with no claimed AI service judgement. Audio focus input is set true for consumption checks then restored; counts prove dispatched audio requests, not human listening. Bone contact and animation weights supplement, not replace, human visual acceptance.";
             public List<string> checks=new List<string>();
             public List<string> observations=new List<string>();
             public List<DrinkObservation> drinks=new List<DrinkObservation>();
@@ -197,8 +197,8 @@ namespace WeatherHouse.Life.Editor
                 LifeObject source=Find(world,"squirrel.grass"),bed=Find(world,"squirrel.common"),bowl=Find(world,"squirrel.common.bowl");
                 LifeRequest sequence=world.Requests.First(r=>r.id=="squirrel.sequence");
                 bowl.State.water=0; // Declared empty-bowl fixture precedes the real acceptance baseline.
-                Check(life.Progress.Accept(sequence,report.animalIds[0],new JudgementResult{success=true,understood=true},true,true),
-                    "Declared already-understood E7 help enters the real active-task gate before crafting and weather waits");
+                Check(life.Progress.Hear(sequence,report.animalIds[0],true,true),
+                    "Declared already-heard E7 help enters the real active-task gate before crafting and weather waits");
                 world.OnTaskAccepted(sequence);
                 Check(Get<LifeObject>(world,"held")==null,"Async fixture begins with empty hands");
                 player.position=source.transform.position;world.TryGather();

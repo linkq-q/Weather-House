@@ -168,18 +168,36 @@ namespace WeatherHouse.Life
             Gameplay.SaveNotebook();
             Gameplay.Notify("它又说了一句话。");
         }
-        public bool AcceptUnderstanding(AnimalActor animal, string utteranceId, JudgementResult result) =>
-            AcceptUnderstanding(animal, utteranceId, result, out _);
-        public bool AcceptUnderstanding(AnimalActor animal, string utteranceId, JudgementResult result, out bool progressSaved)
+        public bool Listen(AnimalActor animal, string utteranceId)
         {
-            progressSaved = true;
+            var hud = Gameplay ? Gameplay.GetComponent<GameplayHud>() : null;
+            if (!Gameplay || !World || !hud || !hud.isActiveAndEnabled || hud.PrimaryInteraction != LifePrimaryAction.Talk ||
+                !CanTalk(animal) || Gameplay.Observed != animal || animal.UtteranceId != utteranceId) return false;
             var request = CurrentRequest(animal);
-            bool current = animal && animal.UtteranceId == utteranceId;
-            bool accepted = Progress.Accept(request, animal ? animal.animalId : null, result, current, CanTalk(animal));
+            if (request != null && !Progress.CanPresent(request, World.Requests)) return false;
+            var speech = LifeOnboardingSpeech.Current(animal);
+            if (speech)
+            {
+                speech.Listen(utteranceId);
+                request = CurrentRequest(animal);
+            }
+            var speaker = animal.GetComponent<LifeSpeaker>();
+            if (speaker && request == speaker.Current)
+            {
+                speaker.AdvanceAfterHeard();
+                request = CurrentRequest(animal);
+            }
+            string heardAnimalId = animal.animalId, heardUtteranceId = animal.UtteranceId;
+            string[] heardGlyphs = (string[])animal.CurrentGlyphIds.Clone();
+            bool accepted = request != null && Progress.Hear(request, animal.animalId, true, true);
             if (accepted) World.OnTaskAccepted(request);
-            if (result != null && result.success && result.understood && current && CanTalk(animal)) progressSaved = SaveProgress();
+            Gameplay.Notebook.Observe(heardAnimalId, heardUtteranceId, heardGlyphs);
+            bool notebookSaved = Gameplay.SaveNotebook();
+            bool progressSaved = SaveProgress();
+            Gameplay.Notify(!notebookSaved || !progressSaved ? "这次记录暂未写入磁盘。" : "");
+            GetComponent<LifeAudio>()?.Listen(animal);
             Changed?.Invoke();
-            return accepted;
+            return true;
         }
         public bool IsGestureUnlocked(string id)
         {

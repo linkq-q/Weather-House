@@ -125,8 +125,8 @@ namespace WeatherHousePrototype.Editor
 
         private static IEnumerator CheckLive(GameplaySession session, GameplayHud hud, List<string> report, bool captureOpening)
         {
-            string[] names = { "selectedGlyph", "guessGlyphId", "guessDraft", "replyDraft", "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen",
-                "dialogueOpen", "expandedPhoto", "currentFrame", "playingPhoto", "nextFrameAt", "dirty" };
+            string[] names = { "selectedGlyph", "guessGlyphId", "guessDraft", "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen",
+                "expandedPhoto", "currentFrame", "playingPhoto", "nextFrameAt", "dirty" };
             object[] values = names.Select(name => Get<object>(hud, name)).ToArray();
             bool journal = hud.JournalOpen, camera = hud.CameraMode, samples = hud.useAlbumDesignSamples;
             bool hudEnabled = hud.enabled, walkerEnabled = session.walker.enabled;

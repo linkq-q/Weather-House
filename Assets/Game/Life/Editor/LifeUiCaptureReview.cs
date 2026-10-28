@@ -17,8 +17,6 @@ namespace WeatherHouse.Life.Editor
     public static class LifeUiCaptureReview
     {
         const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
-        const string ShortReply = "你好呀。";
-        const string LongReply = "我觉得你是想让我在这里下一场雨，对吗？我想先看看附近的水碗，再决定怎么帮你。等你喝到水以后，我们再去看看树边的朋友吧。";
         [Serializable] sealed class Shot
         {
             public string id, state, file, capturedUtc, capturedHongKong, entry, condition, source, sourceWrittenUtc, sha256;
@@ -69,7 +67,7 @@ namespace WeatherHouse.Life.Editor
             string notebook = JsonUtility.ToJson(game.Notebook), progress = JsonUtility.ToJson(life.Progress), world = life.World.CaptureJson(), status = game.Status;
             Vector3 position = mover.transform.position; Quaternion rotation = mover.transform.rotation; AnimalActor observed = game.Observed; int taskPage = life.TaskPage;
             var objectIds = new HashSet<string>(life.World.Objects.Select(item => item.State.id));
-            string[] fields = { "albumPhotosSelected", "albumGesturesSelected", "albumTasksSelected", "glyphPage", "photoTaskPage", "page", "selectedGlyph", "selectedGesture", "guessDraft", "guessGlyphId", "replyDraft", "lastReply", "echoUntil" };
+            string[] fields = { "albumPhotosSelected", "albumGesturesSelected", "albumTasksSelected", "glyphPage", "photoTaskPage", "page", "selectedGlyph", "selectedGesture", "guessDraft", "guessGlyphId" };
             var ui = fields.ToDictionary(name => name, name => Get<object>(hud, name)); int tip = Get<int>(input, "tipLevel");
             var speakers = life.World.Requests.Select(request => request.speakerKey).Distinct().Select(key => life.World.FindSpeaker(key)).Where(speaker => speaker).ToArray(); var topics = speakers.Select(speaker => speaker.topicIndex).ToArray();
             bool finished = false;
@@ -97,18 +95,11 @@ namespace WeatherHouse.Life.Editor
                     }
                     if (failure != null || !ready) { report.gaps.Add(job.id + "/" + job.state + ": " + (failure?.ToString() ?? "presentation did not settle")); continue; }
                     yield return new WaitForSecondsRealtime(job.settle);
-                    if (job.id == "U05")
-                    {
-                        // Let closing/dialogue visibility updates settle before clearing their temporary notice.
-                        game.Notify(""); Call(hud, "UpdateStatus");
-                        Set(hud, "echoUntil", Time.unscaledTime + 8); Call(hud, "BuildReplyEcho");
-                        yield return null; // One real Update before the existing EOF visibility/text assertions.
-                    }
                     yield return new WaitForEndOfFrame();
                     try { Capture(report, job); } catch (Exception error) { report.gaps.Add(job.id + "/" + job.state + ": " + error); }
                 }
                 report.gaps.Add("U22: standalone onboarding UI is not implemented; planning HTML is not a game screenshot.");
-                report.gaps.Add("U04: OS IME candidates and human keyboard submission are not simulated; manual input verification remains.");
+                report.gaps.Add("U05 reply echo was removed from the game and is intentionally excluded; U04 checks listening without reply UI.");
                 report.gaps.Add("U03 ecology bubble variant; U17 feed/invite-rest variants; U20 night/overcast and alternate resolutions need root's separate actual setups.");
                 report.gaps.Add("U18 post-hello/post-rain guidance and U19 unlearned/cancel variants are not separately captured in this batch. Timed book images cannot establish smooth animation; root's visual review remains.");
             }
@@ -199,10 +190,8 @@ namespace WeatherHouse.Life.Editor
             report.notes.Add("U16 night-task uses actual WatersideMood.Apply(Night) and restores its captured state in finally. There is no advancing in-game clock; F8 currently changes the scene mood.");
             yield return Make("U18", "expanded-hint", "LifeGestureInput.Guidance", "H expansion state set; current production sentence", () => { JsonUtility.FromJsonOverwrite(originalProgress, life.Progress); Set(input, "tipLevel", 1); });
             var dog = world.FindSpeaker("dog");
-            yield return Make("U04", "reply-input", "GameplayHud.ToggleDialogue / InputField", "Supported nearby player, authored hello and draft arranged; no provider call", () => { Set(input, "tipLevel", 0); PlaceNear(life, dog.transform.position, 2.4f); dog.topicIndex = Array.FindIndex(dog.requests, request => request.id == "dog.hello"); Property(game, "Observed", dog.Actor); hud.ToggleDialogue(); Require(hud.IsDialogueOpen, "Near dialogue did not open"); Get<InputField>(hud, "replyInput").text = "你好，我想听听你在说什么。"; var reply = Get<InputField>(hud, "replyInput"); Require(reply.GetComponent<Graphic>().color.a == 0 && Mathf.Approximately(reply.selectionColor.r, reply.selectionColor.g) && Mathf.Approximately(reply.selectionColor.g, reply.selectionColor.b), "Reply background is transparent and selection is neutral"); Require(reply.transform.parent.GetComponent<ProceduralUiGraphic>().mark == UiMark.PlayerBubble && !reply.transform.parent.GetComponentsInChildren<Button>().Any(button => button.name == "Next conversation topic"), "Reply has no tail and no removed next-conversation button"); });
-            yield return Make("U05", "short-reply", "GameplayHud.BuildReplyEcho", "Short draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed", () => { hud.CloseDialogue(); game.Notify(""); Call(hud, "UpdateStatus"); Set(hud, "lastReply", ShortReply); Set(hud, "echoUntil", Time.unscaledTime + 8); Call(hud, "BuildReplyEcho"); });
-            yield return Make("U05", "long-reply", "GameplayHud.BuildReplyEcho", "Long draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed", () => { game.Notify(""); Call(hud, "UpdateStatus"); Set(hud, "lastReply", LongReply); Set(hud, "echoUntil", Time.unscaledTime + 8); Call(hud, "BuildReplyEcho"); });
-            yield return Make("U06", "camera", "GameplayHud.SetCameraMode", "Actual viewfinder UI at arranged viewpoint", () => { Set(hud, "echoUntil", 0f); hud.SetCameraMode(true, true); });
+            yield return Make("U04", "listening", "GameplayHud.ListenToAnimal", "Actual E listening at an arranged nearby speaker; no player reply or semantic judgement", () => { Set(input, "tipLevel", 0); PlaceNear(life, dog.transform.position, 2.4f); dog.topicIndex = Array.FindIndex(dog.requests, request => request.id == "dog.hello"); Property(game, "Observed", dog.Actor); hud.ListenToAnimal(); Require(!hud.IsDialogueOpen && !hud.BlocksMovement && life.Progress.HasHeard("dog.hello"), "Listening must record the request without a reply modal"); Require(!hud.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Chinese reply" || t.name == "Player spoken reply"), "Retired reply UI must remain absent"); });
+            yield return Make("U06", "camera", "GameplayHud.SetCameraMode", "Actual viewfinder UI at arranged viewpoint", () => { hud.SetCameraMode(true, true); });
             yield return Make("U06", "focus", "PhotoCameraRig.FocusAt", "Actual focus entry at screen center", () => game.PhotoRig.FocusAt(new Vector2(Screen.width * .5f, Screen.height * .5f)));
             yield return Make("U06", "recording", "GameplaySession.TakePhoto / actual Recorder", "Actual isolated capture in progress, no fake IsRecording state", () => { game.TakePhoto(); Require(game.Recorder.IsRecording, "TakePhoto did not start"); });
             var bowl = world.Objects.FirstOrDefault(item => item && item.State.kind == LifeObjectKind.Bowl);
@@ -294,16 +283,6 @@ namespace WeatherHouse.Life.Editor
         static void Capture(Report report, Job job)
         {
             Canvas.ForceUpdateCanvases();
-            if (job.id == "U05")
-            {
-                // Check after the settle delay and end-of-frame, where a later status can hide the echo.
-                var hud = UnityEngine.Object.FindObjectOfType<GameplayHud>();
-                var echo = hud ? Get<RectTransform>(hud, "echoRoot") : null;
-                Require(echo && echo.gameObject.activeInHierarchy, "U05 reply echo is not visible at capture");
-                var text = echo.GetComponentsInChildren<Text>(true).SingleOrDefault(item => item.gameObject.name == "Original Chinese reply");
-                Require(text && text.gameObject.activeInHierarchy && text.text == (job.state == "long-reply" ? LongReply : ShortReply), "U05 original Chinese reply does not match the arranged draft");
-                if (job.state == "long-reply") Require(text.GetComponentInParent<ScrollRect>(), "U05 long reply has no horizontal scroll presenter");
-            }
             if (job.id == "U20")
             {
                 var life = UnityEngine.Object.FindObjectOfType<LifeSession>();
@@ -326,7 +305,7 @@ namespace WeatherHouse.Life.Editor
         static void Write(Report report)
         {
             report.coveredUiIds = report.shots.Select(shot => shot.id).Distinct().OrderBy(id => id).ToArray();
-            report.missingUiIds = Enumerable.Range(1, 22).Select(number => "U" + number.ToString("00")).Except(report.coveredUiIds).ToArray();
+            report.missingUiIds = Enumerable.Range(1, 22).Select(number => "U" + number.ToString("00")).Where(id => id != "U05").Except(report.coveredUiIds).ToArray();
             File.WriteAllText(Path.Combine(report.folder, "manifest.json"), JsonUtility.ToJson(report, true));
         }
         static void Gallery(Report report)

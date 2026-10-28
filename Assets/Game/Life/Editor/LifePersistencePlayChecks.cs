@@ -66,7 +66,7 @@ namespace WeatherHouse.Life.Editor
 #endif
                 File.Delete(life.SavePath); File.Delete(game.SavePath);
                 Directory.CreateDirectory(blocker);
-                if (!life.Progress.understoodRequests.Contains("dog.hello")) life.Progress.understoodRequests.Add("dog.hello");
+                if (!life.Progress.HasHeard("dog.hello")) life.Progress.heardRequests.Add("dog.hello");
                 speaker.topicIndex = Array.FindIndex(speaker.requests, r => r.id == "dog.rain.lesson");
                 if (speaker.topicIndex < 0) throw new InvalidOperationException("Rain request fixture missing.");
                 LifeRequest request = speaker.Current;

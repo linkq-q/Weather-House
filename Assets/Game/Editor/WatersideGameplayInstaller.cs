@@ -43,7 +43,7 @@ namespace WeatherHousePrototype.Editor
             hud.uiStyle = parsedStyle;
             // Preserve the tuned sizes in WeatherHouse_MapDraft's existing HUD.
             hud.animalBubbleSize = new Vector2(300, 100); hud.animalGlyphHeight = 43;
-            hud.animalGlyphStrokeWidth = 9; hud.playerBubbleSize = new Vector2(500, 100);
+            hud.animalGlyphStrokeWidth = 9;
             Undo.RecordObject(orbit, "给动物交互保留 E 键");
             orbit.turnLeftKey = KeyCode.LeftBracket; orbit.turnRightKey = KeyCode.RightBracket;
             EditorUtility.SetDirty(orbit); EditorUtility.SetDirty(session); EditorUtility.SetDirty(hud);

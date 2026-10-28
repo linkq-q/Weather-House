@@ -18,16 +18,15 @@ namespace WeatherHouse.Life.Editor
             try
             {
                 var request = new LifeRequest { id="water",eventId="E1",objective="接水",requiredForEvent=true };
-                var yes = new JudgementResult { success=true,understood=true };
                 var progress = new LifeProgress();
                 check(!progress.Complete(request.id,true,true),"Unaccepted help cannot complete from observation or preexisting weather");
-                check(!progress.Accept(request,"a",new JudgementResult {success=true},true,true),"Wrong meaning creates no task");
-                check(!progress.Accept(request,"a",new JudgementResult {understood=true},true,true),"Service failure cannot create a task");
-                check(!progress.Accept(request,"a",yes,false,true),"Stale utterance creates no task");
-                check(!progress.Accept(request,"a",yes,true,false),"Distant AI result creates no task");
-                check(progress.tasks.Count==0,"All rejected judgements preserve empty task list");
-                check(progress.Accept(request,"a",yes,true,true),"Current understood nearby request creates a task");
-                check(!progress.Accept(request,"a",yes,true,true) && progress.tasks.Count==1,"Duplicate judgement is idempotent");
+                check(!progress.Hear(null,"a",true,true),"Missing request creates no task");
+                check(!progress.Hear(request,"",true,true),"Missing animal creates no task");
+                check(!progress.Hear(request,"a",false,true),"Stale utterance creates no task");
+                check(!progress.Hear(request,"a",true,false),"Distant listening creates no task");
+                check(progress.tasks.Count==0,"All invalid listening attempts preserve empty task list");
+                check(progress.Hear(request,"a",true,true),"Current heard nearby request creates a task");
+                check(!progress.Hear(request,"a",true,true) && progress.tasks.Count==1,"Repeated listening is idempotent");
                 check(!progress.Complete(request.id,false,true),"World condition outside player circle cannot complete help");
                 check(!progress.Complete(request.id,true,false),"Nearby player alone is insufficient");
                 check(progress.Complete(request.id,true,true),"Accepted nearby world action completes help");
@@ -36,8 +35,8 @@ namespace WeatherHouse.Life.Editor
                 check(restored.EventComplete("E1",new[]{request}) && restored.friendlyAnimals.SequenceEqual(new[]{"a"}),"Completed help and relationship survive save roundtrip");
                 check(!restored.EventComplete("E7",new[]{request}),"Unknown or empty event is not automatically complete");
                 var conversation=new LifeRequest{id="hello",eventId="E0",objective="问候",condition="conversation",requiredForEvent=true};
-                check(!restored.Accept(conversation,"b",yes,true,true) && restored.FindTask("hello")==null &&
-                    restored.EventComplete("E0",new[]{conversation}),"Understood greetings progress conversation without creating HUD help tasks");
+                check(!restored.Hear(conversation,"b",true,true) && restored.FindTask("hello")==null &&
+                    restored.EventComplete("E0",new[]{conversation}),"Heard greetings progress conversation without creating HUD help tasks");
                 var notebook=new LanguageNotebook(); notebook.Observe("a","one",new[]{"rain"});
                 check(!notebook.ConfirmFromJudgement("rain","a",new[]{"rain"},true),"Legacy prototype verifier rejects a single-animal word");
                 notebook.Observe("b","two",new[]{"rain"});

@@ -222,6 +222,6 @@ namespace WeatherHouse.Life
             owner.SaveAndNotify(drinks.Any(d=>d.returnRest && Flat(d.returnTarget,AnchorPosition(target))<.1f)?"喝完水后，它会回来歇脚。":
                 invited.Count>0?"同伴正走来歇脚。":"同伴还没走近，稍后再邀请。");
         }
-        bool Known(string request)=>owner && owner.Progress.understoodRequests.Contains(request);
+        bool Known(string request)=>owner && owner.Progress.HasHeard(request);
     }
 }

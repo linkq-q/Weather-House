@@ -47,19 +47,23 @@ namespace WeatherHousePrototype
 #if UNITY_EDITOR
         public string LastSaveError { get; private set; }
 #endif
-        private LanguageJudgementClient judge;
         private GameplayHud hud;
         private float nextObservation;
         private string lastUtterance;
         private VegetationTopDownCamera orbit;
         private LifeSession Life => GetComponent<LifeSession>();
         private int conversationRevision;
-        public void BeginDialogue(AnimalActor animal) { conversationRevision++; lastUtterance = null; }
+        private AnimalActor listenedAnimal;
+        private float listeningUntil;
+        public void BeginDialogue(AnimalActor animal)
+        {
+            conversationRevision++; lastUtterance = null;
+            listenedAnimal = animal; listeningUntil = Time.unscaledTime + Mathf.Max(.2f, automaticGreetingDuration);
+        }
 
         private void Awake()
         {
             Recorder = GetComponent<MotionPhotoRecorder>();
-            judge = GetComponent<LanguageJudgementClient>();
             hud = GetComponent<GameplayHud>();
             Catalog = JsonUtility.FromJson<GlyphCatalog>(Resources.Load<TextAsset>("WeatherHouseGlyphs").text);
             Notebook = new LanguageNotebook();
@@ -148,7 +152,7 @@ namespace WeatherHousePrototype
 
         public bool ShouldShowAnimalUtterance(AnimalActor animal) => animal && animal.IsAvailableForObservation &&
             (!animal.UsesAutomaticGreeting || animal.HasAmbientSpeech || animal.HasAutomaticGreetingAt(Time.unscaledTime) ||
-             (hud && hud.isActiveAndEnabled && hud.DialogueTarget == animal));
+             (hud && hud.isActiveAndEnabled && listenedAnimal == animal && Time.unscaledTime < listeningUntil));
 
         public void RefreshInputBlocking()
         {
@@ -169,9 +173,7 @@ namespace WeatherHousePrototype
         {
             if (LifeOnboarding.TrySubmitGuess(this, id, guess)) return;
             Notebook.SetGuess(id, guess);
-            bool saved = Save();
-            if (saved) LifeAudio.Play(LifeAudioCue.Ui);
-            Notify(saved ? "已记下你的猜测。可以继续寻找别处的线索。" : "猜测保留在本次游戏中，手账暂时无法写入磁盘。");
+            Notify(Save() ? "语义判断暂不可用。猜测已保留，可以稍后重试。" : "猜测保留在本次游戏中，手账暂时无法写入磁盘。");
         }
 
         public void TakePhoto()
@@ -243,71 +245,6 @@ namespace WeatherHousePrototype
                 weather == LocalWeather.Sun ? "雨云散去。湿润的东西会慢慢晒干。" : "风吹过这片地方，叶子开始摇动。");
         }
 
-        public void Reply(string chinese)
-        {
-            if (Judging) return;
-            if (Life && (!hud || !hud.IsDialogueOpen)) { Notify("先走近动物，按 E 听它说话。"); return; }
-            var animal = hud && hud.DialogueTarget ? hud.DialogueTarget : Observed;
-            if (!animal || !animal.IsAvailableForObservation ||
-                (Life ? !Life.CanTalk(animal) : Vector3.Distance(PlayerTransform.position, animal.transform.position) >= 12f))
-            { if (hud) hud.CloseDialogue(); Notify("它已经走远了，靠近后再继续交谈。"); return; }
-            if (string.IsNullOrWhiteSpace(chinese)) { Notify("写下你想对它说的话。"); return; }
-            var lifeRequest = Life ? Life.CurrentRequest(animal) : null;
-            if (LifeOnboarding.TryReplyRain(this, animal, chinese)) return;
-            if (animal.background && lifeRequest == null) { Notify("你的话已经说出。它正在分享眼前的生活，可以继续观察它的动作和字语。"); return; }
-            if (!Life && animal.RequestSatisfied) { Notify("它的请求已经得到回应。可以继续观察它的生活，把新发现留进手账。"); return; }
-            var ids = (string[])animal.CurrentGlyphIds.Clone();
-            string context = animal.BehaviourDescription + (Life ? "。玩家手势天气：" : "。当前天气：") + (Life ? Life.WeatherText : animal.region ? animal.region.Current.ToString() : "自然天气") +
-                (lifeRequest != null ? "。本轮语境：" + Life.World.Describe(lifeRequest) : "") + "。本句字义边界：" +
-                string.Join("；", Catalog.glyphs.Where(g => Array.IndexOf(ids, g.id) >= 0).Select(g => g.id + "=" + g.meaning + " " + g.boundary));
-            StartCoroutine(JudgeReply(new JudgementInput
-            {
-                animalId = animal.animalId, utteranceId = animal.UtteranceId,
-                requestMeaning = lifeRequest != null ? lifeRequest.meaning : animal.requestMeaning, glyphIds = ids, playerReply = chinese, context = context
-            }));
-        }
-
-        private IEnumerator JudgeReply(JudgementInput input)
-        {
-            int submittedRevision = conversationRevision;
-            Judging = true;
-            LifeAudio.Play(LifeAudioCue.Ui);
-            Notify("动物在听你说……");
-            yield return judge.Judge(input, result => ApplyJudgement(input, result, submittedRevision));
-            Judging = false;
-            Changed?.Invoke();
-        }
-
-        private void ApplyJudgement(JudgementInput input, JudgementResult result, int submittedRevision)
-        {
-            var originalAnimal = Array.Find(animals, a => a != null && a.animalId == input.animalId);
-            if (submittedRevision != conversationRevision || originalAnimal == null || originalAnimal.UtteranceId != input.utteranceId ||
-                (Life && (!Life.CanTalk(originalAnimal) || (hud && hud.DialogueTarget && hud.DialogueTarget != originalAnimal))))
-            {
-                Status = "动物眼前的情况已经变化。这次判断未确认词义，等它提出新请求再试试。";
-                return;
-            }
-            int count = 0;
-            bool newGesture = false;
-            bool progressSaved = true;
-            bool taskAccepted = Life && Life.AcceptUnderstanding(originalAnimal, input.utteranceId, result, out progressSaved);
-            if (!Life && result.success && result.understood)
-                foreach (string id in result.evidenceGlyphIds)
-                    if (Notebook.ConfirmFromJudgement(id, input.animalId, input.glyphIds, true))
-                    {
-                        count++;
-                        newGesture |= Life && (id == "sunlight" || id == "wind" || id == "weak" || id == "strong");
-                    }
-            bool saved = count == 0 || Save();
-            if (taskAccepted || count > 0) LifeAudio.Play(LifeAudioCue.Progress);
-            string feedback = Life ? (result.understood ? "你听懂了这次话语。" : "还需要说清它指的是谁、什么变化，以及肯定或拒绝。") : result.feedback;
-            Status = result.success ? feedback + (count > 0 ? " 已确认 " + count + " 个字，可在手账中查看。" : "") : result.error;
-            if (newGesture) Status += " 手账里有新手势可学。";
-            if (taskAccepted) Status += " 已记下它的请求，看看右上角的任务。";
-            if (!saved) Status += " 这些确认只保留在本次游戏中，尚未写入磁盘。";
-            if (!progressSaved) Status += " 生活进度暂未写入磁盘，本次游戏中仍可继续。";
-        }
-
         private bool Save()
         {
             if (saveBlocked) return false;
@@ -334,6 +271,7 @@ namespace WeatherHousePrototype
         public void Notify(string message) { Status = message; Changed?.Invoke(); }
         private void OnDisable()
         {
+            listenedAnimal = null; listeningUntil = 0;
             if (Recorder) Recorder.FinishLiveCapture();
             if (Judging) StopAllCoroutines();
             if (PhotoRig != null) PhotoRig.SetActive(false);
