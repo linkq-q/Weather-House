@@ -7,6 +7,7 @@ using ForestSpriteCharacter;
 using WeatherHouse.Vegetation;
 using WeatherHouse.WatersideV2;
 using WeatherHouse.Life;
+using WeatherHouse.WildlifeJourney;
 
 namespace WeatherHousePrototype
 {
@@ -140,19 +141,84 @@ namespace WeatherHousePrototype
             }
             if (Observed && hud && hud.isActiveAndEnabled && !hud.JournalOpen && !hud.IsDialogueOpen)
                 Observed.TryBeginAutomaticGreeting(Time.unscaledTime, automaticGreetingDuration, automaticGreetingCooldown);
-            if (Observed != null && hud && hud.IsAnimalSpeechVisible(Observed) && lastUtterance != Observed.UtteranceId)
+            RefreshPhotoSpeechTarget();
+            if (Observed != null && hud && hud.IsAnimalSpeechVisible(Observed) && lastUtterance != DisplayedUtteranceId(Observed))
             {
-                lastUtterance = Observed.UtteranceId;
-                Notebook.Observe(Observed.animalId, Observed.UtteranceId, Observed.CurrentGlyphIds);
-                if (Life && Life.World) Life.World.ObservePhotoConversation(Life.CurrentRequest(Observed));
+                lastUtterance = DisplayedUtteranceId(Observed);
+                Notebook.Observe(Observed.animalId, lastUtterance, DisplayedGlyphIds(Observed));
+                ObserveDisplayedConversation(Observed);
                 Save();
                 Changed?.Invoke();
             }
         }
 
         public bool ShouldShowAnimalUtterance(AnimalActor animal) => animal && animal.IsAvailableForObservation &&
-            (!animal.UsesAutomaticGreeting || animal.HasAmbientSpeech || animal.HasAutomaticGreetingAt(Time.unscaledTime) ||
+            (IsPhotoSpeechHeld(animal) ? photoSpeech.glyphs.Length > 0 :
+             !animal.UsesAutomaticGreeting || animal.HasAmbientSpeech || animal.HasAutomaticGreetingAt(Time.unscaledTime) ||
              (hud && hud.isActiveAndEnabled && listenedAnimal == animal && Time.unscaledTime < listeningUntil));
+
+        sealed class PhotoSpeech
+        {
+            public AnimalActor animal;
+            public string utterance;
+            public string[] glyphs;
+            public LifeContextSnapshot context;
+            public LifeRequest request;
+            public JourneySocial social;
+            public bool usesSocial;
+        }
+        PhotoSpeech photoSpeech;
+        AnimalActor photoSpeechTarget;
+        bool photoSpeechTracking;
+
+        public bool IsPhotoSpeechHeld(AnimalActor animal) => animal && animal.IsAvailableForObservation && photoSpeech != null && photoSpeech.animal == animal;
+        public string DisplayedUtteranceId(AnimalActor animal) => IsPhotoSpeechHeld(animal) ? photoSpeech.utterance : animal ? animal.UtteranceId : "";
+        public string[] DisplayedGlyphIds(AnimalActor animal) => IsPhotoSpeechHeld(animal) ? photoSpeech.glyphs : animal ? animal.CurrentGlyphIds : Array.Empty<string>();
+        public bool UsesSocialPresentation(AnimalActor animal) => IsPhotoSpeechHeld(animal) ? photoSpeech.usesSocial : animal && animal.HasAmbientPresentation;
+
+        public void BeginPhotoSpeech()
+        {
+            photoSpeechTracking = true;
+            HoldPhotoSpeech(Observed);
+        }
+        void RefreshPhotoSpeechTarget()
+        {
+            if (photoSpeechTracking && photoSpeechTarget != Observed) HoldPhotoSpeech(Observed);
+        }
+        void HoldPhotoSpeech(AnimalActor animal)
+        {
+            ReleasePhotoSpeech(photoSpeech);
+            photoSpeechTarget = animal;
+            if (!animal || !animal.IsAvailableForObservation) return;
+            var ecology = animal.GetComponent<WildlifeInteractionTarget>();
+            var socialTurn = ecology ? ecology.CurrentSocialTurn : null;
+            bool shown = socialTurn != null || ShouldShowAnimalUtterance(animal);
+            var request = shown && Life && socialTurn == null ? Life.CurrentRequest(animal) : null;
+            photoSpeech = new PhotoSpeech { animal = animal,
+                utterance = shown ? (socialTurn != null ? ecology.SocialUtteranceId(socialTurn) : animal.UtteranceId) : "",
+                glyphs = shown ? (string[])((socialTurn != null ? socialTurn.glyphIds : animal.CurrentGlyphIds) ?? Array.Empty<string>()).Clone() : Array.Empty<string>(),
+                context = shown && Life && socialTurn == null ? Life.CaptureContext(animal)?.Copy() : null,
+                request = request == null ? null : JsonUtility.FromJson<LifeRequest>(JsonUtility.ToJson(request)),
+                social = ecology ? ecology.Social : null, usesSocial = socialTurn != null };
+            if (photoSpeech.social) photoSpeech.social.SetPhotoTarget(ecology.SocialMemberId, socialTurn != null);
+        }
+        void ReleasePhotoSpeech(PhotoSpeech captured)
+        {
+            // An older recording may finish after a different animal becomes the photo target.
+            if (captured == null || !ReferenceEquals(photoSpeech, captured)) return;
+            if (captured.social) captured.social.ClearPhotoTarget();
+            photoSpeech = null;
+        }
+        public void EndPhotoSpeech()
+        {
+            photoSpeechTracking = false;
+            ReleasePhotoSpeech(photoSpeech);
+            photoSpeechTarget = null;
+        }
+        void ObserveDisplayedConversation(AnimalActor animal)
+        {
+            if (Life && Life.World) Life.World.ObservePhotoConversation(IsPhotoSpeechHeld(animal) ? photoSpeech.request : Life.CurrentRequest(animal));
+        }
 
         public void RefreshInputBlocking()
         {
@@ -180,19 +246,23 @@ namespace WeatherHousePrototype
         {
             if (Recorder.IsRecording) return;
             if (!PhotoRig.Active) { Notify("按 C 举起相机，再取景拍照。"); return; }
+            if (photoSpeechTracking && photoSpeech == null && Observed) HoldPhotoSpeech(Observed);
             var animal = Observed;
             bool speechVisible = animal && hud && hud.IsAnimalSpeechVisible(animal);
-            string capturedUtterance = animal ? animal.UtteranceId : "";
+            PhotoSpeech capturedSpeech = IsPhotoSpeechHeld(animal) ? photoSpeech : null;
+            string capturedUtterance = DisplayedUtteranceId(animal);
             int capturedRevision = conversationRevision;
+            if (speechVisible) ObserveDisplayedConversation(animal);
             Recorder.Capture(PhotoRig.CaptureCamera, new ObservationRecord
             {
                 animalId = animal ? animal.animalId : "", utteranceId = speechVisible ? capturedUtterance : "",
-                glyphIds = speechVisible ? (string[])animal.CurrentGlyphIds.Clone() : Array.Empty<string>(),
+                glyphIds = speechVisible ? (string[])DisplayedGlyphIds(animal).Clone() : Array.Empty<string>(),
                 weather = Life ? Life.WeatherText : !animal || animal.region == null ? "" : animal.region.Current.ToString(),
-                context = Life && speechVisible ? Life.CaptureContext(animal) : null,
+                context = speechVisible ? (capturedSpeech != null ? capturedSpeech.context?.Copy() : Life ? Life.CaptureContext(animal) : null) : null,
                 photoSnapshot = LifePhotoCapture.Capture(Life, PhotoRig.CaptureCamera)
             }, record =>
             {
+                ReleasePhotoSpeech(capturedSpeech);
                 Notebook.AddObservation(record);
                 int completed = Notebook.ApplyPhotoTasks();
                 bool saved = Save();
@@ -206,11 +276,12 @@ namespace WeatherHousePrototype
                 Notify(message);
             }, error =>
             {
+                ReleasePhotoSpeech(capturedSpeech);
                 Debug.LogWarning("Photo capture failed: " + error, this);
                 Notify("这次照片没能保存，请再试一次。");
             },
-                speechVisible ? (Func<bool>)(() => animal && animal.IsAvailableForObservation &&
-                    animal.UtteranceId == capturedUtterance && conversationRevision == capturedRevision) : null);
+                speechVisible ? (Func<bool>)(() => animal && animal.IsAvailableForObservation && Observed == animal &&
+                    DisplayedUtteranceId(animal) == capturedUtterance && conversationRevision == capturedRevision) : null);
         }
 
         public void RecordPublicContext(LifePublicContext context)
@@ -271,6 +342,7 @@ namespace WeatherHousePrototype
         public void Notify(string message) { Status = message; Changed?.Invoke(); }
         private void OnDisable()
         {
+            EndPhotoSpeech();
             listenedAnimal = null; listeningUntil = 0;
             if (Recorder) Recorder.FinishLiveCapture();
             if (Judging) StopAllCoroutines();

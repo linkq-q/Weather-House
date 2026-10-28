@@ -486,6 +486,8 @@ namespace WeatherHousePrototype
         public void SetCameraMode(bool value, bool immediate = false)
         {
             if (value && gestureInput) gestureInput.Cancel();
+            if (value && !cameraRequested) session.BeginPhotoSpeech();
+            if (!value) session.EndPhotoSpeech();
             if (!value && CameraMode && session.Recorder.IsRecording) session.Recorder.FinishLiveCapture();
             cameraRequested = value;
             if (!value && !CameraMode)
@@ -917,12 +919,12 @@ namespace WeatherHousePrototype
         {
             AnimalActor animal = session.Observed;
             if (!session.ShouldShowAnimalUtterance(animal)) animal = null;
-            string utterance = animal == null ? "" : animal.UtteranceId;
+            string utterance = session.DisplayedUtteranceId(animal);
             bubbleWanted = animal != null && animal == bubbleAnimal && utterance == bubbleUtterance;
             // Finish the old word on its original speaker before reusing the presentation slot.
             if (bubbleAnimal != null) return;
             if (animal == null) return;
-            string[] glyphs = animal.CurrentGlyphIds ?? Array.Empty<string>();
+            string[] glyphs = session.DisplayedGlyphIds(animal) ?? Array.Empty<string>();
             if (glyphs.Length == 0) return;
             bubbleAnimal = animal;
             bubbleUtterance = utterance;
@@ -973,7 +975,7 @@ namespace WeatherHousePrototype
             if (!bubbleAnimal) { ClearAnimalBubble(); return; }
             Camera view = session.CurrentView;
             // Social's LateUpdate has already placed its world conversation; avoid a second bubble over it.
-            bool visible = BubbleAnchorVisible(view, bubbleAnimal) && !JournalOpen && !bubbleAnimal.HasAmbientPresentation;
+            bool visible = BubbleAnchorVisible(view, bubbleAnimal) && !JournalOpen && !session.UsesSocialPresentation(bubbleAnimal);
             bubbleRoot.gameObject.SetActive(visible);
             if (!visible)
             {
@@ -996,12 +998,19 @@ namespace WeatherHousePrototype
         public bool IsAnimalSpeechVisible(AnimalActor animal)
         {
             if (!isActiveAndEnabled || !canvas || !canvas.enabled || JournalOpen || !animal) return false;
-            bool lifeUtterance = animal.GetComponent<LifeSpeaker>()?.Current != null;
-            bool onboardingUtterance = LifeOnboardingSpeech.Current(animal);
-            if (!lifeUtterance && !onboardingUtterance && animal.HasAmbientSpeech) return true;
-            if ((lifeUtterance || onboardingUtterance) && animal.HasAmbientPresentation) return false;
+            if (session.IsPhotoSpeechHeld(animal))
+            {
+                if (session.UsesSocialPresentation(animal)) return animal.HasAmbientSpeech && animal.HasAmbientPresentation;
+            }
+            else
+            {
+                bool lifeUtterance = animal.GetComponent<LifeSpeaker>()?.Current != null;
+                bool onboardingUtterance = LifeOnboardingSpeech.Current(animal);
+                if (!lifeUtterance && !onboardingUtterance && animal.HasAmbientSpeech) return true;
+                if ((lifeUtterance || onboardingUtterance) && animal.HasAmbientPresentation) return false;
+            }
             return bubbleAnimal == animal &&
-                bubbleUtterance == animal.UtteranceId && bubbleRoot && bubbleRoot.gameObject.activeInHierarchy &&
+                bubbleUtterance == session.DisplayedUtteranceId(animal) && bubbleRoot && bubbleRoot.gameObject.activeInHierarchy &&
                 bubbleGroup && bubbleGroup.alpha >= ProceduralUiLibrary.SpeechVisibleAlpha && BubbleAnchorVisible(session.CurrentView, animal);
         }
 

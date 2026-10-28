@@ -45,6 +45,8 @@ namespace WeatherHouse.WildlifeJourney
         [Range(.5f, 14f)] public float glyphStrokeWidth = 9f;
 
         public JourneyConversation ActiveConversation { get; private set; }
+        public JourneyConversation PresentationConversation => photoConversation ??
+            (ActiveConversation != null && ActiveConversation.speakerId == photoTargetId ? null : ActiveConversation);
         public IReadOnlyList<JourneyConversation> Completed => completed;
         public int FirstParticipantId => firstId;
         public int SecondParticipantId => secondId;
@@ -71,6 +73,15 @@ namespace WeatherHouse.WildlifeJourney
         private JourneySocialParticipant presentedSpeaker, presentedListener;
         private readonly List<AnimalGlyphGraphic> glyphs = new List<AnimalGlyphGraphic>();
         private GlyphCatalog catalog;
+        private JourneyConversation photoConversation;
+        private int photoTargetId = -1;
+
+        public void SetPhotoTarget(int id, bool keepCurrent)
+        {
+            photoTargetId = id;
+            photoConversation = keepCurrent && ActiveConversation?.speakerId == id ? Copy(ActiveConversation) : null;
+        }
+        public void ClearPhotoTarget() { photoConversation = null; photoTargetId = -1; }
 
         public bool IsParticipating(int id) => firstId >= 0 && (id == firstId || id == secondId);
 
@@ -85,6 +96,7 @@ namespace WeatherHouse.WildlifeJourney
         /// <summary>Restart with the herd's simulation clock while retaining the presentation objects.</summary>
         public void ResetSchedule()
         {
+            ClearPhotoTarget();
             ActiveConversation = null;
             completed.Clear(); eligible.Clear();
             participantReady.Clear(); lastParticipation.Clear(); pairReady.Clear();
@@ -234,7 +246,7 @@ namespace WeatherHouse.WildlifeJourney
                 if (completed.Count > 128) completed.RemoveAt(0);
             }
             ActiveConversation = null;
-            if (interrupted) HidePresentation();
+            if (interrupted && photoConversation == null) HidePresentation();
         }
 
         private void EndPair()
@@ -252,7 +264,7 @@ namespace WeatherHouse.WildlifeJourney
         /// <summary>Only an unobstructed on-screen exchange counts as a witnessed language example.</summary>
         public bool ObserveFrom(Camera camera)
         {
-            var current = ActiveConversation;
+            var current = PresentationConversation;
             if (current == null || camera == null || !camera.isActiveAndEnabled ||
                 !TryFind(current.speakerId, out var speaker) || !TryFind(current.listenerId, out var listener) ||
                 !CanParticipate(speaker) || !CanParticipate(listener) ||
@@ -269,10 +281,11 @@ namespace WeatherHouse.WildlifeJourney
         /// <summary>A visible speaker can be heard even when the listener is outside the frame; this does not record evidence.</summary>
         public bool CanPresentFrom(Camera camera)
         {
-            var current = ActiveConversation;
+            var current = PresentationConversation;
             return current != null && camera != null && camera.isActiveAndEnabled &&
                 TryFind(current.speakerId, out var speaker) && TryFind(current.listenerId, out var listener) &&
-                CanParticipate(speaker) && CanParticipate(listener) && InView(camera, speaker, listener.root);
+                (photoConversation != null ? speaker.root && listener.root && speaker.root.gameObject.activeInHierarchy && listener.root.gameObject.activeInHierarchy :
+                    CanParticipate(speaker) && CanParticipate(listener)) && InView(camera, speaker, listener.root);
         }
 
         private bool InView(Camera camera, JourneySocialParticipant participant, Transform other)
@@ -325,7 +338,7 @@ namespace WeatherHouse.WildlifeJourney
             Present(camera);
             if (presentedConversation == null) return;
             bubbleGroup.alpha = ProceduralUiLibrary.FadeAlpha(bubbleGroup.alpha, true, deltaTime);
-            if (HasVisibleCurrentBubble(camera)) ObserveFrom(camera);
+            if (photoConversation == null && HasVisibleCurrentBubble(camera)) ObserveFrom(camera);
         }
 
         private bool HasVisibleCurrentBubble(Camera camera)
@@ -338,7 +351,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private bool MatchesCurrentPresentation()
         {
-            var current = ActiveConversation;
+            var current = PresentationConversation;
             var shown = presentedConversation;
             if (current == null || shown == null || current.sequenceId != shown.sequenceId || current.turnIndex != shown.turnIndex ||
                 current.speakerId != shown.speakerId || current.listenerId != shown.listenerId || current.glyphIds == null ||
@@ -375,14 +388,15 @@ namespace WeatherHouse.WildlifeJourney
 
         private void Present(Camera camera)
         {
-            if (ActiveConversation?.glyphIds == null || ActiveConversation.glyphIds.Length == 0) { HidePresentation(); return; }
+            var current = PresentationConversation;
+            if (current?.glyphIds == null || current.glyphIds.Length == 0) { HidePresentation(); return; }
             if (catalog == null)
             {
                 TextAsset source = Resources.Load<TextAsset>("WeatherHouseGlyphs");
                 if (source == null) return;
                 catalog = JsonUtility.FromJson<GlyphCatalog>(source.text);
             }
-            string[] ids = ActiveConversation.glyphIds;
+            string[] ids = current.glyphIds;
             if (Array.Exists(ids, id => Array.Find(catalog.glyphs, item => item.id == id) == null)) { HidePresentation(); return; }
             if (canvas == null)
             {
@@ -398,9 +412,9 @@ namespace WeatherHouse.WildlifeJourney
             }
             if (!MatchesCurrentPresentation())
             {
-                presentedConversation = Copy(ActiveConversation);
-                TryFind(ActiveConversation.speakerId, out presentedSpeaker);
-                TryFind(ActiveConversation.listenerId, out presentedListener);
+                presentedConversation = Copy(current);
+                TryFind(current.speakerId, out presentedSpeaker);
+                TryFind(current.listenerId, out presentedListener);
                 bubbleGroup.alpha = 0f;
             }
             canvas.worldCamera = camera; canvas.planeDistance = camera.nearClipPlane + .2f;
@@ -482,8 +496,8 @@ namespace WeatherHouse.WildlifeJourney
             if (File.Exists(png) || File.Exists(json)) throw new IOException("照片文件已存在，未覆盖。");
             var turns = new List<JourneyConversation>();
             foreach (var record in completed)
-                if (record.sequenceId == ActiveConversation.sequenceId) turns.Add(Copy(record));
-            var current = Copy(ActiveConversation);
+                if (record.sequenceId == PresentationConversation.sequenceId) turns.Add(Copy(record));
+            var current = Copy(PresentationConversation);
             TryFind(current.speakerId, out var speaker); TryFind(current.listenerId, out var listener);
             current.speakerPosition = speaker.root.position; current.listenerPosition = listener.root.position;
             turns.Add(current);
@@ -532,6 +546,7 @@ namespace WeatherHouse.WildlifeJourney
 
         private void OnDisable()
         {
+            ClearPhotoTarget();
             FinishTurn(true);
             if (random != null) EndPair();
         }

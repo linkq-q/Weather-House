@@ -12,6 +12,7 @@ namespace WeatherHousePrototype
     public static class PhotoCameraChecks
     {
         [MenuItem("Weather House/Check Photo Camera Rig")]
+        [MenuItem("Weather House/Review 20261027/Check photo camera rig")]
         public static void Run()
         {
             var report = new List<string>
@@ -54,13 +55,13 @@ namespace WeatherHousePrototype
                     Quaternion.Euler(17f, 23f, 0f) * Vector3.forward * .2f;
                 Require(rig.Active && photo != null && photo.enabled, "Photo mode did not enable its independent camera.");
                 Require(Vector3.Distance(photo.transform.position, expectedEye) < .003f, "Photo camera is not at the player's eye position.");
-                Require(!walker.viewCamera.enabled && !walker.mapCamera.enabled && !visible.enabled && !hidden.enabled,
+                Require(!walker.viewCamera.enabled && !walker.mapCamera.enabled && visible.forceRenderingOff && hidden.forceRenderingOff,
                     "Photo mode did not hide both old cameras and the avatar renderers.");
                 Require(!walker.viewCamera.GetComponent<AudioListener>().enabled &&
                     !walker.mapCamera.GetComponent<AudioListener>().enabled && photo.GetComponent<AudioListener>().enabled,
                     "Photo mode audio listeners were not switched correctly.");
-                Require(photo.usePhysicalProperties && photo.sensorSize == new Vector2(36f, 24f) && Mathf.Approximately(rig.FocalLength, 35f),
-                    "The default physical lens is not 35 mm on a 36 x 24 mm sensor.");
+                Require(photo.usePhysicalProperties && photo.sensorSize == new Vector2(36f, 24f) && Mathf.Approximately(rig.FocalLength, 24f),
+                    "The default physical lens is not 24 mm on a 36 x 24 mm sensor.");
                 float originalFov = photo.fieldOfView;
                 rig.Zoom(100f);
                 Require(Mathf.Approximately(rig.FocalLength, 100f) && photo.fieldOfView < originalFov,
@@ -68,9 +69,8 @@ namespace WeatherHousePrototype
                 float telephotoFov = photo.fieldOfView;
                 rig.Zoom(-100f);
                 Require(Mathf.Approximately(rig.FocalLength, 24f), "The wide lens limit is not 24 mm.");
-                rig.Zoom((35f - 24f) / 5f);
                 report.Add("PASS: independent eye-height camera, avatar visibility, listener switching, initialization idempotence and 24-100 mm zoom.");
-                report.Add("Vertical FOV at 35/100 mm: " + originalFov.ToString("F2") + " / " + telephotoFov.ToString("F2") + " degrees.");
+                report.Add("Vertical FOV at 24/100 mm: " + originalFov.ToString("F2") + " / " + telephotoFov.ToString("F2") + " degrees.");
 
                 walker.yaw = 0f;
                 walker.pitch = 0f;
@@ -124,7 +124,8 @@ namespace WeatherHousePrototype
 
                 rig.SetActive(false);
                 Require(!rig.Active && !photo.enabled && !volume.enabled, "Exiting photo mode left its camera or focus volume enabled.");
-                Require(walker.viewCamera.enabled && !walker.mapCamera.enabled && visible.enabled && !hidden.enabled,
+                Require(walker.viewCamera.enabled && !walker.mapCamera.enabled && visible.enabled && !hidden.enabled &&
+                    !visible.forceRenderingOff && !hidden.forceRenderingOff,
                     "Exiting photo mode did not restore each original camera/renderer state.");
                 Require(walker.viewCamera.GetComponent<AudioListener>().enabled &&
                     !walker.mapCamera.GetComponent<AudioListener>().enabled && !photo.GetComponent<AudioListener>().enabled,

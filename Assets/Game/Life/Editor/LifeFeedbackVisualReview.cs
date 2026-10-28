@@ -108,6 +108,35 @@ namespace WeatherHouse.Life.Editor
             bool tasks = (bool)typeof(GameplayHud).GetField("albumTasksSelected", flags).GetValue(hud);
             return tasks ? 3 : gestures ? 2 : photos ? 1 : 0;
         }
+        [MenuItem("Weather House/Review 20261027/Capture camera framing")]
+        public static void CaptureCameraFraming()
+        {
+            var life = UnityEngine.Object.FindObjectOfType<LifeSession>();
+            if (!Application.isBatchMode || !Application.isPlaying || !life ||
+                !SessionState.GetBool("WeatherHouse.FeedbackReview20261028", false))
+                throw new InvalidOperationException("Camera framing requires feedback-owned isolated Play.");
+            life.StartCoroutine(CameraFraming(life));
+        }
+        static IEnumerator CameraFraming(LifeSession life)
+        {
+            var hud = life.Gameplay.GetComponent<GameplayHud>(); var rig = life.Gameplay.PhotoRig;
+            if (hud.CameraMode || hud.JournalOpen || life.Gameplay.Recorder.IsRecording)
+                throw new InvalidOperationException("Begin camera framing with idle gameplay.");
+            const string folder = "LifeGameplayReview/20261028/camera-feedback/visual";
+            Directory.CreateDirectory(folder); float original = rig.FocalLength;
+            try
+            {
+                hud.SetCameraMode(true, true);
+                for (int i = 0; i < 4; i++) yield return null;
+                if (!Mathf.Approximately(rig.FocalLength, 24f)) throw new InvalidOperationException("Fresh camera did not start at 24 mm.");
+                Frame(life, "01_默认24mm取景.png", folder);
+                rig.Zoom((35f - rig.FocalLength) / 5f);
+                for (int i = 0; i < 4; i++) yield return null;
+                Frame(life, "02_原35mm对照.png", folder);
+                File.WriteAllText(folder + "/source.txt", "Actual isolated Unity Play from the same camera eye and direction. Default 24 mm versus original 35 mm, changed through production Zoom; world simulation continues. No scene or normal player-save writes.\n" + DateTime.UtcNow.ToString("O"));
+            }
+            finally { rig.Zoom((original - rig.FocalLength) / 5f); hud.SetCameraMode(false, true); }
+        }
         struct CanvasState { public Canvas canvas; public RenderMode mode; public Camera camera; public float distance; }
         internal static void Frame(LifeSession life, string name, string folder = Folder)
         {

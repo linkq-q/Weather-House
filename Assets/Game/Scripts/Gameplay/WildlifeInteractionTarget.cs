@@ -18,6 +18,11 @@ namespace WeatherHousePrototype
         [SerializeField] private string stableId;
         private Transform agentHead;
         public string SpeciesId => herd ? "sheep" : agent ? agent.speciesId : null;
+        public JourneySocial Social => herd ? herd.social : null;
+        public int SocialMemberId => memberId;
+        public JourneyConversation CurrentSocialTurn => IsAvailable && Social && Social.isActiveAndEnabled &&
+            Social.ActiveConversation?.speakerId == memberId ? Social.ActiveConversation : null;
+        public string SocialUtteranceId(JourneyConversation turn) => stableId + ".social." + turn.sequenceId + "." + turn.turnIndex + "." + string.Join("+", turn.glyphIds ?? Array.Empty<string>());
 
         private JourneyMember Member
         {
@@ -41,10 +46,10 @@ namespace WeatherHousePrototype
         }
         public Transform VisualRoot => herd ? Member?.visualRoot : agent ? (agent.visualRoot ? agent.visualRoot : agent.transform) : null;
         public bool HasAmbientSpeech => IsAvailable && herd && herd.social && herd.social.isActiveAndEnabled &&
-            herd.social.ActiveConversation != null && herd.social.ActiveConversation.speakerId == memberId && herd.social.VisibleBubbleCount > 0;
+            herd.social.PresentationConversation != null && herd.social.PresentationConversation.speakerId == memberId && herd.social.VisibleBubbleCount > 0;
         public bool HasAmbientPresentation => IsAvailable && herd && herd.social && herd.social.isActiveAndEnabled &&
             herd.social.HasPresentedBubbleFor(memberId);
-        private JourneyConversation VisibleConversation => HasAmbientSpeech ? herd.social.ActiveConversation : null;
+        private JourneyConversation VisibleConversation => HasAmbientSpeech ? herd.social.PresentationConversation : null;
         // A greeting is a life exchange, not a weather quest or evidence that a word has been learned.
         public string[] CurrentGlyphIds
         {
@@ -60,8 +65,7 @@ namespace WeatherHousePrototype
             get
             {
                 JourneyConversation turn = VisibleConversation;
-                return stableId + (turn != null ? ".social." + turn.sequenceId + "." + turn.turnIndex + "." + string.Join("+", turn.glyphIds ?? Array.Empty<string>()) :
-                    IsAvailable ? ".greeting" : ".unavailable");
+                return turn != null ? SocialUtteranceId(turn) : stableId + (IsAvailable ? ".greeting" : ".unavailable");
             }
         }
         public Vector3 BubbleAnchor

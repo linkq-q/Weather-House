@@ -15,7 +15,7 @@ namespace WeatherHousePrototype
         private const int FocusVolumeLayer = 28;
         public Camera CaptureCamera => photoCamera;
         public bool Active { get; private set; }
-        public float FocalLength { get; private set; } = 35f;
+        public float FocalLength { get; private set; } = 24f;
         public float FocusDistance { get; private set; } = 8f;
         public string FocusLabel => (focusedOnSurface ? "对焦 " : "远景 ") + FocusDistance.ToString("F1") + " m" +
             (focusEffect != null && GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset && focusEffect.IsActive()
