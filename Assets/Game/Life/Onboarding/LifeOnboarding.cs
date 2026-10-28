@@ -166,7 +166,7 @@ namespace WeatherHouse.Life
                         if (!State.returnAway && distance > 5.2f) { State.returnAway = true; Persist(); }
                         var speech = LifeOnboardingSpeech.Current(friend.Actor);
                         if (State.returnAway && distance < 3.1f && speech && speech.Request.glyphIds.Contains("hello") && hud.IsAnimalSpeechVisible(friend.Actor))
-                        { SetStage(LifeOnboardingStage.Complete); game.Notify("这次相遇已经记下。以后可以自由拍照、照料，也可以随时回来。"); }
+                        { SetStage(LifeOnboardingStage.Complete); game.Notify("这次相遇已经记下。以后可以自由拍照、照料，也可以随时再来。"); }
                     }
                     break;
             }
@@ -207,7 +207,7 @@ namespace WeatherHouse.Life
                     break;
                 case LifeOnboardingStage.ObserveAnimals:
                     text = hud.JournalOpen ? "按 J 合上书，去找朋友吧。" :
-                        !State.helloSeen ? "靠近一位朋友，看看它说的字。" : !State.goodbyeSeen ? "走开一点，再回头看看它说什么。" :
+                        !State.helloSeen ? "靠近一位朋友，看看它说的字。" : !State.goodbyeSeen ? "走开一点，再转身看看它说什么。" :
                         "再认识几位朋友，比较它们说的字。已观察 " + Mathf.Min(3, State.animalsSeen.Count) + "/3。";
                     break;
                 case LifeOnboardingStage.GuessBook:
@@ -227,7 +227,7 @@ namespace WeatherHouse.Life
                         action = () => { if (State.photoBookPage++ == 0) { hud.OnboardingSelectBook(3, null); Persist(); } else SetStage(LifeOnboardingStage.FindRainRequest); };
                     }
                     break;
-                case LifeOnboardingStage.ReturnVisit: text = State.returnAway ? "回去看看小狗，它还会怎样招呼你？" : "走开一点，听听它的道别。然后再回来看看。"; break;
+                case LifeOnboardingStage.ReturnVisit: text = State.returnAway ? "再去看看小狗，它还会怎样招呼你？" : "走开一点，听听它的道别。然后再靠近看看。"; break;
             }
             RenderNote(text, button, action);
         }
@@ -369,8 +369,8 @@ namespace WeatherHouse.Life
                 case "dry": return "雨停后再晒一会儿，草垫发生了什么变化？";
                 case "grass": return "看看羊吃的、松鼠铺垫用的，是哪种植物？";
                 case "tree": return "它指向的是有树干和枝叶的东西，还是住处本身？";
-                case "home": return "有的在树旁，有的在地上；它们回到那里休息。";
-                default: return "回看含这个字的几张照片，找出每次都相同的行为、对象或关系。";
+                case "home": return "有的在树旁，有的在地上；离开后，它们还会去那里休息。";
+                default: return "再看含这个字的几张照片，找出每次都相同的行为、对象或关系。";
             }
         }
         public static void DecorateWord(GameplaySession game, RectTransform card, Font font, string id, bool confirmed)

@@ -50,13 +50,13 @@ namespace WeatherHouse.Life
                     string kind=place.State.IsWarm?"warm":"cold";
                     // A request for a warm bed is not evidence of already feeling warm there.
                     if(!place.State.IsWarm || AnimalAt(request.speakerKey,place.State.id))
-                        PublishPhotoContext(Make(kind,place.State.id,place.State.IsWarm?"它在遮棚内舒展身体，回应了这处休息位的感受。":"它指向风口或石面，表达了伸手靠近时的感受。"),20);
+                        PublishPhotoContext(Make(kind,place.State.id,place.State.IsWarm?"它在遮棚内舒展身体，表达了对这处休息位的感受。":"它指向风口或石面，表达了伸手靠近时的感受。"),20);
                     else PublishPhotoContext(Make("comfort-plan",place.State.id,"它指向附近的休息位，等待安顿。"));
                 }
             }
             if(Has("self") && Has("you"))
             {
-                PublishPhotoContext(Make("roles",request.targetId,"这一话轮已记录说话者和听者；可以回看双方的位置。"));
+                PublishPhotoContext(Make("roles",request.targetId,"这一话轮已记录说话者和听者；可以再看双方的位置。"));
                 LifePublicContext[] roles=photoContexts.Where(c=>c.kind=="roles").ToArray();
                 if(roles.Any(a=>roles.Any(b=>a.actorId!=b.actorId && a.actorId==b.listenerId && a.listenerId==b.actorId)))
                     CompletePhotoInteraction("I01",roles.Last());
@@ -120,7 +120,7 @@ namespace WeatherHouse.Life
                     if(binding!=null && place && place.State.IsWarm && DryMatAt(place.State.id) && AnimalAt(binding.speaker.key,place.State.id))
                     {
                         context.completed=true;LifePublicContext warm=context.Copy();warm.id="warm:"+context.actorId+":"+context.targetId;warm.kind="warm";
-                        warm.description="安顿下来后，它舒展身体，回应了这处休息位的感受。";warm.occurredUtc=DateTime.UtcNow.ToString("o");PublishPhotoContext(warm,30);
+                        warm.description="安顿下来后，它舒展身体，表达了对这处休息位的感受。";warm.occurredUtc=DateTime.UtcNow.ToString("o");PublishPhotoContext(warm,30);
                     }
                 }
                 if(context.completed)finishedPhotoInteractions.Add(context.id);

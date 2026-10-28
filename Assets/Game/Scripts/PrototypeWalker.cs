@@ -128,7 +128,7 @@ namespace WeatherHousePrototype
             if (hintStyle == null)
                 hintStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, font = Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular") };
 
-            string hint = overview ? "俯视地图 · Tab 返回漫游" :
+            string hint = overview ? "俯视地图 · Tab 继续漫游" :
                 "WASD 移动 · Shift 快走 · 空格跳跃\n右键拖动视角 · 滚轮缩放 · Tab 俯视地图";
             Rect bounds = new Rect(18f, Screen.height - 58f, Screen.width - 36f, 48f);
             hintStyle.normal.textColor = Color.black;

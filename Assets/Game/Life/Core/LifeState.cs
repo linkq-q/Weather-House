@@ -141,8 +141,8 @@ namespace WeatherHouse.Life
             if (!EventComplete("E5", content)) return "比较明亮的空地和背风处，看看动物愿意在哪里停留。";
             if (!EventComplete("E6a", content)) return "听听渡口的两只动物说话，留意每句话是对谁说的。";
             if (!EventComplete("E6b", content)) return "站在安全干岸，留意说话者指向的位置和移动方向。";
-            if (!EventComplete("E7", content)) return "回到河岛，看看两件熟悉物品怎样一起满足歇脚需要。";
-            return "可以回访动物，也可以继续拍照、记录还没弄懂的字。";
+            if (!EventComplete("E7", content)) return "再去河岛，看看两件熟悉物品怎样一起满足歇脚需要。";
+            return "可以再去看望动物，也可以继续拍照、记录还没弄懂的字。";
         }
     }
 

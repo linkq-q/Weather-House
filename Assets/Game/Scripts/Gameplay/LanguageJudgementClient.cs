@@ -143,7 +143,7 @@ namespace WeatherHousePrototype
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     complete(Failure(request.responseCode > 0
-                        ? "AI服务返回HTTP " + request.responseCode + "，本次未确认任何词义。"
+                        ? "AI服务报告 HTTP " + request.responseCode + "，本次未确认任何词义。"
                         : "AI请求失败或超时，本次未确认任何词义，可以重试。"));
                     yield break;
                 }
@@ -155,7 +155,7 @@ namespace WeatherHousePrototype
                     response.choices[0] == null || response.choices[0].message == null ||
                     string.IsNullOrWhiteSpace(response.choices[0].message.content))
                 {
-                    complete(Failure("AI服务未返回有效的文字判断，本次未确认任何词义。"));
+                    complete(Failure("未收到AI服务的有效文字判断，本次未确认任何词义。"));
                     yield break;
                 }
                 var choice = response.choices[0];
@@ -183,7 +183,7 @@ namespace WeatherHousePrototype
                 foreach (var id in parsed.evidenceGlyphIds)
                     if (string.IsNullOrWhiteSpace(id) || !allowed.Contains(id) || !seen.Add(id))
                     {
-                        result = Failure("AI返回了当前句之外或重复的字ID，本次未确认任何词义。");
+                        result = Failure("AI给出了当前句之外或重复的字ID，本次未确认任何词义。");
                         return false;
                     }
                 if (!parsed.understood && parsed.evidenceGlyphIds.Length != 0)

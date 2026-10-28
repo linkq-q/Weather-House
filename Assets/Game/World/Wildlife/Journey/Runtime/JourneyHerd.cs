@@ -957,7 +957,7 @@ namespace WeatherHouse.WildlifeJourney
                 Quaternion rotation = Quaternion.RotateTowards(m.root.rotation, facing, dt * 100f);
                 if (CanSocialPose(m, rotation) && navigation.CanMoveBody(m.profile, m.root.position, m.root.rotation, m.root.position, rotation)) m.root.rotation = rotation;
             }
-            m.LastDecision = "注意交流对象，靠近并回应";
+            m.LastDecision = "注意交流对象，靠近并聆听";
         }
 
         private bool AvoidOthers(JourneyMember m, Vector3 desired, JourneyTravelMode mode, out Vector3 result, float dt)

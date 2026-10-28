@@ -59,7 +59,7 @@ namespace WeatherHouse.Life
                 case "dry_mat": return "想睡得干爽";
                 case "fed": return "想吃些草";
                 case "arrive": return "想请你过去";
-                case "animal_arrived": return "想回住处";
+                case "animal_arrived": return "想去住处休息";
                 case "wind_weak": return "想吹一点风";
                 case "rain_weak": return "想淋一点小雨";
                 case "warm_rest": return "想暖和地歇一歇";

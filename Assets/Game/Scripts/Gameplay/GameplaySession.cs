@@ -238,7 +238,7 @@ namespace WeatherHousePrototype
             target.SetWeather(weather);
             if (animals.Where(a => !a.background).All(a => a.RequestSatisfied))
             {
-                Notify("四处生活的小请求都得到回应了。你可以继续探索森林，把新发现留进手账。");
+                Notify("四处生活的小请求都得到了帮助。你可以继续探索森林，把新发现留进手账。");
                 return;
             }
             Notify(weather == LocalWeather.Rain ? "雨落在这片地方。再看看动物的动作。" :

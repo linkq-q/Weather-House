@@ -35,7 +35,7 @@ namespace WeatherHouse.Life
                     case LifeObjectKind.Loom:return held && held.State.kind==LifeObjectKind.Bundle?"F 编成草垫":"编垫点 · 需要草束";
                     case LifeObjectKind.Bowl:return held?"F 用碗里的水浸湿手中物件":obj.Description+
                         (drinks.Count==1 && drinks[0].bowl==obj?" · F 邀请同伴":" · F 邀请饮水")+" · Shift+F 倒空";
-                    case LifeObjectKind.Rest:return held && held.State.kind==LifeObjectKind.Mat?"F 铺下草垫":DryMatAt(obj.State.id)?"F 邀请附近动物休息 · Shift+F 收回草垫":obj.Description+" · 放一张草垫";
+                    case LifeObjectKind.Rest:return held && held.State.kind==LifeObjectKind.Mat?"F 铺下草垫":DryMatAt(obj.State.id)?"F 邀请附近动物休息 · Shift+F 收起草垫":obj.Description+" · 放一张草垫";
                     default:
                         if(obj.State.id=="squirrel.common.invite")return "F 邀请身边的动物一起歇脚";
                         return held?"F 放下手中物件":"F 查看 "+obj.Description;
@@ -87,7 +87,7 @@ namespace WeatherHouse.Life
                 case LifeObjectKind.Rest:
                     if(held && held.State.kind==LifeObjectKind.Mat)
                     {
-                        if(objects.Values.Any(o=>o!=held && o.State.slot==obj.State.id)){owner.SaveAndNotify("这里已经有垫子，先用 Shift+F 收回。");return;}
+                        if(objects.Values.Any(o=>o!=held && o.State.slot==obj.State.id)){owner.SaveAndNotify("这里已经有垫子，先用 Shift+F 收起。");return;}
                         held.State.held=false;held.State.slot=obj.State.id;held.State.sheltered=obj.State.sheltered;
                         held.transform.position=obj.transform.position+Vector3.up*.045f;held.State.position=held.transform.position;
                         held.State.revision++;held.State.actionRevision++;obj.State.revision++;obj.State.actionRevision++;held=null;
@@ -100,7 +100,7 @@ namespace WeatherHouse.Life
                     else if(!held && shift)
                     {
                         held=objects.Values.FirstOrDefault(o=>o.State.slot==obj.State.id);
-                        if(held){held.State.held=true;held.State.slot="";held.State.sheltered=false;obj.State.revision++;LifeAudio.PlayAt(LifeAudioCue.Fiber,obj.transform.position);owner.SaveAndNotify("取回草垫。");}
+                        if(held){held.State.held=true;held.State.slot="";held.State.sheltered=false;obj.State.revision++;LifeAudio.PlayAt(LifeAudioCue.Fiber,obj.transform.position);owner.SaveAndNotify("拿起草垫。");}
                     }
                     else if(obj.State.id==commonRestId || accepted.Values.Any(a=>Array.Find(requests,r=>r.id==a.id)?.condition=="common_rest") &&
                         bindings.TryGetValue("squirrel",out Binding host) && Flat(Player.position,host.speaker.transform.position)<4.5f)InviteCommon(obj.State.id);
@@ -219,7 +219,7 @@ namespace WeatherHouse.Life
                 }
             }
             objects[target].State.revision++;
-            owner.SaveAndNotify(drinks.Any(d=>d.returnRest && Flat(d.returnTarget,AnchorPosition(target))<.1f)?"喝完水后，它会回来歇脚。":
+            owner.SaveAndNotify(drinks.Any(d=>d.returnRest && Flat(d.returnTarget,AnchorPosition(target))<.1f)?"喝完水后，它还会到这里歇脚。":
                 invited.Count>0?"同伴正走来歇脚。":"同伴还没走近，稍后再邀请。");
         }
         bool Known(string request)=>owner && owner.Progress.HasHeard(request);

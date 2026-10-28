@@ -191,7 +191,7 @@ namespace WeatherHouse.Life
                 bool hold=TryLifeStation(b,out Vector3 stationTarget);
                 bool ok=!hold || (b.wildlife?b.wildlife.RequestLifeTarget(stationTarget,1.5f,b.rest,drinks.Any(d=>d.animal==b)?.045f:.22f):b.herd && b.herd.RequestLifeTarget(b.member,stationTarget,1.5f));
                 if(!ok && b.speaker.Current!=null) b.speaker.Current.context="当前通路受阻，可以靠近并重新邀请；动物不会瞬移。";
-                else if(b.speaker.Current!=null)b.speaker.Current.context="关键动物在附近生活点活动，可回访。";
+                else if(b.speaker.Current!=null)b.speaker.Current.context="关键动物在附近生活点活动，可以再去看望它。";
                 LifeRequest turn=b.speaker.Current;
                 LifeSpeaker listener=turn==null?null:FindSpeaker(turn.listenerKey);
                 Vector3 look=listener?listener.transform.position:Player.position;
