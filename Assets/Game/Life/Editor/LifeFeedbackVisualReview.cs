@@ -14,7 +14,7 @@ namespace WeatherHouse.Life.Editor
     // Review-only rendering of the running scene and its actual canvases. No scene or player save writes.
     public static class LifeFeedbackVisualReview
     {
-        const string Folder = "LifeGameplayReview/20261028/in-game-ui";
+        const string Folder = "LifeGameplayReview/20261028/in-game-ui-resumed";
         [MenuItem("Weather House/Review 20261027/Capture feedback UI")]
         public static void Begin()
         {
