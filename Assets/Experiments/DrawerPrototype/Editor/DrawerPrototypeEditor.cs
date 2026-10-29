@@ -44,6 +44,8 @@ namespace WeatherHouse.DrawerPrototype.Editor
                     case "checks": BeginChecks(); break;
                     case "resume-checks": StartPlay(false,true); break;
                     case "model-review": StartPlay(false,false,true); break;
+                    case "look-panel": DrawerLookWindow.Open(); break;
+                    case "look-checks": StartPlay(false,false,false,true); break;
                     case "export-models": ExportModels(UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>()); break;
                     case "capture": CaptureCurrent(); break;
                     case "stop": Stop(); break;
@@ -99,6 +101,11 @@ namespace WeatherHouse.DrawerPrototype.Editor
                     for (int v = 0; v < 4; v++) controller.meadowVariants[i*4+v] = AssetDatabase.LoadAssetAtPath<Mesh>(nature+"Nature/"+species[i]+v+".asset");
                 }
                 Require(controller.meadowGround && controller.meadowLayer && controller.meadowVariants.All(m => m) && controller.meadowMaterials.All(m => m),"Existing Waterside meadow assets must all be present.");
+                controller.meadowPlants = new GameObject[3];
+                for (int v = 0; v < 3; v++)
+                    controller.meadowPlants[v] = AssetDatabase.LoadAssetAtPath<GameObject>(nature+"Nature/Plants/Prefabs/R10_OrangeFlower_v"+(v+1)+".prefab");
+                Require(controller.meadowPlants.All(p => p),"Requested decorative plant prefabs must all be present.");
+                DrawerLookAssets.Bind(controller);
                 Require(EditorSceneManager.SaveScene(prototype,ScenePath),"Could not save the independent drawer scene.");
             }
             finally
@@ -129,7 +136,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
             Require(Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular"),"Existing game font is missing.");
         }
 
-        static void StartPlay(bool checks, bool resume = false, bool models = false)
+        static void StartPlay(bool checks, bool resume = false, bool models = false, bool appearance = false)
         {
             Require(!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling,"Finish the current Play before starting the drawer.");
             if (!File.Exists(ScenePath)) Build(); else ImportArt();
@@ -140,10 +147,12 @@ namespace WeatherHouse.DrawerPrototype.Editor
             SessionState.SetString(Key+".scene",SceneManager.GetActiveScene().path);
             SessionState.SetBool(Key+".dirty",SceneManager.GetActiveScene().isDirty);
             SessionState.SetBool(Key+".background",Application.runInBackground);
+            SessionState.SetString(Key+".pipeline",AssetDatabase.GetAssetPath(QualitySettings.renderPipeline));
             SessionState.SetString(Key+".formalHash",Hash("Assets/Scenes/WeatherHouse_WatersideV2.unity"));
-            SessionState.SetBool(Key+".owned",true); SessionState.SetBool(Key+".checks",checks || resume); SessionState.SetBool(Key+".resume",resume);
+            SessionState.SetBool(Key+".owned",true); SessionState.SetBool(Key+".checks",checks || resume || appearance); SessionState.SetBool(Key+".resume",resume);
+            SessionState.SetBool(Key+".lookChecks",appearance);
             SessionState.SetBool(Key+".models",models);
-            if (checks || models)
+            if (checks || models || appearance)
             {
                 string directory = Path.GetFullPath(Review + "/checks-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss"));
                 Directory.CreateDirectory(directory); SessionState.SetString(Key+".checkDirectory",directory);
@@ -171,7 +180,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
                 {
                     var controller = UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>();
                     Require(controller,"The independent drawer controller is missing.");
-                    controller.StartCoroutine(Guard(controller,SessionState.GetBool(Key+".resume",false) ? RunResume(controller) : RunFlow(controller)));
+                    controller.StartCoroutine(Guard(controller,SessionState.GetBool(Key+".lookChecks",false) ? RunLookChecks(controller) : SessionState.GetBool(Key+".resume",false) ? RunResume(controller) : RunFlow(controller)));
                 }
                 else if (SessionState.GetBool(Key+".models",false))
                 {
@@ -188,9 +197,10 @@ namespace WeatherHouse.DrawerPrototype.Editor
             SessionState.SetBool(Key+".owned",false);
             bool preserved = Hash("Assets/Scenes/WeatherHouse_WatersideV2.unity") == SessionState.GetString(Key+".formalHash","") &&
                 SceneManager.GetActiveScene().path == SessionState.GetString(Key+".scene","") &&
-                SceneManager.GetActiveScene().isDirty == SessionState.GetBool(Key+".dirty",false);
+                SceneManager.GetActiveScene().isDirty == SessionState.GetBool(Key+".dirty",false) &&
+                AssetDatabase.GetAssetPath(QualitySettings.renderPipeline) == SessionState.GetString(Key+".pipeline","");
             Directory.CreateDirectory(Review);
-            File.WriteAllText(Review+"/handoff.txt","Play=False\nOriginalSceneAndDirtyPreserved="+preserved+"\nActiveScene="+SceneManager.GetActiveScene().path);
+            File.WriteAllText(Review+"/handoff.txt","Play=False\nOriginalSceneAndDirtyPreserved="+preserved+"\nOriginalPipelineRestored="+(AssetDatabase.GetAssetPath(QualitySettings.renderPipeline) == SessionState.GetString(Key+".pipeline",""))+"\nActiveScene="+SceneManager.GetActiveScene().path);
             WriteStatus(preserved ? "STOPPED; original scene preserved" : "FAIL original scene preservation");
             if (Application.isBatchMode && SessionState.GetBool(Key+".batch",false))
                 EditorApplication.delayCall += () => EditorApplication.Exit(preserved && !SessionState.GetBool(Key+".failed",false) ? 0 : 1);
@@ -403,6 +413,13 @@ namespace WeatherHouse.DrawerPrototype.Editor
         static IEnumerator ReviewModels(DrawerPrototypeController c)
         {
             yield return new WaitForSeconds(2.8f); c.Automation = true;
+            var decorations = c.transform.Find("Meadow decorations");
+            Require(decorations && decorations.GetComponentsInChildren<Collider>().Length == 0,"Meadow decoration must not intercept drawer picking.");
+            Require(decorations.GetComponentsInChildren<MeshRenderer>().Any(r => r.name.StartsWith("R10_OrangeFlower") && r.isVisible),"Orange flowers must render.");
+            Require(!decorations.GetComponentsInChildren<MeshRenderer>().Any(r => r.name.StartsWith("R08_Fern") || r.name.StartsWith("R14_RoundGroundcover")),"The removed leafy decoration must stay absent.");
+            var mouse = c.GetComponentInChildren<WeatherHousePrototype.AnimalGlyphGraphic>();
+            Require(mouse && !mouse.raycastTarget && Mathf.Abs(mouse.rectTransform.anchoredPosition.x) < 1 && mouse.rectTransform.anchoredPosition.y < -350,"Mouse hint must be at the bottom center without blocking input.");
+            Require(!mouse.GetComponentInChildren<UnityEngine.UI.Text>(),"The mouse hint must have no text explanation.");
             foreach (var item in c.Papers.Concat(c.Items)) item.body.isKinematic = true;
             yield return Capture(Path.GetFullPath(Review+"/latest-drawer.png"));
             var top = c.Papers.Last(p => c.TopAt(p.transform.position) == p);
@@ -431,7 +448,60 @@ namespace WeatherHouse.DrawerPrototype.Editor
             c.AlbumModel.SetActive(true); c.AlbumModel.transform.SetPositionAndRotation(new Vector3(2.1f,1,1.45f),Quaternion.Euler(-18,-7,5));
             yield return new WaitForSeconds(.4f);
             yield return Capture(Path.GetFullPath(Review+"/model-review.png"));
-            File.WriteAllText(Review+"/visual-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: original Waterside meadow renders with its existing wind materials; initial, changed-light and prop-display frames captured in Unity. Visual approval remains with the user.");
+            File.WriteAllText(Review+"/visual-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: meadow and flowers render without the removed leafy decoration; decoration does not intercept picking; text-free mouse hint is at bottom center. Initial, changed-light and prop-display frames captured in Unity. Visual approval remains with the user.");
+        }
+
+        static IEnumerator RunLookChecks(DrawerPrototypeController c)
+        {
+            yield return new WaitForSeconds(3); c.Automation = true;
+            string directory = SessionState.GetString(Key+".checkDirectory","");
+            File.WriteAllText(Review+"/look-checks.txt",DateTime.UtcNow.ToString("O")+"\nRUNNING\nEvidence="+directory);
+            Require(c.RuntimeLook && c.RuntimeLook.Materials.All(m => m && !AssetDatabase.Contains(m)),"All tunable materials must be runtime copies.");
+            Require(c.RuntimeLook.paper.shader.name == "Weather House/Oil Paint Surface" && c.RuntimeLook.magicBook.shader.name == "Weather House/Oil Paint Surface","Paper and books must use the existing oil surface shader.");
+            Require(c.RuntimeLook.paper.shader.isSupported && c.OilPost && UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline == c.lookPipeline,"The drawer must use its supported private oil pipeline.");
+            Require(c.RuntimeLook.paper.GetTexture("_BaseMap") == c.paperGrain && c.RuntimeLook.magicBook.GetTexture("_BaseMap") == Resources.Load<Texture2D>("DrawerPrototype/Velvet"),"Paper and cloth textures must be retained.");
+            int originalCount = c.Meadow.VisibleClumpCount;
+            yield return Capture(Path.Combine(directory,"01-oil-materials.png"));
+            c.RuntimeLook.density = 12.5f; c.RuntimeLook.seed = 6201; c.RuntimeLook.sunAzimuth = 48; c.RuntimeLook.sunlight = .8f;
+            c.RuntimeLook.magicBook.SetFloat("_BrushStrength",.62f); c.ApplyLookSettings();
+            yield return new WaitForSeconds(1.5f);
+            int changedCount = c.Meadow.VisibleClumpCount;
+            Require(changedCount > 0 && changedCount < originalCount*.75f && c.Meadow.seed == 6201 && Mathf.Abs(c.sunlight-.8f) < .001f,"Scatter and lighting changes must reach the running scene.");
+            yield return Capture(Path.Combine(directory,"02-density-light-preview.png"));
+
+            string fixturePath = DrawerLookAssets.Folder+"/LookReviewFixture.asset";
+            Require(!File.Exists(fixturePath),"Preserve an existing review fixture instead of overwriting it.");
+            DrawerLookSettings original = c.lookDefaults;
+            var fixture = UnityEngine.Object.Instantiate(original); fixture.name = "LookReviewFixture";
+            AssetDatabase.CreateAsset(fixture,fixturePath);
+            try
+            {
+                Material[] materials = original.Materials;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    materials[i] = new Material(materials[i]) { name = "Fixture "+i }; AssetDatabase.AddObjectToAsset(materials[i],fixture);
+                }
+                fixture.SetMaterials(materials); c.lookDefaults = fixture;
+                DrawerLookAssets.Save(c); AssetDatabase.ImportAsset(fixturePath,ImportAssetOptions.ForceUpdate);
+                var loaded = AssetDatabase.LoadAssetAtPath<DrawerLookSettings>(fixturePath);
+                Require(loaded.density == 12.5f && loaded.seed == 6201 && Mathf.Abs(loaded.magicBook.GetFloat("_BrushStrength")-.62f) < .001f,"Saved scatter and material parameters must reload.");
+                Require(loaded.Materials.All(m => m && AssetDatabase.GetAssetPath(m) == fixturePath),"Saving must retain persistent material references, never runtime clones.");
+                Require(File.ReadAllText(fixturePath).Contains("density: 12.5"),"Saved parameters must reach the asset file on disk.");
+            }
+            finally
+            {
+                c.lookDefaults = original; DrawerLookAssets.CopyLook(original,c.RuntimeLook); c.ApplyLookSettings();
+                AssetDatabase.DeleteAsset(fixturePath);
+            }
+            yield return new WaitForSeconds(1.2f);
+            c.RuntimeLook.oilEnabled = true; c.RuntimeLook.oilStrength = 1; c.RuntimeLook.oilRadius = 4;
+            c.RuntimeLook.oilCompare = true; c.ApplyLookSettings();
+            yield return Capture(Path.Combine(directory,"03-oil-post-comparison.png"));
+            Require(c.OilPost.HasEffect && c.OilPost.splitScreen,"The oil preview controls must enable the camera effect.");
+            DrawerLookAssets.CopyLook(original,c.RuntimeLook); c.ApplyLookSettings();
+            yield return new WaitForSeconds(.5f);
+            yield return Capture(Path.Combine(directory,"04-restored-defaults.png"));
+            File.WriteAllText(Review+"/look-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: private runtime materials; existing oil shader with original textures; scatter and lighting applied; saved parameters and material references reloaded from a temporary asset; original defaults restored; oil post split preview captured.\nGrass clumps="+originalCount+" -> "+changedCount+"\nEvidence="+directory);
         }
 
         static void ExportModels(DrawerPrototypeController c)
@@ -507,6 +577,10 @@ namespace WeatherHouse.DrawerPrototype.Editor
 
         static IEnumerator Capture(string path)
         {
+            double shaderDeadline = EditorApplication.timeSinceStartup+180;
+            while (ShaderUtil.anythingCompiling && EditorApplication.timeSinceStartup < shaderDeadline) yield return null;
+            Require(!ShaderUtil.anythingCompiling,"Wait for shader compilation before accepting a review image.");
+            Require(!ShaderUtil.ShaderHasError(Shader.Find("Weather House/Oil Paint Surface")),"Oil surface shader compilation failed.");
             if (Application.isBatchMode)
             {
                 yield return null;
@@ -542,7 +616,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
         {
             Directory.CreateDirectory(Review);
             File.WriteAllText(Review+"/status.txt",DateTime.UtcNow.ToString("O")+"\n"+message+"\nPlay="+EditorApplication.isPlaying+"\nCompiling="+EditorApplication.isCompiling+
-                "\nActiveScene="+SceneManager.GetActiveScene().path+"\nDirty="+SceneManager.GetActiveScene().isDirty);
+                "\nShaderCompiling="+ShaderUtil.anythingCompiling+"\nActiveScene="+SceneManager.GetActiveScene().path+"\nDirty="+SceneManager.GetActiveScene().isDirty);
         }
 
         static string Hash(string path)

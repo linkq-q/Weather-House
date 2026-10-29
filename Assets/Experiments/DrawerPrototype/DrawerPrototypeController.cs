@@ -30,6 +30,7 @@ namespace WeatherHouse.DrawerPrototype
         public Material[] meadowMaterials;
         public Material meadowGround;
         public TerrainLayer meadowLayer;
+        public GameObject[] meadowPlants;
         public WeatherHouse.Hillside.HillsideGrassRenderer Meadow { get; private set; }
         [Header("Live lighting · adjust during Play")]
         [Range(.2f,2f)] public float sunlight = 1.08f;
@@ -88,6 +89,7 @@ namespace WeatherHouse.DrawerPrototype
             atlas = Resources.Load<Texture2D>("DrawerPrototype/Props");
             font = Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular");
             if (!atlas || !timberAlbedo || !paperGrain || !font) throw new InvalidOperationException("Drawer scene assets are missing. Rebuild the independent drawer scene.");
+            InitializeLook();
             BuildMaterials();
             BuildStage();
             BuildItems();
@@ -95,6 +97,7 @@ namespace WeatherHouse.DrawerPrototype
             BuildInterface();
             BuildMagic();
             BuildPaperFeedback();
+            ApplyLookSettings();
             sound = gameObject.AddComponent<AudioSource>();
             sound.playOnAwake = false; sound.spatialBlend = 0; sound.volume = .42f;
             paperSound = Resources.Load<AudioClip>("LifeAudio/Clips/paper_move");
@@ -112,17 +115,10 @@ namespace WeatherHouse.DrawerPrototype
 
         void BuildMaterials()
         {
-            paperSide = Paint("Ivory paper edges", new Color(.78f,.74f,.65f));
-            paperTop = Paint("Cotton paper", new Color(.92f,.94f,1f)); paperTop.SetTexture("_BaseMap",paperGrain); Normal(paperTop,paperNormal,.16f);
-            paperFold = Paint("Folded cotton paper",new Color(.89f,.90f,.95f)); paperFold.SetTexture("_BaseMap",paperGrain); Normal(paperFold,paperNormal,.16f);
+            paperSide = RuntimeLook.paper; paperTop = RuntimeLook.paper; paperFold = RuntimeLook.paperFold;
             crease = Paint("Fine folded paper crease",new Color(.69f,.64f,.53f),true);
             cream = Paint("Cream", new Color(.87f,.86f,.74f));
-            green = Paint("Grass green velvet", new Color(.58f,.62f,.43f));
-            green.SetTexture("_BaseMap",Resources.Load<Texture2D>("DrawerPrototype/Velvet"));
-            green.SetFloat("_Smoothness",.14f); Normal(green,paperNormal,.12f);
-            sage = Paint("Sage cloth", new Color(.54f,.58f,.43f));
-            sage.SetTexture("_BaseMap",Resources.Load<Texture2D>("DrawerPrototype/Velvet"));
-            sage.SetFloat("_Smoothness",.14f); Normal(sage,paperNormal,.12f);
+            green = RuntimeLook.magicBook; sage = RuntimeLook.dictionary;
             wood = Paint("Wand wood", new Color(.37f,.25f,.15f));
             wood.SetTexture("_BaseMap",timberAlbedo);
             dark = Paint("Lens charcoal", new Color(.16f,.19f,.18f));
@@ -170,6 +166,8 @@ namespace WeatherHouse.DrawerPrototype
             cameraData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.SubpixelMorphologicalAntiAliasing;
             cameraData.antialiasingQuality = UnityEngine.Rendering.Universal.AntialiasingQuality.High;
             cameraObject.AddComponent<AudioListener>();
+            OilPost = cameraObject.AddComponent<WeatherHouse.MaterialLab.OilPaintPostSettings>();
+            OilPost.pixelEnabled = false; OilPost.oilEnabled = false;
             var lightObject = new GameObject("Drawer · leaf-filtered daylight");
             lightObject.transform.SetParent(transform); lightObject.transform.rotation = Quaternion.Euler(65,-35,0);
             drawerSun = lightObject.AddComponent<Light>(); drawerSun.type = LightType.Directional;
@@ -360,13 +358,11 @@ namespace WeatherHouse.DrawerPrototype
             Stroke(closeTarget,Vector2.zero,new Vector2(22,2.5f),45,new Color(.57f,.61f,.43f));
             Stroke(closeTarget,Vector2.zero,new Vector2(22,2.5f),-45,new Color(.57f,.61f,.43f));
             dialog.gameObject.SetActive(false);
-            hint = UiRect("Long press gesture",ui.transform,new Vector2(-665,-362),new Vector2(190,70));
-            Text instruction = Label(hint,"Instruction",new Vector2(0,-20),new Vector2(210,35),18,TextAnchor.MiddleCenter);
-            instruction.text = "长按信件，轻轻挪开"; instruction.color = new Color(.94f,.94f,.82f,.85f);
-            var mouse = UiRect("Mouse",hint,new Vector2(0,15),new Vector2(19,29));
-            foreach (Vector2 point in new[] { new Vector2(-9,0),new Vector2(9,0) }) Stroke(mouse,point,new Vector2(2,28),0,new Color(.94f,.94f,.82f,.85f));
-            Stroke(mouse,new Vector2(0,14),new Vector2(18,2),0,Color.white); Stroke(mouse,new Vector2(0,-14),new Vector2(18,2),0,Color.white);
-            Stroke(mouse,new Vector2(-4,7),new Vector2(6,10),0,new Color(.98f,.93f,.68f));
+            hint = UiRect("Long press gesture",ui.transform,new Vector2(0,-393),new Vector2(76,91));
+            // Use the same mouse drawing and stroke weight as LifeGestureBook's practice hint.
+            var mouse = hint.gameObject.AddComponent<WeatherHousePrototype.AnimalGlyphGraphic>();
+            mouse.SvgBody = "<path d=\"M 35 43 Q 35 25 50 25 Q 65 25 65 43 L 65 76 Q 65 93 50 93 Q 35 93 35 76 L 35 43 M 50 26 L 50 53 M 36 53 L 64 53 M 41 36 L 44 36 L 44 45 L 41 45 L 41 36\"/>";
+            mouse.lineWidth = 3.8f; mouse.color = new Color(.94f,.94f,.82f,.9f); mouse.raycastTarget = false;
             completePanel = UiRect("Ready to leave",ui.transform,new Vector2(0,-360),new Vector2(390,72));
             completePanel.gameObject.AddComponent<Image>().sprite = sprite;
             Label(completePanel,"Ready",Vector2.zero,new Vector2(340,60),25,TextAnchor.MiddleCenter).text = "东西都带齐了，准备出发。";

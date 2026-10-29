@@ -55,6 +55,44 @@ namespace WeatherHouse.DrawerPrototype
             Meadow.terrain = terrain; Meadow.variants = meadowVariants; Meadow.materials = meadowMaterials;
             Meadow.seed = 431; Meadow.clumpsPerSquareMeter = 28.011204f; Meadow.speciesWeights = new[] { 78f,6f,.8f };
             Meadow.placementMap = mask; Meadow.viewCamera = ViewCamera;
+            BuildMeadowDecorations();
+        }
+
+        void BuildMeadowDecorations()
+        {
+            if (meadowPlants == null || meadowPlants.Length != 3 || System.Array.Exists(meadowPlants,p => !p))
+                throw new System.InvalidOperationException("Rebuild the drawer scene to bind the existing orange flowers.");
+            var border = new GameObject("Meadow decorations"); border.transform.SetParent(transform,false);
+            // Keep the right-side collection shelf and the drawer's picking area open.
+            Vector4[] patches =
+            {
+                new Vector4(-7.05f,1.95f,15,1.65f),new Vector4(-6.60f,1.60f,80,1.25f),new Vector4(-6.05f,-3.15f,210,1.60f),
+                new Vector4(-2.75f,4.40f,120,1.45f),new Vector4(-2.20f,4.55f,65,1.10f),new Vector4(4.85f,4.1f,290,1.50f)
+            };
+            for (int i = 0; i < patches.Length; i++)
+            {
+                Vector4 placement = patches[i];
+                var plant = Instantiate(meadowPlants[i%3],border.transform);
+                plant.GetComponent<MeshRenderer>().sharedMaterial = RuntimeLook.orangeFlowers;
+                plant.transform.localPosition = new Vector3(placement.x,-.06f,placement.y);
+                plant.transform.localRotation = Quaternion.Euler(0,placement.z,0);
+                plant.transform.localScale = Vector3.one*placement.w;
+            }
+            Vector4[] daisies =
+            {
+                new Vector4(-7.35f,3.3f,20,1.65f),new Vector4(-7.25f,-.35f,165,1.55f),
+                new Vector4(-7.45f,-3.2f,300,1.75f),new Vector4(-3.45f,-4.85f,110,1.65f),
+                new Vector4(1.40f,-4.90f,225,1.75f),new Vector4(-.40f,5.55f,65,1.65f),
+                new Vector4(5.85f,5.00f,280,1.60f),new Vector4(8.15f,-.30f,40,1.55f)
+            };
+            for (int i = 0; i < daisies.Length; i++)
+            {
+                Vector4 placement = daisies[i];
+                var flower = MeshObject(border.transform,"Larger meadow daisies",meadowVariants[8+i%4],meadowMaterials[2]);
+                flower.transform.localPosition = new Vector3(placement.x,-.06f,placement.y);
+                flower.transform.localRotation = Quaternion.Euler(0,placement.z,0);
+                flower.transform.localScale = Vector3.one*placement.w;
+            }
         }
 
         void BuildPaperFeedback()
