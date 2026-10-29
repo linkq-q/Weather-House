@@ -68,7 +68,7 @@ namespace WeatherHouse.Life.Editor
             Vector3 position = mover.transform.position; Quaternion rotation = mover.transform.rotation; AnimalActor observed = game.Observed; int taskPage = life.TaskPage;
             var objectIds = new HashSet<string>(life.World.Objects.Select(item => item.State.id));
             string[] fields = { "albumPhotosSelected", "albumGesturesSelected", "albumTasksSelected", "glyphPage", "photoTaskPage", "page", "selectedGlyph", "selectedGesture", "guessDraft", "guessGlyphId" };
-            var ui = fields.ToDictionary(name => name, name => Get<object>(hud, name)); int tip = Get<int>(input, "tipLevel");
+            var ui = fields.ToDictionary(name => name, name => Get<object>(hud, name));
             var speakers = life.World.Requests.Select(request => request.speakerKey).Distinct().Select(key => life.World.FindSpeaker(key)).Where(speaker => speaker).ToArray(); var topics = speakers.Select(speaker => speaker.topicIndex).ToArray();
             bool finished = false;
             try
@@ -113,7 +113,7 @@ namespace WeatherHouse.Life.Editor
                 { objects.Remove(item.State.id); interactive.Remove(item); UnityEngine.Object.Destroy(item.gameObject); }
                 JsonUtility.FromJsonOverwrite(notebook, game.Notebook); JsonUtility.FromJsonOverwrite(progress, life.Progress); life.World.RestoreJson(world);
                 for (int i = 0; i < speakers.Length; i++) if (speakers[i]) speakers[i].topicIndex = topics[i];
-                foreach (var field in ui) Set(hud, field.Key, field.Value); Set(input, "tipLevel", tip);
+                foreach (var field in ui) Set(hud, field.Key, field.Value);
                 Property(game, "Observed", observed); Property(life, "TaskPage", taskPage);
                 }
                 catch (Exception error) { finished = false; report.gaps.Add("State restoration failed: " + error); }
@@ -188,9 +188,8 @@ namespace WeatherHouse.Life.Editor
                 if (taskMood && taskMoodSnapshot != null) taskMood.RestoreState(taskMoodSnapshot);
             }
             report.notes.Add("U16 night-task uses actual WatersideMood.Apply(Night) and restores its captured state in finally. There is no advancing in-game clock; F8 currently changes the scene mood.");
-            yield return Make("U18", "expanded-hint", "LifeGestureInput.Guidance", "H expansion state set; current production sentence", () => { JsonUtility.FromJsonOverwrite(originalProgress, life.Progress); Set(input, "tipLevel", 1); });
             var dog = world.FindSpeaker("dog");
-            yield return Make("U04", "listening", "GameplayHud.ListenToAnimal", "Actual E listening at an arranged nearby speaker; no player reply or semantic judgement", () => { Set(input, "tipLevel", 0); PlaceNear(life, dog.transform.position, 2.4f); dog.topicIndex = Array.FindIndex(dog.requests, request => request.id == "dog.hello"); Property(game, "Observed", dog.Actor); hud.ListenToAnimal(); Require(!hud.IsDialogueOpen && !hud.BlocksMovement && life.Progress.HasHeard("dog.hello"), "Listening must record the request without a reply modal"); Require(!hud.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Chinese reply" || t.name == "Player spoken reply"), "Retired reply UI must remain absent"); });
+            yield return Make("U04", "listening", "GameplayHud.ListenToAnimal", "Actual E listening at an arranged nearby speaker; no player reply or semantic judgement", () => { PlaceNear(life, dog.transform.position, 2.4f); dog.topicIndex = Array.FindIndex(dog.requests, request => request.id == "dog.hello"); Property(game, "Observed", dog.Actor); hud.ListenToAnimal(); Require(!hud.IsDialogueOpen && !hud.BlocksMovement && life.Progress.HasHeard("dog.hello"), "Listening must record the request without a reply modal"); Require(!hud.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Chinese reply" || t.name == "Player spoken reply"), "Retired reply UI must remain absent"); });
             yield return Make("U06", "camera", "GameplayHud.SetCameraMode", "Actual viewfinder UI at arranged viewpoint", () => { hud.SetCameraMode(true, true); });
             yield return Make("U06", "focus", "PhotoCameraRig.FocusAt", "Actual focus entry at screen center", () => game.PhotoRig.FocusAt(new Vector2(Screen.width * .5f, Screen.height * .5f)));
             yield return Make("U06", "recording", "GameplaySession.TakePhoto / actual Recorder", "Actual isolated capture in progress, no fake IsRecording state", () => { game.TakePhoto(); Require(game.Recorder.IsRecording, "TakePhoto did not start"); });

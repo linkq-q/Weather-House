@@ -64,7 +64,7 @@ namespace WeatherHouse.Life
                     if(held){Drop();return;}
                     held=obj;held.State.held=true;held.State.slot="";held.State.sheltered=false;
                     LifeAudio.PlayAt(LifeAudioCue.Fiber, obj.transform.position);
-                    owner.SaveAndNotify("拿起"+obj.Description+"。");break;
+                    owner.SaveAndNotify("");break;
                 case LifeObjectKind.Loom:
                     if(held && held.State.kind==LifeObjectKind.Bundle)
                     StartCraft();
@@ -75,9 +75,9 @@ namespace WeatherHouse.Life
                         if(obj.State.water<.12f){owner.SaveAndNotify("碗里的水不够。");return;}
                         held.State.wetness=Mathf.Clamp01(held.State.wetness+.75f);obj.State.water=Mathf.Max(0,obj.State.water-.1f);held.State.revision++;
                         LifeAudio.PlayAt(LifeAudioCue.Water, obj.transform.position);
-                        owner.SaveAndNotify("浸湿了。");
+                        owner.SaveAndNotify("");
                     }
-                    else if(shift){if(obj.State.water>0)LifeAudio.PlayAt(LifeAudioCue.Water,obj.transform.position);obj.State.water=0;owner.SaveAndNotify("水碗已倒空。");}
+                    else if(shift){if(obj.State.water>0)LifeAudio.PlayAt(LifeAudioCue.Water,obj.transform.position);obj.State.water=0;owner.SaveAndNotify("");}
                     else if(obj.State.water>.2f)
                     {
                         if(!BeginDrink(obj))owner.SaveAndNotify("碗里留着水。");
@@ -94,13 +94,13 @@ namespace WeatherHouse.Life
                         if(obj.State.id=="squirrel.nest" && DryMatAt(obj.State.id) && bindings.TryGetValue("squirrel",out Binding squirrel) &&
                             squirrel.wildlife && Flat(Player.position,squirrel.speaker.transform.position)<4)
                             squirrel.wildlife.RequestLifeAction(Clip("SquirrelAccept"),2);
-                        owner.SaveAndNotify("垫子已铺好。");
+                        owner.SaveAndNotify("");
                         LifeAudio.PlayAt(LifeAudioCue.Contact, obj.transform.position);
                     }
                     else if(!held && shift)
                     {
                         held=objects.Values.FirstOrDefault(o=>o.State.slot==obj.State.id);
-                        if(held){held.State.held=true;held.State.slot="";held.State.sheltered=false;obj.State.revision++;LifeAudio.PlayAt(LifeAudioCue.Fiber,obj.transform.position);owner.SaveAndNotify("拿起草垫。");}
+                        if(held){held.State.held=true;held.State.slot="";held.State.sheltered=false;obj.State.revision++;LifeAudio.PlayAt(LifeAudioCue.Fiber,obj.transform.position);owner.SaveAndNotify("");}
                     }
                     else if(obj.State.id==commonRestId || accepted.Values.Any(a=>Array.Find(requests,r=>r.id==a.id)?.condition=="common_rest") &&
                         bindings.TryGetValue("squirrel",out Binding host) && Flat(Player.position,host.speaker.transform.position)<4.5f)InviteCommon(obj.State.id);
@@ -115,13 +115,13 @@ namespace WeatherHouse.Life
         void StartCraft()
         {
             craftingId=held.State.id;craftStart=Player.position;craftEnd=Time.time+1.6f;
-            owner.SaveAndNotify("开始把草束编成一张垫。");
+            owner.SaveAndNotify("");
         }
         void FinishCraft()
         {
             LifeObjectState state=held.State;state.kind=LifeObjectKind.Mat;state.revision++;
             GameObject old=held.gameObject;objects.Remove(state.id);interactables.Remove(held);held=null;Destroy(old);
-            held=CreateItem(state);craftingId=null;owner.SaveAndNotify("编成了一张草垫。");
+            held=CreateItem(state);craftingId=null;owner.SaveAndNotify("");
             LifeAudio.PlayAt(LifeAudioCue.Contact, Player.position);
         }
         void RemoveHeld()
@@ -150,7 +150,7 @@ namespace WeatherHouse.Life
             }
             held=null;
             LifeAudio.PlayAt(LifeAudioCue.Contact, at);
-            owner.SaveAndNotify("放下了。");
+            owner.SaveAndNotify("");
         }
         void InviteAt(LifeObject place)
         {
@@ -181,7 +181,7 @@ namespace WeatherHouse.Life
             if(place){place.State.revision++;place.State.actionRevision++;}
             foreach(Accepted a in accepted.Values)
             {LifeRequest r=Array.Find(requests,q=>q.id==a.id);if(r!=null&&r.speakerKey==key&&r.targetId==target)a.stage=1;}
-            owner.SaveAndNotify(pending!=null?"它喝完水就过来。":"它正走过来。");
+            owner.SaveAndNotify("");
         }
         void InviteCommon(string target=null)
         {
@@ -219,8 +219,7 @@ namespace WeatherHouse.Life
                 }
             }
             objects[target].State.revision++;
-            owner.SaveAndNotify(drinks.Any(d=>d.returnRest && Flat(d.returnTarget,AnchorPosition(target))<.1f)?"喝完水后，它还会到这里歇脚。":
-                invited.Count>0?"同伴正走来歇脚。":"同伴还没走近，稍后再邀请。");
+            owner.SaveAndNotify(drinks.Any(d=>d.returnRest && Flat(d.returnTarget,AnchorPosition(target))<.1f)||invited.Count>0?"":"同伴还没走近，稍后再邀请。");
         }
         bool Known(string request)=>owner && owner.Progress.HasHeard(request);
     }

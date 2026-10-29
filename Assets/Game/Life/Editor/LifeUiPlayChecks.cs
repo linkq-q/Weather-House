@@ -18,6 +18,7 @@ namespace WeatherHouse.Life.Editor
 
         public static IEnumerator Run(LifeSession life, Action<string> completed)
         {
+            bool owned = life.Progress.photoTaskBookCollected; life.Progress.photoTaskBookCollected = true;
             var checks = new List<string>();
             IEnumerator steps = Steps(life, checks);
             Exception failure = null;
@@ -30,6 +31,7 @@ namespace WeatherHouse.Life.Editor
                 yield return next;
             }
             (steps as IDisposable)?.Dispose();
+            life.Progress.photoTaskBookCollected = owned;
             if (failure != null && life)
             {
                 var hud = life.GetComponent<GameplayHud>();

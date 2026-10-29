@@ -107,7 +107,7 @@ namespace WeatherHouse.Life
             if(!obj)return false;string key=obj.State.id.Split('.')[0];LifeSpeaker s=FindSpeaker(key);
             if(!s || s.Current==null || s.Current.eventId!="E4")return false;
             if(DemonstrationBlocked(obj))owner.SaveAndNotify("先收起当前魔法，再重放它的演示。");
-            else {BeginDemonstration(key,s.Current);owner.SaveAndNotify("它又做了一遍。");}
+            else {BeginDemonstration(key,s.Current);owner.SaveAndNotify("");}
             return true;
         }
     }

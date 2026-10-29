@@ -26,7 +26,6 @@ namespace WeatherHouse.Life
         public string InteractionHint => World ? World.InteractionHint : "";
         public string WeatherText => weather ? weather.Description : "自然天气";
         public bool LocalRainActive => weather && weather.IsRain;
-        public string ProgressHint => Progress.GetProgressHint(World ? World.Requests : Array.Empty<LifeRequest>());
         public int TaskPage { get; private set; }
         public int TaskPageCount => Mathf.Max(1, (Progress.tasks.Count(t => t.status == LifeTaskStatus.Active) + 1) / 2);
         public void ChangeTaskPage(int delta) { TaskPage = (TaskPage + delta + TaskPageCount) % TaskPageCount; Changed?.Invoke(); }
@@ -120,7 +119,7 @@ namespace WeatherHouse.Life
             Gameplay.Changed += OnGameplayChanged;
             Gameplay.SaveNotebook();
             SaveAndNotify(string.IsNullOrEmpty(World.SetupWarning) ?
-                "雨的手势记在手账里。" :
+                "" :
                 "生活点需要检查：" + World.SetupWarning);
         }
 
@@ -147,7 +146,7 @@ namespace WeatherHouse.Life
                 bool near = speaker && InsideCircle(Gameplay.PlayerTransform.position, speaker.transform.position, CastRadius);
                 if (request != null && Progress.Complete(task.requestId, near, World.IsSatisfied(request))) completed = true;
             }
-            if (completed) { SaveAndNotify("它满意地点了点头。"); LifeAudio.Play(LifeAudioCue.Progress); }
+            if (completed) { SaveAndNotify(""); LifeAudio.Play(LifeAudioCue.Progress); }
         }
 
         public static bool InsideCircle(Vector3 center, Vector3 point, float radius)
@@ -166,7 +165,7 @@ namespace WeatherHouse.Life
             speaker.SelectNext();
             Gameplay.Notebook.Observe(animal.animalId, animal.UtteranceId, animal.CurrentGlyphIds);
             Gameplay.SaveNotebook();
-            Gameplay.Notify("它又说了一句话。");
+            Gameplay.Notify("");
         }
         public bool Listen(AnimalActor animal, string utteranceId)
         {
@@ -211,7 +210,7 @@ namespace WeatherHouse.Life
             bool newlyLearned = !Progress.learnedGestures.Contains(id);
             if (newlyLearned) Progress.learnedGestures.Add(id);
             if (id == "rain") Progress.rainTutorialSeen = true;
-            SaveAndNotify("手势已学会。合上手账后按 G，在身边施法。");
+            SaveAndNotify("");
             if (newlyLearned) LifeAudio.Play(LifeAudioCue.Progress);
             return true;
         }
@@ -229,6 +228,14 @@ namespace WeatherHouse.Life
             bool saved = SaveProgress();
             Gameplay?.Notify(message + (saved ? "" : "（生活进度暂未写入磁盘）"));
             Changed?.Invoke();
+        }
+        public bool AcquirePhotoTaskBook()
+        {
+            if (Progress.photoTaskBookCollected) return true;
+            Progress.photoTaskBookCollected = true;
+            if (!SaveProgress())
+            { Progress.photoTaskBookCollected = false; Gameplay.Notify("任务书暂时未能保存，请再试一次。"); return false; }
+            Gameplay.Notify(""); Changed?.Invoke(); LifeAudio.Play(LifeAudioCue.Progress); return true;
         }
         private bool SaveProgress()
         {

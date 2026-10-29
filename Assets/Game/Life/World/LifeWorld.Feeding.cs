@@ -23,7 +23,7 @@ namespace WeatherHouse.Life
             if(feeding!=null || !held || held.State.kind!=LifeObjectKind.Bundle || animal==null || !animal.herd)return;
             if(!animal.herd.RequestLifeForage(animal.member,6f)){owner.SaveAndNotify("等它停下来再递草。");return;}
             feeding=new Feed{animal=animal,bundle=held,expires=Time.time+2.5f};
-            owner.SaveAndNotify("把草递给绵羊。");
+            owner.SaveAndNotify("");
         }
         void UpdateFeeding()
         {
@@ -44,7 +44,7 @@ namespace WeatherHouse.Life
             ClearMeal();meal=new Meal{animal=f.animal,grass=f.bundle,head=member.headBone,mouthLocal=member.headBone.InverseTransformPoint(mouth)};
             held=null;f.bundle.State.held=false;objects.Remove(f.bundle.State.id);interactables.Remove(f.bundle);
             f.bundle.transform.localScale=Vector3.one*.42f;
-            feeding=null;UpdateMeal();owner.SaveAndNotify("绵羊吃下了草。");
+            feeding=null;UpdateMeal();owner.SaveAndNotify("");
         }
         void CancelFeed()
         {

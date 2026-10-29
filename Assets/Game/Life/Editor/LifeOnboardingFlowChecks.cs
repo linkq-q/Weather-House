@@ -140,7 +140,7 @@ namespace WeatherHouse.Life.Editor
                     "Actual depth snapshot and visible speech agree at the final shutter viewpoint", lines);
                 int before = game.Notebook.observations.Count; game.TakePhoto();
                 Require(game.Recorder.IsRecording, "Ordinary TakePhoto starts its real recorder", lines);
-                yield return Wait(() => !game.Recorder.IsRecording, 20, "Live photo finishes");
+                yield return Wait(() => !game.Recorder.IsRecording, 20, "Static photo finishes");
                 Require(game.Notebook.observations.Count == before + 1, "Exactly one actual photograph is saved", lines);
                 var photo = game.Notebook.observations.Last();
                 Require(photo.frameCount == MotionPhotoRecorder.FrameCount && !photo.liveTruncated && string.IsNullOrEmpty(photo.captureWarning) &&
@@ -157,7 +157,8 @@ namespace WeatherHouse.Life.Editor
                 Require(tutorial.State.evidenceViewed && game.Notebook.FindEvidence("hello").Any(p => p.id == photo.id),
                     "Evidence lesson requires a saved matching photograph", lines);
                 yield return LifeOnboardingSmokeFrames.Capture(life, "photo-evidence-page");
-                yield return null; Click(FindNoteButton(game), lines, "View photography challenge"); yield return WaitBook(hud); yield return null;
+                if (hud.HasPhotoTaskBook) { yield return null; Click(FindNoteButton(game), lines, "View photography challenge"); yield return WaitBook(hud); yield return null; }
+                else Require(!Get<RectTransform>(hud,"albumRoot").Find("Photography tasks tab"),"Uncollected task book stays locked throughout the opening",lines);
                 Click(FindNoteButton(game), lines, "Continue to first request"); yield return null;
                 Require(tutorial.State.stage == LifeOnboardingStage.FindRainRequest, "Production callbacks finish the first tutorial loop", lines);
                 Require(string.IsNullOrEmpty(game.LastSaveError) && string.IsNullOrEmpty(tutorial.SaveError), "Isolated notebook and tutorial writes succeed", lines);

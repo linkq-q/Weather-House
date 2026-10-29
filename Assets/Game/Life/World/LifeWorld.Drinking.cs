@@ -49,7 +49,7 @@ namespace WeatherHouse.Life
                 facing=facing,stand=at,forward=forward,planning=!planned,retryAt=Time.time+.5f,approaching=planned && Flat(approach,at)>.001f,
                 skin=skin,baked=new Mesh{name="Squirrel mouth contact sample"}});
             animal.target=planned?approach:animal.speaker.transform.position;animal.rest=false;
-            owner.SaveAndNotify(!planned?"同伴在等一条空路。":sharing?"同伴也走向了水碗。":"它走向水碗。");return true;
+            owner.SaveAndNotify(!planned?"同伴在等一条空路。":"");return true;
         }
         bool FindDrinkStand(Binding animal,LifeObject bowl,Vector3 forward,out Vector3 at,out Quaternion facing,out Vector3 approach)
         {
@@ -154,7 +154,7 @@ namespace WeatherHouse.Life
                 {
                     float age=Time.time-d.started;
                     if(!d.consumed && age>.75f && age<2.3f && MouthTouchesWater(d))
-                    {d.consumed=true;d.bowl.State.water=Mathf.Max(0,d.bowl.State.water-.12f);d.bowl.State.revision++;LifeAudio.PlayAt(LifeAudioCue.Drink,d.bowl.waterVisual.position);owner.SaveAndNotify("它喝了一口水。");}
+                    {d.consumed=true;d.bowl.State.water=Mathf.Max(0,d.bowl.State.water-.12f);d.bowl.State.revision++;LifeAudio.PlayAt(LifeAudioCue.Drink,d.bowl.waterVisual.position);owner.SaveAndNotify("");}
                     if(age>=d.clip.length)
                     {
                         if(d.shared && d.sharedRounds<3 && drinks.Any(other=>other!=d && other.bowl==d.bowl))

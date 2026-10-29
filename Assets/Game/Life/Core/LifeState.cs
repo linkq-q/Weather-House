@@ -46,6 +46,7 @@ namespace WeatherHouse.Life
         public List<string> understoodRequests = new List<string>();
         public string worldJson = "";
         public bool rainTutorialSeen;
+        public bool photoTaskBookCollected;
 
         public void Normalize()
         {

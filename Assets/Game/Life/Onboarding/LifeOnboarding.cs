@@ -198,7 +198,7 @@ namespace WeatherHouse.Life
                     if (!hud.JournalOpen) text = "按 J，看看奶奶留下的手账。";
                     else
                     {
-                        text = State.firstBookPage == 0 ? "上面四个书签：动物字、照片、天气、摄影挑战。" :
+                        text = State.firstBookPage == 0 ? (hud.HasPhotoTaskBook ? "上面四个书签：动物字、照片、天气、摄影挑战。" : "上面三个书签：动物字、照片、天气。") :
                             State.firstBookPage == 1 ? "这两个字是“想要”和“不想要”。其它字，留给你来猜。" :
                             "黄色表示已经懂了。按 J 合上手账，去找朋友吧。";
                         button = State.firstBookPage < 2 ? "继续" : "合上手账";
@@ -217,14 +217,14 @@ namespace WeatherHouse.Life
                 case LifeOnboardingStage.TakeSpeechPhoto:
                     text = hud.JournalOpen ? "按 J 合上书，再试试拍照。" : "按 C，对准正在说话的动物。"; break;
                 case LifeOnboardingStage.PhotoBook:
-                    text = !hud.JournalOpen ? "按 J，看看刚拍下的照片。" : State.photoBookPage > 0 ? "奶奶的摄影挑战用动物语写成。先找找你认识的字。" :
-                        State.evidenceViewed ? "同一个字的照片都在这里。再看看奶奶的摄影挑战吧。" :
+                    text = !hud.JournalOpen ? "按 J，看看刚拍下的照片。" : State.photoBookPage > 0 && hud.HasPhotoTaskBook ? "奶奶的摄影挑战用动物语写成。先找找你认识的字。" :
+                        State.evidenceViewed ? (hud.HasPhotoTaskBook ? "同一个字的照片都在这里。再看看奶奶的摄影挑战吧。" : "同一个字的照片都在这里。") :
                         hud.OnboardingSelectedWord != null ? "点“查看相关照片”，找找这个字还出现在哪里。" :
                         hud.OnboardingDetailOpen ? "点照片下面的动物字。" : "点金圈里的照片，看看刚才留下了什么。";
                     if (hud.JournalOpen && (State.evidenceViewed || State.photoBookPage > 0))
                     {
-                        button = State.photoBookPage == 0 ? "看挑战" : "去找小狗";
-                        action = () => { if (State.photoBookPage++ == 0) { hud.OnboardingSelectBook(3, null); Persist(); } else SetStage(LifeOnboardingStage.FindRainRequest); };
+                        button = hud.HasPhotoTaskBook && State.photoBookPage == 0 ? "看挑战" : "去找小狗";
+                        action = () => { if (hud.HasPhotoTaskBook && State.photoBookPage++ == 0) { hud.OnboardingSelectBook(3, null); Persist(); } else SetStage(LifeOnboardingStage.FindRainRequest); };
                     }
                     break;
                 case LifeOnboardingStage.ReturnVisit: text = State.returnAway ? "再去看看小狗，它还会怎样招呼你？" : "走开一点，听听它的道别。然后再靠近看看。"; break;
@@ -246,7 +246,7 @@ namespace WeatherHouse.Life
                     else hud.OnboardingHighlight("Word " + (Known("hello") ? "goodbye" : "hello"));
                     break;
                 case LifeOnboardingStage.PhotoBook:
-                    if (State.photoBookPage > 0) hud.OnboardingHighlight("Photography tasks tab");
+                    if (State.photoBookPage > 0 && hud.HasPhotoTaskBook) hud.OnboardingHighlight("Photography tasks tab");
                     else if (State.evidenceViewed) hud.OnboardingHighlight();
                     else if (hud.OnboardingSelectedWord != null) hud.OnboardingHighlight("Word evidence");
                     else if (hud.OnboardingDetailOpen) hud.OnboardingHighlight("First photo word");

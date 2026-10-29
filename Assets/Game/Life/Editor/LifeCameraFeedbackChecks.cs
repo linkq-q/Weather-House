@@ -73,7 +73,7 @@ namespace WeatherHouse.Life.Editor
                 CheckSocial(game, fixture.transform, lines);
                 CheckPublicContext(life, lines);
                 Observed(game, a); hud.SetCameraMode(true, true); Aim(game, a); Show(hud);
-                Check(Mathf.Approximately(rig.FocalLength, 24f) && !mover.InputBlocked && mover.JumpBlocked && mover.MovementCameraOverride == rig.CaptureCamera,
+                Check(Mathf.Approximately(rig.FocalLength, 24f) && !mover.InputBlocked && !mover.JumpBlocked && mover.MovementCameraOverride == rig.CaptureCamera,
                     "The initial 24 mm photo view permits movement, reserves jump and uses its own movement direction", lines);
                 string held = game.DisplayedUtteranceId(a); string[] glyphs = game.DisplayedGlyphIds(a).ToArray();
                 a.GetComponent<LifeSpeaker>().topicIndex = 1; Show(hud);

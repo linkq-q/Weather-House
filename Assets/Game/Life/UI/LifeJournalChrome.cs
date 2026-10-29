@@ -63,11 +63,12 @@ namespace WeatherHouse.Life
             TabSymbol((RectTransform)book.Find("Symbols tab"), LifeJournalTabGraphic.Symbol.Dictionary, !photos && !gestures && !tasks);
             TabSymbol((RectTransform)book.Find("Photos tab"), LifeJournalTabGraphic.Symbol.Photo, photos && !gestures && !tasks);
             TabSymbol((RectTransform)book.Find("Gesture learning tab"), LifeJournalTabGraphic.Symbol.Sun, gestures);
-            TabSymbol((RectTransform)book.Find("Photography tasks tab"), LifeJournalTabGraphic.Symbol.Photo, tasks);
+            TabSymbol((RectTransform)book.Find("Photography tasks tab"), LifeJournalTabGraphic.Symbol.Tasks, tasks);
         }
 
         private static void TabSymbol(RectTransform tab, LifeJournalTabGraphic.Symbol symbol, bool selected)
         {
+            if (!tab) return;
             var button = tab.GetComponent<Button>();
             var original = tab.GetComponent<RawImage>();
             var paper = button.targetGraphic as LifeJournalTabGraphic;
@@ -87,8 +88,9 @@ namespace WeatherHouse.Life
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class LifeJournalTabGraphic : MaskableGraphic
     {
-        public enum Symbol { Sun, Dictionary, Photo }
+        public enum Symbol { Sun, Dictionary, Photo, Tasks }
         public bool selected;
+        public bool iconOnly;
         public Symbol symbol;
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
@@ -97,6 +99,8 @@ namespace WeatherHouse.Life
             Color paper = selected ? new Color32(180, 140, 108, 255) : new Color32(246, 241, 216, 255);
             paper *= color;
             const int steps = 10;
+            if (!iconOnly)
+            {
             mesh.AddVert(rect.center, paper, Vector2.zero);
             mesh.AddVert(new Vector2(rect.xMin, rect.yMin), paper, Vector2.zero);
             for (int i = 0; i <= steps; i++)
@@ -112,14 +116,21 @@ namespace WeatherHouse.Life
             mesh.AddVert(new Vector2(rect.xMax, rect.yMin), paper, Vector2.zero);
             int count = mesh.currentVertCount - 1;
             for (int i = 1; i <= count; i++) mesh.AddTriangle(0, i, i == count ? 1 : i + 1);
+            }
 
-            Color ink = (selected ? new Color32(246, 241, 216, 255) : new Color32(180, 140, 108, 255)) * color;
+            Color ink = iconOnly ? color : (selected ? new Color32(246, 241, 216, 255) : new Color32(180, 140, 108, 255)) * color;
             // Reuse the approved SVG's internal paths, centered on the existing tab symbol position.
             Vector2 Point(float x, float y) => new Vector2((x - 20f) * 2f, 8f + (19f - y) * 2f);
             void Stroke(float x1, float y1, float x2, float y2) => Line(mesh, Point(x1, y1), Point(x2, y2), 1.9f, ink);
             if (symbol == Symbol.Dictionary)
             {
                 for (int y = 13; y <= 25; y += 6) { Stroke(13, y, 16, y); Stroke(20, y, y == 25 ? 24 : 27, y); }
+            }
+            else if (symbol == Symbol.Tasks)
+            {
+                Stroke(12, 13, 14, 15); Stroke(14, 15, 18, 10); Stroke(21, 13, 28, 13);
+                for (int y = 19; y <= 26; y += 7)
+                { Stroke(12, y-2, 16, y-2); Stroke(16, y-2, 16, y+2); Stroke(16, y+2, 12, y+2); Stroke(12, y+2, 12, y-2); Stroke(21, y, 28, y); }
             }
             else if (symbol == Symbol.Photo)
             {

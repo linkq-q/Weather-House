@@ -247,7 +247,7 @@ namespace WeatherHousePrototype.Editor
                         Require(socialCameras.Count > 0 && socialCameras.Keys.All(g => g.CurrentViewCamera == session.PhotoRig.CaptureCamera), "Existing social bubbles resolve the active photo camera.");
                         Require(session.PhotoRig.Active && session.CurrentView == session.PhotoRig.CaptureCamera && !session.PlayerViewCamera.enabled,
                             "C switches to the existing photo rig using ForestSprite, without adding a legacy walker.");
-                        Require(player.JumpBlocked && orbit.InputBlocked && renderers.Keys.All(r => r.forceRenderingOff), "Photo mode hides player visuals and prevents Space from also jumping.");
+                        Require(!player.JumpBlocked && orbit.InputBlocked && renderers.Keys.All(r => r.forceRenderingOff), "Photo mode hides player visuals and retains Space jumping while orbit input belongs to the photo camera.");
                         stage = 6; next = Time.unscaledTime + .3f; break;
                     case 6:
                         if ((float)typeof(GameplayHud).GetField("cameraBlend", Private).GetValue(hud) < 1f) { next = Time.unscaledTime; break; }

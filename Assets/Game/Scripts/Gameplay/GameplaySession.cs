@@ -226,10 +226,10 @@ namespace WeatherHousePrototype
             movement |= Life && Life.GestureInputActive;
             movement |= LifeOnboarding.Blocks(this);
             bool photo = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.CameraMode;
-            if (walker) { walker.InputBlocked = movement; walker.JumpBlocked = photo; walker.CameraInputBlocked = photo; }
+            if (walker) { walker.InputBlocked = movement; walker.JumpBlocked = movement; walker.CameraInputBlocked = photo; }
             if (forestSprite)
             {
-                forestSprite.InputBlocked = movement; forestSprite.JumpBlocked = photo;
+                forestSprite.InputBlocked = movement; forestSprite.JumpBlocked = movement;
                 forestSprite.CameraInputBlocked = movement || photo;
             }
             if (orbit) orbit.InputBlocked = movement || photo;
@@ -269,7 +269,7 @@ namespace WeatherHousePrototype
                 if (saved) LifeAudio.Play(LifeAudioCue.Ui);
                 if (completed > 0) LifeAudio.Play(LifeAudioCue.Progress);
                 bool recognitionFailed = !string.IsNullOrEmpty(record.photoSnapshot?.visibilityError);
-                string message = recognitionFailed ? "照片已保留，画面识别暂时失败，本次没有新增摄影记录。" : "照片已放进手账。";
+                string message = recognitionFailed ? "照片已保留，画面识别暂时失败，本次没有新增摄影记录。" : "";
                 if (!saved) message = "照片画面已保存，手账暂时无法写入磁盘，本次游戏仍可查看。" +
                     (recognitionFailed ? " 画面识别暂时失败，本次没有新增摄影记录。" : "");
                 if (!string.IsNullOrEmpty(record.captureWarning)) message += " 照片附加信息未完整保存，画面已保留。";

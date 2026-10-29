@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace WeatherHouse.Life
 {
-    public enum LifePrimaryAction { None,Talk,Gather }
+    public enum LifePrimaryAction { None,Talk,Gather,PickUpBook }
     public static class LifeInteractionRules
     {
-        public static LifePrimaryAction Primary(bool blocked,bool canTalk,bool canGather)=>
-            blocked?LifePrimaryAction.None:canTalk?LifePrimaryAction.Talk:canGather?LifePrimaryAction.Gather:LifePrimaryAction.None;
+        public static LifePrimaryAction Primary(bool blocked,bool canTalk,bool canGather,bool canPickUpBook=false)=>
+            blocked?LifePrimaryAction.None:canPickUpBook?LifePrimaryAction.PickUpBook:canTalk?LifePrimaryAction.Talk:canGather?LifePrimaryAction.Gather:LifePrimaryAction.None;
     }
 
     public sealed partial class LifeWorld
@@ -81,7 +81,7 @@ namespace WeatherHouse.Life
             LifeObject source=GatheringTarget();if(!source)return false;
             held=CreateItem(new LifeObjectState{id="bundle."+(++serial),kind=LifeObjectKind.Bundle,position=Player.position,wetness=source.State.wetness,held=true});
             LifeAudio.PlayAt(LifeAudioCue.Fiber, source.transform.position);
-            owner.SaveAndNotify("采到一束草。");return true;
+            owner.SaveAndNotify("");return true;
         }
         public LifeObject ObjectAt(string id)
         {

@@ -47,11 +47,13 @@ namespace WeatherHouse.Life.Editor
             Check(hud && !hud.JournalOpen && !hud.CameraMode && !hud.IsDialogueOpen, "Photography UI starts idle", checks);
             string original = JsonUtility.ToJson(game.Notebook), status = game.Status;
             string[] stateFields = { "albumPhotosSelected", "albumGesturesSelected", "albumTasksSelected", "glyphPage", "photoTaskPage", "page", "selectedGlyph" };
+            bool owned = life.Progress.photoTaskBookCollected;
             var values = stateFields.ToDictionary(name => name, name => Get<object>(hud, name));
             UiPhotoFixture fixture = null;
             life.World.PublicPhotoContext -= game.RecordPublicContext;
             try
             {
+                life.Progress.photoTaskBookCollected = true;
                 JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(new LanguageNotebook()), game.Notebook);
                 game.Notebook.Normalize(game.Catalog);
                 Set(hud, "albumPhotosSelected", false); Set(hud, "albumGesturesSelected", false); Set(hud, "albumTasksSelected", true);
@@ -138,13 +140,13 @@ namespace WeatherHouse.Life.Editor
                     yield return null; yield return null;
                     if (page == 0)
                     {
-                        album.Find("Next symbols").GetComponent<Button>().onClick.Invoke();
+                        Get<RectTransform>(hud, "albumRoot").Find("Next symbols").GetComponent<Button>().onClick.Invoke();
                         deadline = Time.realtimeSinceStartup + 8;
                         while (book.IsAnimating && Time.realtimeSinceStartup < deadline) yield return null;
                     }
                 }
                 Check(seen.Count == 33, "Both pages cover every original and added glyph exactly once", checks);
-                album.Find("Photography tasks tab").GetComponent<Button>().onClick.Invoke();
+                Get<RectTransform>(hud, "albumRoot").Find("Photography tasks tab").GetComponent<Button>().onClick.Invoke();
                 Call(hud, "CloseTop"); Check(book.IsClosing, "Closing during a tab page turn queues the close", checks);
                 hud.ToggleJournal(); Check(!book.IsClosing, "A second journal toggle cancels the queued close", checks);
                 deadline = Time.realtimeSinceStartup + 10;
@@ -158,6 +160,7 @@ namespace WeatherHouse.Life.Editor
             finally
             {
                 life.GetComponent<LifeJournal3D>()?.Cancel(); Call(hud, "CompleteJournalClose");
+                life.Progress.photoTaskBookCollected = owned;
                 JsonUtility.FromJsonOverwrite(original, game.Notebook);
                 foreach (var value in values) Set(hud, value.Key, value.Value);
                 fixture?.Dispose();

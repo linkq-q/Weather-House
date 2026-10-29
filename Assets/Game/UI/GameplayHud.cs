@@ -40,7 +40,8 @@ namespace WeatherHousePrototype
             !session || BlocksMovement || CameraMode || IsAlbumOpening || session.Judging || session.Recorder.IsRecording || LifeOnboarding.Blocks(session) ||
             !string.IsNullOrEmpty(Input.compositionString) || Time.frameCount<=lastCompositionFrame+1 ||
             (life && life.GestureInputActive) || (gestureInput && gestureInput.IsWorldDrawing),
-            session && session.Observed && (!life || life.CanTalk(session.Observed)),life && life.World && life.World.CanGather);
+            session && session.Observed && (!life || life.CanTalk(session.Observed)),life && life.World && life.World.CanGather,LifePhotoTaskBook.Nearby(life));
+        public bool HasPhotoTaskBook => !life || life.Progress.photoTaskBookCollected;
         public string GatheringHint => PrimaryInteraction==LifePrimaryAction.Gather?"E 采集":"";
         public void InteractPrimary()
         {
@@ -48,6 +49,7 @@ namespace WeatherHousePrototype
             {
                 case LifePrimaryAction.Talk:ListenToAnimal();break;
                 case LifePrimaryAction.Gather:life.World.TryGather();break;
+                case LifePrimaryAction.PickUpBook:LifePhotoTaskBook.Nearby(life)?.Collect(life);break;
             }
         }
 
@@ -57,7 +59,7 @@ namespace WeatherHousePrototype
         private Canvas canvas;
         private RectTransform canvasRect, controlsRoot, bubbleRoot, modalRoot, cameraRoot, focusMark;
         private float focusMarkUntil;
-        private const string PhotoGuide = "留下你想记住的风景与片刻。";
+        private const string PhotoGuide = "";
         private float photoControlScale = -1f;
         private int photoHintFontSize;
         private CanvasGroup cameraGroup;
@@ -120,6 +122,7 @@ namespace WeatherHousePrototype
         public void OnboardingSelectBook(int tab, string focus)
         {
             if (!JournalOpen || IsAlbumOpening) return;
+            if (tab == 3 && !HasPhotoTaskBook) return;
             albumPhotosSelected = tab == 1; albumGesturesSelected = tab == 2; albumTasksSelected = tab == 3;
             expandedPhoto = null; publicTaskId = null; glyphDetailOpen = false; selectedGlyph = focus;
             if (!string.IsNullOrEmpty(focus))
@@ -160,6 +163,7 @@ namespace WeatherHousePrototype
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
             canvasRect = (RectTransform)root.transform;
+            root.AddComponent<LifeAlbumDrag>().hud = this;
             var scaler = root.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1600f, 1000f);
@@ -184,7 +188,8 @@ namespace WeatherHousePrototype
             HudIcon(controls, "Photo icon", "Camera", new Vector2(-132f, 10f), new Vector2(44f, 34f), new Rect(.12f, .20f, .74f, .60f));
             HudIcon(controls, "Magic book icon", "MagicBook", new Vector2(-44f, 10f), new Vector2(34f, 44f), new Rect(0, 0, 1, 1));
             HudIcon(controls, "Dictionary icon", "DictionaryBook", new Vector2(44f, 10f), new Vector2(34f, 44f), new Rect(0, 0, 1, 1));
-            HudIcon(controls, "Photo tasks icon", "PhotoTasksBook", new Vector2(132f, 10f), new Vector2(34f, 44f), new Rect(0, 0, 1, 1));
+            var taskIcon = Rect(controls, "Photo tasks icon", new Vector2(132f, 10f), new Vector2(34f, 44f)).gameObject.AddComponent<LifeJournalTabGraphic>();
+            taskIcon.symbol = LifeJournalTabGraphic.Symbol.Tasks; taskIcon.iconOnly = true; taskIcon.color = hint; taskIcon.raycastTarget = false;
             Label(controls, "Photo shortcut", "C", new Vector2(-132f, -30f), new Vector2(44f, 28f), 21, hint);
             Label(controls, "Magic book shortcut", "M", new Vector2(-44f, -30f), new Vector2(44f, 28f), 21, hint);
             Label(controls, "Dictionary shortcut", "J", new Vector2(44f, -30f), new Vector2(44f, 28f), 21, hint);
@@ -205,6 +210,8 @@ namespace WeatherHousePrototype
 
         private void UpdateStatus()
         {
+            controlsRoot.Find("Photo tasks icon").gameObject.SetActive(HasPhotoTaskBook);
+            controlsRoot.Find("Photo tasks shortcut").gameObject.SetActive(HasPhotoTaskBook);
             if (session.Status != displayedStatus)
             {
                 displayedStatus = session.Status;
@@ -215,10 +222,11 @@ namespace WeatherHousePrototype
             string text = hasMessage ? displayedStatus : "";
             if (!CameraMode && session.Observed != null && !hasMessage)
                 text = session.Observed.displayName + (life && !life.CanTalk(session.Observed) ? "" : "   ·   E");
+            if (!hasMessage && PrimaryInteraction == LifePrimaryAction.PickUpBook) text = "照片任务书   ·   E 拾取";
             if (captureLabel != null)
                 captureLabel.text = session.Recorder != null && session.Recorder.IsRecording
                     ? "记录中  " + Mathf.RoundToInt(session.Recorder.CaptureProgress * 100f) + "%"
-                    : GetComponent<LifeOnboarding>()?.State?.stage == LifeOnboardingStage.TakeSpeechPhoto ? "点下方圆形快门，或按空格拍照。左键点画面可以对焦。" :
+                    :
                         hasMessage && !displayedStatus.StartsWith("走近动物，观察") ? displayedStatus : PhotoGuide;
             statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode && !string.IsNullOrEmpty(text));
             statusLabel.text = text;
@@ -361,7 +369,6 @@ namespace WeatherHousePrototype
                 focusMark.anchoredPosition = focusPosition;
                 focusMarkUntil = Time.unscaledTime + 1.5f;
             }
-            if (CanTakePhoto && Input.GetKeyDown(KeyCode.Space)) session.TakePhoto();
             if (!life)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha1)) session.Cast(LocalWeather.Rain);
@@ -400,6 +407,7 @@ namespace WeatherHousePrototype
         {
             int tab = key == KeyCode.J ? 0 : key == KeyCode.M ? 2 : key == KeyCode.L ? 3 : -1;
             if (tab < 0) return;
+            if (tab == 3 && !HasPhotoTaskBook) return;
             int current = albumTasksSelected ? 3 : albumGesturesSelected ? 2 : albumPhotosSelected ? 1 : 0;
             if (JournalOpen && current == tab && !glyphDetailOpen && expandedPhoto == null && publicTaskId == null)
             { ToggleJournal(); return; }
@@ -549,7 +557,9 @@ namespace WeatherHousePrototype
             frame.cornerRadius = 40f; frame.viewfinderLegRatios = new Vector2(.23f, .19f);
             var dot = ProceduralUiLibrary.Create(cameraRoot, "Camera dot", UiMark.Dot, Vector2.zero, Vector2.one * 10f, ProceduralUiLibrary.Cream).rectTransform;
             dot.anchorMin = dot.anchorMax = new Vector2(.5f, .142f);
-            var shutter = ProceduralUiLibrary.Button(cameraRoot, "Shutter", UiMark.Shutter, Vector2.zero, Vector2.one * 96f, ProceduralUiLibrary.Cream, 8f);
+            var shutterArt = ProceduralUiLibrary.Create(cameraRoot, "Shutter", UiMark.Shutter, Vector2.zero, Vector2.one * 96f, ProceduralUiLibrary.Cream, 8f, true);
+            var shutter = shutterArt.gameObject.AddComponent<PhotoShutterButton>();shutter.targetGraphic=shutterArt;
+            var shutterColors=shutter.colors;shutterColors.pressedColor=new Color(.78f,.83f,.72f,1f);shutter.colors=shutterColors;
             var shutterRect = (RectTransform)shutter.transform;
             shutterRect.anchorMin = shutterRect.anchorMax = new Vector2(.5f, .077f);
             shutter.onClick.AddListener(() => { if (CanTakePhoto) session.TakePhoto(); });
@@ -640,17 +650,19 @@ namespace WeatherHousePrototype
 
         private void BuildJournal()
         {
+            if (albumTasksSelected && !HasPhotoTaskBook) albumTasksSelected = false;
             // LifeSession adds this component during startup, after the HUD may cache it.
             if (life && !gestureInput) gestureInput = GetComponent<LifeGestureInput>();
             albumRoot = AlbumBookView.Create(modalRoot, albumPhotosSelected,
                 () => { albumPhotosSelected = false; albumGesturesSelected = false; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
                 () => { albumPhotosSelected = true; albumGesturesSelected = false; albumTasksSelected = false; selectedGlyph = null; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
                 CloseTop, () => TurnJournalPage(1));
+            var pageHit = albumRoot.gameObject.AddComponent<Image>(); pageHit.color = Color.clear;
             if (life)
             {
                 LifeJournalChrome.GestureTab(albumRoot, albumGesturesSelected, () =>
                 { albumGesturesSelected = true; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); });
-                LifeJournalChrome.PhotographyTab(albumRoot, albumTasksSelected, () =>
+                if (HasPhotoTaskBook) LifeJournalChrome.PhotographyTab(albumRoot, albumTasksSelected, () =>
                 { albumTasksSelected = true; albumGesturesSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); });
                 LifeJournalChrome.BookIcons(albumRoot, albumPhotosSelected, albumGesturesSelected, albumTasksSelected);
                 if (albumTasksSelected)
@@ -680,6 +692,12 @@ namespace WeatherHousePrototype
             }
             else BuildAlbumPhotos(albumRoot);
             AlbumBookView.AddStickers(albumRoot);
+            if (albumPhotosSelected)
+            {
+                int spreads = Mathf.Max(1, Mathf.CeilToInt(AlbumPhotos.Count / 8f));
+                Label(albumRoot, "Album spread number", (page + 1) + " / " + spreads, new Vector2(0, -346), new Vector2(150, 38), 22, Ink);
+                FinishJournal(); return;
+            }
             BuildWordPage(albumRoot);
             int collected = samples ? session.Catalog.glyphs.Length :
                 Array.FindAll(session.Catalog.glyphs, glyph => session.Notebook.GetWord(glyph.id)?.encountered == true).Length;
@@ -723,19 +741,39 @@ namespace WeatherHousePrototype
                 ClearFocus(); RebuildJournalPage(direction); return;
             }
             if (!albumPhotosSelected) { TurnGlyphPage(direction); return; }
-            page += direction;
+            int next = Mathf.Clamp(page + direction, 0, Mathf.Max(0, (AlbumPhotos.Count - 1) / 8));
+            if (next == page) return;
+            page = next;
             ClearFocus();
             RebuildJournalPage(direction);
         }
 
+        public bool CanDragAlbumAt(Vector2 screen)
+        {
+            if (!JournalOpen || IsAlbumOpening || !albumPhotosSelected || albumGesturesSelected || albumTasksSelected || expandedPhoto != null || !albumRoot) return false;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(albumRoot, screen, null, out Vector2 point);
+            return new Rect(-593, -345, 1168, 700).Contains(point);
+        }
+        public bool BeginAlbumDrag(int direction)
+        {
+            if (!JournalOpen || IsAlbumOpening || !albumPhotosSelected || !journal3D || !journal3D.Available) return false;
+            int old = page, next = Mathf.Clamp(page + direction, 0, Mathf.Max(0, (AlbumPhotos.Count - 1) / 8));
+            if (next == old) return false;
+            journal3D.BeginPageDrag(() => { page = next; RebuildModal(); }, () => { page = old; RebuildModal(); }, direction);
+            return true;
+        }
+        public void DragAlbum(float progress) { if (journal3D) journal3D.DragPage(progress); }
+        public void EndAlbumDrag(bool complete) { if (journal3D) journal3D.ReleasePage(complete); }
+        private List<ObservationRecord> AlbumPhotos => selectedGlyph == null ? session.Notebook.observations : session.Notebook.FindEvidence(selectedGlyph);
         private void BuildAlbumPhotos(Transform book)
         {
-            List<ObservationRecord> photos = selectedGlyph == null ? session.Notebook.observations : session.Notebook.FindEvidence(selectedGlyph);
-            int pages = Mathf.Max(1, Mathf.CeilToInt(photos.Count / 4f));
+            List<ObservationRecord> photos = AlbumPhotos;
+            int count = albumPhotosSelected ? 8 : 4;
+            int pages = Mathf.Max(1, Mathf.CeilToInt(photos.Count / (float)count));
             page = Mathf.Clamp(page, 0, pages - 1);
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < count; i++)
             {
-                int index = page * 4 + i;
+                int index = page * count + i;
                 if (index < photos.Count) BuildPhotoCard(book, photos[index], i);
                 else AlbumBookView.Photo(book, i, null, "Empty photo " + (i + 1));
             }

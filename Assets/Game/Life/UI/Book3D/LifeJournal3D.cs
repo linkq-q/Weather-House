@@ -20,6 +20,7 @@ namespace WeatherHouse.Life
         private Camera view, captureCamera;
         private Canvas captureCanvas;
         private RenderTexture display, before, after;
+        private readonly Vector4[] beforePhotos = new Vector4[8], afterPhotos = new Vector4[8];
         private Renderer pageLeft, pageRight, turningPage;
         private AnimationClip openClip, turnClip;
         private RectTransform book;
@@ -40,6 +41,8 @@ namespace WeatherHouse.Life
         private bool openingTurn, openingSequence, openingTargetRevealed;
         private LifeJournalOpeningFan openingFan;
         private bool prepared, drawingFrame, reverseTurn, closeAfterTurn;
+        private bool manualTurn, cancellingTurn;
+        private Action restoreDraggedPage;
         private bool animatedContent;
         private bool wordFeedback, contentDirty;
         private float nextContentFrame;
@@ -131,7 +134,7 @@ namespace WeatherHouse.Life
             // captures finish before the first visible frame; the fan never rebuilds UI.
             openingTargetRevealed = false;
             ApplyPage(pageLeft, after, LeftPage); ApplyPage(pageRight, after, RightPage);
-            openingFan.SetPages(after, before, LeftPage, RightPage);
+            openingFan.SetPages(after, before, LeftPage, RightPage, afterPhotos, beforePhotos);
             lastRawStep = lastStep = maximumRawStep = 0; presentationFrames = 0;
             SetContent(false); SampleOpen(0); RenderBook();
         }
@@ -167,6 +170,22 @@ namespace WeatherHouse.Life
             turningPage.enabled = true; SetContent(false); SampleOpen(openClip.length);
             turnClip.SampleAnimation(model, reverseTurn ? turnClip.length : 0); RenderBook();
         }
+        public void BeginPageDrag(Action replaceContent, Action restoreContent, int direction)
+        {
+            Turn(replaceContent, direction);
+            if (motion != Motion.Turning) return;
+            manualTurn = true; cancellingTurn = false; restoreDraggedPage = restoreContent;
+        }
+        public void DragPage(float progress)
+        {
+            if (!manualTurn) return;
+            elapsed = Mathf.Clamp01(progress) * MotionDuration;
+            float time = elapsed / MotionDuration * turnClip.length;
+            turnClip.SampleAnimation(model, reverseTurn ? turnClip.length - time : time);
+            UpdatePresentation(1); RenderBook();
+        }
+        public void ReleasePage(bool complete)
+        { if (manualTurn) { manualTurn = false; cancellingTurn = !complete; } }
         private void TurnOpeningLeaves()
         {
             LifeAudio.Play(LifeAudioCue.Paper);
@@ -180,13 +199,14 @@ namespace WeatherHouse.Life
         }
         public void Cancel()
         {
+            manualTurn = cancellingTurn = false; restoreDraggedPage = null;
             openingSequence = false; openingFanPending = false; openingTurn = false; openingFan?.Hide();
             motion = Motion.None; onClosed = null; closeAfterTurn = false; SetContent(true);
             if (prepared) { SampleOpen(openClip.length); turningPage.enabled = false; }
         }
         private void Update()
         {
-            if (!prepared || !book || !IsAnimating) return;
+            if (!prepared || !book || !IsAnimating || manualTurn) return;
             lastRawStep = Time.unscaledDeltaTime;
             maximumRawStep = Mathf.Max(maximumRawStep, lastRawStep);
             // A cold capture or editor hitch must not consume the entire visible fade in
@@ -194,8 +214,8 @@ namespace WeatherHouse.Life
             lastStep = Mathf.Min(lastRawStep, .05f); presentationFrames++;
             float duration = MotionDuration;
             if (openingTurn) OpeningBrowseTime += Mathf.Min(lastStep, Mathf.Max(0, duration - elapsed));
-            elapsed += lastStep;
-            float time = Mathf.Min(elapsed, duration);
+            elapsed += cancellingTurn ? -lastStep : lastStep;
+            float time = Mathf.Clamp(elapsed, 0, duration);
             if (motion == Motion.Turning)
             {
                 if (openingTurn)
@@ -213,7 +233,14 @@ namespace WeatherHouse.Life
             }
             else SampleOpen(motion == Motion.Closing ? duration - time : time);
             RenderBook();
+            if (cancellingTurn && elapsed <= 0)
+            {
+                cancellingTurn = false; motion = Motion.None; turningPage.enabled = false;
+                Action restore = restoreDraggedPage; restoreDraggedPage = null; restore?.Invoke();
+                SampleOpen(openClip.length); RefreshPaper(); SetContent(true); RenderBook(); return;
+            }
             if (elapsed < duration) return;
+            restoreDraggedPage = null;
             bool closing = motion == Motion.Closing, closeNext = closeAfterTurn; Action done = onClosed;
             if (motion == Motion.Turning && openingTurn) { openingTurn = false; openingFan.Hide(); }
             motion = Motion.None; onClosed = null; closeAfterTurn = false; turningPage.enabled = false;
@@ -236,6 +263,9 @@ namespace WeatherHouse.Life
 
         private void LateUpdate()
         {
+            // Unity updates skinned meshes after the pointer event sampled the clip.
+            // Refresh while held so the render texture shows that pose even if the mouse stops.
+            if (manualTurn) { RenderBook(); return; }
             if (!prepared || !book || IsAnimating || !book.gameObject.activeInHierarchy || Time.unscaledTime < nextContentFrame) return;
             // Static records need no recurring camera render. Only the live pen demonstration
             // or pointer/keyboard feedback changes their captured content.
@@ -406,6 +436,7 @@ namespace WeatherHouse.Life
             try
             {
                 RestoreCaptureLayout(); input.alpha = 1f;
+                WeatherHousePrototype.AlbumPhotoPaper.Capture(book, target == before ? beforePhotos : afterPhotos);
                 foreach (var pair in content) if (pair.Key) pair.Key.alpha = IsNavigation(pair.Key.name) ? 0f : pair.Value;
                 for (int i = 0; i < captureControls.Length; i++)
                 {
@@ -441,6 +472,7 @@ namespace WeatherHouse.Life
             {
                 AddPaper(intro, "Left paper", LeftPage); AddPaper(intro, "Right paper", RightPage);
                 build(intro);
+                WeatherHousePrototype.AlbumPhotoPaper.Capture(intro, afterPhotos);
                 foreach (Transform part in intro.GetComponentsInChildren<Transform>(true)) part.gameObject.layer = CaptureLayer;
                 foreach (Graphic graphic in intro.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
                 captureCamera.targetTexture = after; captureCamera.orthographicSize = after.height * .5f;
@@ -457,6 +489,7 @@ namespace WeatherHouse.Life
             for (int i = 0; i < materials.Length; i++)
             {
                 Texture texture = i == 0 || back == null ? front : back; Rect uv = i == 0 || back == null ? frontUv : backUv;
+                WeatherHousePrototype.AlbumPhotoPaper.Apply(materials[i], texture == before ? beforePhotos : afterPhotos);
                 foreach (string property in new[] { "_BaseMap", "_MainTex" })
                     if (materials[i].HasProperty(property)) { materials[i].SetTexture(property, texture); materials[i].SetTextureScale(property, uv.size); materials[i].SetTextureOffset(property, uv.position); }
                 if (materials[i].HasProperty("_BaseColor")) materials[i].SetColor("_BaseColor", Color.white);

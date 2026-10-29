@@ -15,7 +15,7 @@ namespace WeatherHouse.Life
         private Canvas canvas;
         private bool onboardingCanvasHidden, onboardingCanvasWasEnabled;
         private RectTransform root, drawRoot, taskRoot, hintRoot, taskToggleRoot;
-        private Text taskPageText, interactionText, helpText, drawHint;
+        private Text taskPageText, interactionText, drawHint;
         private Button previousTaskPage, nextTaskPage;
         private readonly Text[] taskLines = new Text[4];
         private readonly LifeTaskMarkGraphic[] taskMarks = new LifeTaskMarkGraphic[2];
@@ -29,7 +29,6 @@ namespace WeatherHouse.Life
         private LifeStrokeGraphic practiceTail;
         private readonly List<Vector2> points = new List<Vector2>();
         private bool drawing, worldMode, taskExpanded, practiceStarted;
-        private int tipLevel;
         private float feedbackUntil;
         public bool IsWorldDrawing => worldMode;
         public bool IsStrokeActive => drawing || (life && life.GestureInputActive && !worldMode) ||
@@ -89,8 +88,6 @@ namespace WeatherHouse.Life
             taskToggleRoot.gameObject.SetActive(false); taskRoot.gameObject.SetActive(false);
             hintRoot = LifeUi.Rect(root, "Object interaction", Vector2.zero, new Vector2(1100, 60)); hintRoot.anchorMin = hintRoot.anchorMax = new Vector2(.5f, 0); hintRoot.anchoredPosition = new Vector2(0, 80);
             interactionText = LifeUi.Text(hintRoot, "Nearby objects", "", Vector2.zero, hintRoot.sizeDelta, font, 22, Color.white, TextAnchor.MiddleCenter);
-            helpText = LifeUi.Text(root, "Optional guidance", "", Vector2.zero, new Vector2(660, 70), font, 19, new Color(.91f, .93f, .82f));
-            helpText.rectTransform.anchorMin = helpText.rectTransform.anchorMax = new Vector2(.5f, 0); helpText.rectTransform.anchoredPosition = new Vector2(100, 32);
             drawRoot = LifeUi.Rect(root, "Weather gesture mode", Vector2.zero, new Vector2(1600, 1000));
             drawRoot.anchorMin = Vector2.zero; drawRoot.anchorMax = Vector2.one; drawRoot.offsetMin = drawRoot.offsetMax = Vector2.zero;
             stroke = LifeUi.Rect(drawRoot, "Weather ink", Vector2.zero, new Vector2(1600, 1000)).gameObject.AddComponent<LifeStrokeGraphic>();
@@ -117,7 +114,7 @@ namespace WeatherHouse.Life
             bool showTasks = !modal && !worldMode && activeTasks;
             taskToggleRoot.gameObject.SetActive(showTasks);
             taskRoot.gameObject.SetActive(showTasks && taskExpanded);
-            hintRoot.gameObject.SetActive(!modal && !worldMode); helpText.gameObject.SetActive(!modal && !worldMode);
+            hintRoot.gameObject.SetActive(!modal && !worldMode);
             string tasks = life.TaskText;
             if (tasks != displayedTasks)
             {
@@ -134,8 +131,6 @@ namespace WeatherHouse.Life
             previousTaskPage.interactable = nextTaskPage.interactable = !worldMode;
             string gather=modal?"":hud.GatheringHint;
             interactionText.text = string.IsNullOrEmpty(gather)?life.InteractionHint:gather+(string.IsNullOrEmpty(life.InteractionHint)?"":"  ·  "+life.InteractionHint);
-            if (!modal && Input.GetKeyDown(KeyCode.H)) tipLevel = (tipLevel + 1) % 2;
-            helpText.text = tipLevel > 0 ? Guidance() : "G 手势  ·  H 提示";
             if (modal) return;
             if (Input.GetKeyDown(KeyCode.G)) ToggleWorldCasting();
             if (!worldMode) return;
@@ -215,7 +210,6 @@ namespace WeatherHouse.Life
             return value + "…";
         }
 
-        private string Guidance() => life.ProgressHint + "  H 收起提示";
 
         private void AddPoint()
         {
