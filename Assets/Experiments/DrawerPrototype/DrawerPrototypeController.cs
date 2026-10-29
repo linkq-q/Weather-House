@@ -365,7 +365,7 @@ namespace WeatherHouse.DrawerPrototype
             mouse.lineWidth = 3.8f; mouse.color = new Color(.94f,.94f,.82f,.9f); mouse.raycastTarget = false;
             completePanel = UiRect("Ready to leave",ui.transform,new Vector2(0,-360),new Vector2(390,72));
             completePanel.gameObject.AddComponent<Image>().sprite = sprite;
-            Label(completePanel,"Ready",Vector2.zero,new Vector2(340,60),25,TextAnchor.MiddleCenter).text = "东西都带齐了，准备出发。";
+            Label(completePanel,"Ready",Vector2.zero,new Vector2(340,60),25,TextAnchor.MiddleCenter).text = "东西都带齐了，点击出发 →";
             completePanel.gameObject.SetActive(false);
         }
 
@@ -425,6 +425,8 @@ namespace WeatherHouse.DrawerPrototype
         public void Pointer(Vector2 screen, bool down, bool held, bool up)
         {
             if (busy) return;
+            if (!selected && Progress.Complete && completePanel.gameObject.activeSelf && down && RectTransformUtility.RectangleContainsScreenPoint(completePanel,screen))
+            { TryLeave(); return; }
             if (selected)
             {
                 if (down && RectTransformUtility.RectangleContainsScreenPoint(closeTarget,screen)) CloseItem();
