@@ -272,8 +272,9 @@ namespace WeatherHouse.DrawerPrototype.Editor
             File.WriteAllText(Review+"/render-state.txt","Pipeline="+(pipeline ? pipeline.name : "none")+"\nShadows="+(pipeline && pipeline.supportsMainLightShadows)+"\nShadowDistance="+(pipeline ? pipeline.shadowDistance : 0)+"\nQuality="+QualitySettings.names[QualitySettings.GetQualityLevel()]);
             string directory = SessionState.GetString(Key+".checkDirectory","");
             var checks = new List<string>();
-            Require(c.ViewCamera.orthographic && Vector3.Dot(c.ViewCamera.transform.forward,Vector3.down) > .9999f,"Camera must be completely vertical orthographic."); checks.Add("Vertical orthographic camera");
-            Vector3 midpoint = c.ViewCamera.WorldToViewportPoint(DrawerPrototypeController.DrawerCenter);
+            float cameraTilt = Vector3.Angle(c.ViewCamera.transform.forward,Vector3.down);
+            Require(c.ViewCamera.orthographic && cameraTilt >= 8 && cameraTilt <= 16,"Camera must retain a slight overhead tilt."); checks.Add("Slightly tilted orthographic camera");
+            Vector3 midpoint = c.ViewCamera.WorldToViewportPoint(DrawerPrototypeController.DrawerCenter+Vector3.up*.36f);
             Require(Mathf.Abs(midpoint.x-.5f) < .001f && Mathf.Abs(midpoint.y-.5f) < .001f,"Drawer must have symmetric left/right and top/bottom margins.");
             Require(c.Meadow && c.Meadow.VisibleClumpCount > 100 && c.FoliageModels.Count == 0,"Existing meadow must render around the drawer without the old decorative branches.");
             checks.Add("Centered drawer and original Waterside grass rendering");

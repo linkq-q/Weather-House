@@ -156,10 +156,11 @@ namespace WeatherHouse.DrawerPrototype
 
         void BuildStage()
         {
-            var cameraObject = new GameObject("Drawer · vertical orthographic camera");
+            var cameraObject = new GameObject("Drawer · gently tilted overhead camera");
             cameraObject.transform.SetParent(transform);
-            cameraObject.transform.position = DrawerCenter+Vector3.up*20;
-            cameraObject.transform.rotation = Quaternion.Euler(90, 0, 0);
+            Quaternion viewAngle = Quaternion.Euler(78,0,0);
+            Vector3 focus = DrawerCenter+Vector3.up*.36f;
+            cameraObject.transform.SetPositionAndRotation(focus-viewAngle*Vector3.forward*20,viewAngle);
             ViewCamera = cameraObject.AddComponent<Camera>();
             ViewCamera.orthographic = true; ViewCamera.orthographicSize = 4.5f;
             ViewCamera.nearClipPlane = .1f; ViewCamera.farClipPlane = 40;
@@ -518,8 +519,7 @@ namespace WeatherHouse.DrawerPrototype
 
         public DrawerToken TopAt(Vector3 point)
         {
-            point.y = 12;
-            return Physics.Raycast(point,Vector3.down,out RaycastHit hit,20) ? hit.collider.GetComponentInParent<DrawerToken>() : null;
+            return Hit(ViewCamera.WorldToScreenPoint(point));
         }
 
         public Vector3 VisiblePoint(DrawerToken item)
