@@ -10,7 +10,7 @@ Shader "Weather House/Stone Engraving"
         _EngravingMask("Carving depth / AO / unused / coverage", 2D) = "black" {}
         _EngravingStrength("Carving strength", Range(0,2)) = 1
         _CavityTint("Groove darkening", Range(0,1)) = .28
-        _GrooveDepth("Groove depth in metres", Range(0,.1)) = .05
+        _GrooveDepth("Groove depth in metres", Range(0,.1)) = .08
         _GrooveShadow("Groove self shadow", Range(0,1)) = .65
         _Smoothness("Stone smoothness", Range(0,1)) = .12
         _ProjectionCenter("Carving center (local)", Vector) = (0,0,0,0)

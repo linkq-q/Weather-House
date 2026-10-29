@@ -10,8 +10,12 @@
     "rain": true,
     "water": true
   },
+  "only_depth_setting_changed": true,
+  "previous_depth_m": 0.05,
+  "current_depth_m": 0.08,
   "depth_controls_change_render": true,
-  "changed_pixels_on_depth_toggle": 27572,
+  "changed_pixels_on_depth_toggle": 29512,
+  "changed_pixels_from_50mm": 21189,
   "play_mode_tested": false,
   "main_scene_camera_tested": false
 }
