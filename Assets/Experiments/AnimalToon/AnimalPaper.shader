@@ -10,11 +10,7 @@ Shader "Weather House/Animals/Paper Toon"
         _ToonStrength("Band Strength", Range(0,1)) = 0.8
         _AmbientStrength("Ambient Fill", Range(0,2)) = 0.7
         _LightStrength("Direct Light", Range(0,2)) = 0.7
-        _OutlineColor("Light Edge Color", Color) = (1,0.94,0.78,1)
-        _OutlineWidth("Light Edge Width at 1080p", Range(0,5)) = 1.8
-        _EdgeThreshold("Light Edge Threshold", Range(0,0.8)) = 0.12
-        _EdgeSoftness("Light Edge Softness", Range(0.01,0.5)) = 0.2
-        [Toggle] _SmoothOutline("Baked Smooth Outline Normals", Float) = 0
+        _OutlineWidth("Light Edge Width at 1080p", Range(0,16)) = 1.8
     }
     SubShader
     {
@@ -25,17 +21,15 @@ Shader "Weather House/Animals/Paper Toon"
         TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
         CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
-            half4 _BaseColor, _ShadeColor, _OutlineColor;
+            half4 _BaseColor, _ShadeColor;
             half _ShadeThreshold, _BandSoftness, _ToonStrength, _AmbientStrength, _LightStrength;
-            half _OutlineWidth, _EdgeThreshold, _EdgeSoftness, _SmoothOutline;
+            half _OutlineWidth;
         CBUFFER_END
         struct Attributes
         {
             float4 positionOS : POSITION;
             float3 normalOS : NORMAL;
-            float4 tangentOS : TANGENT;
             float2 uv : TEXCOORD0;
-            float3 smoothNormalTS : TEXCOORD3;
             UNITY_VERTEX_INPUT_INSTANCE_ID
         };
         struct Varyings
@@ -61,6 +55,35 @@ Shader "Weather House/Animals/Paper Toon"
             o.fog = ComputeFogFactor(o.positionCS.z);
             return o;
         }
+        TEXTURE2D_X(_AnimalMerged);
+        float _AnimalMergeRadius;
+        half4 PaperShade(Varyings input, bool merged) : SV_Target
+        {
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                half3 n = normalize(input.normalWS);
+                Light key = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
+                half form = saturate(dot(n,key.direction)*0.5h+0.5h);
+                if (merged)
+                {
+                    float4 data = SAMPLE_TEXTURE2D_X_LOD(_AnimalMerged, sampler_PointClamp, GetNormalizedScreenSpaceUV(input.positionCS), 0);
+                    if (data.a > .5)
+                    {
+                        form = data.r;
+                        key.shadowAttenuation = _AnimalMergeRadius > .01
+                            ? smoothstep(.5 - _BandSoftness, .5 + _BandSoftness, data.g) : data.g;
+                    }
+                }
+                half width = max(_BandSoftness, fwidth(form));
+                half band = 0.65h * smoothstep(_ShadeThreshold-width,_ShadeThreshold+width,form)
+                          + 0.35h * smoothstep(0.82h-width,0.82h+width,form);
+                half tone = lerp(form,band,_ToonStrength);
+                half3 ambient = max(0,SampleSH(n)) * _AmbientStrength;
+                half3 direct = key.color * key.distanceAttenuation * key.shadowAttenuation
+                             * lerp(_ShadeColor.rgb,half3(1,1,1),tone) * _LightStrength;
+                half3 albedo = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv).rgb * _BaseColor.rgb;
+                return half4(MixFog(albedo*(ambient+direct),input.fog),1);
+        }
         half4 DepthFrag(Varyings input) : SV_Target { return 0; }
         ENDHLSL
 
@@ -68,6 +91,7 @@ Shader "Weather House/Animals/Paper Toon"
         {
             Name "Forward"
             Tags { "LightMode"="UniversalForward" }
+            // Per-sample coverage prevents a dark one-pixel seam between an MSAA model and its edge.
             Stencil { Ref 1 ReadMask 1 WriteMask 1 Comp Always Pass Replace }
             HLSLPROGRAM
             #pragma vertex Vert
@@ -78,73 +102,53 @@ Shader "Weather House/Animals/Paper Toon"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             half4 Frag(Varyings input) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                half3 n = normalize(input.normalWS);
-                Light key = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
-                half form = saturate(dot(n,key.direction)*0.5h+0.5h);
-                half width = max(_BandSoftness, fwidth(form));
-                half band = 0.65h * smoothstep(_ShadeThreshold-width,_ShadeThreshold+width,form)
-                          + 0.35h * smoothstep(0.82h-width,0.82h+width,form);
-                half tone = lerp(form,band,_ToonStrength);
-                half3 ambient = max(0,SampleSH(n)) * _AmbientStrength;
-                half3 direct = key.color * key.distanceAttenuation * key.shadowAttenuation
-                             * lerp(_ShadeColor.rgb,half3(1,1,1),tone) * _LightStrength;
-                half3 albedo = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv).rgb * _BaseColor.rgb;
-                return half4(MixFog(albedo*(ambient+direct),input.fog),1);
+                return PaperShade(input, false);
             }
             ENDHLSL
         }
         Pass
         {
-            Name "AnimalLightOutline"
-            Tags { "LightMode"="AnimalLightOutline" }
-            Cull Front
-            ZWrite Off
-            ZTest LEqual
-            Blend SrcAlpha OneMinusSrcAlpha
-            // Keep this as an outer silhouette, without bright shell seams across the face.
-            Stencil { Ref 1 ReadMask 1 WriteMask 0 Comp NotEqual Pass Keep }
+            Name "AnimalPaperData"
+            Tags { "LightMode"="AnimalPaperData" }
             HLSLPROGRAM
-            #pragma vertex OutlineVert
-            #pragma fragment OutlineFrag
+            #pragma vertex Vert
+            #pragma fragment DataFrag
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+            float4 DataFrag(Varyings input) : SV_Target
+            {
+                float eye = -TransformWorldToView(input.positionWS).z;
+                float raw = SampleSceneDepth(GetNormalizedScreenSpaceUV(input.positionCS));
+                float sceneEye = LinearEyeDepth(raw, _ZBufferParams);
+                if (unity_OrthoParams.w > .5)
+                {
+                    #if UNITY_REVERSED_Z
+                        raw = 1 - raw;
+                    #endif
+                    sceneEye = lerp(_ProjectionParams.y, _ProjectionParams.z, raw);
+                }
+                clip(sceneEye + .015 - eye);
+                Light key = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
+                float form = saturate(dot(normalize(input.normalWS), key.direction) * .5 + .5);
+                return float4(form, key.shadowAttenuation, eye, 1 + _OutlineWidth);
+            }
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "AnimalPaperComposite"
+            Tags { "LightMode"="AnimalPaperComposite" }
+            ZWrite Off ZTest Equal
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment CompositeFrag
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            Varyings OutlineVert(Attributes input)
-            {
-                Varyings o=Vert(input);
-                float3 normal = normalize(o.normalWS);
-                if (_SmoothOutline > 0.5h)
-                {
-                    float3 tangent = TransformObjectToWorldDir(input.tangentOS.xyz);
-                    tangent = SafeNormalize(tangent-normal*dot(tangent,normal));
-                    float3 bitangent = cross(normal,tangent)*input.tangentOS.w*GetOddNegativeScale();
-                    normal=SafeNormalize(tangent*input.smoothNormalTS.x+bitangent*input.smoothNormalTS.y+normal*input.smoothNormalTS.z);
-                }
-                float depth = max(0.01,abs(TransformWorldToView(o.positionWS).z));
-                float pixelsPerMetre = 0.5*abs(UNITY_MATRIX_P._m11)*_ScaledScreenParams.y;
-                pixelsPerMetre /= unity_OrthoParams.w > 0.5 ? 1.0 : depth;
-                float width = _OutlineWidth * _ScaledScreenParams.y / 1080.0;
-                // Preserve the source position for shadow lookup; only the shell moves.
-                o.positionCS=TransformWorldToHClip(o.positionWS+normal*width/max(pixelsPerMetre,0.001));
-                o.normalWS=normal;
-                return o;
-            }
-            half4 OutlineFrag(Varyings input) : SV_Target
-            {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                clip(_OutlineWidth-0.001h);
-                Light key=GetMainLight(TransformWorldToShadowCoord(input.positionWS));
-                half facing=dot(normalize(input.normalWS),key.direction);
-                half softness=max(_EdgeSoftness,fwidth(facing));
-                half edge=smoothstep(_EdgeThreshold-softness,_EdgeThreshold+softness,facing);
-                half energy=saturate(max(key.color.r,max(key.color.g,key.color.b)));
-                half alpha=edge*key.shadowAttenuation*key.distanceAttenuation*energy*_OutlineColor.a;
-                return half4(MixFog(_OutlineColor.rgb,input.fog),alpha);
-            }
+            half4 CompositeFrag(Varyings input) : SV_Target { return PaperShade(input, true); }
             ENDHLSL
         }
         Pass

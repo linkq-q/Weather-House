@@ -1,7 +1,8 @@
 param([string]$Unity = 'C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Unity.exe')
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$sample = Join-Path $PSScriptRoot 'UnityProject'
+$output = Join-Path $PSScriptRoot 'Revision2'
+$sample = Join-Path $output 'UnityProject'
 if ((Test-Path $sample) -and !(Test-Path (Join-Path $sample '.animal-toon-review'))) {
     throw 'The target exists without the isolated-review marker. No changes made.'
 }
@@ -24,6 +25,6 @@ foreach ($name in @('sheep.png', 'sheep.png.meta')) {
     Copy-Item "$repo/Assets/Experiments/QuadrupedMotion/EightAnimals/Textures/$name" "$sample/Assets/Source/$name" -Force
 }
 $arguments = @('-batchmode', '-projectPath', ('"' + $sample + '"'), '-executeMethod',
-    'WeatherHouse.AnimalToon.Editor.AnimalToonReview.BuildAndReview', '-logFile', ('"' + $PSScriptRoot + '/unity.log"'))
+    'WeatherHouse.AnimalToon.Editor.AnimalToonReview.BuildAndReview', '-logFile', ('"' + $output + '/unity.log"'))
 $process = Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
-Write-Output "Validation Unity PID: $($process.Id). Results: $PSScriptRoot/checks.txt"
+Write-Output "Validation Unity PID: $($process.Id). Results: $output/checks.txt"

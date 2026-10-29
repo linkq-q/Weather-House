@@ -126,7 +126,7 @@ namespace WeatherHousePrototype.Editor
         private static IEnumerator CheckLive(GameplaySession session, GameplayHud hud, List<string> report, bool captureOpening)
         {
             string[] names = { "selectedGlyph", "guessGlyphId", "guessDraft", "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen",
-                "expandedPhoto", "currentFrame", "playingPhoto", "nextFrameAt", "dirty" };
+                "expandedPhoto", "dirty" };
             object[] values = names.Select(name => Get<object>(hud, name)).ToArray();
             bool journal = hud.JournalOpen, camera = hud.CameraMode, samples = hud.useAlbumDesignSamples;
             bool hudEnabled = hud.enabled, walkerEnabled = session.walker.enabled;
@@ -374,22 +374,16 @@ namespace WeatherHousePrototype.Editor
                     Set(hud, "page", session.Notebook.observations.IndexOf(savedPhoto) / 4);
                     Find<Button>(hud, "Photos tab").onClick.Invoke();
                     Find<Button>(hud, "Photo " + savedPhoto.id).onClick.Invoke();
-                    Require(Get<ObservationRecord>(hud, "expandedPhoto") == savedPhoto && Find<RawImage>(hud, "Motion photo frame").texture != null,
+                    Require(Get<ObservationRecord>(hud, "expandedPhoto") == savedPhoto && Find<RawImage>(hud, "Photograph image").texture != null,
                         "The existing photo did not open with its saved first frame.");
-                    Find<Button>(hud, "Play motion photo").onClick.Invoke();
-                    Require(Get<bool>(hud, "playingPhoto"), "The existing photo did not enter playback.");
-                    if (savedPhoto.frameCount > 1)
-                    {
-                        yield return new WaitForSecondsRealtime(1f / Mathf.Max(1f, savedPhoto.framesPerSecond) + .02f);
-                        typeof(GameplayHud).GetMethod("UpdatePlayback", Fields).Invoke(hud, null);
-                        Require(Get<int>(hud, "currentFrame") == 1 && Find<RawImage>(hud, "Motion photo frame").texture != null,
-                            "Playback did not advance to the actual saved second frame.");
-                    }
-                    Find<Button>(hud, "Play motion photo").onClick.Invoke();
-                    Require(!Get<bool>(hud, "playingPhoto"), "The existing photo did not pause.");
+                    var still = Find<RawImage>(hud, "Photograph image").texture;
+                    yield return new WaitForSecondsRealtime(.4f);
+                    Require(Find<RawImage>(hud, "Photograph image").texture == still &&
+                        !Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Button>().Any(button => button.name == "Play motion photo"),
+                        "Old and new photos must remain static without playback controls.");
                     Find<Button>(hud, "Close").onClick.Invoke();
                     Check(Get<ObservationRecord>(hud, "expandedPhoto") == null && hud.JournalOpen,
-                        "Existing saved photo opens, plays" + (savedPhoto.frameCount > 1 ? " a real second frame" : " its single frame") + ", pauses and closes back to the album", report);
+                        "Existing saved photo opens as a static image and closes back to the album", report);
                 }
                 Check(JsonUtility.ToJson(originalNotebook) == notebookJson && SameSave(session.SavePath, save),
                     "Original notebook and saved file are byte-for-byte unchanged; no SaveGuess or TakePhoto was called", report);

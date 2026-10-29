@@ -89,8 +89,8 @@ namespace WeatherHousePrototype.Editor
             var rig = session.PhotoRig;
             var recorder = session.Recorder;
             string[] hudNames = { "<JournalOpen>k__BackingField", "selectedGlyph", "guessGlyphId", "guessDraft",
-                "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen", "expandedPhoto", "currentFrame", "playingPhoto",
-                "nextFrameAt", "focusMarkUntil", "dirty", "inspectorDirty", "useAlbumDesignSamples", "displayedStatus", "statusUntil" };
+                "page", "glyphPage", "albumPhotosSelected", "glyphDetailOpen", "expandedPhoto",
+                "focusMarkUntil", "dirty", "inspectorDirty", "useAlbumDesignSamples", "displayedStatus", "statusUntil" };
             var hudState = Snapshot(hud, hudNames);
             var sessionState = Snapshot(session, "<Notebook>k__BackingField", "<Status>k__BackingField", "<Judging>k__BackingField", "<Observed>k__BackingField", "nextObservation");
             var recorderState = Snapshot(recorder, "<IsRecording>k__BackingField", "<CaptureProgress>k__BackingField");
@@ -139,7 +139,7 @@ namespace WeatherHousePrototype.Editor
                     hud.SetCameraMode(false);
                     Set(hud, "<JournalOpen>k__BackingField", false);
                     Set(hud, "expandedPhoto", null); Set(hud, "glyphDetailOpen", false);
-                    Set(hud, "playingPhoto", false); Set(hud, "selectedGlyph", null); Set(hud, "page", 0); Set(hud, "glyphPage", 0);
+                    Set(hud, "selectedGlyph", null); Set(hud, "page", 0); Set(hud, "glyphPage", 0);
                     Set(session, "<Judging>k__BackingField", false);
                     Set(session, "<Observed>k__BackingField", null);
                     var echo = Get<RectTransform>(hud, "echoRoot"); if (echo != null) echo.gameObject.SetActive(false);
@@ -169,8 +169,8 @@ namespace WeatherHousePrototype.Editor
                 Action photoDetail = () =>
                 {
                     notebook.observations = new List<ObservationRecord>(records);
-                    album(); Set(hud, "expandedPhoto", realPhoto); Set(hud, "currentFrame", 0); Call(hud, "RebuildModal");
-                    Require(Find<RawImage>(hud, "Motion photo frame").texture != null, "Saved photo first frame failed to load.");
+                    album(); Set(hud, "expandedPhoto", realPhoto); Call(hud, "RebuildModal");
+                    Require(Find<RawImage>(hud, "Photograph image").texture != null, "Saved photograph failed to load.");
                 };
                 var shots = new List<Entry>();
                 Add(shots, 1, "正常HUD与快捷键", "进入游戏", "底部呼吸提示、左下键位提示", "实际HUD；保留当前会话状态文案", reset);

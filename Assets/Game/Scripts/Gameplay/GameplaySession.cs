@@ -272,7 +272,7 @@ namespace WeatherHousePrototype
                 string message = recognitionFailed ? "照片已保留，画面识别暂时失败，本次没有新增摄影记录。" : "照片已放进手账。";
                 if (!saved) message = "照片画面已保存，手账暂时无法写入磁盘，本次游戏仍可查看。" +
                     (recognitionFailed ? " 画面识别暂时失败，本次没有新增摄影记录。" : "");
-                if (!string.IsNullOrEmpty(record.captureWarning)) message += " 动态片段未完整保存，已保留拍下的照片。";
+                if (!string.IsNullOrEmpty(record.captureWarning)) message += " 照片附加信息未完整保存，画面已保留。";
                 Notify(message);
             }, error =>
             {

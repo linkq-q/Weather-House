@@ -226,9 +226,8 @@ namespace WeatherHouse.Life.Editor
                 Require(missing.context == restored && missing.context.speakerName == snapshot.speakerName && missing.context.anchorPosition == snapshot.anchorPosition,
                     "Removing the visible photo explanation preserves the actual saved context", checks);
                 CheckDetailSizes(hud, checks);
-                Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Button>().First(b => b.name == "Play motion photo").onClick.Invoke();
-                yield return new WaitForSecondsRealtime(.7f);
-                Require(!Get<bool>(hud, "playingPhoto"), "A missing playback frame stops playback cleanly", checks);
+                Require(!Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Button>().Any(b => b.name == "Play motion photo"),
+                    "Missing photographs have no playback action", checks);
                 Call(hud, "CloseTop");
                 Require(hud.JournalOpen && !book.IsAnimating && Get<ObservationRecord>(hud, "expandedPhoto") == null,
                     "Closing the photo restores the readable book on visit " + (visit + 1), checks);
@@ -237,7 +236,7 @@ namespace WeatherHouse.Life.Editor
             deadline = Time.realtimeSinceStartup + 5;
             while (hud.JournalOpen && Time.realtimeSinceStartup < deadline) yield return null;
             yield return null; yield return null;
-            Require(!hud.JournalOpen && !hud.BlocksMovement && !life.GestureInputActive && !Get<bool>(hud, "playingPhoto"),
+            Require(!hud.JournalOpen && !hud.BlocksMovement && !life.GestureInputActive,
                 "UI review ends with movement, camera and gesture input released", checks);
             Require(hud.CachedPhotoTextureCount == 0 && !Resources.FindObjectsOfTypeAll<Texture2D>().Any(t => t && t.name.StartsWith("Journal photo ", StringComparison.Ordinal)),
                 "Closing J releases all owned photo textures after deferred destruction", checks);
@@ -285,23 +284,20 @@ namespace WeatherHouse.Life.Editor
                         var photoImage = Get<RawImage>(hud, "expandedImage");
                         Require(Mathf.Abs(photoImage.rectTransform.sizeDelta.x / photoImage.rectTransform.sizeDelta.y - 16f / 9f) < .001f &&
                             photoPanel.GetComponentsInChildren<Text>().First(text => text.name == "Photo title").fontSize == Mathf.RoundToInt(44f * ProceduralUiStyle.Current.fontScale) &&
-                            Get<Text>(hud, "playbackLabel").text == "播放",
-                            "Photo keeps 16:9, enlarged title and concise play label", checks);
-                        Get<RectTransform>(hud, "detailRoot").GetComponentsInChildren<Button>().First(b => b.name == "Play motion photo").onClick.Invoke();
-                        // Execute the normal playback update at each due instant, without waiting 60 seconds.
-                        for (int frame = 1; frame < 18; frame++) { Set(hud, "nextFrameAt", 0f); Call(hud, "UpdatePlayback"); }
-                        Require(Get<int>(hud, "currentFrame") == 17, "Playback reaches its last actual frame, cycle " + (visit + 1), checks);
+                            !photoPanel.GetComponentsInChildren<Button>().Any(b => b.name == "Play motion photo"),
+                            "Photo keeps 16:9, enlarged title and no playback control", checks);
+                        Require(photoImage.texture != null, "Legacy multi-frame record displays its saved cover, cycle " + (visit + 1), checks);
                         Call(hud, "CloseTop");
                     }
                     elapsed.Stop();
-                    Require(hud.PhotoDecodeCount - decoded == 17, "Twenty eighteen-frame replays decode only the seventeen frames not already cached as a cover (" + elapsed.ElapsedMilliseconds + " ms synchronous work)", checks);
+                    Require(hud.PhotoDecodeCount - decoded == 0, "Twenty static-photo visits reuse their original cached cover (" + elapsed.ElapsedMilliseconds + " ms synchronous work)", checks);
                     yield return null;
                     // Nine distinct covers exceed the capacity; changing actual pages exercises eviction.
                     Set(hud, "selectedGlyph", null);
                     for (int page = 1; page < 3; page++)
                     {
                         Set(hud, "page", page); Call(hud, "RebuildModal"); yield return null;
-                        Require(hud.CachedPhotoTextureCount <= 26, "Cover/clip storage stays within eight covers plus eighteen frames on page " + page, checks);
+                        Require(hud.CachedPhotoTextureCount <= 8, "Cover/clip storage stays within eight static photographs on page " + page, checks);
                     }
                 }
                 finally

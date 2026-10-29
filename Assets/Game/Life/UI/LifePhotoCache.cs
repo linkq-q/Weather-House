@@ -5,17 +5,14 @@ using WeatherHousePrototype;
 
 namespace WeatherHouse.Life
 {
-    // Eight album covers and one short clip. Ownership ends when the journal closes.
+    // Eight static photographs. Ownership ends when the journal closes.
     public sealed class LifePhotoCache
     {
-        const int CoverLimit = 8, FrameLimit = 18;
+        const int CoverLimit = 8;
         readonly Dictionary<string, Texture2D> covers = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
         readonly List<string> coverOrder = new List<string>();
-        readonly Dictionary<int, Texture2D> frames = new Dictionary<int, Texture2D>();
-        readonly List<int> frameOrder = new List<int>();
-        string currentClip;
         public int DecodedFrames { get; private set; }
-        public int TextureCount => covers.Count + frames.Count;
+        public int TextureCount => covers.Count;
 
         public Texture2D Cover(ObservationRecord record)
         {
@@ -28,31 +25,17 @@ namespace WeatherHouse.Life
             covers.Add(key, texture); coverOrder.Add(key); return texture;
         }
 
-        public Texture2D Frame(ObservationRecord record, int index)
-        {
-            if (record == null || index < 0 || index >= record.frameCount) throw new ArgumentOutOfRangeException(nameof(index));
-            string key = record.id + "\n" + record.clipFolder;
-            if (currentClip != key)
-            { foreach (Texture2D value in frames.Values) Release(value); frames.Clear(); frameOrder.Clear(); currentClip = key; }
-            if (index == 0) return Cover(record);
-            if (frames.TryGetValue(index, out Texture2D cached)) { frameOrder.Remove(index); frameOrder.Add(index); return cached; }
-            Texture2D texture = Decode(record, index);
-            if (frames.Count == FrameLimit)
-            { int oldest = frameOrder[0]; Release(frames[oldest]); frames.Remove(oldest); frameOrder.RemoveAt(0); }
-            frames.Add(index, texture); frameOrder.Add(index); return texture;
-        }
-
         Texture2D Decode(ObservationRecord record, int index)
         {
             Texture2D texture = MotionPhotoRecorder.LoadFrame(record, index);
+            texture.Apply(false, true);
             texture.name = "Journal photo " + record.id + " " + index; DecodedFrames++; return texture;
         }
 
         public void Clear()
         {
             foreach (Texture2D value in covers.Values) Release(value);
-            foreach (Texture2D value in frames.Values) Release(value);
-            covers.Clear(); coverOrder.Clear(); frames.Clear(); frameOrder.Clear(); currentClip = null;
+            covers.Clear(); coverOrder.Clear();
         }
 
         static void Release(Texture2D value)

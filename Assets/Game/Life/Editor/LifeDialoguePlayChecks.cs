@@ -160,14 +160,14 @@ namespace WeatherHouse.Life.Editor
             var expected=life.CaptureContext(dog.Actor);
             int before=game.Notebook.observations.Count;
             game.TakePhoto();
-            Check(report,game.Recorder.IsRecording,"Formal photo entry starts the real motion recorder");
+            Check(report,game.Recorder.IsRecording,"Formal photo entry starts the real still recorder");
             while(game.Recorder.IsRecording)yield return null;
             Check(report,game.Notebook.observations.Count==before+1,"Real recording reaches the journal index");
             var photo=game.Notebook.observations.Last();
-            Check(report,photo.frameCount==18 && Directory.GetFiles(Path.Combine(GameplaySession.PersistenceDirectory,photo.clipFolder),"*.png").Length==18,"Recorded photo retains all eighteen actual frames");
+            Check(report,photo.frameCount==1 && Directory.GetFiles(Path.Combine(GameplaySession.PersistenceDirectory,photo.clipFolder),"*.png").Length==1,"Recorded photo retains exactly one actual frame");
             Check(report,photo.context!=null && photo.context.speakerId==expected.speakerId && photo.context.anchorPosition==expected.anchorPosition,"Photo keeps the original speaker and anchor snapshot");
             string saved=File.ReadAllText(game.SavePath);
-            Check(report,JsonUtility.FromJson<LanguageNotebook>(saved).observations.Any(p=>p.id==photo.id && p.frameCount==18),"Photo and context survive a notebook disk round trip");
+            Check(report,JsonUtility.FromJson<LanguageNotebook>(saved).observations.Any(p=>p.id==photo.id && p.frameCount==1),"Photo and context survive a notebook disk round trip");
             before=game.Notebook.observations.Count;
             typeof(GameplaySession).GetProperty("Observed").SetValue(game,dog.Actor);
             string originalUtterance=dog.Actor.UtteranceId;
@@ -180,13 +180,13 @@ namespace WeatherHouse.Life.Editor
             Check(report,game.Notebook.observations.Count==before+1,"A changed utterance preserves the shutter photograph in the journal");
             var truncated=game.Notebook.observations.Last();
             string truncatedFolder=Path.Combine(GameplaySession.PersistenceDirectory,truncated.clipFolder);
-            Check(report,truncated.liveTruncated && truncated.frameCount==1 && File.Exists(Path.Combine(truncatedFolder,"frame_000.png")) &&
+            Check(report,!truncated.liveTruncated && truncated.frameCount==1 && File.Exists(Path.Combine(truncatedFolder,"frame_000.png")) &&
                 Directory.GetFiles(truncatedFolder,"*.png").Length==1,"An immediate turn change retains exactly the shutter frame and records no later-turn images");
             Check(report,truncated.utteranceId==originalUtterance && truncated.glyphIds.SequenceEqual(originalGlyphs) &&
                 JsonUtility.ToJson(truncated.context)==originalContext,"The retained photograph keeps the original utterance, glyph order, participants and anchor context");
             var metadata=JsonUtility.FromJson<ObservationRecord>(File.ReadAllText(Path.Combine(truncatedFolder,"metadata.json")));
             var reloaded=JsonUtility.FromJson<LanguageNotebook>(File.ReadAllText(game.SavePath)).observations.Single(p=>p.id==truncated.id);
-            Check(report,metadata.liveTruncated && metadata.frameCount==1 && metadata.utteranceId==originalUtterance && metadata.glyphIds.SequenceEqual(originalGlyphs) &&
+            Check(report,!metadata.liveTruncated && metadata.frameCount==1 && metadata.utteranceId==originalUtterance && metadata.glyphIds.SequenceEqual(originalGlyphs) &&
                 JsonUtility.ToJson(metadata.context)==originalContext && JsonUtility.ToJson(reloaded)==JsonUtility.ToJson(truncated),
                 "The original one-frame photograph and context survive both metadata and notebook disk reloads");
             if(photoOnly)
@@ -197,7 +197,7 @@ namespace WeatherHouse.Life.Editor
                 game.TakePhoto();
                 while(game.Recorder.IsRecording)yield return null;
                 report.injectedSlowCapture=false;
-                Check(report,report.injectedSlowCosts.Count==18,"Injected slow capture still completes its photo");
+                Check(report,report.injectedSlowCosts.Count==1,"Injected slow capture still completes its photo");
                 Check(report,report.injectedSlowCosts.GroupBy(c=>c.unityFrame).All(g=>g.Count()==1),"Even under injected 180ms capture cost, no Unity frame records more than one image");
             }
         }

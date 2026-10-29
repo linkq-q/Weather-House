@@ -100,9 +100,10 @@ namespace WeatherHouse.Life.Editor
                 string photoId = pending.id; float deadline = Time.realtimeSinceStartup + 15;
                 while (game.Recorder.IsRecording && Time.realtimeSinceStartup < deadline) yield return null;
                 Check(!game.Recorder.IsRecording && game.Notebook.observations.Any(photo => photo.id == photoId && photo.frameCount == MotionPhotoRecorder.FrameCount) && !game.IsPhotoSpeechHeld(a),
-                    "A complete real Live capture releases the target even though its live request changed", lines);
+                    "A complete real static capture releases the target even though its live request changed", lines);
                 Call(game, "RefreshPhotoSpeechTarget");
                 Check(!game.IsPhotoSpeechHeld(a) && game.DisplayedUtteranceId(a) == a.UtteranceId, "The unchanged target resumes live updates after capture", lines);
+                yield return new WaitForSecondsRealtime(.25f);
                 Check(Vector3.Distance(animalPosition, a.transform.position) > .0001f && (!herd || herd.SimulationTime > simulationTime),
                     "Native animal movement and the live herd clock continue during capture", lines);
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -16,7 +15,7 @@ namespace WeatherHouse.AnimalToon.Editor
     public static class AnimalToonReview
     {
         const string Generated = "Assets/AnimalToonSample";
-        public const string ScenePath = Generated + "/AnimalToonSample.unity";
+        public const string ScenePath = Generated + "/AnimalToonSampleV2.unity";
         public static void BuildAndReview()
         {
             if (!File.Exists(".animal-toon-review")) throw new InvalidOperationException("Use the isolated AnimalToonReview project.");
@@ -61,13 +60,11 @@ namespace WeatherHouse.AnimalToon.Editor
             AssetDatabase.CreateAsset(original, Generated + "/Original.mat");
             lab.toon = new Material(shader) { name = "Soft toon sheep", mainTexture = texture };
             lab.toon.SetFloat("_OutlineWidth", 0);
-            lab.toon.SetFloat("_SmoothOutline", 1);
             AssetDatabase.CreateAsset(lab.toon, Generated + "/SoftToon.mat");
             lab.outlined = new Material(lab.toon) { name = "Light edge sheep" };
             lab.outlined.SetFloat("_OutlineWidth", lab.edgeWidth);
             AssetDatabase.CreateAsset(lab.outlined, Generated + "/LightEdge.mat");
             var modelAsset = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Source/idle.fbx");
-            var meshes = new Dictionary<Mesh, Mesh>();
             for (int i = 0; i < 3; i++)
             {
                 var holder = new GameObject(new[] { "01 Original", "02 Soft toon", "03 Light edge" }[i]);
@@ -85,13 +82,7 @@ namespace WeatherHouse.AnimalToon.Editor
                 model.transform.rotation = Quaternion.Euler(0, 30 - Vector3.SignedAngle(Vector3.back, forward, Vector3.up), 0);
                 foreach (var skin in model.GetComponentsInChildren<SkinnedMeshRenderer>())
                 {
-                    if (!meshes.TryGetValue(skin.sharedMesh, out var mesh))
-                    {
-                        mesh = SmoothOutlineMesh(skin.sharedMesh);
-                        AssetDatabase.CreateAsset(mesh, Generated + "/SheepMesh" + meshes.Count + ".asset");
-                        meshes.Add(skin.sharedMesh, mesh);
-                    }
-                    skin.sharedMesh = mesh;
+                    var mesh = skin.sharedMesh;
                     skin.sharedMaterials = Enumerable.Repeat(i == 0 ? original : i == 1 ? lab.toon : lab.outlined, mesh.subMeshCount).ToArray();
                     skin.updateWhenOffscreen = true;
                 }
@@ -103,6 +94,7 @@ namespace WeatherHouse.AnimalToon.Editor
             }
             var cameraGO = new GameObject("Comparison Camera");
             lab.view = cameraGO.AddComponent<Camera>();
+            cameraGO.AddComponent<AnimalToonView>();
             lab.view.tag = "MainCamera"; lab.view.orthographic = true; lab.view.orthographicSize = 2.35f;
             lab.view.transform.position = new Vector3(0, 3.15f, -9);
             lab.view.transform.LookAt(new Vector3(0, .5f, 0));
@@ -146,29 +138,5 @@ namespace WeatherHouse.AnimalToon.Editor
             return bounds;
         }
 
-        static Mesh SmoothOutlineMesh(Mesh source)
-        {
-            var mesh = Object.Instantiate(source); mesh.name = source.name + " LightEdge";
-            var vertices = mesh.vertices; var normals = mesh.normals; var tangents = mesh.tangents;
-            if (tangents.Length != vertices.Length) { mesh.RecalculateTangents(); tangents = mesh.tangents; }
-            // UV seams share an outline direction. Encode it in the skinned normal/tangent frame.
-            var sums = new Dictionary<Vector3Int, Vector3>();
-            Func<Vector3, Vector3Int> key = p => Vector3Int.RoundToInt(p * 100000f);
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Vector3Int k = key(vertices[i]);
-                sums.TryGetValue(k, out var n); sums[k] = n + normals[i];
-            }
-            var smooth = new List<Vector3>(vertices.Length);
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Vector3 n = normals[i].normalized, t = new Vector3(tangents[i].x, tangents[i].y, tangents[i].z);
-                t = (t - n * Vector3.Dot(n, t)).normalized;
-                Vector3 b = Vector3.Cross(n, t) * tangents[i].w, s = sums[key(vertices[i])].normalized;
-                smooth.Add(new Vector3(Vector3.Dot(s, t), Vector3.Dot(s, b), Vector3.Dot(s, n)));
-            }
-            mesh.SetUVs(3, smooth);
-            return mesh;
-        }
     }
 }

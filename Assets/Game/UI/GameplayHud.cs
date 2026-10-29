@@ -64,7 +64,7 @@ namespace WeatherHousePrototype
         private float cameraBlend;
         private bool cameraRequested;
         private bool CanTakePhoto => CameraMode && cameraRequested && cameraBlend >= 1f;
-        private Text statusLabel, captureLabel, playbackLabel;
+        private Text statusLabel, captureLabel;
         private RectTransform statusRoot;
         private BreathingTextGlow statusGlow;
         private string displayedStatus;
@@ -86,14 +86,13 @@ namespace WeatherHousePrototype
         private readonly List<Text> bubbleMeanings = new List<Text>();
         private readonly RaycastHit[] bubbleSightHits = new RaycastHit[16];
         private string bubbleUtterance, selectedGlyph, guessGlyphId, guessDraft = "";
-        private int page, currentFrame;
+        private int page;
         private int glyphPage;
         private bool albumPhotosSelected, glyphDetailOpen, albumGesturesSelected, albumTasksSelected;
         private int photoTaskPage;
         private string publicTaskId;
         private string selectedGesture = "rain";
-        private bool dirty, playingPhoto, inspectorDirty;
-        private float nextFrameAt;
+        private bool dirty, inspectorDirty;
         private ObservationRecord expandedPhoto;
         private RawImage expandedImage;
         private Texture2D expandedTexture;
@@ -300,7 +299,7 @@ namespace WeatherHousePrototype
             }
             bubbleRoot = modalRoot = cameraRoot = null;
             bubbleShape = null; bubbleGlyphs.Clear(); bubbleMeanings.Clear();
-            captureLabel = playbackLabel = null;
+            captureLabel = null;
             cameraGroup = null;
             bubbleAnimal = null;
             bubbleGroup = null;
@@ -342,7 +341,6 @@ namespace WeatherHousePrototype
                 if (JournalOpen && expandedPhoto == null) RebuildModal();
             }
             UpdateAnimalBubble();
-            UpdatePlayback();
             if (InputFocused()) return;
             if (Input.GetKeyDown(KeyCode.J)) { UseBookShortcut(KeyCode.J); return; }
             if (Input.GetKeyDown(KeyCode.M)) { UseBookShortcut(KeyCode.M); return; }
@@ -601,9 +599,7 @@ namespace WeatherHousePrototype
             controlsRoot.gameObject.SetActive(!JournalOpen && !CameraMode);
             statusRoot.gameObject.SetActive(!JournalOpen && !CameraMode);
             if (!JournalOpen) ReleasePhotoTextures();
-            playingPhoto = false;
             expandedImage = null;
-            playbackLabel = null;
             guessInput = null;
             albumRoot = null;
             detailRoot = null;
@@ -639,7 +635,7 @@ namespace WeatherHousePrototype
         {
             if (detailLayer) { detailLayer.gameObject.SetActive(false); Destroy(detailLayer.gameObject); }
             detailLayer = detailRoot = null; expandedImage = null; expandedTexture = null;
-            playbackLabel = null; playingPhoto = false; guessInput = null;
+            guessInput = null;
         }
 
         private void BuildJournal()
@@ -663,7 +659,7 @@ namespace WeatherHousePrototype
                     {
                         var records = session.Notebook.FindTaskPhotos(id);
                         if (records.Count == 0) { publicTaskId = id; ClearFocus(); ShowDetails(); return; }
-                        expandedPhoto = records[records.Count - 1]; currentFrame = 0; ClearFocus(); ShowDetails();
+                        expandedPhoto = records[records.Count - 1]; ClearFocus(); ShowDetails();
                     }, direction => TurnJournalPage(direction));
                     FinishJournal(); return;
                 }
@@ -751,7 +747,7 @@ namespace WeatherHousePrototype
             try { texture = photoCache.Cover(record); }
             catch (Exception exception) { Debug.LogWarning(exception.Message, this); }
             var image = AlbumBookView.Photo(parent, slot, texture, "Photo " + record.id,
-                () => { expandedPhoto = record; glyphDetailOpen = false; currentFrame = 0; ClearFocus(); ShowDetails(); });
+                () => { expandedPhoto = record; glyphDetailOpen = false; ClearFocus(); ShowDetails(); });
             if (texture == null)
                 Label(image.transform, "Missing frame", "照片暂时无法读取", new Vector2(0f, -image.rectTransform.rect.height * .35f), new Vector2(image.rectTransform.rect.width - 12f, 46f), 17, Ink);
         }
@@ -841,22 +837,13 @@ namespace WeatherHousePrototype
         private void BuildPhoto()
         {
             detailLayer = Rect(modalRoot, "Photo detail layer", Vector2.zero, new Vector2(4000, 3000));
-            var card = detailRoot = PaperPanel(detailLayer, "Expanded motion photo", Vector2.zero, new Vector2(1120f, 830f), Color.white);
+            var card = detailRoot = PaperPanel(detailLayer, "Expanded photograph", Vector2.zero, new Vector2(1120f, 830f), Color.white);
             FitDetails();
             Label(card, "Photo title", "留下的片刻", new Vector2(-272f, 355f), new Vector2(480f, 62f), 44, Ink, TextAnchor.MiddleLeft);
             CloseButton(card, new Vector2(510f, 355f), CloseTop);
-            expandedImage = Raw(card, "Motion photo frame", new Vector2(0f, 4f), new Vector2(1024f, 576f));
-            currentFrame = Mathf.Clamp(currentFrame, 0, Mathf.Max(0, expandedPhoto.frameCount - 1));
+            expandedImage = Raw(card, "Photograph image", new Vector2(0f, 4f), new Vector2(1024f, 576f));
             LoadExpandedFrame();
             GlyphLine(card, expandedPhoto.glyphIds, new Vector2(0f, -317f), 38f, 950f);
-            var play = TextButton(card, "Play motion photo", "播放", new Vector2(0f, -370f), new Vector2(140f, 40f), () =>
-            {
-                playingPhoto = !playingPhoto;
-                if (playingPhoto && currentFrame >= expandedPhoto.frameCount - 1) { currentFrame = 0; LoadExpandedFrame(); }
-                nextFrameAt = Time.unscaledTime + 1f / Mathf.Max(1f, expandedPhoto.framesPerSecond);
-                UpdatePlaybackLabel();
-            }, neutral: true);
-            playbackLabel = play.GetComponentInChildren<Text>();
 
         }
 
@@ -892,27 +879,12 @@ namespace WeatherHousePrototype
             return state;
         }
 
-        private void UpdatePlayback()
-        {
-            if (!playingPhoto || expandedPhoto == null || expandedImage == null || Time.unscaledTime < nextFrameAt) return;
-            if (currentFrame >= expandedPhoto.frameCount - 1) { playingPhoto = false; UpdatePlaybackLabel(); return; }
-            currentFrame++;
-            LoadExpandedFrame();
-            nextFrameAt = Time.unscaledTime + 1f / Mathf.Max(1f, expandedPhoto.framesPerSecond);
-            UpdatePlaybackLabel();
-        }
-
-        private void UpdatePlaybackLabel()
-        {
-            if (playbackLabel != null) playbackLabel.text = playingPhoto ? "暂停" : "播放";
-        }
-
         private void LoadExpandedFrame()
         {
             expandedTexture = null;
             expandedImage.texture = null;
-            try { expandedTexture = photoCache.Frame(expandedPhoto, currentFrame); expandedImage.texture = expandedTexture; }
-            catch (Exception exception) { playingPhoto = false; Debug.LogWarning(exception.Message, this); }
+            try { expandedTexture = photoCache.Cover(expandedPhoto); expandedImage.texture = expandedTexture; }
+            catch (Exception exception) { Debug.LogWarning(exception.Message, this); }
             if (expandedImage.texture == null)
             {
                 expandedImage.texture = Resources.Load<Texture2D>("AlbumBook/PhotoMissing");

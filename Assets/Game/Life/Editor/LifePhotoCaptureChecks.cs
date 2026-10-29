@@ -34,8 +34,8 @@ namespace WeatherHouse.Life.Editor
                 Check(File.Exists(Path.Combine(Folder(id), "frame_000.png")), "Ordinary still is rendered synchronously at shutter time");
                 float began = Time.realtimeSinceStartup;
                 while (recorder.IsRecording && Time.realtimeSinceStartup - began < 12f) yield return null;
-                Check(!recorder.IsRecording && error == null && book.observations.Count == 1 && book.observations[0].frameCount == 18,
-                    "Unmatched landscape saves a real 18-frame photo without an animal");
+                Check(!recorder.IsRecording && error == null && book.observations.Count == 1 && book.observations[0].frameCount == 1,
+                    "Unmatched landscape saves a real single-frame photo without an animal");
                 Check(book.ApplyPhotoTasks() == 0 && book.observations.Count == 1, "No matching task never deletes the landscape");
                 id = Guid.NewGuid().ToString("N"); ownedIds.Add(id);
                 bool sameTurn = true;
@@ -49,19 +49,19 @@ namespace WeatherHouse.Life.Editor
                 Check(!recorder.IsRecording && error == null && book.observations.Count == 2,
                     "An immediate dialogue change retains the ordinary photo");
                 var truncated = book.observations[1];
-                Check(truncated.frameCount == 1 && truncated.liveTruncated && truncated.utteranceId == "original-turn" &&
+                Check(truncated.frameCount == 1 && !truncated.liveTruncated && truncated.utteranceId == "original-turn" &&
                     truncated.glyphIds[0] == "come" && truncated.context.targetId == "original" && truncated.photoSnapshot.entities[0].sleeping,
-                    "Live contains only the original turn and preserves shutter context, anchors and sleeping state");
+                    "The still contains only the original turn and preserves shutter context, anchors and sleeping state");
                 Check(Directory.GetFiles(Folder(id), "frame_*.png").Length == 1 && File.Exists(Path.Combine(Folder(id), "metadata.json")),
                     "Truncation leaves a complete one-frame photo and metadata on disk");
                 var reread = JsonUtility.FromJson<ObservationRecord>(File.ReadAllText(Path.Combine(Folder(id), "metadata.json")));
-                Check(reread.liveTruncated && reread.context.anchorPosition == new Vector3(1, 2, 3) && reread.photoSnapshot.entities[0].sleeping,
+                Check(!reread.liveTruncated && reread.context.anchorPosition == new Vector3(1, 2, 3) && reread.photoSnapshot.entities[0].sleeping,
                     "Saved replay context survives metadata reload");
                 Check(book.ApplyPhotoTasks() == 2 && book.GetWord("fox").encountered && book.GetWord("sleep").encountered &&
                     !book.GetWord("fox").confirmed && !book.GetWord("sleep").confirmed,
-                    "A truncated Live photo completes portrait and sleep tasks without confirming their meanings");
+                    "A static photo completes portrait and sleep tasks without confirming their meanings");
                 var texture = MotionPhotoRecorder.LoadFrame(truncated, 0);
-                Check(texture.width == 512 && texture.height == 288, "Retained still loads through the real album decoder");
+                Check(texture.width == 2560 && texture.height == 1440, "High-resolution still loads through the real album decoder");
                 Object.Destroy(texture);
                 IEnumerator integration = CheckGameplayEntry(lines, ownedIds);
                 try { while (integration.MoveNext()) yield return integration.Current; }
@@ -109,7 +109,7 @@ namespace WeatherHouse.Life.Editor
                 while (game.Recorder.IsRecording && Time.realtimeSinceStartup < deadline) yield return null;
                 Check(!game.Recorder.IsRecording && game.Notebook.observations.Count == before + 1, "No-Observed sky photo reaches the actual notebook index");
                 var saved = game.Notebook.observations.Last();
-                Check(string.IsNullOrEmpty(saved.animalId) && saved.glyphIds.Length == 0 && saved.frameCount == 18 && saved.photoSnapshot != null &&
+                Check(string.IsNullOrEmpty(saved.animalId) && saved.glyphIds.Length == 0 && saved.frameCount == 1 && saved.photoSnapshot != null &&
                     File.Exists(Path.Combine(Folder(saved.id), "frame_000.png")), "Actual free photo stores image and shutter snapshot with no fabricated speaker");
                 Check(JsonUtility.FromJson<LanguageNotebook>(File.ReadAllText(game.SavePath)).observations.Any(photo => photo.id == saved.id),
                     "Actual free photo persists through the notebook disk path");
@@ -140,7 +140,7 @@ namespace WeatherHouse.Life.Editor
                         saved = game.Notebook.observations.Last();
                         Check(!game.Recorder.IsRecording && game.Notebook.observations.Count == before + 1 && saved.id == pending.id &&
                             saved.frameCount == (readback ? 1 : MotionPhotoRecorder.FrameCount) && File.Exists(Path.Combine(Folder(saved.id), "frame_000.png")),
-                            "Recognition failure preserves " + (readback ? "the lowered-camera still" : "the full Live photograph") + " and the real notebook entry");
+                            "Recognition failure preserves " + (readback ? "the lowered-camera still" : "the static photograph") + " and the real notebook entry");
                         Check(saved.photoSnapshot != null && saved.photoSnapshot.visibilityError.Contains(injected) &&
                             saved.photoSnapshot.entities.Length == 0 && saved.photoSnapshot.contexts.Length == 0 && saved.matchedPhotoTaskIds.Length == 0 &&
                             string.Join(",", game.Notebook.completedPhotoTasks.OrderBy(task => task)) == rewardsBeforeFailure &&
@@ -170,9 +170,9 @@ namespace WeatherHouse.Life.Editor
                 pending = (ObservationRecord)pendingField.GetValue(game.Recorder); ownedIds.Add(pending.id);
                 hud.SetCameraMode(false, true);
                 Check(!game.Recorder.IsRecording && !hud.CameraMode && game.Notebook.observations.Count == before + 1,
-                    "Normal UI camera lowering finishes Live and retains the pressed shutter");
+                    "Normal UI camera lowering finishes the still and retains the pressed shutter");
                 saved = game.Notebook.observations.Last();
-                Check(saved.frameCount == 1 && saved.liveTruncated && string.IsNullOrEmpty(saved.photoSnapshot?.visibilityError) &&
+                Check(saved.frameCount == 1 && !saved.liveTruncated && string.IsNullOrEmpty(saved.photoSnapshot?.visibilityError) &&
                     File.Exists(Path.Combine(Folder(saved.id), "frame_000.png")) &&
                     JsonUtility.FromJson<LanguageNotebook>(File.ReadAllText(game.SavePath)).observations.Any(photo => photo.id == saved.id),
                     "Immediate camera lowering persists an actual one-frame photo and index");
@@ -195,11 +195,11 @@ namespace WeatherHouse.Life.Editor
                 deadline = Time.realtimeSinceStartup + 5f;
                 while (game.Recorder.IsRecording && Time.realtimeSinceStartup < deadline) yield return null;
                 saved = game.Notebook.observations.Last();
-                Check(!game.Recorder.IsRecording && game.Notebook.observations.Count == before + 1 && saved.frameCount == 1 && saved.liveTruncated &&
-                    !string.IsNullOrEmpty(saved.captureWarning) && File.Exists(Path.Combine(Folder(saved.id), "frame_000.png")),
-                    "A real blocked second-frame write preserves the first frame and records the interrupted Live warning");
-                Check(JsonUtility.FromJson<LanguageNotebook>(File.ReadAllText(game.SavePath)).observations.Any(photo => photo.id == saved.id && !string.IsNullOrEmpty(photo.captureWarning)),
-                    "The partial-write warning and photo survive actual index persistence");
+                Check(!game.Recorder.IsRecording && game.Notebook.observations.Count == before + 1 && saved.frameCount == 1 && !saved.liveTruncated &&
+                    string.IsNullOrEmpty(saved.captureWarning) && File.Exists(Path.Combine(Folder(saved.id), "frame_000.png")),
+                    "Static capture never attempts a second frame, even when that path is blocked");
+                Check(JsonUtility.FromJson<LanguageNotebook>(File.ReadAllText(game.SavePath)).observations.Any(photo => photo.id == saved.id && string.IsNullOrEmpty(photo.captureWarning)),
+                    "The complete static photo survives actual index persistence");
                 hud.SetCameraMode(false, true);
 
                 hud.SetCameraMode(true, true); property.SetValue(game, null); before = game.Notebook.observations.Count;
@@ -223,12 +223,15 @@ namespace WeatherHouse.Life.Editor
                     "Failed photo indexing keeps the previous index byte-for-byte and preserves the new image");
 
                 var life = game.GetComponent<LifeSession>(); var speaker = life.World.FindSpeaker("dog");
-                int oldTopic = speaker.topicIndex; Vector3 oldPosition = game.PlayerTransform.position;
+                int oldTopic = speaker.topicIndex; var oldRequests = speaker.requests; Vector3 oldPosition = game.PlayerTransform.position;
                 string world = life.World.CaptureJson(), progress = JsonUtility.ToJson(life.Progress);
                 try
                 {
                     speaker.topicIndex = Array.FindIndex(speaker.requests, request => request.glyphIds.Contains("hello"));
                     Check(speaker.topicIndex >= 0, "The first-dialogue regression uses an authored greeting");
+                    // Isolate re-presenting the same greeting from E's normal automatic topic progression.
+                    speaker.requests = new[] { speaker.requests[speaker.topicIndex] }; speaker.topicIndex = 0;
+                    life.Progress.heardRequests.Remove(speaker.Current.id);
                     game.PlayerTransform.position = speaker.transform.position + Vector3.right * 1.5f; Physics.SyncTransforms();
                     property.SetValue(game, speaker.Actor);
                     string greetingId = "hello:" + speaker.Current.id + ":" + speaker.Actor.animalId;
@@ -245,6 +248,8 @@ namespace WeatherHouse.Life.Editor
                     historyCount = game.Notebook.publicHistory.Count; priorUtc = greeting.occurredUtc;
                     var windows = (Dictionary<string, float>)typeof(LifeWorld).GetField("photoContextUntil", flags).GetValue(life.World);
                     float firstWindow = windows[greetingId];
+                    // Reopening is a separate player input; Time.time cannot advance within the same Unity frame.
+                    yield return null;
                     hud.CloseDialogue(); property.SetValue(game, speaker.Actor); hud.ToggleDialogue();
                     deadline = Time.realtimeSinceStartup + 3f;
                     while (Time.realtimeSinceStartup < deadline && game.Notebook.publicHistory.Find(c => c.id == greetingId)?.occurredUtc == priorUtc) yield return null;
@@ -253,7 +258,7 @@ namespace WeatherHouse.Life.Editor
                 }
                 finally
                 {
-                    hud.CloseDialogue(); speaker.topicIndex = oldTopic; game.PlayerTransform.position = oldPosition;
+                    hud.CloseDialogue(); speaker.requests = oldRequests; speaker.topicIndex = oldTopic; game.PlayerTransform.position = oldPosition;
                     JsonUtility.FromJsonOverwrite(progress, life.Progress); life.World.RestoreJson(world); life.SaveAndNotify(""); life.World.RestorePublicPhotoContexts(JsonUtility.FromJson<LanguageNotebook>(original).publicHistory);
                 }
             }

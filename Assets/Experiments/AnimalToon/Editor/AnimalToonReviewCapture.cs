@@ -20,7 +20,8 @@ namespace WeatherHouse.AnimalToon.Editor
         static readonly string[] Shots = { "01-comparison-right", "02-comparison-left", "03-comparison-shadow",
             "04-walk-pose", "05-right-no-edge", "06-right-edge", "07-left-no-edge", "08-left-edge",
             "09-shadow-no-edge", "10-shadow-edge", "11-dark-no-edge", "12-dark-edge",
-            "13-occluded-no-edge", "14-occluded-edge" };
+            "13-occluded-no-edge", "14-occluded-edge", "15-user-no-merge", "16-user-merged",
+            "17-user-wide-edge", "18-user-max-edge", "19-wide-walk", "20-perspective" };
 
         static AnimalToonReviewCapture()
         {
@@ -60,10 +61,20 @@ namespace WeatherHouse.AnimalToon.Editor
             lab.focus = step < 4 ? -1 : 2;
             lab.animationTime = step == 3 ? lab.walk.length * .37f : 0;
             lab.lightAngle = step == 1 || step == 6 || step == 7 ? -70 : 70;
-            lab.edgeWidth = step >= 4 && step % 2 == 0 ? 0 : 2.2f;
+            lab.edgeWidth = step >= 4 && step % 2 == 0 ? 0 : 8;
             lab.inShadow = step == 2 || step == 8 || step == 9;
-            lab.showForeground = step >= 12;
+            lab.showForeground = step == 12 || step == 13;
             lab.key.intensity = step == 10 || step == 11 ? 0 : 1.1f;
+            lab.mergeRadius = 12;
+            if (step >= 14)
+            {
+                lab.lightAngle = 125.88f;
+                lab.toonStrength = 1; lab.softness = .01f;
+                lab.edgeWidth = step < 16 ? 3.83f : step == 16 ? 8 : 16;
+                lab.mergeRadius = step == 14 ? 0 : 12;
+                if (step == 18) lab.animationTime = lab.walk.length * .37f;
+                if (step == 19) { lab.view.orthographic = false; lab.view.fieldOfView = 16; }
+            }
             lab.Apply();
         }
 
@@ -83,11 +94,15 @@ namespace WeatherHouse.AnimalToon.Editor
                     float movement = pose.Zip(firstPose, (a, b) => Vector3.Distance(a, b)).Max();
                     Require(movement > .01f, "Walk deforms skinned vertices", movement.ToString("F5") + " m");
                 }
-                if (step >= 4 && step % 2 == 0) off = pixels;
+                if (step >= 4 && step <= 14 && step % 2 == 0) off = pixels;
                 if (step == 5)
                 {
                     litPixels = Difference(off, pixels, out rightX);
                     Require(litPixels > 100, "Enabled outline changes actual rendered pixels", litPixels.ToString());
+                    int interior = 0;
+                    for (int y = 500; y < 580; y++) for (int x = 910; x < 980; x++)
+                        if (Delta(off[y * Width + x], pixels[y * Width + x]) > 12) interior++;
+                    Require(interior == 0, "Outline leaves body interior unchanged", interior.ToString());
                 }
                 if (step == 7)
                 {
@@ -115,6 +130,13 @@ namespace WeatherHouse.AnimalToon.Editor
                     Require(leak == 0, "Foreground depth test blocks edge", leak.ToString());
                     var shader = Shader.Find("Weather House/Animals/Paper Toon");
                     Require(!ShaderUtil.ShaderHasError(shader), "Shader compilation", "no shader errors");
+                    Require(!ShaderUtil.ShaderHasError(Shader.Find("Hidden/Weather House/Animal Paper Screen")), "Screen shader compilation", "no shader errors");
+                }
+                if (step == 15)
+                    Require(Difference(off, pixels, out _) > 100, "Merge changes actual sheep shading", Difference(off, pixels, out _).ToString());
+                if (step == Shots.Length - 1)
+                {
+                    AnimalPaperFilterChecks.Run();
                     File.AppendAllText("../checks.txt", "PASS all checks. Visual acceptance remains user review.\n");
                     SessionState.SetBool("AnimalToonReview.Passed", true);
                     Finish(); return;

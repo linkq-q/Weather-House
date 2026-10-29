@@ -13,17 +13,19 @@ namespace WeatherHouse.AnimalToon
         public AnimationClip walk;
         public Material toon, outlined;
         public GameObject shadowBlocker, foreground;
-        [Range(-160, 160)] public float lightAngle = 65;
+        [Range(-160, 160)] public float lightAngle = 125.88f;
         [Range(10, 80)] public float lightElevation = 35;
-        [Range(0, 5)] public float edgeWidth = 2.2f;
-        [Range(0, 1)] public float toonStrength = 0.8f;
-        [Range(0.01f, 0.3f)] public float softness = 0.08f;
-        public bool animate = true, inShadow, showForeground, showControls = true;
-        public int focus = -1;
+        [Range(0, 16)] public float edgeWidth = 8;
+        [Range(0, 24)] public float mergeRadius = 12;
+        [Range(0, 1)] public float toonStrength = 1;
+        [Range(0.01f, 0.3f)] public float softness = 0.01f;
+        public bool animate, inShadow, showForeground, showControls = true;
+        public int focus = 2;
         public float animationTime;
         PlayableGraph[] graphs;
         AnimationClipPlayable[] clips;
         Material runtimeToon, runtimeOutlined;
+        AnimalToonView paperView;
 
         void OnEnable()
         {
@@ -59,6 +61,8 @@ namespace WeatherHouse.AnimalToon
 
         public void Apply()
         {
+            if (!paperView) paperView = view.GetComponent<AnimalToonView>();
+            if (paperView) paperView.mergeRadius = mergeRadius;
             float yaw = lightAngle * Mathf.Deg2Rad, elevation = lightElevation * Mathf.Deg2Rad;
             Vector3 towardsLight = new Vector3(Mathf.Sin(yaw) * Mathf.Cos(elevation),
                 Mathf.Sin(elevation), -Mathf.Cos(yaw) * Mathf.Cos(elevation));
@@ -96,10 +100,12 @@ namespace WeatherHouse.AnimalToon
             GUI.skin.button.fontSize = 15;
             string[] labels = { "原材质", "柔和色阶", "色阶 + 受光侧描边" };
             for (int i = 0; i < labels.Length; i++)
-                GUI.Label(new Rect(Screen.width * i / 3f + 22, 22, Screen.width / 3f, 30), labels[i]);
-            GUILayout.BeginArea(new Rect(18, Screen.height - 185, 600, 170), GUI.skin.box);
+                if (GUI.Button(new Rect(Screen.width * i / 3f + 22, 22, Screen.width / 3f - 44, 30), labels[i]))
+                    focus = focus == i ? -1 : i;
+            GUILayout.BeginArea(new Rect(18, Screen.height - 215, 600, 200), GUI.skin.box);
             lightAngle = Slider("光照方位", lightAngle, -160, 160);
-            edgeWidth = Slider("描边宽度", edgeWidth, 0, 5);
+            edgeWidth = Slider("描边宽度", edgeWidth, 0, 16);
+            mergeRadius = Slider("色块合并", mergeRadius, 0, 24);
             toonStrength = Slider("色阶强度", toonStrength, 0, 1);
             softness = Slider("明暗过渡", softness, .01f, .3f);
             GUILayout.BeginHorizontal();
