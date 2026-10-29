@@ -10,11 +10,14 @@ Shader "Weather House/Animals/Paper Toon"
         _ToonStrength("Band Strength", Range(0,1)) = 0.8
         _AmbientStrength("Ambient Fill", Range(0,2)) = 0.7
         _LightStrength("Direct Light", Range(0,2)) = 0.7
+        _ShadowFloor("Deep Shadow Light Floor", Range(0,0.3)) = 0
         _OutlineWidth("Light Edge Width at 1080p", Range(0,16)) = 1.8
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
     }
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" }
+        Cull [_Cull]
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -24,6 +27,7 @@ Shader "Weather House/Animals/Paper Toon"
             half4 _BaseColor, _ShadeColor;
             half _ShadeThreshold, _BandSoftness, _ToonStrength, _AmbientStrength, _LightStrength;
             half _OutlineWidth;
+            half _ShadowFloor;
         CBUFFER_END
         struct Attributes
         {
@@ -79,7 +83,7 @@ Shader "Weather House/Animals/Paper Toon"
                           + 0.35h * smoothstep(0.82h-width,0.82h+width,form);
                 half tone = lerp(form,band,_ToonStrength);
                 half3 ambient = max(0,SampleSH(n)) * _AmbientStrength;
-                half3 direct = key.color * key.distanceAttenuation * key.shadowAttenuation
+                half3 direct = key.color * key.distanceAttenuation * lerp(_ShadowFloor,1,key.shadowAttenuation)
                              * lerp(_ShadeColor.rgb,half3(1,1,1),tone) * _LightStrength;
                 half3 albedo = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv).rgb * _BaseColor.rgb;
                 return half4(MixFog(albedo*(ambient+direct),input.fog),1);
