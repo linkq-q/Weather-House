@@ -92,9 +92,7 @@ namespace WeatherHouse.DrawerPrototype
         void BuildGrandmotherLetter(Transform parent)
         {
             letterContent=Resources.Load<DrawerLetterContent>(RefinedArt+"GrandmaLetterContent");
-            var paper=Paint("Grandmother · ruled cotton paper",Color.white);
-            paper.SetTexture("_BaseMap",Resources.Load<Texture2D>(RefinedArt+"GrandmaLetterPaper"));
-            paper.SetFloat("_Smoothness",.06f); Normal(paper,paperNormal,.13f);
+            var paper=RuntimeLook.letterPaper;
             var reverse=Paint("Grandmother · warm paper edge",new Color(.86f,.83f,.72f));
             var sheet=CurvedSheet(parent,"Modeled writing paper",new Vector2(1.64f,2.05f),.012f,.035f,paper,reverse,new Rect(0,0,1,1));
             sheet.transform.localPosition=new Vector3(-.16f,.015f,-.015f);
@@ -112,7 +110,7 @@ namespace WeatherHouse.DrawerPrototype
             if(letterContent)
             {
                 LetterText(parent,"Letter salutation",0,new Vector3(-.82f,.063f,.83f),.55f,.17f);
-                LetterText(parent,"Letter editable message",1,new Vector3(-.82f,.045f,.04f),1.33f,.55f);
+                LetterText(parent,"Letter editable message",1,new Vector3(-.82f,.045f,.04f),1.33f,.86f);
                 LetterText(parent,"Letter signature",2,new Vector3(.25f,.049f,-.63f),.30f,.16f);
             }
         }

@@ -546,7 +546,15 @@ namespace WeatherHouse.DrawerPrototype
             magic.transform.position = new Vector3(target.x,1.4f,target.z); magic.SetActive(true);
             float factor = item.item == 3 ? 1.05f : item.item == 2 ? 1.55f : 1.5f;
             yield return Tween(item,target,Quaternion.Euler(-28,-10,7),Vector3.one*factor,.38f);
-            title.text = Titles[item.item]; description.text = item.item == 4 && letterContent ? letterContent.message : Descriptions[item.item]; dialog.gameObject.SetActive(true); busy = false;
+            title.text = Titles[item.item]; description.text = item.item == 4 && letterContent ? letterContent.message : Descriptions[item.item];
+            float textHeight = item.item == 4 ? Mathf.Max(72,description.preferredHeight) : 72;
+            float panelHeight = textHeight+92;
+            dialog.sizeDelta = new Vector2(555,panelHeight); dialog.anchoredPosition = new Vector2(0,-411+panelHeight*.5f);
+            title.rectTransform.anchoredPosition = new Vector2(-5,panelHeight*.5f-38);
+            closeTarget.anchoredPosition = new Vector2(230,panelHeight*.5f-39);
+            description.rectTransform.sizeDelta = new Vector2(450,textHeight);
+            description.rectTransform.anchoredPosition = new Vector2(-5,-17);
+            dialog.gameObject.SetActive(true); busy = false;
         }
 
         public void CloseItem()

@@ -30,8 +30,18 @@ namespace WeatherHouse.DrawerPrototype.Editor
                 settings.dictionary = OilMaterial("Dictionary",cloth,new Color(.44f,.49f,.34f),true);
                 AssetDatabase.CreateAsset(settings,settingsPath);
             }
+            EnsureLetterPaper(settings);
             controller.lookDefaults = settings;
             controller.lookPipeline = Pipeline();
+        }
+
+        public static void EnsureLetterPaper(DrawerLookSettings settings)
+        {
+            if (!settings || settings.letterPaper) return;
+            var texture = Resources.Load<Texture2D>("DrawerPrototype/RefinedProps/GrandmaLetterPaper");
+            if (!texture) throw new InvalidOperationException("The ruled letter paper texture is missing.");
+            settings.letterPaper = OilMaterial("LetterPaper",texture,new Color(.94f,.93f,.88f),false);
+            EditorUtility.SetDirty(settings); AssetDatabase.SaveAssetIfDirty(settings);
         }
 
         static Material CopyMaterial(Material source, string name)

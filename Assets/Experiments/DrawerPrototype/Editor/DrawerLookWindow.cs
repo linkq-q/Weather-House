@@ -42,7 +42,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
             }
             GUILayout.EndHorizontal();
             if (!string.IsNullOrEmpty(message)) EditorGUILayout.HelpBox(message,MessageType.Info);
-            page = GUILayout.Toolbar(page,new[] { "草地 / 撒点","信纸 / 书封","油画后处理","光影" });
+            page = GUILayout.Toolbar(page,new[] { "草地 / 撒点","纸张 / 书封","油画后处理","光影" });
             scroll = EditorGUILayout.BeginScrollView(scroll);
             EditorGUI.BeginChangeCheck();
             if (page == 0) Grass(look);
@@ -83,8 +83,9 @@ namespace WeatherHouse.DrawerPrototype.Editor
 
         void Surfaces(DrawerLookSettings look)
         {
-            surfaceChoice = GUILayout.Toolbar(surfaceChoice,new[] { "信纸正面","信纸折面","魔法书封","字典书封" });
-            Material material = new[] { look.paper,look.paperFold,look.magicBook,look.dictionary }[surfaceChoice];
+            surfaceChoice = EditorGUILayout.Popup("调整对象",surfaceChoice,new[] { "普通信封 · 正面","普通信封 · 折面","奶奶信纸","魔法书封","字典书封" });
+            Material material = new[] { look.paper,look.paperFold,look.letterPaper,look.magicBook,look.dictionary }[surfaceChoice];
+            EditorGUILayout.LabelField("油画表面材质：保留原贴图，笔触与厚涂可分别调整。",EditorStyles.wordWrappedMiniLabel);
             ColorField(material,"底色","_BaseColor"); ColorField(material,"笔触颜色","_StrokeColor");
             ColorField(material,"阴影颜色","_ShadowColor"); ColorField(material,"亮部颜色","_HighlightColor"); ColorField(material,"交界颜色","_ShadowEdgeColor");
             Float(material,"原纹理保留","_TextureInfluence",0,1);

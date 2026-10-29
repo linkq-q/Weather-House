@@ -145,7 +145,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0.82, y: 0.045, z: 0.04}
-  m_LocalScale: {x: 0.16792929, y: 0.16792929, z: 0.16792929}
+  m_LocalScale: {x: 0.15357143, y: 0.15357143, z: 0.15357143}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8299106177830512620}
@@ -170,7 +170,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df4fbac2446efb6458af7a33790bc40b, type: 3}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -200,7 +200,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1376338781664839509}
-  m_Text: "\u51FA\u95E8\u540E\uFF0C\u62DC\u6258\u53BB\u770B\u770B\u5C0F\u72D7\u3002\n\u7167\u7247\u91CC\u7684\u5C31\u662F\u5B83\u3002"
+  m_Text: "\u6211\u4EEC\u51FA\u95E8\u53BB\u53C2\u52A0\u9B54\u6CD5\u534F\u4F1A\u7684\n\u5E74\u5EA6\u5927\u4F1A\u4E86\u3002\n\u8FD9\u4E00\u4E2A\u6708\uFF0C\u5C9B\u4E0A\u7684\u5C0F\u52A8\u7269\n\u5C31\u9EBB\u70E6\u4F60\u7167\u987E\u5566\u3002\n\u8BB0\u5F97\u53BB\u770B\u770B\u8C46\u8C46\uFF0C\n\u4E5F\u8981\u7167\u987E\u597D\u81EA\u5DF1\u3002"
   m_OffsetZ: 0
   m_CharacterSize: 0.1
   m_LineSpacing: 1.55
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   content: {fileID: 11400000, guid: c39900674fe68d547aea8920f3e0ccb6, type: 2}
   section: 1
-  maximumSize: {x: 1.33, y: 0.55}
+  maximumSize: {x: 1.33, y: 0.86}
 --- !u!1 &3757590213603217728
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,7 +495,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5490447894580865124, guid: 54d2d338cba49b141b49737510cc21cd, type: 2}
+  - {fileID: 2100000, guid: 545ebb72b52e2124a92673eadf808fd2, type: 2}
   - {fileID: -2961651245008226283, guid: 54d2d338cba49b141b49737510cc21cd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -547,7 +547,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0.82, y: 0.063, z: 0.83}
-  m_LocalScale: {x: 0.20833333, y: 0.20833333, z: 0.20833333}
+  m_LocalScale: {x: 0.26562497, y: 0.26562497, z: 0.26562497}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8299106177830512620}
@@ -572,7 +572,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df4fbac2446efb6458af7a33790bc40b, type: 3}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -602,7 +602,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4864393461308520196}
-  m_Text: "\u4EB2\u7231\u7684\uFF1A"
+  m_Text: "Nana\uFF1A"
   m_OffsetZ: 0
   m_CharacterSize: 0.1
   m_LineSpacing: 1.55
@@ -685,7 +685,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df4fbac2446efb6458af7a33790bc40b, type: 3}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -715,7 +715,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5573103983406179854}
-  m_Text: "\u5976\u5976"
+  m_Text: 
   m_OffsetZ: 0
   m_CharacterSize: 0.1
   m_LineSpacing: 1.55

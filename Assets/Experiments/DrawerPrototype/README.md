@@ -19,13 +19,19 @@ Unity 顶部菜单 `Weather House → 抽屉原型 → 画面调参面板` 打�
 
 信纸与两种书封复用 `Weather House/Oil Paint Surface` 和原笔触图集，保留纸张／布面原纹理。当前油画 Shader 使用厚涂法线，不支持原 Lit 材质的纸张法线贴图。
 
+在“纸张 / 书封”页的“调整对象”中，可分别选择普通信封正面、普通信封折面、奶奶信纸、魔法书封和字典书封。奶奶信纸使用独立的 `Look/LetterPaper.mat`，随原有“保存为抽屉默认值／恢复已保存值”一起保存和恢复；照片仍保持已确认的绘本配色。普通信封和书封沿用已有的调参值。
+
 Play 中调整立即生效，点击“保存为抽屉默认值”写入本目录 `Look/DrawerLook.asset` 及专用材质；“恢复已保存值”放弃本次未保存试调。运行时使用材质副本，退出 Play 后丢弃未保存变化。抽屉使用私有 URP 配置承载后处理，退出时恢复原管线；不会修改正式地图的材质或项目渲染设置。三本书仍使用太阳、条目、照片标记。
 
 `Models/` 中提供可直接拖入场景的外观 Prefab：`MagicBook`、`Dictionary`、`AlbumTaskBook`、`Camera`、`Wand`。各自的网格和材质保存在同名 `Parts.asset`，保留纹理引用；这些外观资源不绑定抽屉的收集逻辑。相册任务书不在抽屉里生成可收集物。已保存的 `LeafBranch` 和 `GrassSprig` 模型仍保留，当前草地场景不使用它们。
 
-2026-10-29 新增 `Models/CameraV2.prefab` 和 `Models/GrandmotherLetter.prefab`。相机包含分层镜筒、对焦环刻度、凸面镀膜玻璃、取景窗、旋钮与背带环，配细纹皮革和缎面金属；网格合计 12,912 三角形。奶奶来信采用有厚度、轻微翘边的淡横线纸面，照片卡与金属夹均为独立模型。抽屉中的两本书、普通信封和已保存的画面参数保持原值。
+2026-10-29 新增 `Models/CameraV2.prefab` 和 `Models/GrandmotherLetter.prefab`。相机包含分层镜筒、对焦环刻度、凸面镀膜玻璃、取景窗、旋钮与背带环，配细纹皮革和缎面金属；网格合计 12,912 三角形。奶奶来信采用有厚度、轻微翘边的纸面，照片卡与金属夹均为独立模型。抽屉中的两本书、普通信封和已保存的画面参数保持原值。
 
-来信正文在 `Resources/DrawerPrototype/RefinedProps/GrandmaLetterContent.asset` 中修改，称呼、正文和落款独立于纸面贴图；在 Inspector 编辑后会更新模型上的文字。较长正文请主动分行，文本会缩放到预留区域。独立生成的 `GrandmaLetterPaper.png` 包含纸纹与淡横线，`CompanionPhoto.png` 是参照实际角色和黑白边牧生成的合照，`CameraLeather.png` 为相机细皮纹。三张图片均使用内置 image_gen 生成，完整提示词与引用图片路径保存在 `ArtSources~/refined-props-prompts.json`。
+来信正文在 `Resources/DrawerPrototype/RefinedProps/GrandmaLetterContent.asset` 中修改，称呼、正文和落款独立于纸面贴图；在 Inspector 编辑后会更新模型上的文字。较长正文请主动分行，文本会缩放到预留区域。`GrandmaLetterPaper.png` 已按最新反馈去除全部横线，仅保留纸纹与小叶纹；`CompanionPhoto.png` 是参照实际角色和黑白边牧生成的合照，`CameraLeather.png` 为相机细皮纹。三张图片均使用内置 image_gen 生成，原始提示词保存在 `ArtSources~/refined-props-prompts.json`，去横线编辑提示词保存在 `ArtSources~/letter-paper-unruled-prompt.json`。
+
+来信现称呼 `Nana`，说明出门参加魔法协会年度大会、请照顾岛上动物一个月，并提醒记得看看小狗“豆豆”；不规定探索顺序、不写落款。天气魔法与动物语言的学习说明仍由笔记／字典承担。正文在纸面分为六行，拾取说明框随正文高度展开。
+
+纸面文字使用 `Drawer Letter Ink` 世界空间字体材质，参与深度遮挡，随字体图集重建同步纹理；信封盖住正文时不会透出。`props-20261029/ink-occlusion.txt` 记录可见文字、旧版忽略深度行为及修复后完全遮挡的 GPU 像素对照。
 
 `Weather House → 抽屉原型 → 运行交互检查` 会创建独立测试存档，走运行时指针输入路径并保存真实 GameView 截图；不会覆盖普通试玩的原型进度。
 

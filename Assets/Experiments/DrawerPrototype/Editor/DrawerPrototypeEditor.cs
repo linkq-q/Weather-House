@@ -48,6 +48,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
                     case "look-checks": StartPlay(false,false,false,true); break;
                     case "prop-review": StartPlay(false,false,false,false,true); break;
                     case "export-refined-props": ExportModels(UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>(),true); break;
+                    case "sync-letter-model": SyncLetterModel(); break;
                     case "export-models": ExportModels(UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>()); break;
                     case "capture": CaptureCurrent(); break;
                     case "stop": Stop(); break;
@@ -476,10 +477,14 @@ namespace WeatherHouse.DrawerPrototype.Editor
             Require(c.RuntimeLook.paper.shader.name == "Weather House/Oil Paint Surface" && c.RuntimeLook.magicBook.shader.name == "Weather House/Oil Paint Surface","Paper and books must use the existing oil surface shader.");
             Require(c.RuntimeLook.paper.shader.isSupported && c.OilPost && UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline == c.lookPipeline,"The drawer must use its supported private oil pipeline.");
             Require(c.RuntimeLook.paper.GetTexture("_BaseMap") == c.paperGrain && c.RuntimeLook.magicBook.GetTexture("_BaseMap") == Resources.Load<Texture2D>("DrawerPrototype/Velvet"),"Paper and cloth textures must be retained.");
+            var letterSurface=c.Items[4].transform.Find("Modeled writing paper").GetComponent<Renderer>();
+            Require(letterSurface.sharedMaterial==c.RuntimeLook.letterPaper && c.RuntimeLook.letterPaper.shader.name=="Weather House/Oil Paint Surface","Letter paper must be bound to the independent tuner material.");
+            Require(c.RuntimeLook.letterPaper.GetTexture("_BaseMap")==Resources.Load<Texture2D>("DrawerPrototype/RefinedProps/GrandmaLetterPaper"),"Oil letter material must keep the ruled paper texture.");
             int originalCount = c.Meadow.VisibleClumpCount;
             yield return Capture(Path.Combine(directory,"01-oil-materials.png"));
             c.RuntimeLook.density = 12.5f; c.RuntimeLook.seed = 6201; c.RuntimeLook.sunAzimuth = 48; c.RuntimeLook.sunlight = .8f;
-            c.RuntimeLook.magicBook.SetFloat("_BrushStrength",.62f); c.ApplyLookSettings();
+            c.RuntimeLook.magicBook.SetFloat("_BrushStrength",.62f); c.RuntimeLook.letterPaper.SetFloat("_BrushStrength",.68f); c.ApplyLookSettings();
+            Require(Mathf.Abs(letterSurface.sharedMaterial.GetFloat("_BrushStrength")-.68f)<.001f,"Letter tuning must update the visible surface immediately.");
             yield return new WaitForSeconds(1.5f);
             int changedCount = c.Meadow.VisibleClumpCount;
             Require(changedCount > 0 && changedCount < originalCount*.75f && c.Meadow.seed == 6201 && Mathf.Abs(c.sunlight-.8f) < .001f,"Scatter and lighting changes must reach the running scene.");
@@ -501,6 +506,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
                 DrawerLookAssets.Save(c); AssetDatabase.ImportAsset(fixturePath,ImportAssetOptions.ForceUpdate);
                 var loaded = AssetDatabase.LoadAssetAtPath<DrawerLookSettings>(fixturePath);
                 Require(loaded.density == 12.5f && loaded.seed == 6201 && Mathf.Abs(loaded.magicBook.GetFloat("_BrushStrength")-.62f) < .001f,"Saved scatter and material parameters must reload.");
+                Require(Mathf.Abs(loaded.letterPaper.GetFloat("_BrushStrength")-.68f)<.001f && loaded.letterPaper.GetTexture("_BaseMap")==Resources.Load<Texture2D>("DrawerPrototype/RefinedProps/GrandmaLetterPaper"),"Letter oil settings and ruled texture must survive saving and reimport.");
                 Require(loaded.Materials.All(m => m && AssetDatabase.GetAssetPath(m) == fixturePath),"Saving must retain persistent material references, never runtime clones.");
                 Require(File.ReadAllText(fixturePath).Contains("density: 12.5"),"Saved parameters must reach the asset file on disk.");
             }
@@ -517,6 +523,15 @@ namespace WeatherHouse.DrawerPrototype.Editor
             DrawerLookAssets.CopyLook(original,c.RuntimeLook); c.ApplyLookSettings();
             yield return new WaitForSeconds(.5f);
             yield return Capture(Path.Combine(directory,"04-restored-defaults.png"));
+            foreach(var item in c.Papers.Concat(c.Items)) { item.body.isKinematic=true; item.gameObject.SetActive(false); }
+            var letter=c.Items[4]; letter.gameObject.SetActive(true);
+            Pose(letter,DrawerPrototypeController.DrawerCenter+Vector3.up*.8f,Quaternion.Euler(-12,-7,0)); letter.transform.localScale=Vector3.one;
+            c.GetComponentInChildren<Canvas>().enabled=false;
+            c.ViewCamera.transform.position=letter.transform.position-c.ViewCamera.transform.forward*20; c.ViewCamera.orthographicSize=1.70f;
+            yield return Capture(Path.Combine(directory,"05-letter-oil-default.png"));
+            c.RuntimeLook.letterPaper.SetFloat("_BrushStrength",.80f); c.RuntimeLook.letterPaper.SetFloat("_Impasto",.65f);
+            yield return Capture(Path.Combine(directory,"06-letter-oil-adjusted.png"));
+            DrawerLookAssets.CopyLook(original,c.RuntimeLook); c.ApplyLookSettings();
             File.WriteAllText(Review+"/look-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: private runtime materials; existing oil shader with original textures; scatter and lighting applied; saved parameters and material references reloaded from a temporary asset; original defaults restored; oil post split preview captured.\nGrass clumps="+originalCount+" -> "+changedCount+"\nEvidence="+directory);
         }
 
