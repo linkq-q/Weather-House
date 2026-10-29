@@ -179,7 +179,11 @@ namespace WeatherHouse.Life
         public void DragPage(float progress)
         {
             if (!manualTurn) return;
-            elapsed = Mathf.Clamp01(progress) * MotionDuration;
+            // Undo the authored rotation's cosine projection and smoothstep easing so the
+            // page travels with the pointer instead of barely moving at the start.
+            float rotation = Mathf.Acos(1f - 2f * Mathf.Clamp01(progress)) / Mathf.PI;
+            float clipProgress = .5f - Mathf.Sin(Mathf.Asin(1f - 2f * rotation) / 3f);
+            elapsed = clipProgress * MotionDuration;
             float time = elapsed / MotionDuration * turnClip.length;
             turnClip.SampleAnimation(model, reverseTurn ? turnClip.length - time : time);
             UpdatePresentation(1); RenderBook();
@@ -370,7 +374,7 @@ namespace WeatherHouse.Life
                 for (int i = 0; i < materials.Length; i++)
                 {
                     Material source = materials[i];
-                    if (source.name == "JournalCloth" || source.name == "JournalCover")
+                    if (source.name == "JournalCloth")
                     {
                         var cover = Resources.Load<Material>("AlbumBook/CoverPaint");
                         if (cover)

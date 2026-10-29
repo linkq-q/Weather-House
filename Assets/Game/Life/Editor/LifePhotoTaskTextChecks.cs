@@ -33,6 +33,10 @@ namespace WeatherHouse.Life.Editor
                 LifePhotoBook.Build(root.transform, game, 0, font, id => opened = id, _ => { });
                 var rows = root.GetComponentsInChildren<RectTransform>().Where(t => t.name.StartsWith("Photo task ", StringComparison.Ordinal)).ToArray();
                 Check(rows.Length == 6, "A task spread keeps its six rows");
+                Check(!root.transform.Find("Previous photography page") && !root.transform.Find("Next photography page"),
+                    "Task navigation uses the shared page drag without arrow buttons");
+                Check(rows.SelectMany(row => row.GetComponentsInChildren<AnimalGlyphGraphic>()).All(glyph =>
+                    Mathf.Abs(glyph.rectTransform.rect.height - 61.2f) < .01f), "Task glyph descriptions are enlarged by 1.2");
                 Check(rows.All(row => !row.GetComponentsInChildren<Text>().Any(text => !string.IsNullOrEmpty(text.text))),
                     "Unfinished task rows contain only animal glyphs, without instruction text");
                 Check(root.transform.Find("Photography heading").GetComponent<Text>().text == "留给照片的页",

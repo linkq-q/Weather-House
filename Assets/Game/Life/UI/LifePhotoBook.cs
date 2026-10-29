@@ -26,7 +26,7 @@ namespace WeatherHouse.Life
                 var row = LifeUi.Rect(book, "Photo task " + task.id, position, new Vector2(485, 155));
                 bool complete = session.Notebook.IsPhotoTaskComplete(task.id);
                 var paper = LifeUi.Panel(row, "Task paper", Vector2.zero, new Vector2(485, 154), new Color(.80f, .83f, .68f, .16f), complete);
-                TokenLine(row, session, task.tokens, new Vector2(-8, 5), 51, 370, font, false);
+                TokenLine(row, session, task.tokens, new Vector2(-8, 5), 61.2f, 444, font, false);
                 if (complete)
                 {
                     var mark = LifeUi.Rect(row, "Recorded seal", new Vector2(209, 42), new Vector2(33, 33));
@@ -39,8 +39,6 @@ namespace WeatherHouse.Life
                     }
                 }
             }
-            LifeUi.Button(book, "Previous photography page", "←", new Vector2(215, -305), new Vector2(95, 38), font, () => turn(-1));
-            LifeUi.Button(book, "Next photography page", "→", new Vector2(355, -305), new Vector2(95, 38), font, () => turn(1));
         }
 
         public static void TokenLine(Transform parent, GameplaySession session, string[] ids, Vector2 center, float height, float width, Font font, bool showMeanings = true)

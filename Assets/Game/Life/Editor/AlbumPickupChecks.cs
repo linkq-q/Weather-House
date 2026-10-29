@@ -117,7 +117,7 @@ namespace WeatherHouse.Life.Editor
                     var e=new PointerEventData(EventSystem.current){button=PointerEventData.InputButton.Left,pressPosition=start,position=start,eligibleForClick=true};
                     drag.OnBeginDrag(e);e.position=start+Vector2.right*trial[0]*Mathf.Max(160,Screen.width*.35f);drag.OnDrag(e);yield return null;
                     Check(book.IsAnimating&&!e.eligibleForClick,"Dragging must drive the real page mesh and cancel the photo click.");
-                    if(trial[0]==-.25f){Check(book.AnimationProgress>.1f&&book.AnimationProgress<.3f,"Page follows partial mouse movement.");Shot("album-drag");yield return new WaitForEndOfFrame();yield return null;}
+                    if(trial[0]==-.25f){Check(book.AnimationProgress>.3f&&book.AnimationProgress<.5f,"Page responds promptly to partial mouse movement.");Shot("album-drag");yield return new WaitForEndOfFrame();yield return null;}
                     if(trial[0]==-.7f)
                     {
                         var leaf=Get<Renderer>(book,"turningPage") as SkinnedMeshRenderer;var mesh=new Mesh();leaf.BakeMesh(mesh);

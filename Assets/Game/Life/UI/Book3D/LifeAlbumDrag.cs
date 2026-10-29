@@ -23,7 +23,7 @@ namespace WeatherHouse.Life
             float dx = e.position.x - start.x;
             if (!active)
             {
-                if (Mathf.Abs(dx) < 16 || Mathf.Abs(dx) < Mathf.Abs(e.position.y - start.y)) return;
+                if (Mathf.Abs(dx) < 6 || Mathf.Abs(dx) < Mathf.Abs(e.position.y - start.y)) return;
                 direction = dx < 0 ? 1 : -1; active = hud.BeginAlbumDrag(direction);
                 if (!active) { candidate = false; return; }
             }

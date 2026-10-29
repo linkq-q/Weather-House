@@ -750,13 +750,22 @@ namespace WeatherHousePrototype
 
         public bool CanDragAlbumAt(Vector2 screen)
         {
-            if (!JournalOpen || IsAlbumOpening || !albumPhotosSelected || albumGesturesSelected || albumTasksSelected || expandedPhoto != null || !albumRoot) return false;
+            if (!JournalOpen || IsAlbumOpening || (!albumPhotosSelected && !albumTasksSelected) || albumGesturesSelected || expandedPhoto != null || publicTaskId != null || !albumRoot || !albumRoot.gameObject.activeInHierarchy) return false;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(albumRoot, screen, null, out Vector2 point);
             return new Rect(-593, -345, 1168, 700).Contains(point);
         }
         public bool BeginAlbumDrag(int direction)
         {
-            if (!JournalOpen || IsAlbumOpening || !albumPhotosSelected || !journal3D || !journal3D.Available) return false;
+            if (!JournalOpen || IsAlbumOpening || (!albumPhotosSelected && !albumTasksSelected) || albumGesturesSelected || expandedPhoto != null || publicTaskId != null || !journal3D || !journal3D.Available) return false;
+            if (albumTasksSelected)
+            {
+                int oldTaskPage = photoTaskPage;
+                int nextTaskPage = (oldTaskPage + direction + LifePhotoBook.PageCount) % LifePhotoBook.PageCount;
+                if (nextTaskPage == oldTaskPage) return false;
+                journal3D.BeginPageDrag(() => { photoTaskPage = nextTaskPage; RebuildModal(); },
+                    () => { photoTaskPage = oldTaskPage; RebuildModal(); }, direction);
+                return true;
+            }
             int old = page, next = Mathf.Clamp(page + direction, 0, Mathf.Max(0, (AlbumPhotos.Count - 1) / 8));
             if (next == old) return false;
             journal3D.BeginPageDrag(() => { page = next; RebuildModal(); }, () => { page = old; RebuildModal(); }, direction);
