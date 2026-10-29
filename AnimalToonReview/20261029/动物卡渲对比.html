@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>天气屋 · 动物卡渲对比</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#ece9df;color:#263b35;font:16px/1.7 "Microsoft YaHei",sans-serif}main{max-width:1320px;margin:auto;padding:40px 30px 80px}h1{font-weight:500;font-size:32px;margin:0 0 8px}h2{font-weight:500;margin:32px 0 12px;font-size:21px}p{margin:8px 0 18px}small,.note{color:#52655d}.labels{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;padding:10px;background:#e0e3d7}.shot{display:block;width:100%;height:auto}figure{margin:0 0 25px;border:1px solid #c4ccbf}figcaption{padding:10px 16px}.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}button{font:inherit;color:inherit;border:1px solid #7e9286;background:transparent;padding:6px 18px;cursor:pointer}button[aria-pressed=true]{background:#3a574b;color:#fff}.compare{position:relative;aspect-ratio:16/9;overflow:hidden;background:#34433b}.compare img{position:absolute;width:100%;height:100%;object-fit:contain}.compare .after{clip-path:inset(0 0 0 50%)}.handle{position:absolute;left:50%;top:0;bottom:0;border-left:2px solid #fff;pointer-events:none}.slider{display:flex;gap:20px;align-items:center;padding:10px 16px}.slider input{flex:1;min-width:60px;accent-color:#3a574b}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}a{color:#315e4c}details{margin:24px 0}summary{cursor:pointer;font-size:19px}@media(max-width:700px){main{padding:24px 12px}.two{grid-template-columns:1fr}h1{font-size:25px}.labels{font-size:13px}.slider{font-size:13px;gap:8px}}
+</style></head><body><main>
+<small>WEATHER HOUSE / 2026.10.29 / UNITY 实际渲染</small>
+<h1>柔和色阶 · 受光侧描边</h1>
+<p>同一只羊、同一贴图与行走动画。先比较风格，再观察描边随光照换边。主场景材质未替换。</p>
+<div class="toolbar" role="group" aria-label="光照条件">
+<button aria-pressed="true" data-shot="01-comparison-right.png">右侧来光</button>
+<button aria-pressed="false" data-shot="02-comparison-left.png">左侧来光</button>
+<button aria-pressed="false" data-shot="03-comparison-shadow.png">进入阴影</button>
+<button aria-pressed="false" data-shot="04-walk-pose.png">行走姿势</button></div>
+<figure><div class="labels"><span>原 URP Lit 材质</span><span>柔和色阶</span><span>柔和色阶 + 受光侧描边</span></div><img id="lineup" class="shot" src="captures/01-comparison-right.png" alt="三个材质版本的同镜头对比"><figcaption id="condition">右侧来光</figcaption></figure>
+<h2>近看描边，拖动分界线</h2>
+<p class="note">两张截图使用同一姿势和光照，只切换描边。左边关闭，右边开启。</p>
+<figure><div class="compare"><img src="captures/05-right-no-edge.png" alt="关闭描边"><img class="after" src="captures/06-right-edge.png" alt="开启受光侧描边"><div class="handle"></div></div>
+<label class="slider"><span>关闭描边</span><input id="split" type="range" min="0" max="100" value="50" aria-label="描边对比分界线"><span>开启描边</span></label></figure>
+<details><summary>查看光照换边与遮挡</summary><div class="two">
+<figure><img class="shot" src="captures/06-right-edge.png" alt="右侧光的近景"><figcaption>右侧来光</figcaption></figure>
+<figure><img class="shot" src="captures/08-left-edge.png" alt="左侧光的近景"><figcaption>左侧来光</figcaption></figure>
+<figure><img class="shot" src="captures/10-shadow-edge.png" alt="阴影中描边消隐"><figcaption>真实投影遮挡主光</figcaption></figure>
+<figure><img class="shot" src="captures/14-occluded-edge.png" alt="前景物体遮挡羊"><figcaption>前景物体遮挡</figcaption></figure>
+</div></details>
+<h2>在 Unity 中试调</h2>
+<p>打开旁边的 <code>UnityProject</code> 独立工程，打开 <code>Assets/AnimalToonSample/AnimalToonSample.unity</code> 并进入 Play。调参控件在<strong>游戏画面左下角</strong>，可调整光照方位、描边宽度、色阶强度和明暗过渡。</p>
+<p class="note">这版仍保留贴图自带的块状明暗；仅处理主方向光和不透明动物。技术验证记录见 <a href="checks.txt">checks.txt</a>，最终风格由你确认。</p>
+</main><script>
+document.querySelectorAll('[data-shot]').forEach(button=>button.addEventListener('click',()=>{
+document.querySelectorAll('[data-shot]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+document.querySelector('#lineup').src='captures/'+button.dataset.shot;
+document.querySelector('#condition').textContent=button.textContent;
+}));
+document.querySelector('#split').addEventListener('input',event=>{
+const value=Number(event.target.value);
+document.querySelector('.after').style.clipPath=`inset(0 0 0 ${value}%)`;
+document.querySelector('.handle').style.left=value+'%';
+});
+</script></body></html>
