@@ -435,18 +435,19 @@ namespace WeatherHouse.DrawerPrototype
             if (down)
             {
                 pressed = Hit(screen); pressScreen = screen; pressTime = Time.unscaledTime;
-                if (pressed && pressed.IsPaper) dragOffset = pressed.transform.position - FloorPoint(screen,pressed.transform.position.y);
                 ShowPaperFeedback(pressed && pressed.IsPaper ? pressed : null);
             }
-            if (held && pressed && pressed.IsPaper && Time.unscaledTime-pressTime >= .12f)
+            if (held && pressed && pressed.IsPaper && (Time.unscaledTime-pressTime >= .12f || Vector2.Distance(pressScreen,screen) >= 6))
             {
                 if (!dragging)
                 {
                     dragging = pressed; dragHeight = Mathf.Clamp(dragging.body.position.y+.035f,.145f,1.2f);
+                    dragOffset = dragging.body.position - FloorPoint(pressScreen,dragHeight);
                     dragRotation = Quaternion.Euler(0,dragging.body.rotation.eulerAngles.y,0);
                     dragging.body.velocity = Vector3.zero; dragging.body.angularVelocity = Vector3.zero;
                     dragging.body.useGravity = false;
                     dragging.body.isKinematic = true;
+                    dragging.body.interpolation = RigidbodyInterpolation.None;
                     if (paperSound) sound.PlayOneShot(paperSound,.65f); hint.gameObject.SetActive(false);
                 }
                 dragTarget = FloorPoint(screen,dragHeight)+new Vector3(dragOffset.x,0,dragOffset.z);
@@ -471,6 +472,14 @@ namespace WeatherHouse.DrawerPrototype
             }
             foreach (DrawerToken paper in Papers)
             {
+                if (!paper.body.isKinematic)
+                {
+                    Vector3 motion = paper.body.velocity;
+                    Vector3 horizontal = Vector3.ClampMagnitude(new Vector3(motion.x, 0, motion.z), .65f)
+                        * Mathf.Exp(-8f * Time.fixedDeltaTime);
+                    paper.body.velocity = new Vector3(horizontal.x, motion.y, horizontal.z);
+                    paper.body.maxDepenetrationVelocity = .5f;
+                }
                 // A perimeter safety constraint also contains paper lifted above a stack or hit at high speed.
                 Vector3 constrained = ConstrainPaper(paper,paper.body.position);
                 if ((constrained-paper.body.position).sqrMagnitude < .000001f) continue;
@@ -485,6 +494,7 @@ namespace WeatherHouse.DrawerPrototype
         {
             Vector3 releaseVelocity = dragging.body.velocity;
             dragging.body.isKinematic = false; dragging.body.useGravity = true; dragging.body.constraints = RigidbodyConstraints.None;
+            dragging.body.interpolation = RigidbodyInterpolation.Interpolate;
             dragging.body.velocity = Vector3.ClampMagnitude(releaseVelocity,1.2f); dragging = null;
             if (paperSound) sound.PlayOneShot(paperSound,.25f);
         }
