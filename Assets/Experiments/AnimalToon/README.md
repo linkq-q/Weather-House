@@ -4,7 +4,7 @@
 
 ## 打开与调节
 
-双击仓库根目录 `AnimalToonReview/20261029/打开独立预览.cmd`。
+双击仓库根目录 `AnimalToonReview/20261029/Revision2/打开新版卡渲.cmd`。
 新版工程为 `AnimalToonReview/20261029/Revision2/UnityProject`，场景为
 `Assets/AnimalToonSample/AnimalToonSampleV2.unity`。在 Unity 顶部点击 Play；控件在 **Game 画面左下角**。
 
