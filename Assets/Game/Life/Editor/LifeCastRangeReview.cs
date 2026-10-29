@@ -16,8 +16,8 @@ namespace WeatherHouse.Life.Editor
     public static class LifeCastRangeReview
     {
         const string Key = "WeatherHouse.CastRangeReview20261028";
-        const string Folder = "LifeGameplayReview/20261028/weather-rim-runtime";
-        const string ReleaseRequest = Folder + "/release-idle-editor.txt";
+        const string Folder = "LifeGameplayReview/20261029/weather-rim-layered";
+        const string ReleaseRequest = "LifeGameplayReview/20261028/weather-rim-runtime/release-idle-editor.txt";
         const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         static LifeCastRangeReview() { EditorApplication.update += Tick; }
 
@@ -134,7 +134,18 @@ namespace WeatherHouse.Life.Editor
                 Check(life.TryCast("sunlight", out _), "Sunlight starts through the production spell entry");
                 yield return new WaitForSeconds(1f);
                 Check(view.enabled && Property("_Flames") > .95f, "Sunlight retains the approved flame boundary");
-                LifeFeedbackVisualReview.Frame(life, "01_概念图对应实机.png", Folder);
+                LifeFeedbackVisualReview.Frame(life, "01_多层光幕与加宽火焰.png", Folder);
+                // Extra overview only for review: keep gameplay framing and radius unchanged.
+                var camera = life.Gameplay.CurrentView;
+                Vector3 cameraPosition = camera.transform.position;
+                float cameraSize = camera.orthographicSize;
+                try
+                {
+                    if (camera.orthographic) camera.orthographicSize *= 1.6f;
+                    else camera.transform.position -= camera.transform.forward * 8f;
+                    LifeFeedbackVisualReview.Frame(life, "03_法阵全景_临时拉远镜头.png", Folder);
+                }
+                finally { camera.transform.position = cameraPosition; camera.orthographicSize = cameraSize; }
                 Directory.CreateDirectory(Folder + "/frames");
                 Time.captureFramerate = 12;
                 for (int frame = 0; frame < 36; frame++)
@@ -149,7 +160,7 @@ namespace WeatherHouse.Life.Editor
                 Check(!view.enabled, "Final clear hides the maintained sunlight boundary");
                 LifeFeedbackVisualReview.Frame(life, "02_收起后.png", Folder);
                 LifeWeatherFeedbackChecks.Run();
-                File.WriteAllText(Folder + "/source.txt", "Actual isolated Unity Play in WeatherHouse_WatersideV2; production LifeSession, LifeCastRange and shader. Normal player saves and scene files are not written. The photo unlock record is a declared test fixture. Camera.Render captures actual world and HUD; 36 frames advance game time at 12 fps. This is not an image composite.\n" + DateTime.UtcNow.ToString("O"));
+                File.WriteAllText(Folder + "/source.txt", "Actual isolated Unity Play in WeatherHouse_WatersideV2; production LifeSession, LifeCastRange and layered veil/flame shader. Normal player saves and scene files are not written. The photo unlock record is a declared test fixture. Camera.Render captures actual world and HUD; 36 frames advance game time at 12 fps. Image 03 alone temporarily pulls the review camera back, then restores it; image 01 and animation use normal gameplay framing. This is not an image composite.\n" + DateTime.UtcNow.ToString("O"));
             }
         }
     }
