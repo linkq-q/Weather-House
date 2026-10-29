@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4945436388261157156}
   - component: {fileID: 5332545897313830663}
   - component: {fileID: 6661604218526787310}
+  - component: {fileID: 2110798481318947115}
   m_Layer: 0
   m_Name: RainWater_ExistingRock
   m_TagString: Untagged
@@ -83,3 +84,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2110798481318947115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4682890675707838819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4192cf3e64cb48c69b942778f214d04b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

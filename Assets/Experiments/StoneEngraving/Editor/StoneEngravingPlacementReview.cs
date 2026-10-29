@@ -47,6 +47,7 @@ namespace WeatherHouse.StoneEngraving.Editor
                     case "inspect": Inspect(); break;
                     case "place": Place(); break;
                     case "checks": StartPlay(true); break;
+                    case "readability-checks": StartPlay(true, true); break;
                     case "play": StartPlay(false); break;
                     case "stop":
                         Require(SessionState.GetBool(Key+".owned",false),"No stone preview owns Play.");
@@ -135,18 +136,29 @@ namespace WeatherHouse.StoneEngraving.Editor
         [MenuItem("Weather House/试玩/雨与水石刻（独立存档）")]
         public static void Preview() => StartPlay(false);
 
-        static void StartPlay(bool checks)
+        [MenuItem("Weather House/检查/石刻俯视可辨识度")]
+        public static void CheckReadability() => StartPlay(true, true);
+
+        static void StartPlay(bool checks, bool readability = false)
         {
-            Require(!EditorApplication.isPlayingOrWillChangePlaymode && !SceneManager.GetActiveScene().isDirty,
+            Require(!EditorApplication.isPlayingOrWillChangePlaymode && (readability || !SceneManager.GetActiveScene().isDirty),
                 "Finish the current Play and preserve unsaved edits before stone preview.");
             Require(SceneManager.GetActiveScene().path == ScenePath && Stone,"Open the placed Waterside scene first.");
-            ValidatePlacement(Stone);
+            if (!readability) ValidatePlacement(Stone);
+            else
+            {
+                Require(Stone.GetComponent<StoneEngravingReadability>(),"Current stone must inherit the readability component.");
+                File.WriteAllText(Folder+"/readability-start.txt",State()+"\nstoneScale="+Stone.transform.localScale+
+                    "\nstoneBounds="+Stone.GetComponent<Renderer>().bounds+"\nplayer="+Player.transform.position);
+            }
             SessionState.SetString(Key+".save",Environment.GetEnvironmentVariable("WEATHERHOUSE_LIFE_REVIEW_SAVE") ?? "");
             SessionState.SetString(Key+".start",AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
             SessionState.SetBool(Key+".background",Application.runInBackground);
             SessionState.SetBool(Key+".checks",checks); SessionState.SetBool(Key+".owned",true);
+            SessionState.SetBool(Key+".readability",readability);
             Environment.SetEnvironmentVariable("WEATHERHOUSE_LIFE_REVIEW_SAVE",Path.GetFullPath(Folder+"/isolated-save"));
-            EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
+            // Current-scene Play preserves unsaved editor state; never reload/save it for a material check.
+            EditorSceneManager.playModeStartScene = readability ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
             Application.runInBackground = true; EditorApplication.isPlaying = true;
         }
 
@@ -174,7 +186,7 @@ namespace WeatherHouse.StoneEngraving.Editor
             try
             {
                 Require(!ShaderUtil.anythingCompiling && !ShaderUtil.ShaderHasError(Stone.GetComponent<Renderer>().sharedMaterial.shader),"Stone shader must finish successfully.");
-                ValidatePlacement(Stone);
+                if (!SessionState.GetBool(Key+".readability",false)) ValidatePlacement(Stone);
                 if (checks) Capture(player.demoCamera,Folder+"/01-play-arrival.png");
                 var b = Stone.GetComponent<Renderer>().bounds;
                 Vector3 stand = b.center + Vector3.back * 5.2f;
@@ -195,6 +207,11 @@ namespace WeatherHouse.StoneEngraving.Editor
             if (!checks) yield break;
             try
             {
+                if (SessionState.GetBool(Key+".readability",false))
+                {
+                    StoneEngravingReadabilityChecks.Run(Stone, player.demoCamera, Folder+"/Readability");
+                    yield break;
+                }
                 Capture(player.demoCamera,Folder+"/02-play-overhead.png");
                 var go = new GameObject("Stone close review camera (temporary)") { hideFlags = HideFlags.HideAndDontSave };
                 try
@@ -248,10 +265,10 @@ namespace WeatherHouse.StoneEngraving.Editor
             Require(!SceneManager.GetActiveScene().isDirty, "Inspection dirtied the scene.");
         }
 
-        static void Capture(Camera camera, string path)
+        internal static Color32[] Capture(Camera camera, string path, int width = 1600, int height = 900)
         {
             Require(!ShaderUtil.anythingCompiling, "Wait for shader compilation before capturing.");
-            var target = new RenderTexture(1600,900,24,RenderTextureFormat.ARGB32);
+            var target = new RenderTexture(width,height,24,RenderTextureFormat.ARGB32);
             var oldTarget = camera.targetTexture; var oldActive = RenderTexture.active; float oldAspect = camera.aspect;
             var pixels = new Texture2D(target.width,target.height,TextureFormat.RGB24,false);
             try
@@ -261,6 +278,7 @@ namespace WeatherHouse.StoneEngraving.Editor
                 camera.Render(); RenderTexture.active = target;
                 pixels.ReadPixels(new Rect(0,0,target.width,target.height),0,0); pixels.Apply();
                 File.WriteAllBytes(path,pixels.EncodeToPNG());
+                return pixels.GetPixels32();
             }
             finally
             {

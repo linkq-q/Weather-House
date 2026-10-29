@@ -21,6 +21,14 @@
 
 本次接入用于查看石刻在场景中的外观；照片识别、谜题奖励和玩家拍照镜头的可读性尚未接入或验收。
 
+## 俯视发现与拍照外观
+
+预制体上的 `StoneEngravingReadability` 只在 `GameplaySession.PlayerViewCamera` 渲染时启用刻纹增强：根据屏幕像素宽度稍微拓宽细线，并提高刻纹与石面的明暗差。它使用原刻纹的覆盖遮罩，没有更换网格、图案或近景凹槽参数。普通游玩时便于发现这块石头值得拍照；拍照镜头、相册捕获及其他镜头不启用该增强。退出拍照的渐隐阶段仍保留原刻纹外观。
+
+复制此预制体即可沿用；其他使用本材质的石头需挂上同一组件。材质的 `Gameplay groove contrast`（默认 0.72）和 `Gameplay groove expansion (pixels)`（默认 0.4）只调整俯视效果。自动制作的隔离工程不依赖游戏逻辑，重新导出到主项目时需保留该组件。
+
+Unity 顶部 **Weather House → 检查 → 石刻俯视可辨识度** 使用当前主场景的独立存档 Play，保留未保存的编辑状态及石头实例调整，结束后退出 Play。`MainScene/Readability/` 保存同机位俯视前后、真实拍照镜头及基线、关闭相机过渡与返回游玩截图；`checks.txt` 验证相机隔离和拍照画面像素一致性。此检查不保存主场景。
+
 ## 自动制作
 
 1. Codex 通过 ImageGen 参考概念图生成刻线图。原始工具调用保存在 `Source/generation-call.txt`，生成结果是 `Source/RainWaterStencil.png`。`RainWaterChippedCandidate.png` 是 AI 生成的破边候选，不会整张直接应用。
@@ -45,6 +53,7 @@
 | Groove darkening | 控制槽底颜色，避免依赖固定光照画出阴影 |
 | Groove depth in metres | 控制视差凹槽深度，与生成贴图时的 depth_m 保持一致 |
 | Groove self shadow | 控制沿主光方向估算的槽内遮挡强度 |
+| Gameplay groove contrast / expansion | 仅普通游玩相机的刻纹对比度与屏幕像素拓宽 |
 | Carving center / right / up | 在石头局部坐标中定位图案 |
 | Width / height / depth extent | 调节覆盖范围，限制投影穿到背面 |
 | Stone color / normal / smoothness | 石头底材 |
@@ -55,4 +64,4 @@
 
 ## 验证范围
 
-原独立样板的 6 项数值测试检查平面不被污染、槽深为负、四个方向的边缘法线正确、法线单位长度、可重复生成、稀疏破损的开关与固定种子，以及上雨下水的排布。原 `verification.json` 和 `Captures/` 是独立场景证据；新增的主地图验证单独保存在 `MainScene/`，不覆盖原报告。玩家拍照流程、谜题判定及运行性能仍需后续接入时验证。
+原独立样板的 6 项数值测试检查平面不被污染、槽深为负、四个方向的边缘法线正确、法线单位长度、可重复生成、稀疏破损的开关与固定种子，以及上雨下水的排布。原 `verification.json` 和 `Captures/` 是独立场景证据；主地图验证单独保存在 `MainScene/`。新增检查覆盖实际相机切换与画面隔离，照片谜题判定和运行性能仍未验收。

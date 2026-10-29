@@ -12,6 +12,9 @@ Shader "Weather House/Stone Engraving"
         _CavityTint("Groove darkening", Range(0,1)) = .28
         _GrooveDepth("Groove depth in metres", Range(0,.1)) = .08
         _GrooveShadow("Groove self shadow", Range(0,1)) = .65
+        _DiscoveryContrast("Gameplay groove contrast", Range(0,1)) = .72
+        _DiscoveryWidth("Gameplay groove expansion (pixels)", Range(0,1.5)) = .4
+        [HideInInspector] _GameplayReadability("Gameplay view only", Float) = 0
         _Smoothness("Stone smoothness", Range(0,1)) = .12
         _ProjectionCenter("Carving center (local)", Vector) = (0,0,0,0)
         _ProjectionRight("Carving right (local)", Vector) = (1,0,0,0)
@@ -48,6 +51,7 @@ Shader "Weather House/Stone Engraving"
                 float4 _ProjectionCenter, _ProjectionRight, _ProjectionUp, _ProjectionSize;
                 float _BumpScale, _EngravingStrength, _CavityTint, _Smoothness, _Cull, _Cutoff;
                 float _GrooveDepth, _GrooveShadow;
+                float _DiscoveryContrast, _DiscoveryWidth, _GameplayReadability;
             CBUFFER_END
             struct Attributes
             {
@@ -148,6 +152,19 @@ Shader "Weather House/Stone Engraving"
                 s.albedo=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,i.uv).rgb*_BaseColor.rgb;
                 s.albedo*=1-valid*carving.r*_CavityTint*saturate(_EngravingStrength);
                 s.albedo*=1-valid*cavityShadow*_GrooveShadow*saturate(_EngravingStrength);
+                // A small screen-space expansion keeps subpixel strokes visible in the gameplay view.
+                // Photo/album/other cameras keep this branch off, including during the camera fade.
+                if (_GameplayReadability > 0 && valid > .001)
+                {
+                    float2 offsetX=dx*_DiscoveryWidth, offsetY=dy*_DiscoveryWidth;
+                    half coverage=carving.a;
+                    coverage=max(coverage,SAMPLE_TEXTURE2D_GRAD(_EngravingMask,sampler_EngravingMask,uv+offsetX,dx,dy).a);
+                    coverage=max(coverage,SAMPLE_TEXTURE2D_GRAD(_EngravingMask,sampler_EngravingMask,uv-offsetX,dx,dy).a);
+                    coverage=max(coverage,SAMPLE_TEXTURE2D_GRAD(_EngravingMask,sampler_EngravingMask,uv+offsetY,dx,dy).a);
+                    coverage=max(coverage,SAMPLE_TEXTURE2D_GRAD(_EngravingMask,sampler_EngravingMask,uv-offsetY,dx,dy).a);
+                    half readableGroove=pow(saturate(coverage),.6);
+                    s.albedo*=1-valid*readableGroove*_DiscoveryContrast*saturate(_GameplayReadability)*saturate(_EngravingStrength);
+                }
                 s.alpha=1; s.metallic=0; s.specular=half3(.2,.2,.2);
                 s.smoothness=_Smoothness; s.normalTS=half3(0,0,1);
                 s.occlusion=lerp(1,carving.g,valid*saturate(_EngravingStrength));
