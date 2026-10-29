@@ -23,6 +23,10 @@ Play 中调整立即生效，点击“保存为抽屉默认值”写入本目录
 
 `Models/` 中提供可直接拖入场景的外观 Prefab：`MagicBook`、`Dictionary`、`AlbumTaskBook`、`Camera`、`Wand`。各自的网格和材质保存在同名 `Parts.asset`，保留纹理引用；这些外观资源不绑定抽屉的收集逻辑。相册任务书不在抽屉里生成可收集物。已保存的 `LeafBranch` 和 `GrassSprig` 模型仍保留，当前草地场景不使用它们。
 
+2026-10-29 新增 `Models/CameraV2.prefab` 和 `Models/GrandmotherLetter.prefab`。相机包含分层镜筒、对焦环刻度、凸面镀膜玻璃、取景窗、旋钮与背带环，配细纹皮革和缎面金属；网格合计 12,912 三角形。奶奶来信采用有厚度、轻微翘边的淡横线纸面，照片卡与金属夹均为独立模型。抽屉中的两本书、普通信封和已保存的画面参数保持原值。
+
+来信正文在 `Resources/DrawerPrototype/RefinedProps/GrandmaLetterContent.asset` 中修改，称呼、正文和落款独立于纸面贴图；在 Inspector 编辑后会更新模型上的文字。较长正文请主动分行，文本会缩放到预留区域。独立生成的 `GrandmaLetterPaper.png` 包含纸纹与淡横线，`CompanionPhoto.png` 是参照实际角色和黑白边牧生成的合照，`CameraLeather.png` 为相机细皮纹。三张图片均使用内置 image_gen 生成，完整提示词与引用图片路径保存在 `ArtSources~/refined-props-prompts.json`。
+
 `Weather House → 抽屉原型 → 运行交互检查` 会创建独立测试存档，走运行时指针输入路径并保存真实 GameView 截图；不会覆盖普通试玩的原型进度。
 
 测试与截图在项目根目录 `DrawerPrototypeReview`。退出 Play 后恢复之前的启动场景；正式场景不由该原型保存。
@@ -38,3 +42,5 @@ Play 中调整立即生效，点击“保存为抽屉默认值”写入本目录
 随后调整为 12° 轻微斜俯视，相机视线下的点击、抓取、边界和完整收集检查通过；实机图与记录在 `DrawerPrototypeReview/checks-20261029-023448`。
 
 油画材质与调参验证在 `DrawerPrototypeReview/checks-20261029-032129`：实时降低撒点密度后提交的草丛由 10096 变为 4422，光照及材质参数同步生效；专用临时资产的参数保存、重新导入和持久材质引用检查通过，检查结束恢复原默认值。油画后处理左右对比和正常材质实机图已保存到 `DrawerPrototypeReview/look-20261029`。确认退出时原场景、Dirty 状态和渲染管线恢复；正式地图、原草地／植物／油画材质和项目渲染设置校验值不变。
+
+相机与来信的模型、贴图绑定、可编辑文字检查及近景实机截图位于 `DrawerPrototypeReview/props-20261029`；完整翻找、推挤、五件收集、保存与边缘重开检查位于 `DrawerPrototypeReview/checks-20261029-060046`。检查使用独立存档，进入前为未保存的原场景写入安全副本，退出后保留原场景、未保存状态和渲染管线。

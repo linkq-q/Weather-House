@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 namespace WeatherHouse.DrawerPrototype.Editor
 {
     [InitializeOnLoad]
-    public static class DrawerPrototypeEditor
+    public static partial class DrawerPrototypeEditor
     {
         public const string Root = "Assets/Experiments/DrawerPrototype";
         public const string ScenePath = Root + "/DrawerPrototype.unity";
@@ -46,6 +46,8 @@ namespace WeatherHouse.DrawerPrototype.Editor
                     case "model-review": StartPlay(false,false,true); break;
                     case "look-panel": DrawerLookWindow.Open(); break;
                     case "look-checks": StartPlay(false,false,false,true); break;
+                    case "prop-review": StartPlay(false,false,false,false,true); break;
+                    case "export-refined-props": ExportModels(UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>(),true); break;
                     case "export-models": ExportModels(UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>()); break;
                     case "capture": CaptureCurrent(); break;
                     case "stop": Stop(); break;
@@ -134,11 +136,19 @@ namespace WeatherHouse.DrawerPrototype.Editor
             var atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(Root + "/Resources/DrawerPrototype/Props.png");
             Require(atlas.GetPixel(0,0).a < .05f,"The prop atlas must have real transparent alpha.");
             Require(Resources.Load<Font>("Fonts/ZCOOLXiaoWei-Regular"),"Existing game font is missing.");
+            ImportRefinedArt();
         }
 
-        static void StartPlay(bool checks, bool resume = false, bool models = false, bool appearance = false)
+        static void StartPlay(bool checks, bool resume = false, bool models = false, bool appearance = false, bool refined = false)
         {
             Require(!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling,"Finish the current Play before starting the drawer.");
+            var originalScene = SceneManager.GetActiveScene();
+            if (originalScene.isDirty)
+            {
+                Directory.CreateDirectory(Review);
+                string snapshot = Review+"/unsaved-before-preview-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmssfff")+".unity";
+                Require(EditorSceneManager.SaveScene(originalScene,snapshot,true) && originalScene.isDirty,"Preserve the dirty scene as a copy without saving the original.");
+            }
             if (!File.Exists(ScenePath)) Build(); else ImportArt();
             Directory.CreateDirectory(Review);
             SessionState.SetString(Key+".start",AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
@@ -151,8 +161,9 @@ namespace WeatherHouse.DrawerPrototype.Editor
             SessionState.SetString(Key+".formalHash",Hash("Assets/Scenes/WeatherHouse_WatersideV2.unity"));
             SessionState.SetBool(Key+".owned",true); SessionState.SetBool(Key+".checks",checks || resume || appearance); SessionState.SetBool(Key+".resume",resume);
             SessionState.SetBool(Key+".lookChecks",appearance);
+            SessionState.SetBool(Key+".refined",refined);
             SessionState.SetBool(Key+".models",models);
-            if (checks || models || appearance)
+            if (checks || models || appearance || refined)
             {
                 string directory = Path.GetFullPath(Review + "/checks-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss"));
                 Directory.CreateDirectory(directory); SessionState.SetString(Key+".checkDirectory",directory);
@@ -176,7 +187,12 @@ namespace WeatherHouse.DrawerPrototype.Editor
             {
                 var gameView = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
                 if (gameView != null) EditorWindow.GetWindow(gameView).Focus();
-                if (SessionState.GetBool(Key+".checks",false))
+                if (SessionState.GetBool(Key+".refined",false))
+                {
+                    var controller = UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>();
+                    controller.StartCoroutine(Guard(controller,ReviewRefinedProps(controller)));
+                }
+                else if (SessionState.GetBool(Key+".checks",false))
                 {
                     var controller = UnityEngine.Object.FindObjectOfType<DrawerPrototypeController>();
                     Require(controller,"The independent drawer controller is missing.");
@@ -504,12 +520,12 @@ namespace WeatherHouse.DrawerPrototype.Editor
             File.WriteAllText(Review+"/look-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: private runtime materials; existing oil shader with original textures; scatter and lighting applied; saved parameters and material references reloaded from a temporary asset; original defaults restored; oil post split preview captured.\nGrass clumps="+originalCount+" -> "+changedCount+"\nEvidence="+directory);
         }
 
-        static void ExportModels(DrawerPrototypeController c)
+        static void ExportModels(DrawerPrototypeController c, bool refined = false)
         {
             Require(c && EditorApplication.isPlaying,"Model export requires the independent drawer Play scene.");
             string directory = Root+"/Models"; Directory.CreateDirectory(directory);
-            GameObject[] sources = { c.Items[0].gameObject,c.Items[1].gameObject,c.AlbumModel,c.Items[2].gameObject,c.Items[3].gameObject };
-            string[] names = { "MagicBook","Dictionary","AlbumTaskBook","Camera","Wand" };
+            GameObject[] sources = refined ? new[] { c.Items[2].gameObject,c.Items[4].gameObject } : new[] { c.Items[0].gameObject,c.Items[1].gameObject,c.AlbumModel,c.Items[2].gameObject,c.Items[3].gameObject };
+            string[] names = refined ? new[] { "CameraV2","GrandmotherLetter" } : new[] { "MagicBook","Dictionary","AlbumTaskBook","Camera","Wand" };
             for (int i = 0; i < sources.Length; i++)
             {
                 string assetPath = directory+"/"+names[i]+"Parts.asset";
@@ -531,6 +547,8 @@ namespace WeatherHouse.DrawerPrototype.Editor
                     }
                     foreach (var renderer in copy.GetComponentsInChildren<Renderer>(true))
                     {
+                        // Text uses the font's live atlas; DrawerLetterWriting rebinds it after loading the prefab.
+                        if (renderer.GetComponent<TextMesh>()) continue;
                         Material[] materials = renderer.sharedMaterials;
                         for (int m = 0; m < materials.Length; m++)
                         {
@@ -543,11 +561,21 @@ namespace WeatherHouse.DrawerPrototype.Editor
                     }
                     copy.transform.SetPositionAndRotation(Vector3.zero,Quaternion.identity); copy.transform.localScale = Vector3.one; copy.SetActive(true);
                     EditorUtility.SetDirty(container); AssetDatabase.SaveAssetIfDirty(container);
-                    PrefabUtility.SaveAsPrefabAsset(copy,directory+"/"+names[i]+".prefab");
+                    var prefab = PrefabUtility.SaveAsPrefabAsset(copy,directory+"/"+names[i]+".prefab");
+                    Require(prefab,"Could not save standalone prop: "+names[i]);
+                    foreach (var filter in prefab.GetComponentsInChildren<MeshFilter>(true))
+                        Require(filter.sharedMesh && AssetDatabase.Contains(filter.sharedMesh),"Exported mesh must be persistent: "+filter.name);
+                    foreach (var renderer in prefab.GetComponentsInChildren<Renderer>(true))
+                    {
+                        if (renderer.GetComponent<TextMesh>()) continue;
+                        Require(renderer.sharedMaterials.All(m => m && AssetDatabase.Contains(m)),"Exported materials must be persistent: "+renderer.name);
+                    }
+                    foreach (var writing in prefab.GetComponentsInChildren<DrawerLetterWriting>(true))
+                        Require(writing.content && AssetDatabase.Contains(writing.content),"Exported letter must retain editable content.");
                 }
                 finally { UnityEngine.Object.DestroyImmediate(copy); }
             }
-            File.WriteAllText(Review+"/model-export.txt","Exported five standalone visual prefabs: three books, camera and wand. AlbumTaskBook is not a drawer collectible.");
+            File.WriteAllText(Review+(refined?"/refined-export.txt":"/model-export.txt"),"Exported standalone visual prefabs: "+string.Join(", ",names));
         }
 
         static IEnumerator RunResume(DrawerPrototypeController c)

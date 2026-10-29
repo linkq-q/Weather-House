@@ -188,9 +188,9 @@ namespace WeatherHouse.DrawerPrototype
         {
             Items[0] = MakeToken(0, new Vector3(-1.2f,.36f,1.0f), new Vector3(1.76f,.44f,2.22f), -12);
             Items[1] = MakeToken(1, new Vector3(2.5f,.36f,1.75f), new Vector3(1.65f,.42f,2.10f), 11);
-            Items[2] = MakeToken(2, new Vector3(2.55f,.36f,-1.60f), new Vector3(1.92f,.52f,1.42f), -9);
+            Items[2] = MakeToken(2, new Vector3(2.55f,.36f,-1.60f), new Vector3(2.23f,.91f,1.42f), -9);
             Items[3] = MakeToken(3, new Vector3(-3.55f,.28f,-1.0f), new Vector3(.29f,.27f,3.15f), -35);
-            Items[4] = MakeToken(4, new Vector3(-1.0f,.24f,-1.8f), new Vector3(2.25f,.045f,1.86f), 8);
+            Items[4] = MakeToken(4, new Vector3(-1.0f,.24f,-1.62f), new Vector3(2.20f,.18f,2.20f), 8);
             for (int i = 0; i < Items.Length; i++)
             {
                 DrawerToken item = Items[i];
@@ -200,15 +200,15 @@ namespace WeatherHouse.DrawerPrototype
                 }
                 else if (i == 2)
                 {
-                    item.hitBox.center = new Vector3(0,.13f,0);
-                    item.hitBox.size = new Vector3(1.92f,.78f,1.42f);
+                    item.hitBox.center = new Vector3(0,.19f,0);
+                    item.hitBox.size = new Vector3(2.23f,.91f,1.42f);
                     BuildCameraModel(item.transform);
                 }
                 else if (i == 3) BuildWand(item.transform);
                 else
                 {
-                    Surface(item.transform, "Grandmother letter and dog photo", new Vector3(0,.028f,0), new Vector2(2.25f,1.86f), Printed(4), AtlasUv(4));
-                    Box(item.transform, "Letter paper thickness", new Vector3(-.35f,0,0), new Vector3(1.4f,.035f,1.65f), paperSide);
+                    item.hitBox.center = new Vector3(0,.07f,.025f);
+                    BuildGrandmotherLetter(item.transform);
                 }
                 if (Progress.collected[i]) DockImmediately(item);
             }
@@ -546,7 +546,7 @@ namespace WeatherHouse.DrawerPrototype
             magic.transform.position = new Vector3(target.x,1.4f,target.z); magic.SetActive(true);
             float factor = item.item == 3 ? 1.05f : item.item == 2 ? 1.55f : 1.5f;
             yield return Tween(item,target,Quaternion.Euler(-28,-10,7),Vector3.one*factor,.38f);
-            title.text = Titles[item.item]; description.text = Descriptions[item.item]; dialog.gameObject.SetActive(true); busy = false;
+            title.text = Titles[item.item]; description.text = item.item == 4 && letterContent ? letterContent.message : Descriptions[item.item]; dialog.gameObject.SetActive(true); busy = false;
         }
 
         public void CloseItem()

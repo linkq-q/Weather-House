@@ -118,30 +118,6 @@ namespace WeatherHouse.DrawerPrototype
             LeafMotif(seal.transform,new Vector3(0,.046f,0),.19f,waxInset,wax);
         }
 
-        void BuildCameraModel(Transform parent)
-        {
-            var cameraCloth = Paint("Camera moss fabric",new Color(.44f,.49f,.37f));
-            cameraCloth.SetTexture("_BaseMap",Resources.Load<Texture2D>("DrawerPrototype/Velvet")); Normal(cameraCloth,paperNormal,.18f);
-            var metal = Paint("Camera aged cream metal",new Color(.80f,.79f,.64f)); metal.SetFloat("_Smoothness",.32f);
-            var ringShade = Paint("Lens ring metal",new Color(.38f,.40f,.31f)); ringShade.SetFloat("_Smoothness",.38f);
-            var glass = Paint("Deep lens glass",new Color(.10f,.17f,.16f)); glass.SetFloat("_Smoothness",.8f);
-            BevelBox(parent,"Rounded camera body",Vector3.zero,new Vector3(1.92f,.52f,1.42f),.18f,.07f,cameraCloth);
-            BevelBox(parent,"Camera top plate",new Vector3(0,.03f,.48f),new Vector3(1.90f,.51f,.42f),.12f,.05f,metal);
-            BevelBox(parent,"Viewfinder housing",new Vector3(.47f,.30f,.46f),new Vector3(.40f,.14f,.25f),.06f,.025f,dark);
-            BevelBox(parent,"Viewfinder glass",new Vector3(.47f,.377f,.46f),new Vector3(.27f,.018f,.15f),.025f,.006f,glass);
-            Cylinder(parent,"Lens mount",new Vector3(0,.285f,-.10f),1.00f,.12f,metal);
-            Cylinder(parent,"Lens barrel",new Vector3(0,.405f,-.10f),.86f,.19f,dark);
-            Ring(parent,"Raised focus ring",new Vector3(0,.515f,-.10f),.445f,.345f,.09f,ringShade);
-            Ring(parent,"Inner lens rim",new Vector3(0,.505f,-.10f),.346f,.292f,.025f,dark);
-            Cylinder(parent,"Recessed glass",new Vector3(0,.49f,-.10f),.584f,.012f,glass);
-            Ring(parent,"Glass curved reflection",new Vector3(-.015f,.501f,-.08f),.246f,.234f,.003f,ringShade);
-            BevelBox(parent,"Lens soft reflection",new Vector3(-.11f,.507f,.055f),new Vector3(.10f,.008f,.035f),.015f,.002f,metal).transform.localRotation = Quaternion.Euler(0,-34,0);
-            Cylinder(parent,"Shutter base",new Vector3(-.62f,.305f,.48f),.25f,.08f,dark);
-            Cylinder(parent,"Shutter cap",new Vector3(-.62f,.356f,.48f),.20f,.04f,metal);
-            for (int side = -1; side <= 1; side += 2)
-                BevelBox(parent,"Strap lug",new Vector3(side*.99f,.02f,.37f),new Vector3(.16f,.14f,.23f),.05f,.02f,ringShade);
-        }
-
         void Stroke3D(Transform parent, string name, Vector3[] points, float width, Material material)
         {
             var obj = new GameObject(name); obj.transform.SetParent(parent,false);
