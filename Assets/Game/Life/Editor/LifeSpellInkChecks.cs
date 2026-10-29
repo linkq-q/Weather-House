@@ -15,7 +15,7 @@ namespace WeatherHouse.Life.Editor
     {
         const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
         static readonly List<string> checks = new List<string>();
-        static string output = "SpellInkReview/20261029";
+        static string output = "SpellInkReview/20261029-firefly";
         [MenuItem("Weather House/Life/Check spell ink")]
         public static void Run()
         {
@@ -60,8 +60,7 @@ namespace WeatherHouse.Life.Editor
                 ink.SetPath(new[] { Vector2.zero, Vector2.zero, new Vector2(200,0), Vector2.zero, new Vector2(5,120) });
                 magic.RenderInk(Time.unscaledTime + .2f);
                 Check(magic.SampleCount == 5, "Repeated points, reversals and acute turns retain their input positions");
-                ink.ReleaseSpell(true); Check(magic.Released, "Release triggers the echo");
-                magic.RenderInk(Time.unscaledTime + 2.3f); Check(magic.SampleCount == 0, "Ink expires before the existing casting UI closes");
+                CheckFireflies(ink,magic,camera,path);
                 using (var mesh = new VertexHelper())
                 { LifeStrokeGraphic.PopulateStroke(mesh,path.Take(3).ToArray(),4f,Color.white); Check(mesh.currentVertCount == 47, "Journal paper ink geometry is preserved"); }
                 CheckHud(holder);
@@ -79,6 +78,57 @@ namespace WeatherHouse.Life.Editor
             }
             finally { if(holder)UnityEngine.Object.DestroyImmediate(holder); EditorSceneManager.ClosePreviewScene(scene); }
         }
+        static void CheckFireflies(LifeStrokeGraphic ink,LifeSpellInkGraphic magic,Camera camera,Vector2[] path)
+        {
+            float previousSeed=-1;
+            foreach(float daylight in new[]{0f,1f})
+            {
+                ink.SetPath(null);ink.SetPath(path);ink.SetSpellDaylight(daylight);
+                magic.RenderInk(Time.unscaledTime+.1f);ink.ReleaseSpell(true);
+                float born=(float)typeof(LifeSpellInkGraphic).GetField("released",Hidden).GetValue(magic);
+                float seed=(float)typeof(LifeSpellInkGraphic).GetField("strokeSeed",Hidden).GetValue(magic);
+                Check(seed!=previousSeed,"Every stroke receives a different local random seed");previousSeed=seed;
+                var motes=((System.Collections.IEnumerable)typeof(LifeSpellInkGraphic).GetField("motes",Hidden).GetValue(magic))
+                    .Cast<object>().Where(p=>DustNumber(p,"tier")>=0).ToArray();
+                var layers=Enumerable.Range(0,3).Select(t=>motes.Where(p=>DustNumber(p,"tier")==t).ToArray()).ToArray();
+                Check(layers.All(g=>g.Length>0)&&layers[0].Length<layers[1].Length&&layers[1].Length<layers[2].Length,"Sparse leaders, companion lights and dense fine dust are distinct layers");
+                Check(layers[0].Average(p=>DustNumber(p,"size"))>layers[1].Average(p=>DustNumber(p,"size"))*1.5f&&
+                    layers[1].Average(p=>DustNumber(p,"size"))>layers[2].Average(p=>DustNumber(p,"size"))*2f,"Layer size hierarchy remains visible");
+                Check(motes.Max(p=>DustNumber(p,"life"))-motes.Min(p=>DustNumber(p,"life"))>1.4f&&
+                    motes.Max(p=>DustNumber(p,"born"))-motes.Min(p=>DustNumber(p,"born"))>.4f,"Motes have different lifetimes and release delays");
+                var sample=typeof(LifeSpellInkGraphic).GetMethod("FireflySample",Hidden);
+                foreach(var mote in motes)
+                {
+                    float life=DustNumber(mote,"life");
+                    var values=new[]{0f,.2f,.5f,.8f,1f}.Select(f=>(Vector4)sample.Invoke(magic,new[]{mote,(object)(life*f)})).ToArray();
+                    Check(values[0].w==0&&values[4].w==0&&values[1].w>0&&values[2].w>values[3].w,"Mote smoothly appears and eases into a zero-alpha tail");
+                }
+                Check(magic.ReleaseEndTime-born>2.2f&&magic.ReleaseEndTime-born<4.1f,"Release keeps the full variable-length tail within a bounded lifetime");
+                camera.backgroundColor=daylight>0?new Color(.78f,.85f,.8f):new Color(.075f,.15f,.18f);
+                magic.RenderInk(born+.45f);Capture(camera,daylight>0?"day-condense.png":"night-condense.png",744,440);
+                magic.RenderInk(born+1.15f);Capture(camera,daylight>0?"day-fireflies.png":"night-fireflies.png",744,440);
+                magic.RenderInk(magic.ReleaseEndTime+.02f);
+                var image=Read((RenderTexture)magic.mainTexture);
+                Check(magic.SampleCount==0&&image.GetPixels32().All(p=>p.a==0),"Automatic completion clears geometry and all render-target pixels");
+                UnityEngine.Object.DestroyImmediate(image);
+            }
+            foreach(var definition in GestureCatalog.All)
+            {
+                var gesture=new List<Vector2>();
+                for(int i=1;i<definition.points.Length;i++)for(int j=0;j<8;j++)
+                    gesture.Add(Vector2.Lerp(definition.points[i-1],definition.points[i],j/8f)*120f);
+                gesture.Add(definition.points[definition.points.Length-1]*120f);
+                var original=gesture.ToArray();ink.SetPath(gesture);ink.ReleaseSpell(true);
+                Check(gesture.SequenceEqual(original)&&LifeGestureInput.ValidStroke(gesture)&&GestureCatalog.TryRecognize(gesture,out string id,out _)&&id==definition.id,
+                    "Visual effect preserves recognition and original points: "+definition.id);
+                ink.SetPath(null);
+            }
+            ink.SetPath(path);ink.ReleaseSpell(false);magic.RenderInk(Time.unscaledTime+.6f);ink.SetPath(null);
+            var cleared=Read((RenderTexture)magic.mainTexture);
+            Check(!magic.Released&&magic.SampleCount==0&&cleared.GetPixels32().All(p=>p.a==0),"Cancel or retry clears a failed release immediately");
+            UnityEngine.Object.DestroyImmediate(cleared);
+        }
+        static float DustNumber(object value,string name)=>Convert.ToSingle(value.GetType().GetField(name).GetValue(value));
         static void CheckHud(GameObject holder)
         {
             var owner = new GameObject("HUD fixture"); owner.transform.SetParent(holder.transform);

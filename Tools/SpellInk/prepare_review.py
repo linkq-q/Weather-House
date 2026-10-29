@@ -5,8 +5,9 @@ import shutil
 import subprocess
 
 root = Path(__file__).resolve().parents[2]
-out = root / "SpellInkReview/20261029"
-project = out / "UnityProject"
+out = root / "SpellInkReview/20261029-firefly"
+# Reuse the task's existing package/import cache while keeping each review's evidence separate.
+project = root / "SpellInkReview/20261029/UnityProject"
 unity = Path("C:/Program Files/Unity/Hub/Editor/2022.3.62f3c1/Editor/Data")
 bee = root / "Library/Bee/artifacts/1900b0aE.dag"
 for folder in ("Assets/Editor", "Assets/Resources", "Packages", "ProjectSettings"):
@@ -25,6 +26,8 @@ for editor in (False, True):
         lines.append(line)
     source = "Assets/Game/Life/Editor/LifeSpellInkChecks.cs" if editor else "Assets/Game/Life/UI/LifeSpellInkGraphic.cs"
     if not any(line.strip('"') == source for line in lines): lines.append(f'"{source}"')
+    if editor:
+        lines.append('"Assets/Game/Life/Editor/LifeSpellInkPlayReview.cs"')
     if not editor:
         # Unity's cached response can predate new partial files in this shared checkout.
         known = {line.strip('"') for line in lines if line.strip('"').startswith("Assets/")}

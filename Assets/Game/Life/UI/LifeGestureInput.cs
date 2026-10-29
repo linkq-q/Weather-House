@@ -26,12 +26,14 @@ namespace WeatherHouse.Life
         private const float TaskRowStep = 48f + 22f * TaskGapScale;
         private const float TaskGapScale = .85f;
         private LifeStrokeGraphic stroke;
+        private LifeStrokeGraphic practiceTail;
         private readonly List<Vector2> points = new List<Vector2>();
         private bool drawing, worldMode, taskExpanded, practiceStarted;
         private int tipLevel;
         private float feedbackUntil;
         public bool IsWorldDrawing => worldMode;
-        public bool IsStrokeActive => drawing || (life && life.GestureInputActive && !worldMode);
+        public bool IsStrokeActive => drawing || (life && life.GestureInputActive && !worldMode) ||
+            (practiceTail && practiceTail.isActiveAndEnabled && Time.unscaledTime < practiceTail.SpellReleaseEndTime);
         public bool HasStartedPractice => practiceStarted;
 
         private void Start()
@@ -237,7 +239,7 @@ namespace WeatherHouse.Life
             stroke.color = success ? new Color(.66f, .95f, .73f) : new Color(1f, .54f, .36f);
             stroke.ReleaseSpell(success);
             drawHint.text = noWeatherTarget ? "" : message + "\n可以再次描画，Esc 收起";
-            feedbackUntil = Time.unscaledTime + 2.2f;
+            feedbackUntil = stroke.SpellReleaseEndTime;
         }
 
         public bool CanPractice(string id) => life && life.IsGestureUnlocked(id) && hud && hud.JournalOpen && !hud.IsAlbumOpening;
@@ -258,12 +260,20 @@ namespace WeatherHouse.Life
             }
             else if (feedback) feedback.text = recognized ? "跟着这一页的笔尖，再画一次。" : "画大一点，按笔尖的方向一笔画完。";
             ink.color = success ? new Color(.27f, .64f, .38f) : new Color(.76f, .42f, .29f);
+            ReleasePracticeStroke(ink, success);
+        }
+        public void ReleasePracticeStroke(LifeStrokeGraphic ink, bool success)
+        {
+            ink.ReleaseSpell(success);
+            // Learning marks the book dirty; defer its rebuild without retaining the input lock.
+            practiceTail = ink;
         }
         public static bool ValidStroke(IList<Vector2> path) => GestureCatalog.IsUsableStroke(path);
         public void Cancel()
         {
             LifeAudio.StopStroke();
             worldMode = drawing = false; points.Clear(); feedbackUntil = 0;
+            if (practiceTail) practiceTail.SetPath(null); practiceTail = null;
             if (stroke) stroke.SetPath(null); if (drawRoot) drawRoot.gameObject.SetActive(false);
             if (life) life.SetGestureInput(false);
         }

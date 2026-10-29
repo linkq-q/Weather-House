@@ -11,6 +11,7 @@ namespace WeatherHouse.Life
         private readonly List<Vector2> points = new List<Vector2>();
         private Material ink;
         private LifeSpellInkGraphic spell;
+        public float SpellReleaseEndTime => spell ? spell.ReleaseEndTime : Time.unscaledTime;
         public void EnableSpellEffect()
         {
             if (spell) return;

@@ -22,7 +22,7 @@ namespace WeatherHouse.Life
         public void OnPointerDown(PointerEventData e)
         {
             if (e.button != PointerEventData.InputButton.Left || pointer != int.MinValue || !input || !input.CanPractice(gestureId)) return;
-            pointer = e.pointerId; leftBounds = false; points.Clear(); ink.color = new Color(.25f, .57f, .65f);
+            pointer = e.pointerId; leftBounds = false; points.Clear(); ink.SetPath(null); ink.color = new Color(.25f, .57f, .65f);
             input.SetPracticeDrawing(true); Add(e);
         }
         public void OnDrag(PointerEventData e) { if (e.pointerId == pointer) Add(e); }
@@ -41,7 +41,7 @@ namespace WeatherHouse.Life
             if (e.pointerId != pointer) return;
             Add(e); pointer = int.MinValue; input.SetPracticeDrawing(false);
             LifeAudio.StopStroke();
-            if (leftBounds) { if (feedback) feedback.text = "笔迹离开了练习页，请在框内重试。"; ink.color = new Color(.75f, .4f, .3f); }
+            if (leftBounds) { if (feedback) feedback.text = "笔迹离开了练习页，请在框内重试。"; ink.color = new Color(.75f, .4f, .3f); input.ReleasePracticeStroke(ink, false); }
             else input.CompletePractice(gestureId, points, feedback, ink);
         }
         public void ResetStroke() { pointer = int.MinValue; points.Clear(); LifeAudio.StopStroke(); if (ink) ink.SetPath(null); if (input) input.SetPracticeDrawing(false); }

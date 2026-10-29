@@ -40,6 +40,7 @@ namespace WeatherHouse.Life
             marker.color = new Color(.63f, .42f, .21f, .55f); marker.raycastTarget = false;
             var demo = demoRoot.gameObject.AddComponent<LifeGestureDemo>(); demo.definition = definition; demo.ink = demoInk; demo.marker = marker.rectTransform;
             var stroke = LifeUi.Rect(panel.transform, "Practice ink", Vector2.zero, panel.rectTransform.sizeDelta).gameObject.AddComponent<LifeStrokeGraphic>(); stroke.width = 5.5f;
+            stroke.EnableSpellEffect(); stroke.SetSpellDaylight(1f);
             Line(panel.transform, "Pencil corner upper", new[] { new Vector2(0, -20), Vector2.zero, new Vector2(23, 1) }, new Vector2(-188, 176));
             Line(panel.transform, "Pencil corner lower", new[] { new Vector2(-23, -1), Vector2.zero, new Vector2(0, 20) }, new Vector2(188, -176));
             var mouse = Glyph(panel.transform, "Practice mouse hint", "<path d=\"M 35 43 Q 35 25 50 25 Q 65 25 65 43 L 65 76 Q 65 93 50 93 Q 35 93 35 76 L 35 43 M 50 26 L 50 53 M 36 53 L 64 53 M 41 36 L 44 36 L 44 45 L 41 45 L 41 36\"/>", new Vector2(150, 142), new Vector2(52, 62), .5f);
