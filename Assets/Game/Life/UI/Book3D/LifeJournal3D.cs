@@ -370,6 +370,17 @@ namespace WeatherHouse.Life
                 for (int i = 0; i < materials.Length; i++)
                 {
                     Material source = materials[i];
+                    if (source.name == "JournalCloth" || source.name == "JournalCover")
+                    {
+                        var cover = Resources.Load<Material>("AlbumBook/CoverPaint");
+                        if (cover)
+                        {
+                            if (!surfaces.TryGetValue(source, out Material paint))
+                                surfaces[source] = paint = new Material(cover) { name = "Journal olive painted cover" };
+                            materials[i] = paint;
+                            continue;
+                        }
+                    }
                     if (!surfaces.TryGetValue(source, out Material unlit))
                     {
                         unlit = new Material(surface) { name = "Journal surface: " + source.name };

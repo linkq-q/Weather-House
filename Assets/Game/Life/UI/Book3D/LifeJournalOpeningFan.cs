@@ -45,13 +45,14 @@ namespace WeatherHouse.Life
             }
         }
 
-        public void SetPages(Texture intro, Texture target, Rect leftPage, Rect rightPage)
+        public void SetPages(Texture intro, Texture target, Rect leftPage, Rect rightPage, Vector4[] introPhotos, Vector4[] targetPhotos)
         {
             for (int i = 0; i < Count; i++)
                 for (int face = 0; face < 2; face++)
                 {
                     bool finalReverse = i == Count - 1 && face == 1;
                     Material material = materials[i][face];
+                    WeatherHousePrototype.AlbumPhotoPaper.Apply(material, finalReverse ? targetPhotos : introPhotos);
                     Rect crop = face == 0 ? rightPage : leftPage;
                     material.SetTexture("_BaseMap", finalReverse ? target : intro);
                     material.SetTextureScale("_BaseMap", crop.size);

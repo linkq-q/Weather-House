@@ -1,0 +1,43 @@
+{
+  "validation": "Isolated Unity Play; actual JournalBook FBX, runtime LifeJournal3D, URP Direct3D GPU renders",
+  "photos": "Existing project review screenshots loaded as test photos; player library unchanged",
+  "before": "Same test rig with photo effects disabled and prior cover material reconstructed from imported source properties",
+  "coverSource": "Assets/Experiments/DrawerPrototype/Look/MagicBook.mat",
+  "preservedPaintParameters": 18,
+  "intentionalCoverChanges": [
+    "Solid color base: _TextureInfluence=0",
+    "Fixed journal lighting: _StudioLighting=1"
+  ],
+  "mainSceneModified": false,
+  "checks": "checks.txt",
+  "sources": [
+    {
+      "path": "Assets/Experiments/Materials/Shaders/OilPaintSurface.shader",
+      "sha256": "EC28E664EB1C4C2624029FE9F3B6615AAA51113D47E0FCA1D6D5A037E29A0CD6"
+    },
+    {
+      "path": "Assets/Game/Life/Shaders/Resources/LifeGesture/JournalSurface.shader",
+      "sha256": "5BC82944B59026B0D69A80E12AB493B820FD46DB071C12D9D4D6B5DB2BB885D8"
+    },
+    {
+      "path": "Assets/Game/Life/UI/Book3D/LifeJournal3D.cs",
+      "sha256": "9B12635B76238880E4986BAF8EBDFD82A3FD6044BDCEAE81F2C815E7568A2AF7"
+    },
+    {
+      "path": "Assets/Game/Life/UI/Book3D/LifeJournalOpeningFan.cs",
+      "sha256": "DC1F01E88E7C733AA7A80CE5607F56CBEE6CC696D68F89AD3551212E5E4C55FD"
+    },
+    {
+      "path": "Assets/Game/UI/AlbumBookView.cs",
+      "sha256": "450D5B1654B6E53631D0A3DE9DCBD5CC3A71991ED3AC3A69E17A962E3EA5E863"
+    },
+    {
+      "path": "Assets/Game/UI/AlbumPhotoPaper.cs",
+      "sha256": "1D46CAA19A1AF8E1884E73CC4B416CE5C1CB8898E53D4B9A997144F7CE6C1207"
+    },
+    {
+      "path": "Assets/Game/Resources/AlbumBook/CoverPaint.mat",
+      "sha256": "D463A9F52309284EE578E91A684301E17B68DFC921D7EB4237F1B3DD02B0044F"
+    }
+  ]
+}
