@@ -1,0 +1,463 @@
+{
+  "date": "2026-10-29",
+  "numerical_tests_passed": 10,
+  "reproduced_textures_identical": 21,
+  "surface_checks": [
+    "first_then: samples=10743, missing=0, steep=0",
+    "here_there: samples=9398, missing=0, steep=0",
+    "strong_weak: samples=18237, missing=0, steep=0",
+    "wet_dry: samples=19657, missing=0, steep=0",
+    "together: samples=18194, missing=0, steep=0",
+    "wind: samples=17453, missing=0, steep=0",
+    "grass_tree: samples=20094, missing=0, steep=0"
+  ],
+  "assets": [
+    {
+      "id": "wind",
+      "title": "风",
+      "picture_width_px": 19.798988342285156,
+      "glyphs": [
+        {
+          "id": "wind",
+          "sha256": "d67c199592705fe52d448d570df88cc0a3dd2837b61f7553c996018ec6eee3c3",
+          "rect": [
+            808,
+            1120,
+            100,
+            165
+          ],
+          "before": 8.0,
+          "after": 20.0,
+          "target": 19.798988342285156,
+          "radius": 6,
+          "topology": [
+            1,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "wind",
+        "scale": 1.6049578189849854,
+        "width": 2.120142698287964,
+        "height": 1.650778889656067
+      },
+      "changed_art_pixels": 8051,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261029,
+      "chip_probability": 0.23,
+      "source_sha256": "fdbd51c00db1823b8cbb51a3d27b7c02c9c854621129413f5f801c7f7203b748",
+      "candidate_sha256": "10ecb3ba86568226796f683604404711b59e96522848c6787f023d1eca756438",
+      "reproduced_maps_sha256": {
+        "Normal.png": "ace5ff681f69ebc31b8e17469a65eab8ffac1c555c3c5abd00a575d9a359024f",
+        "Mask.png": "745f93f493307a8715fd3055d66a1fe88e57ef96ea707251b911c5b1ca65d849",
+        "Height.png": "9b853032b27f2dccb193a4d95f9744117bfc89567a86fd85cd24865e7490a16c"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 2674 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    },
+    {
+      "id": "wet_dry",
+      "title": "湿与干",
+      "picture_width_px": 18.0,
+      "glyphs": [
+        {
+          "id": "wet",
+          "sha256": "87589d7831d5ce193d8511c546d6b57a88e437e11e36dfda46cceed47281a29f",
+          "rect": [
+            469,
+            1000,
+            103,
+            165
+          ],
+          "before": 8.0,
+          "after": 18.0,
+          "target": 18.0,
+          "radius": 5,
+          "topology": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "dry",
+          "sha256": "692d0c4b5cbdef4d3f267a8fda2b2378a031e19ca8a94057c3a2638b1e677556",
+          "rect": [
+            1132,
+            1000,
+            127,
+            165
+          ],
+          "before": 8.0,
+          "after": 18.0,
+          "target": 18.0,
+          "radius": 5,
+          "topology": [
+            2,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "wet_dry",
+        "scale": 2.3429553508758545,
+        "width": 1.9954288005828857,
+        "height": 1.4385830163955688
+      },
+      "changed_art_pixels": 7157,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261030,
+      "chip_probability": 0.23,
+      "source_sha256": "859fcee9ce8eaeaa6de600f9e09427ffdb505648da48ebd56ea935534d569dea",
+      "candidate_sha256": "340583d56333653b3db96e2f2269bf4efffabcb2d2929c3fb277ebf2528d643f",
+      "reproduced_maps_sha256": {
+        "Normal.png": "956684c0662797a2f9870c3ca7b2725acf87ec9062b2f9406bb00e33c060b8bc",
+        "Mask.png": "0162e5f10ac0af3574a920cad0191757c8ed832954cf8b41ffc413cb423b3f40",
+        "Height.png": "ad26188ce67788d03f8e1058ebd60462aa4095ceb961a33ad4d3d610be8e2403"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 2859 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    },
+    {
+      "id": "strong_weak",
+      "title": "强与弱",
+      "picture_width_px": 16.142135620117188,
+      "glyphs": [
+        {
+          "id": "weak",
+          "sha256": "19ecce40490dd960f0b5915a8808a16674ce30126fc399a2a12eae3efa14f171",
+          "rect": [
+            428,
+            866,
+            91,
+            165
+          ],
+          "before": 8.0,
+          "after": 18.0,
+          "target": 16.142135620117188,
+          "radius": 5,
+          "topology": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "strong",
+          "sha256": "afb801daf17fbd32950f8d34d91bd1a9e2ea4850af0620bacaa288f2bfbacd09",
+          "rect": [
+            1196,
+            866,
+            91,
+            165
+          ],
+          "before": 8.0,
+          "after": 18.0,
+          "target": 16.142135620117188,
+          "radius": 5,
+          "topology": [
+            1,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "strong_weak",
+        "scale": 90.05614471435547,
+        "width": 1.9954286813735962,
+        "height": 1.2812894582748413
+      },
+      "changed_art_pixels": 6951,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261031,
+      "chip_probability": 0.23,
+      "source_sha256": "589878cd8aef15c8bc66bbf9199098e46af7cfe4e65b4a110d2be503995b1ada",
+      "candidate_sha256": "504c2b938f4bf2e02ff0a414a1094b1a5f109732466ed96901dda08a4ef76774",
+      "reproduced_maps_sha256": {
+        "Normal.png": "a7a6250cb6f6da7e2deed63940fa977c1db2fa1467dcde6d2c0295ca864512ff",
+        "Mask.png": "6a9a444a3b5b102e6cb999d23cc8aefa609e876287f4210094da90e042ff58ab",
+        "Height.png": "c51c68da07b56b50601ce5a180742bf8dccb7bb5b03a93d1a4cd1be21a11a115"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 2430 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    },
+    {
+      "id": "grass_tree",
+      "title": "草与树",
+      "picture_width_px": 16.0,
+      "glyphs": [
+        {
+          "id": "grass",
+          "sha256": "c8576facdf656edce7d460f688d48b91b5eb6c16e03f57ca0ecb2c7032985e23",
+          "rect": [
+            783,
+            1176,
+            150,
+            165
+          ],
+          "before": 8.0,
+          "after": 16.0,
+          "target": 16.0,
+          "radius": 4,
+          "topology": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "tree",
+          "sha256": "532ec3ad5ce55de2bf7a62c507a3246ab51098711e7aed4400ad14a5c9b984d1",
+          "rect": [
+            655,
+            50,
+            69,
+            165
+          ],
+          "before": 8.0,
+          "after": 16.0,
+          "target": 16.0,
+          "radius": 4,
+          "topology": [
+            1,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "grass_tree",
+        "scale": 178.47425842285156,
+        "width": 2.30721378326416,
+        "height": 1.8724918365478516
+      },
+      "changed_art_pixels": 8850,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261032,
+      "chip_probability": 0.23,
+      "source_sha256": "dbd3b299818f028466e87240990a236767e2344d67da36d41af5d0a422cf7463",
+      "candidate_sha256": "2d20c72f883fa66bbbcf4c3e27390ad3029f5a4fb21c95e7860b8313d59d47a7",
+      "reproduced_maps_sha256": {
+        "Normal.png": "f4d1fa1501e8e1a81fe996159083f88a99574f773386e92e6f6a024d85f264ac",
+        "Mask.png": "9529e0a987134e0501b207804e33369985260ae01ef43fa54aa8bc1ce45539c1",
+        "Height.png": "09e094a3d23b206da69d51e42bc0c876ab5a2f6c283c2b4abe1b08e38ab835a7"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 4122 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    },
+    {
+      "id": "first_then",
+      "title": "先与后",
+      "picture_width_px": 8.0,
+      "glyphs": [
+        {
+          "id": "first",
+          "sha256": "d065bb0f49e80435d22cc72a7756cd528178c23162cca77340a1619f173cfa48",
+          "rect": [
+            300,
+            637,
+            92,
+            165
+          ],
+          "before": 8.0,
+          "after": 8.0,
+          "target": 8.0,
+          "radius": 0,
+          "topology": [
+            3,
+            0
+          ]
+        },
+        {
+          "id": "then",
+          "sha256": "70571c9ec07fc661455e671e52773a63ea50bf42300e8b063b2d54b57971b8d0",
+          "rect": [
+            1336,
+            637,
+            68,
+            165
+          ],
+          "before": 8.0,
+          "after": 8.0,
+          "target": 8.0,
+          "radius": 0,
+          "topology": [
+            3,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "first_then",
+        "scale": 137.58578491210938,
+        "width": 3.715447187423706,
+        "height": 1.8596493005752563
+      },
+      "changed_art_pixels": 6509,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261033,
+      "chip_probability": 0.23,
+      "source_sha256": "6011d1d89df8ecad67109d03828d6d1f2f38af4842b1338a9fbd08eb4f0ae641",
+      "candidate_sha256": "d60fd7e4d919832a2f51931a535929c6a3268e59d41a288dae2e4d861ac447e1",
+      "reproduced_maps_sha256": {
+        "Normal.png": "74eb01d4024c5b43d4c663a84e0dddae3d6e5fbe705a15c38a8fbab651927cc3",
+        "Mask.png": "3ae1e6a6b3bb74f55034e9deefef12e7795d900c62b13cb8e2ecf07165bcc262",
+        "Height.png": "9c605d7d534d17d4661244c7aa22c3d0171de0e35b3f6a9ec396575dd4f9dcba"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 5076 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    },
+    {
+      "id": "together",
+      "title": "一起",
+      "picture_width_px": 12.0,
+      "glyphs": [
+        {
+          "id": "together",
+          "sha256": "7ed2369a674ae8b32f80c728f6ebec12710fbf775fac203a0fa7f66d5e6f356e",
+          "rect": [
+            813,
+            1042,
+            90,
+            165
+          ],
+          "before": 8.0,
+          "after": 12.0,
+          "target": 12.0,
+          "radius": 2,
+          "topology": [
+            1,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "together",
+        "scale": 178.47425842285156,
+        "width": 2.369570732116699,
+        "height": 1.7516857385635376
+      },
+      "changed_art_pixels": 8088,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261034,
+      "chip_probability": 0.23,
+      "source_sha256": "0616108217ca1dc23773505a16066f69f90499d101ca02d285dab48493148f65",
+      "candidate_sha256": "ab78051e3dff32870dc9a4e31012cb0acb479cf781205171a7105546b3752bfb",
+      "reproduced_maps_sha256": {
+        "Normal.png": "306a3e109d4f60aaf271fac924711067017bb7b09bb8b33a0f2b8c102539a0da",
+        "Mask.png": "c39a178eb5ad509c5f08233635525e8a0f7534654b30d869921b49aecf996d7b",
+        "Height.png": "0eb1664759f56d23e9e9c35c2b601ff172d0c25c8c7de2255c167c107c041301"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 4761 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    },
+    {
+      "id": "here_there",
+      "title": "这里与那里",
+      "picture_width_px": 16.0,
+      "glyphs": [
+        {
+          "id": "here",
+          "sha256": "2d281662e05fa3429f271ba4c70ee168afe35292dfcfb53539f29a046f2dc792",
+          "rect": [
+            697,
+            758,
+            106,
+            165
+          ],
+          "before": 8.0,
+          "after": 16.0,
+          "target": 16.0,
+          "radius": 4,
+          "topology": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "there",
+          "sha256": "7da1f3c724dba171c62271ee099b0ddda22b1fd939b268e82df0b098e320fa6d",
+          "rect": [
+            1290,
+            758,
+            119,
+            165
+          ],
+          "before": 8.0,
+          "after": 16.0,
+          "target": 16.0,
+          "radius": 3,
+          "topology": [
+            1,
+            0
+          ]
+        }
+      ],
+      "dimensions": {
+        "id": "here_there",
+        "scale": 183.87374877929688,
+        "width": 2.057785749435425,
+        "height": 1.1731648445129395
+      },
+      "changed_art_pixels": 5061,
+      "core_preserved": true,
+      "depth_m": 0.08,
+      "seed": 20261035,
+      "chip_probability": 0.23,
+      "source_sha256": "5704352b615ca2c9c01d02084801b0ab3def6cfbec78972722143bb0288b1161",
+      "candidate_sha256": "e12b400ab83b7de53d8a0385f60d5ebb3262d9270695e87440a706a7419806c5",
+      "reproduced_maps_sha256": {
+        "Normal.png": "031ed8d258b87826b310be1175cbd51bdc7bfaf77921a0e832cba99322929759",
+        "Mask.png": "db6f9b1b2bdfc500444679c4f3645e5122ef8673bf0ea42e7611e7b4f1bd200b",
+        "Height.png": "e8e1982f98de81221dff2ba1fae431f53f526bcf439f364f3a7956932a4bbf4b"
+      },
+      "actual_camera_checks": [
+        "PASS gameplay render changes 1430 pixels at 1075x675.",
+        "PASS real photo camera: enabled component and original appearance are pixel-identical.",
+        "PASS photo fade-out remains unenhanced; closing returns gameplay readability.",
+        "PASS disable cleanup; original shared material and groove depth preserved."
+      ],
+      "final_pose": "USER_ADJUSTS_IN_SCENE"
+    }
+  ],
+  "main_scene_saved_by_task": false,
+  "placement": "Owned review group in open scene; separate group prefab saved.",
+  "limitations": [
+    "Carving is material depth, not geometric displacement.",
+    "Actual photo isolation passed; final framing and placement angle are user-adjusted.",
+    "Puzzle rewards and image recognition are not part of this change."
+  ]
+}

@@ -51,10 +51,10 @@ def stencil_coverage(path):
     return np.clip((.80-np.asarray(Image.open(path).convert('L'),np.float32)/255.)/.60,0,1)
 
 
-def make_maps(coverage, width_m, depth_m, bevel_px):
+def make_maps(coverage, width_m, depth_m, bevel_px, height_m=None):
     if coverage.ndim != 2 or min(coverage.shape) < 3:
         raise ValueError('Stencil must be a two-dimensional image at least 3x3.')
-    if width_m <= 0 or depth_m <= 0 or bevel_px < 1:
+    if width_m <= 0 or depth_m <= 0 or bevel_px < 1 or (height_m is not None and height_m <= 0):
         raise ValueError('Width, depth and bevel must be positive.')
     coverage = np.clip(coverage.astype(np.float32), 0, 1)
     inside = coverage > .5
@@ -72,7 +72,7 @@ def make_maps(coverage, width_m, depth_m, bevel_px):
     profile = np.minimum(distance / bevel_px, 1) * coverage
     height = -depth_m * profile
     pixel_m = width_m / coverage.shape[1]
-    dy, dx = np.gradient(height, pixel_m)
+    dy, dx = np.gradient(height, height_m / coverage.shape[0] if height_m is not None else pixel_m, pixel_m)
     # PNG rows run downward; Unity texture V and tangent-space Y point upward.
     normals = np.stack((-dx, dy, np.ones_like(dx)), axis=-1)
     normals /= np.linalg.norm(normals, axis=-1, keepdims=True)

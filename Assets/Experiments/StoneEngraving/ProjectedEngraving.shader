@@ -16,6 +16,7 @@ Shader "Weather House/Stone Engraving"
         _DiscoveryWidth("Gameplay groove expansion (pixels)", Range(0,1.5)) = .4
         [HideInInspector] _GameplayReadability("Gameplay view only", Float) = 0
         _Smoothness("Stone smoothness", Range(0,1)) = .12
+        [Toggle] _Faceted("Use flat stone facets", Float) = 0
         _ProjectionCenter("Carving center (local)", Vector) = (0,0,0,0)
         _ProjectionRight("Carving right (local)", Vector) = (1,0,0,0)
         _ProjectionUp("Carving up (local)", Vector) = (0,1,0,0)
@@ -50,7 +51,7 @@ Shader "Weather House/Stone Engraving"
                 float4 _BaseMap_ST, _BaseColor;
                 float4 _ProjectionCenter, _ProjectionRight, _ProjectionUp, _ProjectionSize;
                 float _BumpScale, _EngravingStrength, _CavityTint, _Smoothness, _Cull, _Cutoff;
-                float _GrooveDepth, _GrooveShadow;
+                float _GrooveDepth, _GrooveShadow, _Faceted;
                 float _DiscoveryContrast, _DiscoveryWidth, _GameplayReadability;
             CBUFFER_END
             struct Attributes
@@ -106,6 +107,11 @@ Shader "Weather House/Stone Engraving"
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 half3 geometricNormal=normalize(i.normalWS);
+                if (_Faceted > .5)
+                {
+                    half3 facet=normalize(cross(ddy(i.positionWS),ddx(i.positionWS)));
+                    geometricNormal=dot(facet,geometricNormal)<0 ? -facet : facet;
+                }
                 half3 tangent=normalize(i.tangentWS.xyz);
                 half3 bitangent=cross(geometricNormal,tangent)*i.tangentWS.w;
                 half3 stoneNormal=UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap,sampler_BumpMap,i.uv),_BumpScale);
