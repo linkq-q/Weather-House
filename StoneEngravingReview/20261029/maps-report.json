@@ -1,0 +1,38 @@
+{
+  "source": "Tools/StoneEngraving/Source/RainWaterStencil.png",
+  "chipped_source": "Tools/StoneEngraving/Source/RainWaterChippedCandidate.png",
+  "chip_probability": 0.23,
+  "chip_seed": 20261029,
+  "layout": {
+    "art_offset_y": 120,
+    "rain_y": 245,
+    "glyph_height": 210
+  },
+  "glyphs": {
+    "rain": "Assets/Game/Art/AnimalGlyphsV04/rain.png",
+    "water": "Assets/Game/Art/AnimalGlyphsV04/water.png"
+  },
+  "source_prefab_instance_id": 1017326094,
+  "source_prefab_guid": "2f1f1a99a03849746adb662fa05676c2",
+  "output": "StoneEngravingReview/20261029/Maps",
+  "width_m": 5.688468,
+  "depth_m": 0.05,
+  "bevel_px": 4.0,
+  "source_sha256": "716a30959919a53195265a28d62668b0eb1b3a0e5635d451bd1357b97d6edf84",
+  "size": [
+    1536,
+    1536
+  ],
+  "coverage_fraction": 0.08299170600043403,
+  "changed_pixels_fraction": 0.004281361897786458,
+  "chipped_source_sha256": "c4acd77a7349babf5fe90e8a57ca4024f5ec47f254904036b1e6fa5cd054c09f",
+  "glyph_sha256": {
+    "rain": "6e503889dca416839cd3b125ee0e58b79cc42f73371d493cadc76c4b52fa8152",
+    "water": "c8ac74c94c8a9e2ae9ef456b26efaf92c0481c3a627618f254d69980d4f6cb98"
+  },
+  "min_height_m": -0.05000000074505806,
+  "max_height_m": -0.0,
+  "finite": true,
+  "normal_convention": "tangent +Y up; neutral (128,128,255)",
+  "mask_channels": "R groove depth, G cavity AO, B reserved=0, A groove coverage"
+}
