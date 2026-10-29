@@ -10,8 +10,20 @@ namespace WeatherHouse.Life
         public float width = 11f;
         private readonly List<Vector2> points = new List<Vector2>();
         private Material ink;
+        private LifeSpellInkGraphic spell;
+        public void EnableSpellEffect()
+        {
+            if (spell) return;
+            var child = new GameObject("Spell light and stardust", typeof(RectTransform));
+            child.transform.SetParent(transform, false);
+            var rect = (RectTransform)child.transform;
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = rect.offsetMax = Vector2.zero;
+            spell = child.AddComponent<LifeSpellInkGraphic>(); spell.SetPath(points); SetVerticesDirty();
+        }
+        public void SetSpellDaylight(float value) { if (spell) spell.Daylight = value; }
+        public void ReleaseSpell(bool success) { if (spell) spell.ReleaseStroke(success); }
         public void SetPath(IList<Vector2> path)
-        { points.Clear(); if (path != null) for (int i = 0; i < path.Count; i++) points.Add(path[i]); SetVerticesDirty(); }
+        { points.Clear(); if (path != null) for (int i = 0; i < path.Count; i++) points.Add(path[i]); if (spell) spell.SetPath(path); SetVerticesDirty(); }
         protected override void Awake()
         {
             base.Awake(); raycastTarget = false;
@@ -19,7 +31,7 @@ namespace WeatherHouse.Life
             if (shader) { ink = new Material(shader) { name = "Gesture ink (runtime)" }; material = ink; }
         }
         protected override void OnPopulateMesh(VertexHelper vh)
-        { PopulateStroke(vh, points, width, color); }
+        { if (spell) vh.Clear(); else PopulateStroke(vh, points, width, color); }
 
         public static void PopulateStroke(VertexHelper vh, IList<Vector2> path, float strokeWidth, Color tint)
         {
@@ -53,6 +65,6 @@ namespace WeatherHouse.Life
                     vh.AddTriangle(center, center + 1 + i, center + 1 + (i + 1) % sides);
             }
         }
-        protected override void OnDestroy() { if (ink) Destroy(ink); base.OnDestroy(); }
+        protected override void OnDestroy() { if (ink) { if (Application.isPlaying) Destroy(ink); else DestroyImmediate(ink); } base.OnDestroy(); }
     }
 }

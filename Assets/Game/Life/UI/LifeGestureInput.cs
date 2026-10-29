@@ -93,6 +93,7 @@ namespace WeatherHouse.Life
             drawRoot.anchorMin = Vector2.zero; drawRoot.anchorMax = Vector2.one; drawRoot.offsetMin = drawRoot.offsetMax = Vector2.zero;
             stroke = LifeUi.Rect(drawRoot, "Weather ink", Vector2.zero, new Vector2(1600, 1000)).gameObject.AddComponent<LifeStrokeGraphic>();
             stroke.rectTransform.anchorMin = Vector2.zero; stroke.rectTransform.anchorMax = Vector2.one; stroke.rectTransform.offsetMin = stroke.rectTransform.offsetMax = Vector2.zero;
+            stroke.EnableSpellEffect();
             drawHint = LifeUi.Text(drawRoot, "Casting feedback", "", new Vector2(0, 0), new Vector2(1000, 100), font, 29, Color.white, TextAnchor.MiddleCenter);
             drawHint.rectTransform.anchorMin = drawHint.rectTransform.anchorMax = new Vector2(.5f, 1); drawHint.rectTransform.anchoredPosition = new Vector2(-80, -110);
             drawRoot.gameObject.SetActive(false);
@@ -134,15 +135,12 @@ namespace WeatherHouse.Life
             if (!modal && Input.GetKeyDown(KeyCode.H)) tipLevel = (tipLevel + 1) % 2;
             helpText.text = tipLevel > 0 ? Guidance() : "G 手势  ·  H 提示";
             if (modal) return;
-            if (Input.GetKeyDown(KeyCode.G))
-            {
-                if (worldMode) Cancel();
-                else { worldMode = true; life.SetGestureInput(true); drawRoot.gameObject.SetActive(true); drawHint.text = "按住左键描画  ·  Esc 收起"; stroke.SetPath(null); }
-            }
+            if (Input.GetKeyDown(KeyCode.G)) ToggleWorldCasting();
             if (!worldMode) return;
             if (Input.GetMouseButtonDown(0) && !OverUi())
             {
                 drawing = true; points.Clear(); feedbackUntil = 0;
+                stroke.SetPath(null);
                 stroke.color = new Color(.61f, .87f, .94f); AddPoint();
             }
             if (drawing && Input.GetMouseButton(0)) AddPoint();
@@ -183,6 +181,15 @@ namespace WeatherHouse.Life
             // The scene currently exposes an F8 mood, not an advancing game clock.
             bool night = taskMood && taskMood.Current == WatersideMood.Mode.Night;
             taskDay.gameObject.SetActive(!night); taskNight.gameObject.SetActive(night);
+            if (stroke) stroke.SetSpellDaylight(night ? 0f : 1f);
+        }
+
+        public void ToggleWorldCasting()
+        {
+            if (!life || !drawRoot || Modal || LifeOnboarding.Blocks(life.Gameplay)) return;
+            if (worldMode) { Cancel(); return; }
+            worldMode = true; life.SetGestureInput(true); drawRoot.gameObject.SetActive(true);
+            drawHint.text = "按住左键描画  ·  Esc 收起"; stroke.SetPath(null);
         }
 
         private Button TaskArrow(string name, Vector2 position, bool right)
@@ -228,6 +235,7 @@ namespace WeatherHouse.Life
                 noWeatherTarget = !success && (id == "strong" || id == "weak") && string.IsNullOrEmpty(message);
             }
             stroke.color = success ? new Color(.66f, .95f, .73f) : new Color(1f, .54f, .36f);
+            stroke.ReleaseSpell(success);
             drawHint.text = noWeatherTarget ? "" : message + "\n可以再次描画，Esc 收起";
             feedbackUntil = Time.unscaledTime + 2.2f;
         }

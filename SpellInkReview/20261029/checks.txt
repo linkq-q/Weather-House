@@ -1,0 +1,22 @@
+PASS Spell layer owns a CanvasRenderer for final UI compositing
+PASS World effect exists, ignores UI raycasts and uses 3x width
+TRACE spell UI rect=(x:-372.00, y:-220.00, width:744.00, height:440.00) vertices=4 cull=False material=Spell ink display
+PASS Final UI composite visibly contains the stroke: day-composite.png
+PASS Visible broad core at daylight=1 alpha=0.9803922/0.8235294
+PASS Round corner stays connected without a long outside spike
+TRACE spell UI rect=(x:-372.00, y:-220.00, width:744.00, height:440.00) vertices=4 cull=False material=Spell ink display
+PASS Final UI composite visibly contains the stroke: night-composite.png
+PASS Visible broad core at daylight=0 alpha=0.9019608/0.4666667
+PASS Round corner stays connected without a long outside spike
+PASS Repeated points, reversals and acute turns retain their input positions
+PASS Release triggers the echo
+PASS Ink expires before the existing casting UI closes
+PASS Journal paper ink geometry is preserved
+PASS G uses the new silhouette and delegates hits to its button
+PASS Spell target is large enough to click
+PASS Actual HUD button enters world casting
+PASS Actual HUD button exits world casting
+PASS Book modal prevents starting a spell
+PASS Shader supported and compiled: LifeGesture/SpellInk
+PASS Shader supported and compiled: LifeGesture/SpellInkComposite
+BOUNDARY isolated editor GPU and actual component/button checks; not a full game Play session or human mouse test.

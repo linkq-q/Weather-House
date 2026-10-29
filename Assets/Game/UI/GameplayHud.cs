@@ -190,6 +190,12 @@ namespace WeatherHousePrototype
             Label(controls, "Magic book shortcut", "M", new Vector2(-44f, -30f), new Vector2(44f, 28f), 21, hint);
             Label(controls, "Dictionary shortcut", "J", new Vector2(44f, -30f), new Vector2(44f, 28f), 21, hint);
             Label(controls, "Photo tasks shortcut", "L", new Vector2(132f, -30f), new Vector2(44f, 28f), 21, hint);
+            var spellButton = Rect(controls, "Spell shortcut button", new Vector2(220f, -3f), new Vector2(72f, 86f));
+            var spellHit = spellButton.gameObject.AddComponent<Image>(); spellHit.color = Color.clear;
+            var cast = spellButton.gameObject.AddComponent<Button>(); cast.targetGraphic = spellHit;
+            cast.onClick.AddListener(() => { if (!gestureInput) gestureInput = GetComponent<LifeGestureInput>(); if (gestureInput) gestureInput.ToggleWorldCasting(); });
+            HudIcon(spellButton, "Spell icon", "SpellCast", new Vector2(0f, 13f), new Vector2(44f, 44f), new Rect(0, 0, 1, 1));
+            Label(spellButton, "Spell shortcut", "G", new Vector2(0f, -27f), new Vector2(44f, 28f), 21, hint);
             statusRoot = Rect(canvasRect, "Bottom status", Vector2.zero, new Vector2(880f, 72f));
             statusRoot.anchorMin = statusRoot.anchorMax = new Vector2(.5f, 0f);
             statusRoot.anchoredPosition = new Vector2(0f, 140f);
