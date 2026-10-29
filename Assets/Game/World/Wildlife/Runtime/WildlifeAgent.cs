@@ -42,9 +42,42 @@ namespace WeatherHouse.Hillside
         private AnimationClip lifeAction;
         private float lifeActionUntil;
         public bool HasLifeTarget => isActiveAndEnabled && population && population.SimulationTime < lifeUntil;
+        public bool AutonomousTarget { get; private set; }
+        public bool Outgoing { get; private set; }
+        public int IntentRevision { get; private set; }
+        public WildlifePopulation Population => population;
+        public bool Sleeping => RestPhase == WildlifeRestPhase.Sleeping ||
+            (AutonomousTarget && HasLifeTarget && lifeRest && State == WildlifeState.Idle && !clips.HasRestSequence);
+        Vector3 interruptedDestination;
+        WildlifeState interruptedState;
+
+        public bool RequestAutonomousTarget(Vector3 target, bool rest)
+        {
+            if (HasLifeTarget && !AutonomousTarget || State == WildlifeState.Alert || State == WildlifeState.Flee) return false;
+            Vector3 previous = destination; WildlifeState state = State; bool continuing = AutonomousTarget;
+            if (!TryLifeTarget(target, 2, rest, .22f)) return false;
+            if (!continuing) { interruptedDestination = previous; interruptedState = state; }
+            AutonomousTarget = true;
+            return true;
+        }
+        public void ReleaseAutonomousTarget()
+        {
+            if (!AutonomousTarget) return;
+            AutonomousTarget = false; lifeUntil = 0; lifeRest = false;
+            destination = interruptedDestination;
+            if (population) SetState(interruptedState, population.SimulationTime, 3f);
+        }
 
         // A short renewable lease uses the same body checks and animation owner as ordinary life.
         public bool RequestLifeTarget(Vector3 target, float seconds, bool rest = false,float arrivalRadius=.22f)
+        {
+            bool changed=!HasLifeTarget || AutonomousTarget || (target-lifeTarget).sqrMagnitude>.01f || rest!=lifeRest;
+            if (!TryLifeTarget(target, seconds, rest, arrivalRadius)) return false;
+            if (changed) IntentRevision++;
+            AutonomousTarget = false;
+            return true;
+        }
+        private bool TryLifeTarget(Vector3 target, float seconds, bool rest, float arrivalRadius)
         {
             float arrival=Mathf.Clamp(arrivalRadius,.025f,.22f),distance=HorizontalDistance(transform.position,target);
             if (!isActiveAndEnabled || !population || locomotion != WildlifeLocomotion.Ground || distance>8f) return false;
@@ -52,10 +85,10 @@ namespace WeatherHouse.Hillside
             Quaternion? facing=distance<arrival?(Quaternion?)transform.rotation:null;
             if(!population.TryMove(this,target,out Vector3 valid,facing))return false;
             lifeTarget=valid;lifeUntil=population.SimulationTime+Mathf.Clamp(seconds,.1f,3f);lifeRest=rest;lifeArrival=arrival;
-            ReleasePartner();solitary?.Interrupt(false);
+            ReleasePartner();if (!AutonomousTarget) solitary?.Interrupt(false);
             return true;
         }
-        public void ReleaseLifeTarget() { lifeUntil=0;lifeRest=false;solitary?.Interrupt(false); }
+        public void ReleaseLifeTarget() { lifeUntil=0;lifeRest=false;AutonomousTarget=false;IntentRevision++;solitary?.Interrupt(false); }
         public void RequestLifeAction(AnimationClip clip,float seconds)
         {
             if(!clip || !population || !HasLifeTarget)return;
@@ -107,6 +140,8 @@ namespace WeatherHouse.Hillside
             restAnimation.Reset();
             ReleasePartner();
             population = owner;
+            AutonomousTarget = false; IntentRevision++;
+            Outgoing = AnimalPlan.Outgoing(owner.worldSeed, spawnId, speciesId);
             random = new WildlifeRandom(owner.worldSeed, spawnId, speciesId);
             ScaleFactor = random.Range(Mathf.Max(.1f, scaleRange.x), Mathf.Max(.1f, scaleRange.y));
             speedVariation = random.Range(.88f, 1.12f);
@@ -170,7 +205,7 @@ namespace WeatherHouse.Hillside
                     other.locomotion == locomotion && (string.IsNullOrEmpty(other.speciesId) || other.speciesId != speciesId) && now >= nextAlarm)
                     population.TryAmbientAlarm(other.transform.position, 5f, .8f, other);
             }
-            if (population.player != null && timidity > .15f && now >= nextAlarm)
+            if (population.player != null && !Outgoing && timidity > .15f && now >= nextAlarm)
             {
                 float distance = Vector3.Distance(transform.position, population.player.position);
                 if (distance < .8f + timidity * .7f || (population.PlayerSpeed > 2.5f && distance < 3f + timidity * 2.5f))
@@ -511,6 +546,8 @@ namespace WeatherHouse.Hillside
 
         public bool ReceiveStartle(WildlifeAlarm alarm, float now)
         {
+            if (Outgoing && alarm.source == null && population && population.player &&
+                (alarm.origin - population.player.position).sqrMagnitude < .01f) return false;
             if (alarm.source == this || (!string.IsNullOrEmpty(alarm.sourceSpecies) && alarm.sourceSpecies == speciesId)) return false;
             if (alarm.id <= lastAlarm || now > alarm.expiresAt || now < nextAlarm || alarm.intensity * timidity <= .12f || timidity <= .15f) return false;
             if ((transform.position - alarm.origin).sqrMagnitude > alarm.radius * alarm.radius) return false;
@@ -518,6 +555,7 @@ namespace WeatherHouse.Hillside
             AcceptedAlarmCount++;
             nextAlarm = now + random.Range(7f, 11f);
             threat = alarm.origin;
+            ReleaseAutonomousTarget(); IntentRevision++;
             landingApproach = false;
             solitary?.Interrupt(true); solitaryWasWorking = false;
             ReleasePartner();

@@ -36,6 +36,9 @@ namespace WeatherHouse.Hillside
         private readonly Collider[] overlapHits = new Collider[24];
         private readonly List<ExternalBody> externalBodies = new List<ExternalBody>();
         private float decisionClock, nextAmbientAlarm;
+        private float[] decisionDue;
+        private int decisionCursor;
+        public int LastDecisionCount { get; private set; }
         private Vector3 previousPlayerPosition;
 
         private sealed class Group
@@ -137,6 +140,8 @@ namespace WeatherHouse.Hillside
             for (int i = 0; i < agents.Length; i++)
                 if (agents[i] != null) agents[i].Initialize(this);
             Initialized = true;
+            decisionDue = new float[agents.Length]; decisionCursor = 0;
+            for (int i = 0; i < decisionDue.Length; i++) decisionDue[i] = Mathf.Max(.1f, decisionInterval) * i / Mathf.Max(1, agents.Length);
             RebuildSpatialIndex();
             PlayerCollision = WildlifePlayerCollision.Register(this);
         }
@@ -188,12 +193,19 @@ namespace WeatherHouse.Hillside
                 decisionClock = Mathf.Max(.1f, decisionInterval);
                 RebuildSpatialIndex();
                 LastNeighbourVisits = 0;
-                foreach (WildlifeAgent agent in agents)
-                {
-                    if (agent == null || !agent.isActiveAndEnabled) continue;
-                    FindNeighbours(agent, neighbours);
-                    agent.Think(SimulationTime, neighbours);
-                }
+            }
+            LastDecisionCount = 0;
+            if (decisionDue == null || decisionDue.Length != agents.Length) decisionDue = new float[agents.Length];
+            // A rotating cursor preserves fairness when a slow frame exhausts the shared CPU budget.
+            for (int visited = 0; visited < agents.Length; visited++)
+            {
+                int index = decisionCursor; decisionCursor = (decisionCursor + 1) % agents.Length;
+                WildlifeAgent agent = agents[index];
+                if (!agent || !agent.isActiveAndEnabled || SimulationTime < decisionDue[index]) continue;
+                if (!AnimalWorkBudget.TryTake()) { decisionCursor = index; break; }
+                decisionDue[index] = SimulationTime + Mathf.Max(.1f, decisionInterval);
+                FindNeighbours(agent, neighbours);
+                agent.Think(SimulationTime, neighbours); LastDecisionCount++;
             }
             foreach (WildlifeAgent agent in agents)
                 if (agent != null && agent.isActiveAndEnabled) agent.Move(dt, SimulationTime);

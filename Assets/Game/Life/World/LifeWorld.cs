@@ -62,6 +62,7 @@ namespace WeatherHouse.Life
         readonly List<WildlifeAgent> invited=new List<WildlifeAgent>();
         readonly List<Vector3> invitedTargets=new List<Vector3>();
         readonly Dictionary<WildlifeAgent,float> reactions=new Dictionary<WildlifeAgent,float>();
+        AnimalAutonomy autonomy;
         Transform Player => owner && owner.Gameplay?owner.Gameplay.PlayerTransform:null;
         public IReadOnlyList<LifeRequest> Requests=>requests;
         public IReadOnlyCollection<LifeObject> Objects=>objects.Values;
@@ -72,6 +73,7 @@ namespace WeatherHouse.Life
             if(owner)return;owner=session;requests=LifeContent.Build();
             CreateCoastalActors();BindActors();FindSceneContainers();BuildStations();BindRemainingContainers();BindGatheringPlants();
             secondary=FindObjectsOfType<WildlifeAgent>().Where(a=>a.isActiveAndEnabled && a.locomotion==WildlifeLocomotion.Ground && !a.GetComponent<LifeSpeaker>()).ToArray();
+            if(Application.isPlaying){autonomy=gameObject.AddComponent<AnimalAutonomy>();autonomy.Initialize(this,Player);}
         }
         public LifeSpeaker FindSpeaker(string key)=>!string.IsNullOrEmpty(key) && bindings.TryGetValue(key,out Binding b)?b.speaker:null;
         public Vector3 AnchorPosition(string id)
@@ -228,6 +230,7 @@ namespace WeatherHouse.Life
         public void ApplyWeather(Vector3 center,float radius,LocalWeather kind,int strength,bool active,float deltaTime)
         {
             if(!Player || Flat(center,Player.position)>.1f || radius<=0 || deltaTime<=0)return;
+            if(autonomy && kind!=LocalWeather.Wind)autonomy.Rain(center,radius,active && kind==LocalWeather.Rain && strength>=2);
             if(active && demonstrationKey!=null && kind==demonstrationKind)StopDemonstration();
             if(kind==LocalWeather.Wind)playerWindActive=active;else playerSkyActive=active;
             foreach(Accepted a in accepted.Values)
@@ -284,6 +287,7 @@ namespace WeatherHouse.Life
         }
         void ReactSecondary(Vector3 center,float radius,LocalWeather kind,int strength)
         {
+            if(autonomy && kind==LocalWeather.Rain)return;
             foreach(WildlifeAgent animal in secondary)
             {
                 if(!animal || !animal.isActiveAndEnabled || Flat(animal.transform.position,center)>radius || invited.Contains(animal))continue;

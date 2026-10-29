@@ -10,7 +10,7 @@ namespace WeatherHouse.Life
         bool TryLifeStation(Binding animal, out Vector3 target)
         {
             target = animal.target;
-            if (!animal.wildlife || animal.rest || animal.weatherRetreat || Flat(animal.target, animal.home) > .25f ||
+            if (animal.rest || animal.weatherRetreat || Flat(animal.target, animal.home) > .25f ||
                 drinks.Any(drink => drink.animal == animal) || demonstrationKey == animal.speaker.key)
                 return true;
             GameplayHud hud = owner.GetComponent<GameplayHud>();
