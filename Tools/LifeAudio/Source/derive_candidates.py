@@ -47,7 +47,7 @@ SPECS = [
  ("rain_loop", "rain_1_loop_candidate.ogg", 0.0, 27.0, -20, .15, 0, True, "A11 local rain loop"),
  ("wind_loop", "wind_woosh_loop.ogg", 0.0, None, -22, .15, 0, True, "A12 local wind loop"),
  ("outdoor_quiet_loop", "outdoor_cricket_augmentality.ogg", 0.0, None, -28, .25, 0, True, "B03 quiet outdoor insect ambience"),
- ("shore_soft_loop", "shore_transitking_wave02.flac", 0.0, None, -26, .25, 0, True, "B04 quiet shore waves"),
+ ("shore_soft_loop", "shore_jasinski_alkaibeach.flac", 0.0, None, -12, .6, 0, True, "B04 ocean surf from jasinski Alki Beach CC0"),
 ]
 selected = set(sys.argv[1:])
 if selected - {spec[0] for spec in SPECS}:

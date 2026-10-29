@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using WeatherHousePrototype;
 using WeatherHouse.Hillside;
+using WeatherHouse.WatersideV2;
 
 namespace WeatherHouse.Life
 {
@@ -18,6 +19,7 @@ namespace WeatherHouse.Life
         readonly Dictionary<LifeAudioCue, int> playCounts = new Dictionary<LifeAudioCue, int>();
         public int Count(LifeAudioCue cue) => playCounts.TryGetValue(cue, out int count) ? count : 0;
         readonly AudioSource[] sources = new AudioSource[SourceBudget];
+        readonly Vector3[] emissionPositions = new Vector3[SourceBudget];
         readonly float[] stopAt = new float[SourceBudget];
         readonly bool[] voiceSlot = new bool[SourceBudget];
         readonly Dictionary<LifeAudioCue, float> nextCue = new Dictionary<LifeAudioCue, float>();
@@ -82,7 +84,8 @@ namespace WeatherHouse.Life
                 var holder = new GameObject("Life audio " + names[i]); holder.transform.SetParent(transform, false);
                 AudioSource source = holder.AddComponent<AudioSource>(); sources[i] = source;
                 source.playOnAwake = false; source.dopplerLevel = 0; source.minDistance = 1; source.maxDistance = 9;
-                source.rolloffMode = AudioRolloffMode.Linear; source.spatialBlend = (i >= 3 && i <= 7) || i == 11 ? 1 : 0;
+                // Player footsteps stay audible with the distant overhead listener as well as the photo camera.
+                source.rolloffMode = AudioRolloffMode.Linear; source.spatialBlend = i >= 4 && i <= 7 ? 1 : 0;
                 source.priority = i >= 8 ? 200 : 80;
             }
             previousPosition = player.position; wasGrounded = IsGrounded();
@@ -124,7 +127,9 @@ namespace WeatherHouse.Life
         {
             if (!clip) return;
             AudioSource source = sources[slot]; source.Stop(); stopAt[slot] = 0;
-            source.transform.position = position; source.clip = clip; source.volume = volume; source.loop = loop; source.pitch = 1; source.Play(); PlayedCount++;
+            emissionPositions[slot] = position;
+            source.transform.position = position + (source.spatialBlend > 0 ? HearingOffset() : Vector3.zero);
+            source.clip = clip; source.volume = volume; source.loop = loop; source.pitch = 1; source.Play(); PlayedCount++;
             if (slot == 2) TraceStroke("source.play");
             if (slot == 3) FootstepCount++;
             voiceSlot[slot] = false;
@@ -133,10 +138,26 @@ namespace WeatherHouse.Life
         void Loop(int slot, LifeAudioCue cue, float amount, Vector3 position, float dt)
         {
             LifeAudioCatalog.Sound sound = Catalog.Find(cue); if (sound == null || sound.clips.Length == 0) return;
-            AudioSource source = sources[slot]; source.transform.position = position;
+            AudioSource source = sources[slot]; emissionPositions[slot] = position;
+            source.transform.position = position + (source.spatialBlend > 0 ? HearingOffset() : Vector3.zero);
             if (amount > .001f && !source.isPlaying) StartClip(slot, sound.clips[0], position, 0, true);
             source.volume = Mathf.MoveTowards(source.volume, sound.volume * amount, dt * .8f);
             if (amount <= .001f && source.volume <= .001f) Stop(slot);
+        }
+        // Keep the existing single camera listener and camera-relative stereo direction, but measure
+        // world sound distance from the player's ears. These sources are playback proxies, not scene objects.
+        Vector3 HearingOffset()
+        {
+            Camera camera = gameplay.CurrentView;
+            if (gameplay.walker && !gameplay.PhotoRig.Active && gameplay.walker.mapCamera && gameplay.walker.mapCamera.enabled)
+                camera = gameplay.walker.mapCamera;
+            return camera ? camera.transform.position - (player.position + Vector3.up * 1.2f) : Vector3.zero;
+        }
+        void LateUpdate()
+        {
+            if (!CanPlay) return;
+            Vector3 offset = HearingOffset();
+            for (int i = 4; i <= 7; i++) sources[i].transform.position = emissionPositions[i] + offset;
         }
         void Update()
         {
@@ -253,6 +274,8 @@ namespace WeatherHouse.Life
                     float radius = ring * 6f;
                     if (radius >= nearest) continue;
                     Vector3 point = player.position + new Vector3(Mathf.Cos(angle * Mathf.PI / 4), 0, Mathf.Sin(angle * Mathf.PI / 4)) * radius;
+                    // Ocean surf should not originate from inland ponds or rivers on the Waterside map.
+                    if (water is WatersideWaterSurface && WatersideLayout.SeaSignedDistance(point.x, point.z) > 0) continue;
                     if (!water.TryGetHeight(point, out float height) || Mathf.Abs(height - player.position.y) > 5) continue;
                     nearest = radius; point.y = height; shorePoint = point; shoreGain = 1 - nearest / 24f;
                 }
