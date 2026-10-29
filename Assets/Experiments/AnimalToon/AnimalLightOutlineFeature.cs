@@ -97,6 +97,10 @@ namespace WeatherHouse.AnimalToon
                 cmd.SetGlobalVector("_AnimalEdgeDirection", direction);
                 cmd.SetGlobalFloat("_AnimalEdgeEnergy", energy);
                 cmd.SetGlobalColor("_AnimalEdgeColor", settings.edgeColor.linear);
+                float lodStart = Mathf.Max(0, settings.outlineLodStart);
+                cmd.SetGlobalVector("_AnimalOutlineLod", new Vector4(lodStart,
+                    Mathf.Max(lodStart + .01f, settings.outlineLodEnd),
+                    Mathf.Clamp01(settings.outlineFarWidthScale), 0));
                 // Reads raw data and depth only, so it can blend directly into camera color.
                 CoreUtils.SetRenderTarget(cmd, renderer.cameraColorTargetHandle, renderer.cameraDepthTargetHandle);
                 Blitter.BlitTexture(cmd, raw, new Vector4(1, 1, 0, 0), material, 1);

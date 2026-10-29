@@ -9,6 +9,7 @@ Shader "Hidden/Weather House/Animal Paper Screen"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
         float4 _AnimalTexel;
+        float4 _AnimalOutlineLod;
         float2 _AnimalFilterAxis, _AnimalEdgeDirection;
         float _AnimalMergeRadius, _AnimalEdgeEnergy;
         half4 _AnimalEdgeColor;
@@ -67,6 +68,8 @@ Shader "Hidden/Weather House/Animal Paper Screen"
                     if (any(uv < 0) || any(uv > 1)) continue;
                     float4 sample = Data(uv);
                     float width = max(0, sample.a - 1) * _AnimalTexel.z;
+                    float lod = smoothstep(_AnimalOutlineLod.x, _AnimalOutlineLod.y, sample.b);
+                    width *= lerp(1, _AnimalOutlineLod.z, lod);
                     if (width < distance || sample.b > targetDepth + .015) continue;
                     // Directional dilation already selects the lit silhouette. Use the merged
                     // shadow field so subpixel self-shadow noise cannot stripe a wide edge.
