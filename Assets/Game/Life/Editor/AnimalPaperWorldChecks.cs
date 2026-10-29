@@ -32,13 +32,19 @@ namespace WeatherHouse.Life.Editor
                 for(int i=0;i<pair.Value.Length;i++)
                 {
                     var source=pair.Value[i];var material=pair.Key.sharedMaterials[i];if(!source||source.renderQueue>=3000)continue;
-                    Check(material.shader.name=="Weather House/Animals/Paper Toon"&&Mathf.Approximately(material.GetFloat("_OutlineWidth"),8f/3f)&&material.GetFloat("_ToonStrength")==1&&Mathf.Approximately(material.GetFloat("_BandSoftness"),.01f),"Approved animal style parameters must match.");
+                    bool butterfly=pair.Key.GetComponentInParent<WildlifeAgent>()?.speciesId=="butterfly";
+                    bool playerPart=pair.Key.transform.IsChildOf(game.forestSprite.transform);
+                    Check(material.GetFloat("_EnvironmentShadowsOnly")== (playerPart?0:1),"Only animals use environment-only shadows.");
+                    Check(material.shader.name=="Weather House/Animals/Paper Toon"&&Mathf.Approximately(material.GetFloat("_OutlineWidth"),butterfly?0:8f/3f)&&material.GetFloat("_ToonStrength")==1&&Mathf.Approximately(material.GetFloat("_BandSoftness"),.01f),"Approved animal style parameters must match.");
                     string map=source.HasProperty("_BaseMap")?"_BaseMap":"_MainTex";
                     if(source.HasProperty(map))Check(source.GetTexture(map)==material.GetTexture("_BaseMap"),"Original animal texture must be retained.");
                     if(source.HasProperty("_Cull"))Check(source.GetFloat("_Cull")==material.GetFloat("_Cull"),"Double-sided cape rendering must be retained.");
                 }
             }
             Check(game.forestSprite.GetComponentsInChildren<Renderer>(true).Any(originals.ContainsKey),"Player must share the approved paper rendering.");
+            Check(originals.Keys.Any(r=>r.GetComponentInParent<WildlifeAgent>()?.speciesId=="butterfly"),"Scene butterflies must be checked.");
+            AnimalShadowChecks.Run(game);
+            log.AppendLine("PASS butterflies have zero outline; animal-only shadow sampling; environment/ground pixel regression passed.");
             var player=game.PlayerTransform;var controller=player.GetComponent<CharacterController>();var start=player.position;
             var terrain=Object.FindObjectsOfType<Terrain>().First(t=>t.gameObject.scene==game.gameObject.scene);
             Camera playerView=null;
@@ -74,6 +80,13 @@ namespace WeatherHouse.Life.Editor
                     for(int n=0;n<4;n++)yield return null;
                     Check(rig.CaptureCamera.GetComponent<AnimalToonView>().mergeRadius==12,"Photo camera must use approved merge=12.");
                     StoneEngravingPlacementReview.Capture(rig.CaptureCamera,"PhotoStillReview/20261029/Animals/"+species+"-toon.png",1280,720);
+                    if(species=="deer")
+                    {
+                        var animalMaterials=styled.Values.SelectMany(m=>m).Distinct().Where(m=>m.HasProperty("_EnvironmentShadowsOnly")&&m.GetFloat("_EnvironmentShadowsOnly")>.5f).ToArray();
+                        foreach(var mat in animalMaterials)mat.SetFloat("_EnvironmentShadowsOnly",0);
+                        try{StoneEngravingPlacementReview.Capture(rig.CaptureCamera,"PhotoStillReview/20261029/Animals/deer-self-before.png",1280,720);}
+                        finally{foreach(var mat in animalMaterials)mat.SetFloat("_EnvironmentShadowsOnly",1);}
+                    }
                     // Same camera and same frame, temporarily restore the original materials for an attributable comparison.
                     foreach(var pair in originals)if(pair.Key)pair.Key.sharedMaterials=pair.Value;
                     var view=rig.CaptureCamera.GetComponent<AnimalToonView>();view.enabled=false;

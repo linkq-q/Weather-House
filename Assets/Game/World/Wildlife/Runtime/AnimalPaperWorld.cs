@@ -10,7 +10,7 @@ namespace WeatherHouse.Hillside
     // Runtime material copies keep imported animals and other scenes intact.
     public sealed class AnimalPaperWorld : MonoBehaviour
     {
-        readonly Dictionary<Material,Material> materials=new Dictionary<Material,Material>();
+        readonly Dictionary<(Material source,bool animal,bool outline),Material> materials=new Dictionary<(Material,bool,bool),Material>();
         readonly Dictionary<Renderer,Material[]> originals=new Dictionary<Renderer,Material[]>();
         readonly List<AnimalToonView> cameras=new List<AnimalToonView>();
         Material template;
@@ -30,12 +30,12 @@ namespace WeatherHouse.Hillside
         public void RefreshAnimals()
         {
             if(!template)return;
-            if(game&&game.forestSprite)Apply(game.forestSprite.transform);
-            foreach(var animal in FindObjectsOfType<WildlifeAgent>())Apply(animal.visualRoot);
-            foreach(var animal in FindObjectsOfType<AnimalActor>())Apply(animal.VisualRoot);
-            foreach(var herd in FindObjectsOfType<JourneyHerd>())foreach(var member in herd.members)Apply(member.visualRoot);
+            if(game&&game.forestSprite)Apply(game.forestSprite.transform,false,true);
+            foreach(var animal in FindObjectsOfType<WildlifeAgent>())Apply(animal.visualRoot,true,animal.speciesId!="butterfly");
+            foreach(var animal in FindObjectsOfType<AnimalActor>())Apply(animal.VisualRoot,true,true);
+            foreach(var herd in FindObjectsOfType<JourneyHerd>())foreach(var member in herd.members)Apply(member.visualRoot,true,true);
         }
-        void Apply(Transform root)
+        void Apply(Transform root,bool animal,bool outline)
         {
             if(!root)return;
             foreach(var renderer in root.GetComponentsInChildren<Renderer>(true))
@@ -45,14 +45,17 @@ namespace WeatherHouse.Hillside
                 for(int i=0;i<old.Length;i++)
                 {
                     var source=old[i];if(!source||source.renderQueue>=3000)continue;
-                    if(!materials.TryGetValue(source,out var toon))
+                    var key=(source,animal,outline);
+                    if(!materials.TryGetValue(key,out var toon))
                     {
                         toon=new Material(template){name=source.name+" · Paper (runtime)",enableInstancing=source.enableInstancing};
                         string map=source.HasProperty("_BaseMap")?"_BaseMap":"_MainTex";
                         if(source.HasProperty(map)){toon.SetTexture("_BaseMap",source.GetTexture(map));toon.SetTextureScale("_BaseMap",source.GetTextureScale(map));toon.SetTextureOffset("_BaseMap",source.GetTextureOffset(map));}
                         string color=source.HasProperty("_BaseColor")?"_BaseColor":"_Color";if(source.HasProperty(color))toon.SetColor("_BaseColor",source.GetColor(color));
                         if(source.HasProperty("_Cull"))toon.SetFloat("_Cull",source.GetFloat("_Cull"));
-                        materials.Add(source,toon);
+                        toon.SetFloat("_EnvironmentShadowsOnly",animal?1:0);
+                        if(!outline)toon.SetFloat("_OutlineWidth",0);
+                        materials.Add(key,toon);
                     }
                     next[i]=toon;changed=true;
                 }

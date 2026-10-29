@@ -11,6 +11,7 @@ Shader "Weather House/Animals/Paper Toon"
         _AmbientStrength("Ambient Fill", Range(0,2)) = 0.7
         _LightStrength("Direct Light", Range(0,2)) = 0.7
         _ShadowFloor("Deep Shadow Light Floor", Range(0,0.3)) = 0
+        [Toggle] _EnvironmentShadowsOnly("Environment Shadows Only", Float) = 0
         _OutlineWidth("Light Edge Width at 1080p", Range(0,16)) = 1.8
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
     }
@@ -27,7 +28,7 @@ Shader "Weather House/Animals/Paper Toon"
             half4 _BaseColor, _ShadeColor;
             half _ShadeThreshold, _BandSoftness, _ToonStrength, _AmbientStrength, _LightStrength;
             half _OutlineWidth;
-            half _ShadowFloor;
+            half _ShadowFloor, _EnvironmentShadowsOnly;
         CBUFFER_END
         struct Attributes
         {
@@ -61,12 +62,32 @@ Shader "Weather House/Animals/Paper Toon"
         }
         TEXTURE2D_X(_AnimalMerged);
         float _AnimalMergeRadius;
+        TEXTURE2D_SHADOW(_AnimalEnvironmentShadowmap);
+        float _AnimalEnvironmentShadowReady, _AnimalEnvironmentShadowPass;
+        Light PaperMainLight(float3 positionWS)
+        {
+            Light key = GetMainLight(TransformWorldToShadowCoord(positionWS));
+            #if defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+            if (_EnvironmentShadowsOnly > .5 && _AnimalEnvironmentShadowReady > .5)
+            {
+                #if defined(_MAIN_LIGHT_SHADOWS_CASCADE)
+                    half cascade = ComputeCascadeIndex(positionWS);
+                #else
+                    half cascade = 0;
+                #endif
+                float4 coord = float4(mul(_MainLightWorldToShadow[cascade],float4(positionWS,1)).xyz,0);
+                key.shadowAttenuation = SampleShadowmap(TEXTURE2D_ARGS(_AnimalEnvironmentShadowmap,sampler_LinearClampCompare),
+                    coord,GetMainLightShadowSamplingData(),GetMainLightShadowParams(),false);
+            }
+            #endif
+            return key;
+        }
         half4 PaperShade(Varyings input, bool merged) : SV_Target
         {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 half3 n = normalize(input.normalWS);
-                Light key = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
+                Light key = PaperMainLight(input.positionWS);
                 half form = saturate(dot(n,key.direction)*0.5h+0.5h);
                 if (merged)
                 {
@@ -134,7 +155,7 @@ Shader "Weather House/Animals/Paper Toon"
                     sceneEye = lerp(_ProjectionParams.y, _ProjectionParams.z, raw);
                 }
                 clip(sceneEye + .015 - eye);
-                Light key = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
+                Light key = PaperMainLight(input.positionWS);
                 float form = saturate(dot(normalize(input.normalWS), key.direction) * .5 + .5);
                 return float4(form, key.shadowAttenuation, eye, 1 + _OutlineWidth);
             }
@@ -163,9 +184,15 @@ Shader "Weather House/Animals/Paper Toon"
             ColorMask 0
             HLSLPROGRAM
             #pragma vertex ShadowVert
-            #pragma fragment DepthFrag
+            #pragma fragment ShadowFrag
             #pragma multi_compile_instancing
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            half4 ShadowFrag(Varyings input) : SV_Target
+            {
+                // The ordinary atlas still contains animals for ground and other receivers.
+                clip(.5 - _AnimalEnvironmentShadowPass * _EnvironmentShadowsOnly);
+                return 0;
+            }
             float3 _LightDirection, _LightPosition;
             Varyings ShadowVert(Attributes input)
             {

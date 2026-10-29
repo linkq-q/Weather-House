@@ -11,25 +11,29 @@ namespace WeatherHouse.AnimalToon
         [SerializeField] Shader screenShader;
         Material material;
         PaperPass pass;
+        AnimalEnvironmentShadowPass environmentShadows;
         public override void Create()
         {
             pass?.Dispose();
+            environmentShadows?.Dispose();
             CoreUtils.Destroy(material);
             if (!screenShader) screenShader = Shader.Find("Hidden/Weather House/Animal Paper Screen");
             if (screenShader) material = CoreUtils.CreateEngineMaterial(screenShader);
             pass = new PaperPass(material);
+            environmentShadows = new AnimalEnvironmentShadowPass();
         }
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData data)
         {
             if (material && data.cameraData.camera.TryGetComponent<AnimalToonView>(out var settings) && settings.isActiveAndEnabled)
             {
+                if(environmentShadows.Setup(ref data))renderer.EnqueuePass(environmentShadows);
                 pass.settings = settings;
                 renderer.EnqueuePass(pass);
             }
         }
         protected override void Dispose(bool disposing)
         {
-            pass?.Dispose(); CoreUtils.Destroy(material);
+            pass?.Dispose(); environmentShadows?.Dispose(); CoreUtils.Destroy(material);
         }
 
         sealed class PaperPass : ScriptableRenderPass
