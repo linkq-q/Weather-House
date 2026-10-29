@@ -23,17 +23,59 @@ namespace WeatherHouse.DrawerPrototype
             material.SetFloat("_Smoothness",.22f); return material;
         }
 
-        void BuildTableAndPlants()
+        void BuildMeadow()
         {
-            var under = Paint("Dark wood joints",new Color(.24f,.20f,.15f));
-            Box(transform,"Table solid support",new Vector3(0,-.25f,0),new Vector3(18,.3f,11),under);
-            for (int i = 0; i < 8; i++)
+            if (!meadowGround || !meadowLayer || meadowVariants == null || meadowVariants.Length != 12 || meadowMaterials == null || meadowMaterials.Length != 3)
+                throw new System.InvalidOperationException("Rebuild the drawer scene to bind the existing Waterside meadow assets.");
+            var data = new TerrainData { name = "Drawer meadow ground",heightmapResolution = 33,alphamapResolution = 32,size = new Vector3(24,1,18) };
+            generated.Add(data); data.terrainLayers = new[] { meadowLayer };
+            data.SetHeights(0,0,new float[33,33]);
+            var weights = new float[32,32,1];
+            for (int z = 0; z < 32; z++) for (int x = 0; x < 32; x++) weights[z,x,0] = 1;
+            data.SetAlphamaps(0,0,weights);
+            GameObject ground = Terrain.CreateTerrainGameObject(data); ground.name = "Existing Waterside meadow · isolated patch";
+            ground.transform.SetParent(transform,false); ground.transform.position = new Vector3(-12,-.06f,-9);
+            var terrain = ground.GetComponent<Terrain>(); terrain.drawInstanced = true; terrain.materialTemplate = meadowGround;
+            terrain.basemapDistance = 100; terrain.heightmapPixelError = 2;
+            var mask = new Texture2D(128,128,TextureFormat.RGBA32,false,true) { name = "Grass excluded beneath drawer",wrapMode = TextureWrapMode.Clamp };
+            generated.Add(mask); var coverage = new Color[128*128];
+            for (int z = 0; z < 128; z++) for (int x = 0; x < 128; x++)
             {
-                float tint = 1+(i%3-1)*.025f;
-                var board = WoodMaterial("Table plank "+i,new Color(.86f*tint,.86f*tint,.81f*tint),new Rect(i*.17f,i*.13f,1.8f,.20f));
-                BevelBox(transform,"Solid oak tabletop board",new Vector3(0,-.10f,-4.64f+i*1.32f),new Vector3(18,.20f,1.30f),.03f,.018f,board);
+                float wx = -12+x/127f*24, wz = -9+z/127f*18;
+                float dx = Mathf.Max(InnerLeft-wx,wx-InnerRight,0);
+                float dz = Mathf.Max(InnerBottom-wz,wz-InnerTop,0);
+                float distance = Mathf.Sqrt(dx*dx+dz*dz);
+                float amount = Mathf.SmoothStep(0,1,Mathf.InverseLerp(.22f,.32f,distance));
+                // The existing trampled-grass channel keeps long windblown blades out of the drawer.
+                float wear = 1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.25f,.80f,distance));
+                coverage[z*128+x] = new Color(amount,0,wear,1);
             }
-            BuildBranchFoliage();
+            mask.SetPixels(coverage); mask.Apply();
+            Meadow = ground.AddComponent<WeatherHouse.Hillside.HillsideGrassRenderer>();
+            Meadow.terrain = terrain; Meadow.variants = meadowVariants; Meadow.materials = meadowMaterials;
+            Meadow.seed = 431; Meadow.clumpsPerSquareMeter = 28.011204f; Meadow.speciesWeights = new[] { 78f,6f,.8f };
+            Meadow.placementMap = mask; Meadow.viewCamera = ViewCamera;
+        }
+
+        void BuildPaperFeedback()
+        {
+            paperHighlight = new Material(Shader.Find("Weather House/Drawer Envelope Highlight")); generated.Add(paperHighlight);
+            var outline = new GameObject("Paper selection breathing edge"); outline.transform.SetParent(transform,false);
+            PaperOutline = outline.AddComponent<LineRenderer>(); PaperOutline.useWorldSpace = false;
+            PaperOutline.loop = true; PaperOutline.widthMultiplier = .085f; PaperOutline.numCornerVertices = 4;
+            PaperOutline.sharedMaterial = paperHighlight; PaperOutline.shadowCastingMode = ShadowCastingMode.Off;
+            PaperOutline.receiveShadows = false; outline.SetActive(false);
+        }
+
+        void ShowPaperFeedback(DrawerToken paper)
+        {
+            if (!PaperOutline) return;
+            PaperOutline.gameObject.SetActive(paper);
+            if (!paper) { PaperOutline.transform.SetParent(transform,false); return; }
+            PaperOutline.transform.SetParent(paper.transform,false); PaperOutline.transform.localPosition = Vector3.zero;
+            float x = paper.dimensions.x*.5f, z = paper.dimensions.z*.5f;
+            PaperOutline.positionCount = 4;
+            PaperOutline.SetPositions(new[] { new Vector3(-x,.055f,-z),new Vector3(-x,.055f,z),new Vector3(x,.055f,z),new Vector3(x,.055f,-z) });
         }
 
         void EnvelopeDecoration(Transform parent, float x, float z, float tip)

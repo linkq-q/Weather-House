@@ -19,16 +19,23 @@ namespace WeatherHouse.DrawerPrototype
         public bool Busy => busy;
         public bool Automation { get; set; }
         public bool Dragging => dragging;
+        public LineRenderer PaperOutline { get; private set; }
         public string SavePath { get; private set; }
         public string SaveError { get; private set; }
         public RectTransform CloseTarget => closeTarget;
         [Header("Scene materials and plants · existing game assets")]
         public Texture2D timberAlbedo, paperGrain, paperNormal;
+        [Header("Existing Waterside meadow assets")]
+        public Mesh[] meadowVariants;
+        public Material[] meadowMaterials;
+        public Material meadowGround;
+        public TerrainLayer meadowLayer;
+        public WeatherHouse.Hillside.HillsideGrassRenderer Meadow { get; private set; }
         [Header("Live lighting · adjust during Play")]
-        [Range(.2f,2f)] public float sunlight = 1.05f;
-        [Range(25,85)] public float sunElevation = 55;
+        [Range(.2f,2f)] public float sunlight = 1.08f;
+        [Range(25,85)] public float sunElevation = 60;
         [Range(-180,180)] public float sunAzimuth = -38;
-        [Range(0,1)] public float shadowStrength = .55f;
+        [Range(0,1)] public float shadowStrength = .58f;
         public Color sunlightColor = new Color(1f,.98f,.93f);
         public Color ambientColor = new Color(.65f,.60f,.52f);
         Light drawerSun;
@@ -63,6 +70,8 @@ namespace WeatherHouse.DrawerPrototype
         DrawerToken pressed, dragging, selected;
         Vector2 pressScreen;
         Vector3 dragOffset, dragTarget;
+        Quaternion dragRotation;
+        Material paperHighlight;
         float pressTime, dragHeight;
         bool busy, readOnly;
         GameObject magic;
@@ -85,6 +94,7 @@ namespace WeatherHouse.DrawerPrototype
             BuildPapers();
             BuildInterface();
             BuildMagic();
+            BuildPaperFeedback();
             sound = gameObject.AddComponent<AudioSource>();
             sound.playOnAwake = false; sound.spatialBlend = 0; sound.volume = .42f;
             paperSound = Resources.Load<AudioClip>("LifeAudio/Clips/paper_move");
@@ -148,7 +158,7 @@ namespace WeatherHouse.DrawerPrototype
         {
             var cameraObject = new GameObject("Drawer · vertical orthographic camera");
             cameraObject.transform.SetParent(transform);
-            cameraObject.transform.position = new Vector3(0, 20, 0);
+            cameraObject.transform.position = DrawerCenter+Vector3.up*20;
             cameraObject.transform.rotation = Quaternion.Euler(90, 0, 0);
             ViewCamera = cameraObject.AddComponent<Camera>();
             ViewCamera.orthographic = true; ViewCamera.orthographicSize = 4.5f;
@@ -165,9 +175,7 @@ namespace WeatherHouse.DrawerPrototype
             drawerSun.shadows = LightShadows.Soft; drawerSun.shadowBias = .025f; drawerSun.shadowNormalBias = .025f;
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.skybox = null; ApplyLighting();
-            BuildTableAndPlants();
-            var floor = new GameObject("Table collision"); floor.transform.SetParent(transform); floor.transform.position = new Vector3(0,-.18f,0);
-            floor.AddComponent<BoxCollider>().size = new Vector3(24,.24f,16);
+            BuildMeadow();
             BuildDrawer(timberAlbedo);
         }
 
@@ -413,6 +421,8 @@ namespace WeatherHouse.DrawerPrototype
                 if (Input.GetKeyDown(KeyCode.Escape) && selected && !busy) CloseItem();
             }
             for (int i = 0; i < stars.Count; i++) stars[i].localScale = Vector3.one*(.82f+.15f*Mathf.Sin(Time.unscaledTime*3+i*2));
+            if (PaperOutline && PaperOutline.gameObject.activeSelf)
+                paperHighlight.SetColor("_Color",new Color(1.4f,1.05f,.32f,.55f+.25f*Mathf.Sin(Time.unscaledTime*4)));
         }
 
         public void Pointer(Vector2 screen, bool down, bool held, bool up)
@@ -427,14 +437,17 @@ namespace WeatherHouse.DrawerPrototype
             {
                 pressed = Hit(screen); pressScreen = screen; pressTime = Time.unscaledTime;
                 if (pressed && pressed.IsPaper) dragOffset = pressed.transform.position - FloorPoint(screen,pressed.transform.position.y);
+                ShowPaperFeedback(pressed && pressed.IsPaper ? pressed : null);
             }
-            if (held && pressed && pressed.IsPaper && Time.unscaledTime-pressTime >= .18f)
+            if (held && pressed && pressed.IsPaper && Time.unscaledTime-pressTime >= .12f)
             {
                 if (!dragging)
                 {
-                    dragging = pressed; dragHeight = Mathf.Clamp(dragging.body.position.y+.008f,.115f,1.0f);
+                    dragging = pressed; dragHeight = Mathf.Clamp(dragging.body.position.y+.035f,.145f,1.2f);
+                    dragRotation = Quaternion.Euler(0,dragging.body.rotation.eulerAngles.y,0);
+                    dragging.body.velocity = Vector3.zero; dragging.body.angularVelocity = Vector3.zero;
                     dragging.body.useGravity = false;
-                    dragging.body.constraints = RigidbodyConstraints.FreezeRotationY;
+                    dragging.body.isKinematic = true;
                     if (paperSound) sound.PlayOneShot(paperSound,.65f); hint.gameObject.SetActive(false);
                 }
                 dragTarget = FloorPoint(screen,dragHeight)+new Vector3(dragOffset.x,0,dragOffset.z);
@@ -445,18 +458,17 @@ namespace WeatherHouse.DrawerPrototype
                 if (dragging) ReleasePaper();
                 else if (pressed && !pressed.IsPaper && Hit(screen) == pressed && Vector2.Distance(pressScreen,screen) < 20 && CanPickup(pressed)) OpenItem(pressed);
                 pressed = null;
+                ShowPaperFeedback(null);
             }
         }
 
         void FixedUpdate()
         {
-            // Dynamic bodies stay in the solver, so moving one letter transfers force to its neighbours.
+            // A held letter follows the hand; kinematic contact still pushes the surrounding dynamic letters.
             if (dragging)
             {
-                Vector3 delta = dragTarget-dragging.body.position;
-                Vector3 acceleration = Vector3.ClampMagnitude(delta*200-dragging.body.velocity*24,220);
-                dragging.body.AddForce(acceleration,ForceMode.Acceleration);
-                dragging.body.AddTorque(Vector3.Cross(dragging.transform.up,Vector3.up)*24-dragging.body.angularVelocity*5,ForceMode.Acceleration);
+                dragging.body.MovePosition(dragTarget);
+                dragging.body.MoveRotation(Quaternion.Slerp(dragging.body.rotation,dragRotation,.35f));
             }
             foreach (DrawerToken paper in Papers)
             {
@@ -472,12 +484,13 @@ namespace WeatherHouse.DrawerPrototype
 
         void ReleasePaper()
         {
-            dragging.body.useGravity = true; dragging.body.constraints = RigidbodyConstraints.None;
-            dragging.body.velocity = Vector3.ClampMagnitude(dragging.body.velocity,2); dragging = null;
+            Vector3 releaseVelocity = dragging.body.velocity;
+            dragging.body.isKinematic = false; dragging.body.useGravity = true; dragging.body.constraints = RigidbodyConstraints.None;
+            dragging.body.velocity = Vector3.ClampMagnitude(releaseVelocity,1.2f); dragging = null;
             if (paperSound) sound.PlayOneShot(paperSound,.25f);
         }
 
-        void OnApplicationFocus(bool focus) { if (!focus) { if (dragging) ReleasePaper(); pressed = null; } }
+        void OnApplicationFocus(bool focus) { if (!focus) { if (dragging) ReleasePaper(); pressed = null; ShowPaperFeedback(null); } }
 
         public DrawerToken Hit(Vector2 screen)
         {
@@ -533,7 +546,7 @@ namespace WeatherHouse.DrawerPrototype
 
         IEnumerator Present(DrawerToken item)
         {
-            Vector3 target = new Vector3(-.18f,2.0f,.65f);
+            Vector3 target = DrawerCenter+new Vector3(0,2.0f,.42f);
             magic.transform.position = new Vector3(target.x,1.4f,target.z); magic.SetActive(true);
             float factor = item.item == 3 ? 1.05f : item.item == 2 ? 1.55f : 1.5f;
             yield return Tween(item,target,Quaternion.Euler(-28,-10,7),Vector3.one*factor,.38f);

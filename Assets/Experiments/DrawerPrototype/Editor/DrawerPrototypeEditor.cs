@@ -88,6 +88,17 @@ namespace WeatherHouse.DrawerPrototype.Editor
                 controller.timberAlbedo = AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"/Resources/DrawerPrototype/Oak.png");
                 controller.paperGrain = AssetDatabase.LoadAssetAtPath<Texture2D>(paper+"PaperAged.png");
                 controller.paperNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(paper+"PaperAged_Normal.png");
+                const string nature = "Assets/Game/World/WatersideV2/Generated/";
+                controller.meadowGround = AssetDatabase.LoadAssetAtPath<Material>(nature+"Waterside Terrain.mat");
+                controller.meadowLayer = AssetDatabase.LoadAssetAtPath<TerrainLayer>(nature+"Meadow.terrainlayer");
+                controller.meadowVariants = new Mesh[12]; controller.meadowMaterials = new Material[3];
+                string[] species = { "ShortGrass","TallGrass","WhiteDaisy" };
+                for (int i = 0; i < species.Length; i++)
+                {
+                    controller.meadowMaterials[i] = AssetDatabase.LoadAssetAtPath<Material>(nature+"Nature/"+species[i]+".mat");
+                    for (int v = 0; v < 4; v++) controller.meadowVariants[i*4+v] = AssetDatabase.LoadAssetAtPath<Mesh>(nature+"Nature/"+species[i]+v+".asset");
+                }
+                Require(controller.meadowGround && controller.meadowLayer && controller.meadowVariants.All(m => m) && controller.meadowMaterials.All(m => m),"Existing Waterside meadow assets must all be present.");
                 Require(EditorSceneManager.SaveScene(prototype,ScenePath),"Could not save the independent drawer scene.");
             }
             finally
@@ -262,6 +273,10 @@ namespace WeatherHouse.DrawerPrototype.Editor
             string directory = SessionState.GetString(Key+".checkDirectory","");
             var checks = new List<string>();
             Require(c.ViewCamera.orthographic && Vector3.Dot(c.ViewCamera.transform.forward,Vector3.down) > .9999f,"Camera must be completely vertical orthographic."); checks.Add("Vertical orthographic camera");
+            Vector3 midpoint = c.ViewCamera.WorldToViewportPoint(DrawerPrototypeController.DrawerCenter);
+            Require(Mathf.Abs(midpoint.x-.5f) < .001f && Mathf.Abs(midpoint.y-.5f) < .001f,"Drawer must have symmetric left/right and top/bottom margins.");
+            Require(c.Meadow && c.Meadow.VisibleClumpCount > 100 && c.FoliageModels.Count == 0,"Existing meadow must render around the drawer without the old decorative branches.");
+            checks.Add("Centered drawer and original Waterside grass rendering");
             Require(c.Papers.Count == 26 && c.Items.Length == 5,"Expected 26 movable envelopes and five distinct props.");
             Require(c.Papers.All(p => p.body && p.hitBox && !p.body.isKinematic),"Letters need actual dynamic rigidbodies."); checks.Add("26 physical envelopes and 5 modeled props");
             yield return Capture(Path.Combine(directory,"01-initial.png"));
@@ -273,6 +288,10 @@ namespace WeatherHouse.DrawerPrototype.Editor
             Vector2 click = c.ViewCamera.WorldToScreenPoint(c.VisiblePoint(top));
             c.Pointer(click,true,true,false); yield return null; c.Pointer(click,false,false,true);
             Require(!c.Dragging && c.Progress.Count == 0,"A short paper click cannot drag or collect a hidden item."); checks.Add("Short press does not drag or collect through paper");
+            c.Pointer(click,true,true,false); yield return new WaitForSeconds(.14f); c.Pointer(click,false,true,false);
+            yield return new WaitForFixedUpdate();
+            yield return Capture(Path.Combine(directory,"01b-grab-highlight.png"));
+            c.Pointer(click,false,false,true); yield return new WaitForSeconds(.3f);
             Vector3 before = top.transform.position;
             yield return Drag(c,top,new Vector3(-8.5f,0,4.5f));
             Require(Vector3.Distance(before,top.transform.position) > .8f && !top.body.isKinematic,"A held paper moves and resumes physical gravity on release."); checks.Add("Long press, lifting, dragging and dynamic release");
@@ -336,6 +355,13 @@ namespace WeatherHouse.DrawerPrototype.Editor
             foreach (var p in new[] { first,second })
             { p.body.rotation = Quaternion.identity; p.hitBox.enabled = true; p.body.isKinematic = false; }
             Physics.SyncTransforms(); yield return new WaitForSeconds(.5f);
+            second.hitBox.enabled = false; second.body.isKinematic = true;
+            yield return CheckGrabTracking(c,first);
+            first.body.position = new Vector3(-2,.16f,0); first.body.rotation = Quaternion.identity;
+            first.body.velocity = Vector3.zero; first.body.angularVelocity = Vector3.zero;
+            second.body.position = new Vector3(.38f,.16f,0); second.body.rotation = Quaternion.identity;
+            second.hitBox.enabled = true; second.body.isKinematic = false;
+            Physics.SyncTransforms(); yield return new WaitForSeconds(.2f);
             Vector3 before = second.body.position;
             yield return Drag(c,first,new Vector3(1.0f,0,0));
             Require(second.body.position.x > before.x+.15f,"Dragged envelope must push its neighbour through physics contact.");
@@ -350,22 +376,49 @@ namespace WeatherHouse.DrawerPrototype.Editor
             Physics.SyncTransforms(); yield return new WaitForSeconds(.8f);
         }
 
+        static IEnumerator CheckGrabTracking(DrawerPrototypeController c, DrawerToken paper)
+        {
+            Vector2 from = c.ViewCamera.WorldToScreenPoint(paper.body.position);
+            Vector2 to = c.ViewCamera.WorldToScreenPoint(paper.body.position+Vector3.right*1.2f);
+            c.Pointer(from,true,true,false);
+            Require(c.PaperOutline.gameObject.activeSelf && c.PaperOutline.transform.parent == paper.transform,"Pressed envelope must immediately show its own edge feedback.");
+            yield return new WaitForSeconds(.23f);
+            float worst = 0;
+            for (int i = 1; i <= 24; i++)
+            {
+                Vector2 pointer = Vector2.Lerp(from,to,i/24f);
+                c.Pointer(pointer,false,true,false); yield return new WaitForFixedUpdate();
+                worst = Mathf.Max(worst,Vector2.Distance(pointer,c.ViewCamera.WorldToScreenPoint(paper.transform.position)));
+            }
+            c.Pointer(to,false,true,false);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); yield return null;
+            float stopped = Vector2.Distance(to,c.ViewCamera.WorldToScreenPoint(paper.transform.position));
+            c.Pointer(to,false,false,true);
+            Require(!c.PaperOutline.gameObject.activeSelf,"Releasing the envelope must clear its selected edge.");
+            File.WriteAllText(Review+"/grab-tracking.txt",DateTime.UtcNow.ToString("O")+"\nMovingErrorPixels="+worst+"\nStoppedErrorPixels="+stopped);
+            Require(worst < 14 && stopped < 6,"A grabbed letter must track the pointer without spring lag: moving="+worst+"px, stopped="+stopped+"px.");
+        }
+
         static IEnumerator ReviewModels(DrawerPrototypeController c)
         {
             yield return new WaitForSeconds(2.8f); c.Automation = true;
             foreach (var item in c.Papers.Concat(c.Items)) item.body.isKinematic = true;
             yield return Capture(Path.GetFullPath(Review+"/latest-drawer.png"));
-            var foliageRotation = c.FoliageModels.Select(p => p.transform.rotation).ToArray();
+            var top = c.Papers.Last(p => c.TopAt(p.transform.position) == p);
+            Vector2 heldPoint = c.ViewCamera.WorldToScreenPoint(c.VisiblePoint(top));
+            c.Pointer(heldPoint,true,true,false);
+            yield return Capture(Path.GetFullPath(Review+"/grab-feedback.png"));
+            yield return new WaitForSeconds(.4f);
+            yield return Capture(Path.GetFullPath(Review+"/grab-feedback-pulse.png"));
+            c.Pointer(heldPoint,false,false,true);
             yield return new WaitForSeconds(1.0f);
             yield return Capture(Path.GetFullPath(Review+"/wind-next-frame.png"));
-            Require(c.FoliageModels.Where((p,i) => Quaternion.Angle(foliageRotation[i],p.transform.rotation) > .01f).Any(),"Live foliage must move between captured frames.");
             float azimuth = c.sunAzimuth; c.sunAzimuth += 35;
             yield return null; yield return Capture(Path.GetFullPath(Review+"/lighting-adjusted.png"));
             c.sunAzimuth = azimuth;
-            Require(c.FoliageModels.Count == 4 && c.FoliageModels.All(p => p.GetComponent<DrawerFoliageSway>()),"Three modeled branches and a grass sprig need live sway.");
-            foreach (var leaf in c.FoliageModels.SelectMany(p => p.GetComponentsInChildren<MeshFilter>()))
-                Require(leaf.sharedMesh.vertices.All(v => !float.IsNaN(v.x) && !float.IsNaN(v.y) && !float.IsNaN(v.z) && !float.IsInfinity(v.sqrMagnitude)),"Foliage vertices must be finite: "+leaf.name);
-            File.WriteAllText(Review+"/plant-bounds.txt",string.Join("\n",c.FoliageModels.Select(p => p.name+" meshes="+p.GetComponentsInChildren<MeshFilter>().Length+" sway="+p.GetComponent<DrawerFoliageSway>().strength)));
+            Require(c.Meadow && c.Meadow.VisibleClumpCount > 100 && c.FoliageModels.Count == 0,"Original meadow must replace the tabletop and decorative branches.");
+            Require(c.meadowMaterials.All(m => m.GetFloat("_WindStrength") > 0),"Grass keeps the existing wind shader settings.");
+            File.WriteAllText(Review+"/meadow-checks.txt","Visible grass clumps="+c.Meadow.VisibleClumpCount+"\n"+string.Join("\n",c.meadowMaterials.Select(AssetDatabase.GetAssetPath)));
             foreach (var p in c.Papers) p.gameObject.SetActive(false);
             c.Items[4].gameObject.SetActive(false);
             Vector3[] locations = { new Vector3(-3,1,1.45f),new Vector3(-.4f,1,1.45f),new Vector3(-2.0f,1,-1.35f),new Vector3(1.1f,1,-1.1f) };
@@ -377,15 +430,15 @@ namespace WeatherHouse.DrawerPrototype.Editor
             c.AlbumModel.SetActive(true); c.AlbumModel.transform.SetPositionAndRotation(new Vector3(2.1f,1,1.45f),Quaternion.Euler(-18,-7,5));
             yield return new WaitForSeconds(.4f);
             yield return Capture(Path.GetFullPath(Review+"/model-review.png"));
-            File.WriteAllText(Review+"/visual-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: foliage mesh vertices finite; branch transforms move between captures; initial, changed-light and prop-display frames captured in Unity. Visual approval remains with the user.");
+            File.WriteAllText(Review+"/visual-checks.txt",DateTime.UtcNow.ToString("O")+"\nPASS: original Waterside meadow renders with its existing wind materials; initial, changed-light and prop-display frames captured in Unity. Visual approval remains with the user.");
         }
 
         static void ExportModels(DrawerPrototypeController c)
         {
             Require(c && EditorApplication.isPlaying,"Model export requires the independent drawer Play scene.");
             string directory = Root+"/Models"; Directory.CreateDirectory(directory);
-            GameObject[] sources = { c.Items[0].gameObject,c.Items[1].gameObject,c.AlbumModel,c.Items[2].gameObject,c.Items[3].gameObject,c.FoliageModels[0],c.FoliageModels[3] };
-            string[] names = { "MagicBook","Dictionary","AlbumTaskBook","Camera","Wand","LeafBranch","GrassSprig" };
+            GameObject[] sources = { c.Items[0].gameObject,c.Items[1].gameObject,c.AlbumModel,c.Items[2].gameObject,c.Items[3].gameObject };
+            string[] names = { "MagicBook","Dictionary","AlbumTaskBook","Camera","Wand" };
             for (int i = 0; i < sources.Length; i++)
             {
                 string assetPath = directory+"/"+names[i]+"Parts.asset";
@@ -423,7 +476,7 @@ namespace WeatherHouse.DrawerPrototype.Editor
                 }
                 finally { UnityEngine.Object.DestroyImmediate(copy); }
             }
-            File.WriteAllText(Review+"/model-export.txt","Exported seven standalone visual prefabs: three books, camera, wand, leafy branch, grass sprig. AlbumTaskBook is not a drawer collectible.");
+            File.WriteAllText(Review+"/model-export.txt","Exported five standalone visual prefabs: three books, camera and wand. AlbumTaskBook is not a drawer collectible.");
         }
 
         static IEnumerator RunResume(DrawerPrototypeController c)

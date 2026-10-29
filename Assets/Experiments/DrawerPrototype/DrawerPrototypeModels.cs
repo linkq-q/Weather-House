@@ -7,6 +7,7 @@ namespace WeatherHouse.DrawerPrototype
     public sealed partial class DrawerPrototypeController
     {
         public const float InnerLeft = -5.05f, InnerRight = 4.4f, InnerBottom = -2.85f, InnerTop = 3.3f;
+        public static Vector3 DrawerCenter => new Vector3((InnerLeft+InnerRight)*.5f,0,(InnerBottom+InnerTop)*.5f);
         public GameObject AlbumModel { get; private set; }
         Material wax, waxInset;
 
