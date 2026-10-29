@@ -11,7 +11,7 @@ Shader "Weather House/Life/Journal Surface"
         _ShadeStrength ("Soft directional shading", Range(0,1)) = 0.30
         _MinimumShade ("Readability floor", Range(0,1)) = 0.80
         _FoldOcclusion ("Binding fold occlusion", Range(0,1)) = 0
-        _PhotoSheen ("Satin photo sheen", Range(0,1)) = 0.24
+        _PhotoSheen ("Illustrated photo coating", Range(0,1)) = 0.09
     }
     SubShader
     {
@@ -92,13 +92,17 @@ Shader "Weather House/Life/Journal Surface"
                 color *= max(_MinimumShade, shade * ao) * fold;
                 half3 view = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 reflected = reflect(-view, normal);
-                // A broad fixed studio window; only the page normal/view moves the reflection.
-                float window = photoUv.x + photoUv.y * .45 - .82 + reflected.x * .9 + reflected.z * .35;
-                half broad = exp2(-window * window * 32);
+                // A tapered, softly broken paint stroke keeps the coating in the book's illustrated style.
+                // Paper-space edges remain stable; only the page normal/view shifts the light.
+                float stroke = photoUv.x + photoUv.y * .34 - .48 + reflected.x * .72 + reflected.z * .20;
+                float edge = sin(photoUv.y * 23 + photoUv.x * 7) * .006
+                    + sin(photoUv.y * 47 - photoUv.x * 11) * .003;
+                half taper = smoothstep(.10, .30, photoUv.y) * (1 - smoothstep(.77, .94, photoUv.y));
+                half glaze = (1 - smoothstep(.035, .10, abs(stroke + edge))) * taper;
                 half facing = pow(saturate(dot(normal, normalize(view + light))), 8);
-                half sheen = photo * _PhotoSheen * broad * (.28h + .72h * facing);
-                color *= 1.h - contact * .10h;
-                color = lerp(color, half3(1.h, .97h, .88h), saturate(sheen + rim * .055h));
+                half sheen = photo * _PhotoSheen * glaze * (.35h + .65h * facing);
+                color *= 1.h - contact * .06h;
+                color = lerp(color, half3(1.h, .97h, .88h), saturate(sheen + rim * .025h));
                 return half4(color, 1);
             }
             ENDHLSL

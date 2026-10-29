@@ -1,0 +1,13 @@
+{
+  "baselineCommit": "ae9af565",
+  "baselineScreenshot": "../01-after-open.png",
+  "validation": "Actual isolated Unity Play using the same 8 test photos, JournalBook rig and URP renderer",
+  "productionScope": "Assets/Game/Life/Shaders/Resources/LifeGesture/JournalSurface.shader",
+  "shaderSha256": "24F27F72654F0C29B0FCAAEA249BB767511AAA2576859D3AF207C1C6C374DB0D",
+  "oldBrightnessLift": 14174128,
+  "newBrightnessLift": 1821261,
+  "oldBrightPixels": 163725,
+  "newBrightPixels": 20125,
+  "threshold": "Sum of positive RGB-byte differences versus matte control > 30",
+  "mainSceneTouched": false
+}
