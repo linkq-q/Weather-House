@@ -34,6 +34,7 @@ namespace WeatherHouse.StoneEngraving.Editor
                 else if(command=="paint")Paint();
                 else if(command=="tablets")Tablets();
                 else if(command=="seven-painted")PaintedSeven();
+                else if(command=="monuments")StoneMonumentStudy.Build();
                 else if(command=="inspect-scene")InspectScene();
                 else if(command=="place-three")PlaceThree();
                 else throw new InvalidOperationException("Unknown study command "+command);
@@ -89,7 +90,7 @@ namespace WeatherHouse.StoneEngraving.Editor
                 report.Add($"{x},{z}: ground={WeatherHouse.WatersideV2.WatersideLayout.GroundHeight(terrain,x,z):F2} road={WeatherHouse.WatersideV2.WatersideLayout.PathDistance(x,z):F2} half={WeatherHouse.WatersideV2.WatersideLayout.WalkableHalfWidth(x,z):F2} water={WeatherHouse.WatersideV2.WatersideLayout.IsWater(x,z)}");
             File.WriteAllLines(Output+"/scene-inspection.txt",report);
         }
-        static Camera Setup(Scene preview)
+        internal static Camera Setup(Scene preview)
         {
             var camera=new GameObject("Tablet study camera",typeof(Camera)).GetComponent<Camera>();SceneManager.MoveGameObjectToScene(camera.gameObject,preview);
             camera.scene=preview;camera.enabled=false;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=new Color(.79f,.80f,.74f);
@@ -100,7 +101,7 @@ namespace WeatherHouse.StoneEngraving.Editor
             light.transform.rotation=Quaternion.Euler(48,-35,0);
             return camera;
         }
-        static void Frame(Camera camera,Bounds bounds,Vector3 direction,string path,int width=900,int height=800,float padding=1.15f)
+        internal static void Frame(Camera camera,Bounds bounds,Vector3 direction,string path,int width=900,int height=800,float padding=1.15f)
         {
             camera.transform.position=bounds.center+direction.normalized*12;camera.transform.LookAt(bounds.center);
             float size=0;

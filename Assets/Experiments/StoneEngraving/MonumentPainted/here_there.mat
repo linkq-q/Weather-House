@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: here_there
+  m_Shader: {fileID: 4800000, guid: 2a0976e20be9e0a49bb7f69c7a6bc3c4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties:
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 5788985df048a7344a7b3584587bca04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EngravingMask:
+        m_Texture: {fileID: 2800000, guid: d0a479cb3c7299148b11a585dec6643e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EngravingNormal:
+        m_Texture: {fileID: 2800000, guid: 12da56b04d6664142b643c50265d4097, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PaintFill:
+        m_Texture: {fileID: 2800000, guid: c84ffba4764ed184698b00a4caadc601, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PaintGrain:
+        m_Texture: {fileID: 2800000, guid: 401e908bda0ad7d48af28d62929f5833, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 0.065
+    - _CavityTint: 0.42
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DiscoveryContrast: 0.72
+    - _DiscoveryWidth: 0.4
+    - _EngravingStrength: 1
+    - _Faceted: 0
+    - _FillStrength: 1
+    - _GameplayReadability: 0
+    - _GrooveDepth: 0.08
+    - _GrooveShadow: 0.65
+    - _PaintStrength: 1
+    - _Smoothness: 0.12
+    m_Colors:
+    - _BaseColor: {r: 0.5566037, g: 0.5566037, b: 0.5566037, a: 1}
+    - _FillUV: {r: 0.98917645, g: 0.85011464, b: 0.006713867, a: 0.0031094528}
+    - _PaintColor: {r: 0.97, g: 0.95, b: 0.89, a: 1}
+    - _ProjectionCenter: {r: 0, g: 1.9110001, b: -0.5, a: 0}
+    - _ProjectionRight: {r: 1, g: 0, b: 0, a: 0}
+    - _ProjectionSize: {r: 5.708362, g: 3.27, b: 0.22, a: 0}
+    - _ProjectionUp: {r: 0, g: 1, b: 0, a: 0}
+  m_BuildTextureStacks: []
