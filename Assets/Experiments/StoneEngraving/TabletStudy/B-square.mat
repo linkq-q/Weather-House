@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Stone
+  m_Shader: {fileID: 4800000, guid: be379a4ec40a9bc469d79ae97636a3dd, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _FACETED_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EngravingMask:
+        m_Texture: {fileID: 2800000, guid: e05762f3f67464643852a6d7d53de59e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EngravingNormal:
+        m_Texture: {fileID: 2800000, guid: 3dcc0a113d4bf2d43b5c52a8387996fe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 0
+    - _CavityTint: 0.42
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DiscoveryContrast: 0.72
+    - _DiscoveryWidth: 0.4
+    - _EngravingStrength: 1
+    - _Faceted: 1
+    - _GameplayReadability: 0
+    - _GrooveDepth: 0.08
+    - _GrooveShadow: 0.65
+    - _Smoothness: 0.12
+    m_Colors:
+    - _BaseColor: {r: 0.48, g: 0.49, b: 0.46, a: 1}
+    - _ProjectionCenter: {r: -0.052889097, g: 0.9934699, b: 0.02011521, a: 0}
+    - _ProjectionRight: {r: 1, g: 0, b: 0, a: 0}
+    - _ProjectionSize: {r: 0.8870813, g: 0.8104679, b: 2.0503283, a: 0}
+    - _ProjectionUp: {r: 0, g: 0, b: 1, a: 0}
+  m_BuildTextureStacks: []
