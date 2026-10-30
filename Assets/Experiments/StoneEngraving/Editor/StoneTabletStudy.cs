@@ -33,6 +33,7 @@ namespace WeatherHouse.StoneEngraving.Editor
                 if(command=="inventory")Inventory();
                 else if(command=="paint")Paint();
                 else if(command=="tablets")Tablets();
+                else if(command=="seven-painted")PaintedSeven();
                 else if(command=="inspect-scene")InspectScene();
                 else if(command=="place-three")PlaceThree();
                 else throw new InvalidOperationException("Unknown study command "+command);
@@ -259,6 +260,74 @@ namespace WeatherHouse.StoneEngraving.Editor
                     Object.DestroyImmediate(root);
                 }
                 File.WriteAllLines(Output+"/Tablets/checks.txt",report);
+            }
+            finally{EditorSceneManager.ClosePreviewScene(preview);if(groundMaterial)Object.DestroyImmediate(groundMaterial);}
+        }
+        [Serializable] class PaintedSpec { public string id,title,mesh; public Vector3 size; public Vector4 uv; }
+        [Serializable] class PaintedSpecs { public PaintedSpec[] items; }
+        static void PaintedSeven()
+        {
+            var preview=EditorSceneManager.NewPreviewScene();Material groundMaterial=null;
+            try
+            {
+                var camera=Setup(preview);Directory.CreateDirectory(Output+"/SevenPainted");
+                var ground=GameObject.CreatePrimitive(PrimitiveType.Plane);SceneManager.MoveGameObjectToScene(ground,preview);
+                ground.transform.position=StudyOrigin;ground.transform.localScale=Vector3.one*4;
+                groundMaterial=new Material(Shader.Find("Universal Render Pipeline/Lit"));groundMaterial.color=new Color(.31f,.34f,.24f);ground.GetComponent<Renderer>().sharedMaterial=groundMaterial;
+                var specs=JsonUtility.FromJson<PaintedSpecs>(File.ReadAllText("Tools/StoneEngraving/SevenPainted/layout.json")).items;
+                var report=new List<string>();
+                foreach(var spec in specs)
+                {
+                    string path="Assets/HIGHLANDS - Stylized Environment/Meshes/Forest/"+spec.mesh+".fbx";
+                    var mesh=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Mesh>().OrderByDescending(m=>m.vertexCount).First();
+                    var root=new GameObject(spec.id);SceneManager.MoveGameObjectToScene(root,preview);root.transform.position=StudyOrigin;
+                    var body=new GameObject("Stone face");body.transform.SetParent(root.transform,false);body.AddComponent<MeshFilter>().sharedMesh=mesh;
+                    body.transform.localScale=new Vector3(spec.size.x/mesh.bounds.size.x,spec.size.y/mesh.bounds.size.y,spec.size.z/mesh.bounds.size.z);
+                    body.transform.localPosition=-Vector3.Scale(mesh.bounds.center,body.transform.localScale);
+                    var renderer=body.AddComponent<MeshRenderer>();var collider=body.AddComponent<MeshCollider>();collider.sharedMesh=mesh;Physics.SyncTransforms();
+                    var original=AssetDatabase.LoadAssetAtPath<Material>("Assets/Experiments/StoneEngraving/Seven/"+spec.id+"/Stone.mat");
+                    var mat=new Material(original);mat.shader=Shader.Find("Weather House/Stone Engraving/Seven Mineral Paint");
+                    var reference=AssetDatabase.LoadAssetAtPath<Material>("Assets/Experiments/StoneEngraving/RainWater_EngravedStone.mat");
+                    foreach(var property in new[]{"_BaseMap","_BumpMap"})mat.SetTexture(property,reference.GetTexture(property));
+                    mat.SetColor("_BaseColor",reference.GetColor("_BaseColor"));mat.SetFloat("_BumpScale",1);mat.SetFloat("_Faceted",0);
+                    string colorPath="Assets/Experiments/StoneEngraving/SevenPainted/"+spec.id+".png";
+                    var importer=(TextureImporter)AssetImporter.GetAtPath(colorPath);importer.sRGBTexture=true;importer.alphaIsTransparency=true;importer.wrapMode=TextureWrapMode.Clamp;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport();
+                    mat.SetTexture("_PaintFill",AssetDatabase.LoadAssetAtPath<Texture2D>(colorPath));mat.SetTexture("_PaintGrain",AssetDatabase.LoadAssetAtPath<Texture2D>(AssetsRoot+"/PaintGrain.png"));
+                    mat.SetVector("_FillUV",spec.uv);mat.SetColor("_PaintColor",new Color(.97f,.95f,.89f,1));mat.SetFloat("_PaintStrength",1);mat.SetFloat("_FillStrength",1);
+                    renderer.sharedMaterial=mat;
+                    var texture=(Texture2D)mat.GetTexture("_EngravingMask");float aspect=texture.width/(float)texture.height;
+                    var fit=FitTop(collider,aspect);
+                    var center=new Vector3(fit.x,collider.bounds.max.y,fit.y);mat.SetVector("_ProjectionCenter",body.transform.InverseTransformPoint(center));
+                    mat.SetVector("_ProjectionRight",Vector3.right);mat.SetVector("_ProjectionUp",Vector3.forward);
+                    mat.SetVector("_ProjectionSize",new Vector4(fit.z/body.transform.localScale.x,fit.w/body.transform.localScale.z,mesh.bounds.size.y*2,0));
+                    // Check all artwork and canonical letters before tilting the whole tablet.
+                    int samples=0,missing=0,steep=0;int height=Mathf.RoundToInt(512/aspect);
+                    for(int y=0;y<height;y++)for(int x=0;x<512;x++)
+                    {
+                        float u=(x+.5f)/512,v=(y+.5f)/height;if(texture.GetPixelBilinear(u,v).a<.2f)continue;samples++;
+                        var ray=new Ray(center+Vector3.right*((u-.5f)*fit.z)+Vector3.forward*((v-.5f)*fit.w)+Vector3.up,Vector3.down);
+                        if(!collider.Raycast(ray,out var hit,collider.bounds.size.y+2))missing++;else if(hit.normal.y<.75f)steep++;
+                    }
+                    if(samples<100||missing>0||steep>0)throw new InvalidOperationException(spec.id+" clipped artwork.");
+                    root.transform.rotation=Quaternion.Euler(-68,0,0);
+                    body.transform.position+=Vector3.up*(StudyOrigin.y-renderer.bounds.min.y);
+                    var bounds=renderer.bounds;
+                    string folder=Output+"/SevenPainted/"+spec.id;Directory.CreateDirectory(folder);
+                    Frame(camera,bounds,new Vector3(0,.38f,-1),folder+"/engraved.png",1400,1100);
+                    Frame(camera,bounds,new Vector3(.65f,.45f,-1),folder+"/side.png",1200,1000);
+                    mat.SetFloat("_EngravingStrength",0);mat.SetFloat("_FillStrength",0);mat.SetFloat("_PaintStrength",0);Frame(camera,bounds,new Vector3(.3f,.4f,-1),folder+"/blank.png",1200,1000);mat.SetFloat("_EngravingStrength",1);mat.SetFloat("_FillStrength",1);mat.SetFloat("_PaintStrength",1);
+                    mat.SetFloat("_GameplayReadability",1);
+                    Frame(camera,bounds,new Vector3(-.5f,1.35f,-1),folder+"/game.png",1000,800,2.4f);mat.SetFloat("_GameplayReadability",0);
+                    string materialPath="Assets/Experiments/StoneEngraving/SevenPainted/"+spec.id+".mat";var stored=AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+                    if(stored){EditorUtility.CopySerialized(mat,stored);AssetDatabase.SaveAssetIfDirty(stored);Object.DestroyImmediate(mat);}else{AssetDatabase.CreateAsset(mat,materialPath);stored=mat;}
+                    renderer.sharedMaterial=stored;body.AddComponent<StoneEngravingReadability>();
+                    root.transform.position=Vector3.zero;
+                    PrefabUtility.SaveAsPrefabAsset(root,"Assets/Experiments/StoneEngraving/SevenPainted/"+spec.id+".prefab");
+                    report.Add($"{spec.id}: source={path}; source mesh reused; triangles={mesh.triangles.Length/3}; dimensions={bounds.size}; face={fit.z:F3} x {fit.w:F3}m; samples={samples}; missing={missing}; steep={steep}; ground pivot; static MeshCollider; gameplay readability component; no main scene placement.");
+                    Object.DestroyImmediate(root);
+                }
+                if(ShaderUtil.ShaderHasError(Shader.Find("Weather House/Stone Engraving/Seven Mineral Paint")))throw new InvalidOperationException("Paint shader failed.");
+                File.WriteAllLines(Output+"/SevenPainted/checks.txt",report);
             }
             finally{EditorSceneManager.ClosePreviewScene(preview);if(groundMaterial)Object.DestroyImmediate(groundMaterial);}
         }
