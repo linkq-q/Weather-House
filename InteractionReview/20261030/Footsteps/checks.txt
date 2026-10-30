@@ -1,0 +1,11 @@
+PASS Six animation cycles produce twelve contacts at any movement speed
+PASS Rewound animation does not replay old contacts
+PASS Slow frame consumes one contact without a catch-up burst
+PASS Surface-level foot is included in wading
+PASS Dry bridge above water is excluded
+PASS Deep underwater support is excluded
+PASS Actual supported movement follows animation contacts, not distance; steps=2
+PASS Surface-level supported walking emits a water step on the footstep source
+PASS Stationary character emits no extra steps
+PASS Disable stops all sources
+PASS No runtime errors or exceptions

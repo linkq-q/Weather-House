@@ -30,9 +30,12 @@ namespace WeatherHouse.Life
         WeatherRegion[] weather = System.Array.Empty<WeatherRegion>();
         WorldWaterSurface[] waters = System.Array.Empty<WorldWaterSurface>();
         Transform player; Vector3 previousPosition, shorePoint;
-        float travelled, nextStep, nextEnvironment, strokeUntil, nextAmbientVoice, shoreGain, lastProgress = -10;
+        float travelled, nextEnvironment, strokeUntil, nextAmbientVoice, shoreGain, lastProgress = -10;
         bool wasGrounded, ready, wasCamera, wasRecording, wasDrawing, wasDialogue, focused = true, strokeMoved, castingStroke;
         int castingVariant = -1;
+        float stepPhase;
+        int stepState;
+        bool hasStepPhase;
         bool CanPlay => ready && isActiveAndEnabled && focused && player;
         AnimalActor lastSpeaker; LifeSpeaker dialogueSpeaker; LifeRequest lastRequest; int lastRevision; string lastUtterance;
 #if UNITY_EDITOR
@@ -109,11 +112,11 @@ namespace WeatherHouse.Life
             instance.TraceStroke("signal.accept");
         }
         public static void StopStroke() { if (instance) { instance.TraceStroke("cancel"); instance.strokeMoved = instance.castingStroke = false; instance.strokeUntil = 0; instance.Stop(2); } }
-        void PlayCue(LifeAudioCue cue, Vector3 position, float gain = 1)
+        void PlayCue(LifeAudioCue cue, Vector3 position, float gain = 1, bool useCooldown = true)
         {
             if (!CanPlay) return;
             LifeAudioCatalog.Sound sound = Catalog.Find(cue);
-            if (sound == null || sound.clips.Length == 0 || (nextCue.TryGetValue(cue, out float due) && Time.unscaledTime < due)) return;
+            if (sound == null || sound.clips.Length == 0 || (useCooldown && nextCue.TryGetValue(cue, out float due) && Time.unscaledTime < due)) return;
             int slot = cue == LifeAudioCue.Progress ? 1 : cue == LifeAudioCue.Ui || cue == LifeAudioCue.Paper || cue == LifeAudioCue.Camera ? 0 :
                 cue == LifeAudioCue.GrassStep || cue == LifeAudioCue.DirtStep || cue == LifeAudioCue.StoneStep ? 3 : FreeWorldSlot();
             if (cue == LifeAudioCue.Ui && sources[0].isPlaying) return;
@@ -164,6 +167,8 @@ namespace WeatherHouse.Life
         void LateUpdate()
         {
             if (!CanPlay) return;
+            // Animator evaluation has completed; consume the displayed gait phase.
+            UpdateSteps();
             Vector3 offset = HearingOffset();
             for (int i = 4; i <= 7; i++) sources[i].transform.position = emissionPositions[i] + offset;
         }
@@ -173,7 +178,7 @@ namespace WeatherHouse.Life
             if (!ready || !player || !focused) return;
             float dt = Mathf.Min(Time.unscaledDeltaTime, .1f), now = Time.unscaledTime;
             for (int i = 0; i < SourceBudget; i++) if (stopAt[i] > 0 && now >= stopAt[i]) Stop(i);
-            UpdateUi(); UpdateSteps();
+            UpdateUi();
             // World drawing and journal practice share this state; their input component is added after bootstrap.
             bool drawing = life.GestureInputActive;
             // Consume each movement pulse once even when the next frame exceeds the short release window.
@@ -254,23 +259,36 @@ namespace WeatherHouse.Life
             bool grounded = IsGrounded(), blocked = hud && hud.BlocksMovement || life.GestureInputActive || gameplay.forestSprite && gameplay.forestSprite.InputBlocked;
             float distance = new Vector2(delta.x, delta.z).magnitude;
             bool landed = grounded && !wasGrounded;
-            bool takeoff = wasGrounded && !grounded && gameplay.forestSprite && gameplay.forestSprite.VerticalSpeed > .1f;
             wasGrounded = grounded;
-            if (blocked || distance > 2 || !grounded && !takeoff) { travelled = 0; return; }
-            travelled += distance;
-            float stride = gameplay.forestSprite && gameplay.forestSprite.CurrentState == "Run" ? .62f : .48f;
-            if ((!landed && !takeoff && travelled < stride) || Time.unscaledTime < nextStep) return;
-            travelled = 0; nextStep = Time.unscaledTime + .18f;
+            if (blocked || distance > 2 || !grounded) { travelled = 0; hasStepPhase = false; return; }
+            bool step = landed;
+            var character = gameplay.forestSprite;
+            if (character && character.animator)
+            {
+                AnimatorStateInfo state = character.animator.GetCurrentAnimatorStateInfo(0);
+                bool gait = state.IsName("Walk") || state.IsName("Run");
+                if (gait && distance > .0001f && hasStepPhase && stepState == state.fullPathHash)
+                    step |= LifeAudioGround.CrossedStep(stepPhase, state.normalizedTime);
+                hasStepPhase = gait;
+                stepState = state.fullPathHash; stepPhase = state.normalizedTime;
+            }
+            else
+            {
+                travelled += distance;
+                step |= travelled >= .48f;
+            }
+            if (!step) return;
+            travelled = 0;
             LastSurface = ground.Resolve(position, player, Catalog, out Vector3 contact);
             foreach (WorldWaterSurface water in waters)
-                if (water && water.TryGetHeight(contact, out float height) && height >= contact.y + .025f && height <= contact.y + .6f)
+                if (water && water.isActiveAndEnabled && water.TryGetHeight(position, out float height) && LifeAudioGround.Wading(height, contact.y))
                 {
                     LifeAudioCatalog.Sound splash = Catalog.Find(LifeAudioCue.Water);
-                    if (splash != null && splash.clips.Length > 0) StartClip(3, splash.clips[Time.frameCount % splash.clips.Length], contact, splash.volume * .65f, false);
+                    if (splash != null && splash.clips.Length > 0) StartClip(3, splash.clips[FootstepCount % splash.clips.Length], contact, splash.volume, false);
                     return;
                 }
             LifeAudioCue cue = LastSurface == LifeAudioSurface.Grass ? LifeAudioCue.GrassStep : LastSurface == LifeAudioSurface.Dirt ? LifeAudioCue.DirtStep : LifeAudioCue.StoneStep;
-            if (LastSurface != LifeAudioSurface.Unknown) PlayCue(cue, contact, landed ? 1.25f : 1);
+            if (LastSurface != LifeAudioSurface.Unknown) PlayCue(cue, contact, landed ? 1.25f : 1, false);
         }
         void UpdateShore()
         {
@@ -293,13 +311,13 @@ namespace WeatherHouse.Life
         void OnDisable()
         {
             for (int i = 0; i < sources.Length; i++) Stop(i);
-            strokeMoved = castingStroke = false; strokeUntil = 0;
+            strokeMoved = castingStroke = hasStepPhase = false; strokeUntil = 0;
         }
         void OnEnable() { if (ready) SyncPresentation(); }
         void SyncPresentation()
         {
             if (!player || !gameplay) return;
-            previousPosition = player.position; travelled = 0; wasGrounded = IsGrounded();
+            previousPosition = player.position; travelled = 0; hasStepPhase = false; wasGrounded = IsGrounded();
             wasCamera = hud && hud.CameraMode; wasRecording = gameplay.Recorder && gameplay.Recorder.IsRecording;
             wasDialogue = hud && hud.IsDialogueOpen; CaptureSpeaker(wasDialogue ? hud.DialogueTarget : null);
             nextAmbientVoice = Time.unscaledTime + 18;

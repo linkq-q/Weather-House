@@ -4,6 +4,13 @@ namespace WeatherHouse.Life
 {
     public sealed class LifeAudioGround
     {
+        // Authored Walk/Run cycles plant opposite feet at phase 0 and .5.
+        // A slow frame emits one current step, never a burst of missed footsteps.
+        public static bool CrossedStep(float previous, float current) => current >= previous &&
+            Mathf.FloorToInt(current * 2) > Mathf.FloorToInt(previous * 2);
+        // Include a foot at the surface, including capsule skin/contact tolerance.
+        public static bool Wading(float waterHeight, float supportHeight) =>
+            waterHeight >= supportHeight - .04f && waterHeight <= supportHeight + .6f;
         readonly RaycastHit[] hits = new RaycastHit[24];
         public LifeAudioSurface Resolve(Vector3 feet, Transform player, LifeAudioCatalog catalog, out Vector3 contact)
         {
