@@ -33,10 +33,60 @@ namespace WeatherHouse.StoneEngraving.Editor
                 if(command=="inventory")Inventory();
                 else if(command=="paint")Paint();
                 else if(command=="tablets")Tablets();
+                else if(command=="inspect-scene")InspectScene();
+                else if(command=="place-three")PlaceThree();
                 else throw new InvalidOperationException("Unknown study command "+command);
                 File.WriteAllText(Output+"/status.txt","PASS "+command+" "+DateTime.UtcNow.ToString("O"));
             }
             catch(Exception e){File.WriteAllText(Output+"/status.txt","FAIL "+command+"\n"+e);Debug.LogException(e);}
+        }
+        static void PlaceThree()
+        {
+            var scene=SceneManager.GetActiveScene();
+            if(scene.path!="Assets/Scenes/WeatherHouse_WatersideV2.unity"||scene.isDirty)throw new InvalidOperationException("Requires clean main scene.");
+            var original=GameObject.Find("雨与水石刻 · 天气屋旁");if(!original)throw new InvalidOperationException("Original stone missing.");
+            var terrain=Object.FindObjectsOfType<Terrain>().First(t=>t.gameObject.scene==scene);
+            var root=GameObject.Find("雨水石刻 · 三版本对照");if(!root){root=new GameObject("雨水石刻 · 三版本对照");Undo.RegisterCreatedObjectUndo(root,"放置石刻三版本");}
+            var names=new[]{"A · 原始刻槽","B · 白色刻槽","C · 内部彩绘"};
+            var materials=new[]{original.GetComponent<Renderer>().sharedMaterial,AssetDatabase.LoadAssetAtPath<Material>(AssetsRoot+"/B-white-grooves.mat"),AssetDatabase.LoadAssetAtPath<Material>(AssetsRoot+"/C-filled.mat")};
+            var report=new List<string>();Bounds all=new Bounds();
+            try
+            {
+                for(int n=0;n<3;n++)
+                {
+                    var existing=root.transform.Find(names[n]);var stone=existing?existing.gameObject:Object.Instantiate(original,root.transform);stone.name=names[n];
+                    var r=stone.GetComponent<Renderer>();r.sharedMaterial=materials[n];var b=r.bounds;
+                    var center=new Vector3(-44+n*4,0,-47);
+                    if(WeatherHouse.WatersideV2.WatersideLayout.IsWater(center.x,center.z))throw new InvalidOperationException("Comparison must be on dry ground.");
+                    stone.transform.position+=center-b.center;b=r.bounds;
+                    float floor=float.MaxValue;
+                    for(int z=0;z<=4;z++)for(int x=0;x<=4;x++)floor=Mathf.Min(floor,WeatherHouse.WatersideV2.WatersideLayout.GroundHeight(terrain,Mathf.Lerp(b.min.x,b.max.x,x/4f),Mathf.Lerp(b.min.z,b.max.z,z/4f)));
+                    stone.transform.position+=Vector3.up*(floor-.15f-b.min.y);
+                    if(!stone.GetComponent<MeshCollider>())stone.AddComponent<MeshCollider>().sharedMesh=stone.GetComponent<MeshFilter>().sharedMesh;
+                    if(!stone.GetComponent<StoneEngravingReadability>())stone.AddComponent<StoneEngravingReadability>();
+                    if(n==0)all=r.bounds;else all.Encapsulate(r.bounds);
+                    report.Add(names[n]+" position="+stone.transform.position+" scale="+stone.transform.localScale+" material="+AssetDatabase.GetAssetPath(materials[n]));
+                }
+                Physics.SyncTransforms();Selection.activeGameObject=root;
+                if(SceneView.lastActiveSceneView)SceneView.lastActiveSceneView.LookAt(all.center,Quaternion.Euler(55,0,0),16);
+                var go=new GameObject("Comparison capture");
+                try{var camera=go.AddComponent<Camera>();camera.CopyFrom(Object.FindObjectOfType<ForestSpriteCharacter.ForestSpriteDemoController>().demoCamera);camera.enabled=false;camera.orthographic=true;Frame(camera,all,new Vector3(0,1.5f,-1),Output+"/three-in-scene.png",1800,1000,1.45f);}finally{Object.DestroyImmediate(go);}
+                EditorSceneManager.MarkSceneDirty(scene);if(!EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("Scene save failed.");
+                File.WriteAllLines(Output+"/three-placement.txt",report);
+            }
+            catch{Object.DestroyImmediate(root);throw;}
+        }
+        static void InspectScene()
+        {
+            var scene=SceneManager.GetActiveScene();var report=new List<string>();
+            report.Add(scene.path+" dirty="+scene.isDirty);
+            foreach(var r in Object.FindObjectsOfType<Renderer>().Where(r=>r.sharedMaterial&&r.sharedMaterial.shader.name.Contains("Stone Engraving")))
+                report.Add(r.name+" pos="+r.transform.position+" bounds="+r.bounds);
+            var player=Object.FindObjectOfType<ForestSpriteCharacter.ForestSpriteDemoController>();report.Add("player="+player.transform.position);
+            var terrain=Object.FindObjectOfType<Terrain>();
+            for(float z=-55;z<=-15;z+=5)for(float x=-60;x<=-10;x+=5)
+                report.Add($"{x},{z}: ground={WeatherHouse.WatersideV2.WatersideLayout.GroundHeight(terrain,x,z):F2} road={WeatherHouse.WatersideV2.WatersideLayout.PathDistance(x,z):F2} half={WeatherHouse.WatersideV2.WatersideLayout.WalkableHalfWidth(x,z):F2} water={WeatherHouse.WatersideV2.WatersideLayout.IsWater(x,z)}");
+            File.WriteAllLines(Output+"/scene-inspection.txt",report);
         }
         static Camera Setup(Scene preview)
         {
