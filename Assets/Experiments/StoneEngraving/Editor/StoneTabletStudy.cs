@@ -36,6 +36,7 @@ namespace WeatherHouse.StoneEngraving.Editor
                 else if(command=="seven-painted")PaintedSeven();
                 else if(command=="monuments")StoneMonumentStudy.Build();
                 else if(command=="place-monuments")StoneMonumentStudy.Place();
+                else if(command=="place-remaining-painted")StoneMonumentStudy.PlaceRemaining();
                 else if(command=="inspect-scene")InspectScene();
                 else if(command=="place-three")PlaceThree();
                 else throw new InvalidOperationException("Unknown study command "+command);

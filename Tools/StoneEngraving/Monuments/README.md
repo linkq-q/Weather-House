@@ -29,3 +29,9 @@ Unity 编辑态向 `StoneEngravingReview/20261030/command.txt` 写入 `monuments
 初始位置沿用对应旧石刻包围盒中心的 X/Z，碑体保持直立并继承旧画面的水平方向，基座按地形落地。旧四块仅隐藏，保留原变换和 Prefab；其他石刻不动。场景会保存，工具拒绝覆盖已经摆放的新组，防止再次运行冲掉用户调整。
 
 `StoneEngravingReview/20261030/Monuments/MainScene/` 保存放置前完整备份、四张场景截图和验证报告。由于主场景在本次之前已有其他未提交修改，仅将本次前后差异另存 `placement.patch` 纳入独立提交；主场景已在磁盘保存，不把此前修改混入本次提交。
+
+## 补齐剩余三块彩色石刻
+
+`place-remaining-painted` 补入已完成的 SevenPainted / wind、wet_dry、strong_weak 三个 Prefab，在「彩色石刻 · 风、湿与干、强与弱」组下独立摆放。沿用对应旧石刻的水平位置和画面水平方向，保留彩色 Prefab 的立起角度，按中心地形高度落地；旧三块隐藏留作备份。
+
+工具在执行前后比较已放入的四块宏伟石碑及其子节点的世界变换，保证不改动用户调整。`RemainingThree/` 记录前后场景副本、三张实景截图与验证报告；本次场景增量保存为 `remaining-three.patch`。拒绝重复覆盖新组，编辑器必须处于干净的非 Play 状态。

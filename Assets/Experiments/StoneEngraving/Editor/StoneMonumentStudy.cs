@@ -179,6 +179,59 @@ namespace WeatherHouse.StoneEngraving.Editor
             finally{EditorSceneManager.ClosePreviewScene(preview);if(groundMat)Object.DestroyImmediate(groundMat);foreach(var mesh in temporary)Object.DestroyImmediate(mesh);}
         }
 
+        public static void PlaceRemaining()
+        {
+            const string groupName="彩色石刻 · 风、湿与干、强与弱";
+            const string painted="Assets/Experiments/StoneEngraving/SevenPainted/";
+            var scene=SceneManager.GetActiveScene();
+            if(EditorApplication.isPlayingOrWillChangePlaymode||scene.path!="Assets/Scenes/WeatherHouse_WatersideV2.unity"||scene.isDirty)
+                throw new InvalidOperationException("Placement requires clean WatersideV2 in Edit mode");
+            if(GameObject.Find(groupName))throw new InvalidOperationException("Remaining painted stones already placed");
+            var ids=new[]{"wind","wet_dry","strong_weak"};var titles=new[]{"风","湿与干","强与弱"};
+            var originals=titles.Select(t=>GameObject.Find(t+" · 石刻")).ToArray();
+            var prefabs=ids.Select(id=>AssetDatabase.LoadAssetAtPath<GameObject>(painted+id+".prefab")).ToArray();
+            for(int i=0;i<ids.Length;i++)
+                if(!originals[i]||!prefabs[i]||PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(originals[i])!="Assets/Experiments/StoneEngraving/Seven/"+ids[i]+"/Stone.prefab")
+                    throw new InvalidOperationException("Unexpected original or missing painted prefab: "+titles[i]);
+            var protectedTransforms=Object.FindObjectsOfType<Transform>(true).Where(t=>t.gameObject.scene==scene&&
+                (PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject)??string.Empty).StartsWith(AssetsRoot+"/",StringComparison.Ordinal)).ToDictionary(t=>t,t=>t.localToWorldMatrix);
+            string folder=Output+"/RemainingThree";Directory.CreateDirectory(folder);
+            string backup=folder+"/before.unity";if(File.Exists(backup))throw new InvalidOperationException("Backup exists; inspect before retrying");
+            File.Copy(scene.path,backup);
+            var terrain=Object.FindObjectsOfType<Terrain>().First(t=>t.gameObject.scene==scene);
+            Undo.IncrementCurrentGroup();int undoGroup=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("补入三块彩色石刻");
+            var root=new GameObject(groupName);Undo.RegisterCreatedObjectUndo(root,"补入三块彩色石刻");GameObject capture=null;
+            try
+            {
+                capture=new GameObject("Remaining painted stone capture"){hideFlags=HideFlags.HideAndDontSave};var camera=capture.AddComponent<Camera>();
+                camera.CopyFrom(Object.FindObjectOfType<ForestSpriteCharacter.ForestSpriteDemoController>().demoCamera);camera.enabled=false;camera.orthographic=true;camera.farClipPlane=250;
+                var report=new List<string>();
+                for(int i=0;i<ids.Length;i++)
+                {
+                    var original=originals[i];var r=original.GetComponent<Renderer>();var b=r.bounds;var oldMat=r.sharedMaterial;
+                    var front=original.transform.localToWorldMatrix.inverse.transpose.MultiplyVector(Vector3.Cross(oldMat.GetVector("_ProjectionUp"),oldMat.GetVector("_ProjectionRight")));
+                    front.y=0;front=front.sqrMagnitude>.001f?front.normalized:Vector3.back;
+                    var stone=(GameObject)PrefabUtility.InstantiatePrefab(prefabs[i],root.transform);stone.name=titles[i]+" · 彩色石刻";
+                    stone.transform.SetPositionAndRotation(new Vector3(b.center.x,WeatherHouse.WatersideV2.WatersideLayout.GroundHeight(terrain,b.center.x,b.center.z)-.04f,b.center.z),Quaternion.LookRotation(-front,Vector3.up)*prefabs[i].transform.rotation);
+                    var placed=BoundsOf(stone);stone.transform.position+=new Vector3(b.center.x-placed.center.x,0,b.center.z-placed.center.z);
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(stone);PrefabUtility.RecordPrefabInstancePropertyModifications(stone.transform);
+                    Undo.RecordObject(original,"隐藏旧版石刻");original.SetActive(false);PrefabUtility.RecordPrefabInstancePropertyModifications(original);
+                    var renderer=stone.GetComponentInChildren<Renderer>();var mat=renderer.sharedMaterial;
+                    if(PrefabUtility.GetPrefabInstanceStatus(stone)!=PrefabInstanceStatus.Connected||!stone.GetComponentInChildren<MeshCollider>()||!stone.GetComponentInChildren<StoneEngravingReadability>()||mat.GetFloat("_FillStrength")!=1||!mat.GetTexture("_PaintFill"))
+                        throw new InvalidOperationException("Painted stone installation incomplete: "+titles[i]);
+                    Physics.SyncTransforms();StoneTabletStudy.Frame(camera,BoundsOf(stone),front+Vector3.up*.9f,folder+"/"+ids[i]+".png",1400,1000,1.6f);
+                    report.Add($"PASS {ids[i]}: {stone.name}; prefab={painted}{ids[i]}.prefab; position={stone.transform.position}; scale={stone.transform.localScale}; color fill=1; collider/readability present; old stone disabled");
+                }
+                foreach(var pair in protectedTransforms)if(!pair.Key||pair.Key.localToWorldMatrix!=pair.Value)throw new InvalidOperationException("Existing monument transform changed");
+                report.Add("PASS existing monument transforms unchanged="+protectedTransforms.Count);
+                Object.DestroyImmediate(capture);capture=null;Selection.activeGameObject=root;
+                EditorSceneManager.MarkSceneDirty(scene);if(!EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("Scene save failed");
+                File.Copy(scene.path,folder+"/after.unity");Undo.CollapseUndoOperations(undoGroup);File.WriteAllLines(folder+"/placement.txt",report);
+            }
+            catch{Undo.RevertAllDownToGroup(undoGroup);throw;}
+            finally{if(capture)Object.DestroyImmediate(capture);}
+        }
+
         public static void Place()
         {
             const string groupName="宏伟彩绘石碑 · 可调摆放";
