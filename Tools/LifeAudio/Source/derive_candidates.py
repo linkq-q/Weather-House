@@ -27,7 +27,7 @@ def decode(name):
 
 # ID, source, start/end seconds, peak dBFS, fade in/out or loop overlap, use.
 SPECS = [
- ("step_grass_a", "Approved20261030/step_grass_a.wav", 0.000000, None, -7, 0.003, 0.025, False, "A13 recorded grass contact a"),
+ ("step_grass_a", "ApprovedGrass20261030/05.wav", 0.000000, None, -7, 0.003, 0.025, False, "A13 selected 05 grass footstep by Ali_6868"),
  ("step_dirt_a", "Approved20261030/step_dirt_a.wav", 0.000000, None, -12, 0.003, 0.025, False, "A13 ordinary dirt walking variant a"),
  ("step_stone_a", "Approved20261030/step_stone_a.wav", 0.000000, None, -8, 0.003, 0.025, False, "A13 selected short stone step"),
  ("ui_soft_tick", "ui_tick_001.ogg", 0.0, None, -18, .001, .004, False, "A01 shared interface feedback"),
