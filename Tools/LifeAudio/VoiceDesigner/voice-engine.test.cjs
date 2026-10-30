@@ -6,8 +6,8 @@ const voice = require('./voice-engine.js');
 
 assert.deepEqual(Object.keys(voice.presets), ['dog', 'squirrel', 'fox', 'sheep', 'deer']);
 for (const id of ['squirrel', 'fox', 'deer']) assert.equal(voice.presets[id].defaults.timbre, 100, `${id}: approved brightness`);
-assert.equal(voice.presets.dog.defaults.timbre, 35);
-assert.equal(voice.presets.sheep.defaults.timbre, 26);
+assert.equal(voice.presets.dog.defaults.timbre, 70);
+assert.equal(voice.presets.sheep.defaults.timbre, 65);
 const outputDir = process.argv[2];
 if (outputDir) fs.mkdirSync(outputDir, { recursive: true });
 const report = [];
@@ -50,7 +50,7 @@ for (const [id, preset] of Object.entries(voice.presets)) {
   assert(fast.samples.length < slow.samples.length, 'speed changes timing');
   for (const settings of [
     { pitch: -12, speed: 0.65, timbre: 0, variation: 0 },
-    { pitch: 12, speed: 1.5, timbre: 100, variation: 100 }
+    { pitch: 12, speed: 3, timbre: 100, variation: 100 }
   ]) {
     const edge = voice.render(id, settings).samples;
     for (const value of edge) assert(Number.isFinite(value) && Math.abs(value) < 1);

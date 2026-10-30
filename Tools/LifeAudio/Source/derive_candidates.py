@@ -27,8 +27,8 @@ def decode(name):
 
 # ID, source, start/end seconds, peak dBFS, fade in/out or loop overlap, use.
 SPECS = [
- ("step_grass_a", "step_grass_000.ogg", 0.0, 0.46, -12, .003, .035, False, "A13 grass variant a"),
- ("step_grass_b", "step_grass_001.ogg", 0.0, 0.43, -12, .003, .035, False, "A13 grass variant b"),
+ ("step_grass_a", "grass_steps_fission9_public_hq.mp3", .095, .385, -12, .003, .035, False, "A13 recorded grass contact a"),
+ ("step_grass_b", "grass_steps_fission9_public_hq.mp3", .795, 1.005, -12, .003, .035, False, "A13 recorded grass contact b"),
  ("step_dirt_a", "dirt_walk_aglinder_public_hq.mp3", 9.12, 9.40, -12, .004, .025, False, "A13 ordinary dirt walking variant a"),
  ("step_dirt_b", "dirt_walk_aglinder_public_hq.mp3", 9.64, 9.91, -12, .004, .025, False, "A13 ordinary dirt walking variant b"),
  ("step_stone_a", "StoneOriginal/Fantozzi-footsteps/ogg/Fantozzi-StoneL1.ogg", 0.0, None, -12, .003, .025, False, "A13 stone left-step variant a"),
