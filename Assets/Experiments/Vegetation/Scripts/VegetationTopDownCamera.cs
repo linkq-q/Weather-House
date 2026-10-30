@@ -8,7 +8,7 @@ namespace WeatherHouse.Vegetation
     {
         public ForestSpriteDemoController player;
         public float baseYaw = 42;
-        [Range(0, 180)] public float yawLimit = 45;
+        [Range(0, 180)] public float yawLimit = 180;
         public float yawOffset;
         public float pitch = 28;
         public Vector2 pitchRange = new Vector2(24, 46);

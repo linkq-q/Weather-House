@@ -521,7 +521,7 @@ namespace WeatherHouse.Life
             }
             if (input) input.blocksRaycasts = input.interactable = visible;
         }
-        private static bool IsNavigation(string name) => name == "Symbols tab" || name == "Photos tab" || name == "Gesture learning tab" || name == "Photography tasks tab" || name == "Close album" || name == "Next symbols";
+        private static bool IsNavigation(string name) => name == "Symbols tab" || name == "Photos tab" || name == "Gesture learning tab" || name == "Photography tasks tab" || name == "Close album" || name == "Next symbols" || name == "Previous symbols";
         private void RenderBook()
         {
             if (!view || drawingFrame) return;

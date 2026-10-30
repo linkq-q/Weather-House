@@ -357,9 +357,12 @@ namespace WeatherHouse.Hillside
                 if (agent.waterAreaIndex < 0 || agent.waterAreaIndex >= waterAreas.Length) return false;
                 HabitatVolume water = waterAreas[agent.waterAreaIndex];
                 float waterHeight = waterSurface ? waterSurface.Height(requested) : water.center.y;
-                float bodyClearance = Mathf.Max(.12f, radius * 2.5f);
-                if (!water.Contains(requested, radius) || (waterSurface && !waterSurface.Contains(requested, -radius)) || ground + radius >= waterHeight - bodyClearance) return false;
-                projected.y = Mathf.Clamp(waterHeight - agent.swimDepth, ground + radius, waterHeight - bodyClearance);
+                var body = agent.BodyEnvelope;
+                float bodyClearance = Mathf.Max(.18f, body.Valid ? body.Top + .18f : radius * 2.5f);
+                float bottomClearance = body.Valid ? Mathf.Max(.08f, .08f - body.Bottom) : radius;
+                if (!water.Contains(requested, radius) || (waterSurface && !waterSurface.Contains(requested, -radius)) || ground + bottomClearance >= waterHeight - bodyClearance) return false;
+                float depth = agent.speciesId == "fish" ? Mathf.Max(.65f, agent.swimDepth) : agent.swimDepth;
+                projected.y = Mathf.Clamp(waterHeight - depth, ground + bottomClearance, waterHeight - bodyClearance);
                 return true;
             }
             if (agent.locomotion == WildlifeLocomotion.Flying)

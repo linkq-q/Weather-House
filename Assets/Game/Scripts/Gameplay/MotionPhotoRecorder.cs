@@ -143,6 +143,10 @@ namespace WeatherHousePrototype
                     long costStart=System.Diagnostics.Stopwatch.GetTimestamp(),section=costStart;
                     var cost=new CaptureCost{frame=index,unityFrame=Time.frameCount};
 #endif
+                    // The shutter runs before LateUpdate, where procedural grass is normally submitted.
+                    foreach (var grass in FindObjectsOfType<WeatherHouse.Hillside.HillsideGrassRenderer>())
+                        if (grass.isActiveAndEnabled && grass.gameObject.scene == captureCamera.gameObject.scene)
+                            grass.DrawForCamera(captureCamera, true);
                     captureCamera.Render();
 #if UNITY_EDITOR
                     cost.renderMs=Elapsed(ref section);

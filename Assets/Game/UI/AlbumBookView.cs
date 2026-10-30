@@ -32,7 +32,7 @@ namespace WeatherHousePrototype
         };
 
         public static RectTransform Create(Transform parent, bool photosSelected,
-            UnityAction selectSymbols, UnityAction selectPhotos, UnityAction close, UnityAction flipGlyphs)
+            UnityAction selectSymbols, UnityAction selectPhotos, UnityAction close, UnityAction flipGlyphs, UnityAction previousPage = null)
         {
             var book = Node(parent, "Notebook", Vector2.zero, ReferenceSize);
             ArtButton(book, "Symbols tab", photosSelected ? "TabSymbolsIdle" : "TabSymbolsSelected",
@@ -41,7 +41,10 @@ namespace WeatherHousePrototype
                 new Rect(342f, 75f, 82f, 69f), selectPhotos);
             ArtButton(book, "Close album", "ArrowLeft", new Rect(148f, 446f, 88f, 71f), close);
             Art(book, "Book artwork", "Book", new Rect(211f, 108f, 1228f, 742f));
-            var pageTurn = Place(book, "Next symbols", new Rect(1170f, 682f, 180f, 120f)).gameObject.AddComponent<Image>();
+            var pageBack = Place(book, "Previous symbols", new Rect(236f, 130f, 575f, 690f)).gameObject.AddComponent<Image>();
+            pageBack.color = Color.clear;
+            Bind(pageBack, previousPage);
+            var pageTurn = Place(book, "Next symbols", new Rect(845f, 130f, 575f, 690f)).gameObject.AddComponent<Image>();
             pageTurn.color = Color.clear;
             Bind(pageTurn, flipGlyphs);
             return book;

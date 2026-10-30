@@ -656,7 +656,7 @@ namespace WeatherHousePrototype
             albumRoot = AlbumBookView.Create(modalRoot, albumPhotosSelected,
                 () => { albumPhotosSelected = false; albumGesturesSelected = false; albumTasksSelected = false; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
                 () => { albumPhotosSelected = true; albumGesturesSelected = false; albumTasksSelected = false; selectedGlyph = null; glyphDetailOpen = false; ClearFocus(); RebuildJournalPage(); },
-                CloseTop, () => TurnJournalPage(1));
+                CloseTop, () => TurnJournalPage(1), () => TurnJournalPage(-1));
             var pageHit = albumRoot.gameObject.AddComponent<Image>(); pageHit.color = Color.clear;
             if (life)
             {

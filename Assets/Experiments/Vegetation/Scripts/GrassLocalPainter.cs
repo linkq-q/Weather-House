@@ -290,8 +290,8 @@ namespace WeatherHouse.Vegetation
             if (!isActiveAndEnabled || !grass || !grass.terrain || !camera || strokes.Count == 0) return;
             ValidateOverlayCache();
             EnsureIndex(); GeometryUtility.CalculateFrustumPlanes(camera, frustum);
-            bool mayPopulate = camera.cameraType != CameraType.Reflection && (!Application.isPlaying || camera == (grass.viewCamera ? grass.viewCamera : Camera.main));
-            bool immediate = populateImmediately && !Application.isPlaying;
+            bool mayPopulate = camera.cameraType != CameraType.Reflection && (populateImmediately || !Application.isPlaying || camera == (grass.viewCamera ? grass.viewCamera : Camera.main));
+            bool immediate = populateImmediately;
             if (Application.isPlaying && mayPopulate && budgetFrame != Time.frameCount)
             {
                 budgetFrame = Time.frameCount;
