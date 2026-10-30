@@ -1,0 +1,21 @@
+PASS 07 is the success clip
+PASS 03 and 04 are two casting variants
+PASS 06 is a separate failure cue
+PASS All 26 catalog clips decode in Unity
+PASS 12 existing sources retained
+PASS Armed casting is silent until drawing moves
+PASS First world drawing plays 03
+PASS Stationary stroke fades to silence
+PASS Resuming same stroke keeps 03
+PASS Cancel stops immediately without failure sound
+PASS Next stroke plays 04 without layering
+PASS Invalid submitted stroke stops drawing and plays 06 once
+PASS Failure output uses selected 06 asset
+PASS Result does not repeat on later frames
+PASS Actual recognition and weather cast play 07 exactly once, without 06
+PASS Successful output uses selected 07 asset
+PASS Book practice retains its paper stroke sound
+PASS Focus loss stops sounds and rejects background casting
+PASS Focus return does not replay stale drawing or results
+PASS Disable stops all audio
+PASS No runtime errors or exceptions

@@ -31,7 +31,8 @@ namespace WeatherHouse.Life
         WorldWaterSurface[] waters = System.Array.Empty<WorldWaterSurface>();
         Transform player; Vector3 previousPosition, shorePoint;
         float travelled, nextStep, nextEnvironment, strokeUntil, nextAmbientVoice, shoreGain, lastProgress = -10;
-        bool wasGrounded, ready, wasCamera, wasRecording, wasDrawing, wasDialogue, focused = true, strokeMoved;
+        bool wasGrounded, ready, wasCamera, wasRecording, wasDrawing, wasDialogue, focused = true, strokeMoved, castingStroke;
+        int castingVariant = -1;
         bool CanPlay => ready && isActiveAndEnabled && focused && player;
         AnimalActor lastSpeaker; LifeSpeaker dialogueSpeaker; LifeRequest lastRequest; int lastRevision; string lastUtterance;
 #if UNITY_EDITOR
@@ -94,14 +95,20 @@ namespace WeatherHouse.Life
         }
         public static void Play(LifeAudioCue cue) { if (instance && instance.CanPlay) instance.PlayCue(cue, instance.player.position); }
         public static void PlayAt(LifeAudioCue cue, Vector3 position) { if (instance) instance.PlayCue(cue, position); }
-        public static void StrokeMoved()
+        public static void StrokeMoved(bool casting = false)
         {
             if (instance) instance.TraceStroke("signal.request");
             if (!instance || !instance.CanPlay) return;
+            if (casting && !instance.castingStroke)
+            {
+                int count = instance.Catalog.Find(LifeAudioCue.Casting)?.clips.Length ?? 0;
+                instance.castingVariant = count > 0 ? (instance.castingVariant + 1) % count : 0;
+            }
+            instance.castingStroke = casting;
             instance.strokeMoved = true; instance.strokeUntil = Time.unscaledTime + .09f;
             instance.TraceStroke("signal.accept");
         }
-        public static void StopStroke() { if (instance) { instance.TraceStroke("cancel"); instance.strokeMoved = false; instance.strokeUntil = 0; instance.Stop(2); } }
+        public static void StopStroke() { if (instance) { instance.TraceStroke("cancel"); instance.strokeMoved = instance.castingStroke = false; instance.strokeUntil = 0; instance.Stop(2); } }
         void PlayCue(LifeAudioCue cue, Vector3 position, float gain = 1)
         {
             if (!CanPlay) return;
@@ -135,12 +142,13 @@ namespace WeatherHouse.Life
             voiceSlot[slot] = false;
         }
         void Stop(int slot) { if (slot == 2 && sources[slot] && sources[slot].isPlaying) TraceStroke("source.stop"); if (sources[slot]) sources[slot].Stop(); stopAt[slot] = 0; }
-        void Loop(int slot, LifeAudioCue cue, float amount, Vector3 position, float dt)
+        void Loop(int slot, LifeAudioCue cue, float amount, Vector3 position, float dt, int variant = 0)
         {
             LifeAudioCatalog.Sound sound = Catalog.Find(cue); if (sound == null || sound.clips.Length == 0) return;
             AudioSource source = sources[slot]; emissionPositions[slot] = position;
             source.transform.position = position + (source.spatialBlend > 0 ? HearingOffset() : Vector3.zero);
-            if (amount > .001f && !source.isPlaying) StartClip(slot, sound.clips[0], position, 0, true);
+            AudioClip clip = sound.clips[variant % sound.clips.Length];
+            if (amount > .001f && (!source.isPlaying || source.clip != clip)) StartClip(slot, clip, position, 0, true);
             source.volume = Mathf.MoveTowards(source.volume, sound.volume * amount, dt * .8f);
             if (amount <= .001f && source.volume <= .001f) Stop(slot);
         }
@@ -169,7 +177,8 @@ namespace WeatherHouse.Life
             // World drawing and journal practice share this state; their input component is added after bootstrap.
             bool drawing = life.GestureInputActive;
             // Consume each movement pulse once even when the next frame exceeds the short release window.
-            Loop(2, LifeAudioCue.Stroke, drawing && (strokeMoved || now < strokeUntil) ? 1 : 0, player.position, dt);
+            Loop(2, castingStroke ? LifeAudioCue.Casting : LifeAudioCue.Stroke,
+                drawing && (strokeMoved || now < strokeUntil) ? 1 : 0, player.position, dt, castingStroke ? castingVariant : 0);
             TraceStroke("update.after-loop");
             strokeMoved = false;
             if (!drawing && wasDrawing) StopStroke(); wasDrawing = drawing;
@@ -284,7 +293,7 @@ namespace WeatherHouse.Life
         void OnDisable()
         {
             for (int i = 0; i < sources.Length; i++) Stop(i);
-            strokeMoved = false; strokeUntil = 0;
+            strokeMoved = castingStroke = false; strokeUntil = 0;
         }
         void OnEnable() { if (ready) SyncPresentation(); }
         void SyncPresentation()

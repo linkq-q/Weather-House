@@ -215,7 +215,7 @@ namespace WeatherHouse.Life
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(stroke.rectTransform, Input.mousePosition, null, out Vector2 point);
             if (points.Count < 512 && (points.Count == 0 || Vector2.Distance(points[points.Count - 1], point) >= 3f))
-            { if (points.Count > 0) LifeAudio.StrokeMoved(); points.Add(point); }
+            { if (points.Count > 0) LifeAudio.StrokeMoved(true); points.Add(point); }
             stroke.SetPath(points);
         }
 
@@ -230,6 +230,7 @@ namespace WeatherHouse.Life
                 success = life.TryCast(id, out message);
                 noWeatherTarget = !success && (id == "strong" || id == "weak") && string.IsNullOrEmpty(message);
             }
+            if (!success) LifeAudio.Play(LifeAudioCue.CastFailed);
             stroke.color = success ? new Color(.66f, .95f, .73f) : new Color(1f, .54f, .36f);
             stroke.ReleaseSpell(success);
             drawHint.text = noWeatherTarget ? "" : message + "\n可以再次描画，Esc 收起";

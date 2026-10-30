@@ -19,13 +19,18 @@ for (const id of Object.keys(voice.presets)) {
   assert.equal(digest(bytes), digest(Buffer.from(voice.encodeWav(voice.render(id).samples))), `${id}: stale voice export`);
   clips.push({ id: `animal_syllable_${id}`, sha256: digest(bytes) });
 }
-assert.equal(clips.length, 23);
-assert.equal(fs.readdirSync(path.join(imported, 'Clips')).filter(file => file.endsWith('.wav')).length, 23, 'Unselected clips must not remain in runtime Resources');
+assert.equal(clips.length, 26);
+assert.equal(fs.readdirSync(path.join(imported, 'Clips')).filter(file => file.endsWith('.wav')).length, 26, 'Unselected clips must not remain in runtime Resources');
 const catalog = fs.readFileSync(path.join(imported, 'Catalog.asset'), 'utf8');
 for (const clip of clips) {
   const meta = fs.readFileSync(path.join(imported, 'Clips', `${clip.id}.wav.meta`), 'utf8');
   const guid = meta.match(/^guid: ([a-f0-9]+)/m)[1];
   assert(catalog.includes(`fileID: 8300000, guid: ${guid}`), `${clip.id}: catalog binding missing`);
+}
+for (const [cue, names] of [[9, ['weather_release']], [17, ['magic_cast_a_loop', 'magic_cast_b_loop']], [18, ['magic_failed']]]) {
+  const block = catalog.match(new RegExp(`  - cue: ${cue}\\r?\\n([\\s\\S]*?)(?=  - cue:|  voices:)`))[1];
+  const expected = names.map(name => fs.readFileSync(path.join(imported, 'Clips', `${name}.wav.meta`), 'utf8').match(/^guid: ([a-f0-9]+)/m)[1]);
+  assert.deepEqual([...block.matchAll(/fileID: 8300000, guid: ([a-f0-9]+)/g)].map(match => match[1]), expected, `Magic cue ${cue}: selected take/order mismatch`);
 }
 const mapping = JSON.parse(fs.readFileSync(path.join(__dirname, 'surface-bindings.json')));
 const actual = fs.readFileSync(path.join(__dirname, 'surface-audit.tsv'), 'utf8');

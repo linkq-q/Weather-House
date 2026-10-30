@@ -40,7 +40,10 @@ SPECS = [
  ("water_touch_a", "Approved20261030/water_touch_a.wav", 0.000000, None, -10, 0.003, 0.035, False, "A08 water contact variant a"),
  ("water_touch_b", "Approved20261030/water_touch_b.wav", 0.000000, None, -10, 0.003, 0.035, False, "A08 water contact variant b"),
  ("water_lap", "Approved20261030/water_lap.wav", 0.000000, None, -14, 0.005, 0.035, False, "A09 mouth-liquid contact; source cat drinking milk, no vocal call"),
- ("weather_release", "wind_woosh_loop.ogg", 2.85, 3.30, -17, .045, .20, False, "A10 accepted weather gesture short air cue"),
+ ("weather_release", "ApprovedMagic20261030/07.wav", 0, None, -8, .005, .06, False, "A10 selected 07 casting success"),
+ ("magic_cast_a_loop", "ApprovedMagic20261030/03.wav", 0, None, -10, .12, 0, True, "A10 selected 03 moving world gesture"),
+ ("magic_cast_b_loop", "ApprovedMagic20261030/04.wav", 0, None, -10, .12, 0, True, "A10 selected 04 moving world gesture alternate"),
+ ("magic_failed", "ApprovedMagic20261030/06.wav", 0, None, -10, .005, .06, False, "A10 selected 06 casting failure"),
  ("rain_loop", "Approved20261030/rain_loop.wav", 0.000000, None, -22, 0.15, 0, True, "A11 local rain loop"),
  ("wind_loop", "Approved20261030/wind_loop.wav", 0.000000, None, -18, 0.4, 0, True, "A12 local wind loop"),
  ("outdoor_quiet_loop", "outdoor_cricket_augmentality.ogg", 0.0, None, -28, .25, 0, True, "B03 quiet outdoor insect ambience"),
@@ -106,8 +109,10 @@ manifest = dict(date="2026-10-26", status="PCM exports ready for runtime integra
 if previous:
     # Preserve source attribution and untouched entries when retuning individual effects.
     updates = {record["clip_id"]: record for record in records}
+    existing_ids = {record["clip_id"] for record in previous["clips"]}
     manifest = previous
     manifest["clips"] = [{**record, **updates.get(record["clip_id"], {})} for record in previous["clips"]]
+    manifest["clips"].extend(record for record in records if record["clip_id"] not in existing_ids)
     manifest["clip_count"] = len(manifest["clips"])
     manifest["total_bytes"] = sum(record["bytes"] for record in manifest["clips"])
 manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

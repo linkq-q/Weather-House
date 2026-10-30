@@ -116,6 +116,19 @@ MonoBehaviour:
     volume: 0.4
     cooldown: 0
     shortDuration: 0
+  - cue: 17
+    clips:
+    - {fileID: 8300000, guid: f17e95497d2616ed9668cd8d3502613a, type: 3}
+    - {fileID: 8300000, guid: 63ac43814a05de88ed5681605bdfd2e2, type: 3}
+    volume: 0.3
+    cooldown: 0
+    shortDuration: 0
+  - cue: 18
+    clips:
+    - {fileID: 8300000, guid: 29577464f26ab1a6c2a858fdf30c9939, type: 3}
+    volume: 0.38
+    cooldown: 0.25
+    shortDuration: 0
   voices:
   - speciesId: dog
     clip: {fileID: 8300000, guid: 813baa492c17c8d006640f06ab091798, type: 3}

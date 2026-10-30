@@ -131,7 +131,7 @@ namespace WeatherHouse.Life.Editor
                 Set(gestureInput, "drawing", true);
                 var points = Get<List<Vector2>>(gestureInput, "points"); points.Clear(); points.Add(new Vector2(-10000, -10000));
                 Call(gestureInput, "AddPoint"); yield return null;
-                Check(gestureInput.IsWorldDrawing && sources[2].isPlaying, "World AddPoint movement consumes the same stroke source", checks);
+                Check(gestureInput.IsWorldDrawing && sources[2].isPlaying && audio.Catalog.Find(LifeAudioCue.Casting).clips.Contains(sources[2].clip), "World AddPoint movement uses a selected magic clip on the shared drawing source", checks);
                 Set(gestureInput, "drawing", false); Call(gestureInput, "SubmitStroke");
                 Check(!sources[2].isPlaying, "World pointer release stops its stroke immediately", checks);
                 yield return null;

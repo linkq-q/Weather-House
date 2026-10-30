@@ -21,7 +21,8 @@ const sounds = [
   [['water_touch_a', 'water_touch_b'], .38, .2], ['water_lap', .45, .25], ['weather_release', .38, .2],
   ['rain_loop', .2, 0], ['wind_loop', .17, 0], ['step_grass_a', .34, .18],
   ['step_dirt_a', .35, .18], ['step_stone_a', .29, .18],
-  ['outdoor_quiet_loop', .13, 0], ['shore_soft_loop', .4, 0]
+  ['outdoor_quiet_loop', .13, 0], ['shore_soft_loop', .4, 0],
+  [['magic_cast_a_loop', 'magic_cast_b_loop'], .3, 0], ['magic_failed', .38, .25]
 ];
 const clipGuids = new Map();
 function importClip(name, bytes, loop) {

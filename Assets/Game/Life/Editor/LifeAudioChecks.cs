@@ -23,7 +23,9 @@ namespace WeatherHouse.Life.Editor
                 Check(catalog.Find(cue).clips.Length == 1, cue + " uses the selected single take");
             Check(catalog.Find(LifeAudioCue.Water).clips.Length == 2 && catalog.Find(LifeAudioCue.Water).clips.Distinct().Count() == 2, "Water keeps two selected short variations");
             Check(catalog.voices.Length == 5 && new[] { "dog", "squirrel", "fox", "sheep", "deer" }.All(id => catalog.VoiceFor(id)), "Five species use authored syllable voices");
-            Check(catalog.sounds.SelectMany(s => s.clips).Concat(catalog.voices.Select(v => v.clip)).Distinct().Count() == 23, "23 distinct final clips");
+            Check(catalog.Find(LifeAudioCue.Casting).clips.Length == 2 && catalog.Find(LifeAudioCue.Casting).clips.Distinct().Count() == 2, "World casting has two selected alternatives");
+            Check(catalog.Find(LifeAudioCue.CastFailed).clips.Length == 1, "Failed casting has its selected cue");
+            Check(catalog.sounds.SelectMany(s => s.clips).Concat(catalog.voices.Select(v => v.clip)).Distinct().Count() == 26, "26 distinct final clips");
             Check(catalog.Surface((Material)null) == LifeAudioSurface.Unknown && catalog.Surface((TerrainLayer)null) == LifeAudioSurface.Unknown, "Unknown surface is not guessed as dirt");
             Check(catalog.terrainSurfaces.Any(s => s.surface == LifeAudioSurface.Grass) && catalog.terrainSurfaces.Any(s => s.surface == LifeAudioSurface.Dirt) && catalog.terrainSurfaces.Any(s => s.surface == LifeAudioSurface.Stone), "Actual terrain has grass dirt stone reference mappings");
             Check(catalog.materialSurfaces.Length > 0 && catalog.materialSurfaces.All(s => s.material), "Actual mesh materials have explicit reference mappings");

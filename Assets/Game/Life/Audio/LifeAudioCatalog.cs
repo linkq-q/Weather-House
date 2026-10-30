@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace WeatherHouse.Life
 {
-    public enum LifeAudioCue { Ui, Progress, Paper, Stroke, Camera, Fiber, Contact, Water, Drink, Cast, Rain, Wind, GrassStep, DirtStep, StoneStep, Outdoor, Shore }
+    public enum LifeAudioCue { Ui, Progress, Paper, Stroke, Camera, Fiber, Contact, Water, Drink, Cast, Rain, Wind, GrassStep, DirtStep, StoneStep, Outdoor, Shore, Casting, CastFailed }
     public enum LifeAudioSurface { Unknown, Grass, Dirt, Stone }
 
     [CreateAssetMenu(menuName = "Weather House/Life audio catalog")]
