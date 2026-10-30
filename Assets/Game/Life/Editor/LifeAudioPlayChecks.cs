@@ -64,8 +64,8 @@ namespace WeatherHouse.Life.Editor
                         yield return null;
                     }
                     controller.SetScriptedInput(Vector2.zero, false, false);
-                    Check(LifeWorld.Flat(start, player.position) > .8f && audio.FootstepCount >= before + 2 && heard.Count == 2,
-                        surface + " actual controller travel selects both surface candidates; metres=" + LifeWorld.Flat(start, player.position).ToString("F2") + "; clips=" + heard.Count, checks);
+                    Check(LifeWorld.Flat(start, player.position) > .8f && audio.FootstepCount >= before + 2 && heard.SetEquals(audio.Catalog.Find(cue).clips),
+                        surface + " actual controller travel uses the selected surface clip; metres=" + LifeWorld.Flat(start, player.position).ToString("F2") + "; clips=" + heard.Count, checks);
                 }
                 int groundedCount = audio.FootstepCount;
                 Place(character, player, player.position + Vector3.up * 3);

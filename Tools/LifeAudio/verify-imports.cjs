@@ -19,7 +19,8 @@ for (const id of Object.keys(voice.presets)) {
   assert.equal(digest(bytes), digest(Buffer.from(voice.encodeWav(voice.render(id).samples))), `${id}: stale voice export`);
   clips.push({ id: `animal_syllable_${id}`, sha256: digest(bytes) });
 }
-assert.equal(clips.length, 26);
+assert.equal(clips.length, 23);
+assert.equal(fs.readdirSync(path.join(imported, 'Clips')).filter(file => file.endsWith('.wav')).length, 23, 'Unselected clips must not remain in runtime Resources');
 const catalog = fs.readFileSync(path.join(imported, 'Catalog.asset'), 'utf8');
 for (const clip of clips) {
   const meta = fs.readFileSync(path.join(imported, 'Clips', `${clip.id}.wav.meta`), 'utf8');
@@ -61,5 +62,5 @@ for (const [id, cue] of [['paper_move', 2], ['camera_shutter', 4]]) {
   retuned.push({ id, gain, effectiveRmsDb, onsetSeconds, peakDb: 20 * Math.log10(peak), seconds: size / 2 / rate });
 }
 const report = { result: 'PASS', scope: 'Offline bytes and typed YAML object references; Unity object resolution requires LifeAudioChecks.Run; source/listener output requires LifeAudioAudibilityChecks', imported: clips.length, terrainMappings: mapping.terrain.length, materialMappings: mapping.materials.length, retuned, clips };
-fs.writeFileSync(path.join(__dirname, 'import-verification.json'), JSON.stringify(report, null, 2));
+fs.writeFileSync(process.argv[2] || path.join(__dirname, 'import-verification.json'), JSON.stringify(report, null, 2));
 console.log(`PASS ${clips.length} exact PCM imports; 4 typed terrain-layer and 8 typed stone-material references. Unity object resolution remains a separate check.`);

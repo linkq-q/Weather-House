@@ -1,0 +1,19 @@
+PASS Runtime catalog imports
+PASS One binding per semantic cue
+PASS All effects have playable imported clips
+PASS GrassStep uses the selected single take
+PASS DirtStep uses the selected single take
+PASS StoneStep uses the selected single take
+PASS Water keeps two selected short variations
+PASS Five species use authored syllable voices
+PASS 23 distinct final clips
+PASS Unknown surface is not guessed as dirt
+PASS Actual terrain has grass dirt stone reference mappings
+PASS Actual mesh materials have explicit reference mappings
+PASS Grass alphamap patch selects grass
+PASS Dirt alphamap patch selects dirt
+PASS Stone alphamap patch selects stone
+PASS Unregistered actual layer stays unknown
+
+PASS all 23 Unity AudioClips decode and load
+PASS rain, wind and shore each bind a single clip

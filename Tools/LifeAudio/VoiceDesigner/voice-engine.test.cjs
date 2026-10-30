@@ -12,6 +12,10 @@ const outputDir = process.argv[2];
 if (outputDir) fs.mkdirSync(outputDir, { recursive: true });
 const report = [];
 const hashes = new Set();
+for (const [id, pitch, speed] of [['dog',7,2],['squirrel',0,1.15],['fox',6,1.9],['sheep',7,1.7],['deer',8,1.8]]) {
+  assert.equal(voice.presets[id].defaults.pitch, pitch, `${id}: user-selected pitch`);
+  assert.equal(voice.presets[id].defaults.speed, speed, `${id}: user-selected speed`);
+}
 for (const [id, preset] of Object.entries(voice.presets)) {
   const result = voice.render(id, preset.defaults);
   const wav = Buffer.from(voice.encodeWav(result.samples));
@@ -61,7 +65,7 @@ for (const [id, preset] of Object.entries(voice.presets)) {
 }
 assert.equal(hashes.size, 5, 'five distinct presets');
 const base = voice.render('dog', voice.presets.dog.defaults).samples;
-for (const [key, value] of Object.entries({ pitch: 7, speed: 1.4, timbre: 95, variation: 95 })) {
+for (const [key, value] of Object.entries({ pitch: 9, speed: 1.4, timbre: 95, variation: 95 })) {
   assert.notDeepEqual(voice.render('dog', { ...voice.presets.dog.defaults, [key]: value }).samples, base, `${key} must affect audio`);
 }
 assert.throws(() => voice.render('unknown', {}));

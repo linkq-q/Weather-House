@@ -1,6 +1,6 @@
 # 天气屋音效接入
 
-运行时配置位于 `Assets/Game/Life/Audio/Resources/LifeAudio/Catalog.asset`。17 个语义音效条目引用 21 个环境/动作 WAV，另有 5 个物种原创短音节，共 26 个文件。原始录音、许可和裁剪记录保留在 `Source`；制作者工作台位于 `VoiceDesigner/index.html`。
+运行时配置位于 `Assets/Game/Life/Audio/Resources/LifeAudio/Catalog.asset`。17 个语义音效条目引用 18 个环境/动作 WAV，另有 5 个物种原创短音节，共 23 个文件。原始录音、许可和裁剪记录保留在 `Source`；制作者工作台位于 `VoiceDesigner/index.html`。
 
 `LifeAudio` 在 WatersideV2 的 GameplaySession 上随 Play 挂载。播放实例固定为 12 个，不按动物、植物、水面数量增加。它沿用现有相机的唯一 AudioListener。雨、风、描画、编垫、室外底声、岸浪各占一个固定循环；交谈或手账打开时，环境层降低音量。
 
@@ -10,9 +10,13 @@
 
 2026-10-30：草地足音改用 Fission9 的草叶实录，来源与裁剪参数见 `Source/grass-20261030-source.json`。五种动物语音在制作端把音节及间隔缩短一半，音高提高 4–6 个半音；狗与羊的明亮度也已提高。`VoiceDesigner` 默认值与游戏 WAV 同步。桌面 `天气屋/音效试听_20261030/打开试听.html` 提供 22 类共 70 个对照片段，其余候选待试听后选择。
 
+2026-10-30 试听选择接入：以后续用户导出中的 `picked: true` 为准。草地改为“轻叶片摩擦”，土路用“柔软土路”，石面用“短石面”，每种地面只加载一条；雨、风、海浪、布料、饮水各取一条，水花保留两条短变化。翻书、快门、草叶采用所选版本。松鼠恢复用户选中的旧声线，其余四种动物使用“更明亮备选”。书写、界面、完成提示、户外底声及待重选的施法声音保持原配置。所选原片、来源与取舍见 `Source/approved-20261030-selection.json`。最终音量和循环接缝仍待游戏中试听。
+
+魔法新候选单独位于桌面 `天气屋/魔法音效试听_20261030/打开魔法试听.html`，8 条铃音、星屑和竖琴候选，尚未放入运行时资源。
+
 | 内容 | 真实入口 |
 | --- | --- |
-| 草/土/石足音，两条各组 | ForestSprite 实际位移、接地状态；Terrain alphamap 主层或碰撞网格对应材质；浅水时选水花 |
+| 草/土/石足音，各一条 | ForestSprite 实际位移、接地状态；Terrain alphamap 主层或碰撞网格对应材质；浅水时选两条水花变化 |
 | 采草、拿草、收垫、喂草 | World 完成对应状态操作时的 Fiber 事件；喂草只在动画消费点 |
 | 编垫 | World.IsCrafting 决定循环，移动中断立刻停；完成发一次 Contact |
 | 放下、铺垫、制作收束 | Contact 事件 |
@@ -32,12 +36,12 @@
 
 ## 重建与验证
 
-- `node Tools/LifeAudio/VoiceDesigner/voice-engine.test.cjs` 检查原创样本、PCM、参数边界和五个默认预设。松鼠、狐、鹿明亮度为 100，狗 35、羊 26。
+- `node Tools/LifeAudio/VoiceDesigner/voice-engine.test.cjs` 检查原创样本、PCM、参数边界和五个已选预设。松鼠、狐、鹿明亮度为 100，狗 70、羊 65。
 - `node Tools/LifeAudio/install-clips.cjs` 从派生成品和当前原创预设重建本模块的 WAV 与 catalog，保留稳定 GUID。文件和材质引用取自集中清单；不会改母版或场景。
-- `node Tools/LifeAudio/verify-imports.cjs` 检查 26 个成品的字节和带对象类型的 YAML 引用；Unity 导入后是否解析为有效对象仍由 `LifeAudioChecks.Run()` 检查。
+- `node Tools/LifeAudio/verify-imports.cjs [报告路径]` 检查 23 个成品的字节、无多余运行时 WAV 和带对象类型的 YAML 引用；Unity 导入后是否解析为有效对象仍由 `LifeAudioChecks.Run()` 检查。
 - `python Tools/LifeAudio/Source/derive_candidates.py paper_move camera_shutter` 只重导出指定两条并更新清单，保留其他成品与来源记录。
 - `WeatherHouse.Life.Editor.LifeAudioSurfaceAudit.Inspect()` 只读导出当前 Terrain 与 Collider 材质。
-- `LifeAudioChecks.Run()` 验证资源、26 个唯一文件、三材质各两条和真实 TerrainData alphamap 选择逻辑。夹具仅创建内存数据。
+- `LifeAudioChecks.Run()` 验证资源、23 个唯一文件、三地面各一条、水花两条及真实 TerrainData alphamap 选择逻辑。夹具仅创建内存数据。
 - `LifeAudioChecks.Runtime()` 检查 12 个实例、唯一监听者和重复事件限流。
 - `LifeAudioPlayChecks.Run(life, completed)` 由主验收协程在隔离存档的 Play 内执行，使用真实地面和控制器验证足音、天气、编垫、翻书和停止路径。结果写入 `LifeGameplayReview/20261026/play/audio-play-result.txt`。
 - `LifeAudioAudibilityChecks.Run(life, completed)` 从实际开书、四叶翻页、手动翻页和 `GameplaySession.TakePhoto` 入口，测量声源与监听输出的最大块 RMS/峰值；结果写入 `LifeGameplayReview/20261026/play/audio-audibility-result.txt`。测试临时静音其他声源后还原，数字输出不代替系统音量、输出设备和人耳验收。

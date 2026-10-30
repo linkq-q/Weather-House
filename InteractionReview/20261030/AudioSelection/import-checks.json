@@ -1,0 +1,119 @@
+{
+  "result": "PASS",
+  "scope": "Offline bytes and typed YAML object references; Unity object resolution requires LifeAudioChecks.Run; source/listener output requires LifeAudioAudibilityChecks",
+  "imported": 23,
+  "terrainMappings": 4,
+  "materialMappings": 8,
+  "retuned": [
+    {
+      "id": "paper_move",
+      "gain": 0.65,
+      "effectiveRmsDb": -34.51634539505715,
+      "onsetSeconds": 0.0030208333333333333,
+      "peakDb": -6.0004777433190135,
+      "seconds": 0.8207916666666667
+    },
+    {
+      "id": "camera_shutter",
+      "gain": 0.7,
+      "effectiveRmsDb": -33.976985793480196,
+      "onsetSeconds": 0.004666666666666667,
+      "peakDb": -6.0004777433190135,
+      "seconds": 0.7736875
+    }
+  ],
+  "clips": [
+    {
+      "id": "step_grass_a",
+      "sha256": "42452ec520dfeede777cfeb19dd61e3409155f7a9bf48755e9be3ff9f600639b"
+    },
+    {
+      "id": "step_dirt_a",
+      "sha256": "32dbee2bba66ccb452398b365507fba277143d2842d9760ef2f456ac60b79a55"
+    },
+    {
+      "id": "step_stone_a",
+      "sha256": "22eec32b24122b359f90e3dca0416e367ac19a13ad552ab1a39cd7ae6904f4ec"
+    },
+    {
+      "id": "ui_soft_tick",
+      "sha256": "cc4ee022d67091a7873a0b3c116e19eccaccb21fd242b1875f1b60056d8a75d0"
+    },
+    {
+      "id": "progress_soft",
+      "sha256": "dece08462521ec5d2200af5539379eb8bc6fe627a9adce302042de924a0f51d7"
+    },
+    {
+      "id": "paper_move",
+      "sha256": "c508cf5e6de3beb2289e313e45572dd2c125d6cfc21fa13bf918f583b15c8dc6"
+    },
+    {
+      "id": "stroke_soft_loop",
+      "sha256": "4d31c5c5cc7e5483c851ce2ef0506c19375074d29151f7be10b5d2589675361d"
+    },
+    {
+      "id": "camera_shutter",
+      "sha256": "958fcc83f33352f66a08bcc0600625a5ab91f8caf3664352823d0178a06c4f82"
+    },
+    {
+      "id": "grass_fiber_loop",
+      "sha256": "b8c6ef8f43422d6e4a6773512c60709a3fd5907b01b5da2f4aeccc464ed13276"
+    },
+    {
+      "id": "soft_contact",
+      "sha256": "2925c2750cab90922fe9eee59a5cc34b6751d4105f9d8b2a6437082278396de8"
+    },
+    {
+      "id": "water_touch_a",
+      "sha256": "bc88af032d78720c362bd7adb9963abdb9d390ecc6b0c45dece09cb146ff9e82"
+    },
+    {
+      "id": "water_touch_b",
+      "sha256": "61996571d90077ae3e01ab3f9c7aef11bc93480776a6c7323720ebab31383c80"
+    },
+    {
+      "id": "water_lap",
+      "sha256": "92af5b65963cd38afc3e1de26d474e224b57e9dc62cedca2cebde80cf046604d"
+    },
+    {
+      "id": "weather_release",
+      "sha256": "b36d2af3689802680e9e31dfe6144f60d2451d3ed8d137a95cb6a4da451254c8"
+    },
+    {
+      "id": "rain_loop",
+      "sha256": "28ee296bbca45b2fb63b949b0570f01a95bc1262e120e775f1289e7e874e4284"
+    },
+    {
+      "id": "wind_loop",
+      "sha256": "7fbcbe8867660326d82bc2f56104f919fd052c3b4a956253d91566838f215382"
+    },
+    {
+      "id": "outdoor_quiet_loop",
+      "sha256": "53780dc2f3c348dfad28692e4195161bc7fb6861ffba3cb739d46a07d5b24136"
+    },
+    {
+      "id": "shore_soft_loop",
+      "sha256": "56df2594cbba05fabaadedf7e802ab8eaeefbd5bf8c3c9b70f600d0aabded44a"
+    },
+    {
+      "id": "animal_syllable_dog",
+      "sha256": "ac2595f3733fb991bc7ab34bf658bbe02b074bc8cced33932eb75f09a6040bde"
+    },
+    {
+      "id": "animal_syllable_squirrel",
+      "sha256": "312dbe30bf856f680a217023e817819d0bd9557b0b32b10ae9af08dcad419acb"
+    },
+    {
+      "id": "animal_syllable_fox",
+      "sha256": "046fb791ba6bc9eeef810ca9a75ee1aa00652c400ed3d897c7ab6361614f1682"
+    },
+    {
+      "id": "animal_syllable_sheep",
+      "sha256": "9adb36a13bf485b0ecc93a2b95dfe9f0b084d3b935d3e1ca4ce0f9ccfdf65d4c"
+    },
+    {
+      "id": "animal_syllable_deer",
+      "sha256": "6cfba720b06f8c2ea3aef2790ccfb34ca495b5c788b3776e5133e3bd625c3920"
+    }
+  ]
+}

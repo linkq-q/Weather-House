@@ -2,11 +2,11 @@
   'use strict';
   const sampleRate = 44100;
   const presets = {
-    dog: { name: '狗', character: '圆润、短促，句尾轻轻下落', frequency: 195, duration: 0.16, formant: 0.88, breath: 0.018, wobble: 0.06, vowels: [0, 1, 2, 0, 3, 1], notes: [0, 2, -1, 1, 3, -3], rhythm: [1, 0.8, 1.2, 0.8, 1, 1.25], defaults: { pitch: 5, speed: 2, timbre: 70, variation: 45 } },
-    squirrel: { name: '松鼠', character: '轻巧、跳跃，小音节紧凑相接', frequency: 335, duration: 0.115, formant: 1.12, breath: 0.012, wobble: 0.09, vowels: [4, 3, 1, 4, 2, 3], notes: [1, 4, -2, 3, 0, 5], rhythm: [0.8, 0.85, 1.25, 0.8, 0.9, 1.1], defaults: { pitch: 4, speed: 2.3, timbre: 100, variation: 60 } },
-    fox: { name: '狐', character: '清软、略带鼻音，抑扬有留白', frequency: 260, duration: 0.175, formant: 1.04, breath: 0.028, wobble: 0.08, vowels: [1, 3, 0, 4, 3, 0], notes: [-2, 3, 1, -1, 4, -2], rhythm: [1.1, 0.85, 1.2, 0.75, 1, 1.3], defaults: { pitch: 4, speed: 1.9, timbre: 100, variation: 55 } },
-    sheep: { name: '羊', character: '蓬松、轻快，尾音带柔和颤动', frequency: 225, duration: 0.205, formant: 0.94, breath: 0.04, wobble: 0.32, vowels: [2, 0, 3, 0, 2, 1], notes: [0, 1, -2, 2, 0, -2], rhythm: [1.2, 0.8, 1.25, 0.9, 1.1, 1.4], defaults: { pitch: 5, speed: 1.7, timbre: 65, variation: 40 } },
-    deer: { name: '鹿', character: '温和、轻亮，呼吸感轻', frequency: 175, duration: 0.195, formant: 0.84, breath: 0.032, wobble: 0.04, vowels: [1, 0, 2, 1, 3, 0], notes: [-1, 1, 2, 0, 1, -3], rhythm: [1.1, 0.9, 1.05, 1.2, 0.85, 1.35], defaults: { pitch: 6, speed: 1.8, timbre: 100, variation: 30 } }
+    dog: { name: '狗', character: '圆润、短促，句尾轻轻下落', frequency: 195, duration: 0.16, formant: 0.88, breath: 0.018, wobble: 0.06, vowels: [0, 1, 2, 0, 3, 1], notes: [0, 2, -1, 1, 3, -3], rhythm: [1, 0.8, 1.2, 0.8, 1, 1.25], defaults: { pitch: 7, speed: 2, timbre: 70, variation: 45 } },
+    squirrel: { name: '松鼠', character: '轻巧、跳跃，小音节紧凑相接', frequency: 335, duration: 0.115, formant: 1.12, breath: 0.012, wobble: 0.09, vowels: [4, 3, 1, 4, 2, 3], notes: [1, 4, -2, 3, 0, 5], rhythm: [0.8, 0.85, 1.25, 0.8, 0.9, 1.1], defaults: { pitch: 0, speed: 1.15, timbre: 100, variation: 60 } },
+    fox: { name: '狐', character: '清软、略带鼻音，抑扬有留白', frequency: 260, duration: 0.175, formant: 1.04, breath: 0.028, wobble: 0.08, vowels: [1, 3, 0, 4, 3, 0], notes: [-2, 3, 1, -1, 4, -2], rhythm: [1.1, 0.85, 1.2, 0.75, 1, 1.3], defaults: { pitch: 6, speed: 1.9, timbre: 100, variation: 55 } },
+    sheep: { name: '羊', character: '蓬松、轻快，尾音带柔和颤动', frequency: 225, duration: 0.205, formant: 0.94, breath: 0.04, wobble: 0.32, vowels: [2, 0, 3, 0, 2, 1], notes: [0, 1, -2, 2, 0, -2], rhythm: [1.2, 0.8, 1.25, 0.9, 1.1, 1.4], defaults: { pitch: 7, speed: 1.7, timbre: 65, variation: 40 } },
+    deer: { name: '鹿', character: '温和、轻亮，呼吸感轻', frequency: 175, duration: 0.195, formant: 0.84, breath: 0.032, wobble: 0.04, vowels: [1, 0, 2, 1, 3, 0], notes: [-1, 1, 2, 0, 1, -3], rhythm: [1.1, 0.9, 1.05, 1.2, 0.85, 1.35], defaults: { pitch: 8, speed: 1.8, timbre: 100, variation: 30 } }
   };
   const vowels = [[450, 900, 2400], [340, 820, 2200], [730, 1180, 2700], [500, 1780, 2600], [300, 2100, 2900]];
 

@@ -20,9 +20,10 @@ namespace WeatherHouse.Life.Editor
             Check(catalog.sounds.Length == Enum.GetValues(typeof(LifeAudioCue)).Length && catalog.sounds.Select(s => s.cue).Distinct().Count() == catalog.sounds.Length, "One binding per semantic cue");
             Check(catalog.sounds.All(s => s.clips.Length > 0 && s.clips.All(c => c && c.length > 0)), "All effects have playable imported clips");
             foreach (LifeAudioCue cue in new[] { LifeAudioCue.GrassStep, LifeAudioCue.DirtStep, LifeAudioCue.StoneStep })
-                Check(catalog.Find(cue).clips.Length == 2 && catalog.Find(cue).clips.Distinct().Count() == 2, cue + " has two distinct candidates");
+                Check(catalog.Find(cue).clips.Length == 1, cue + " uses the selected single take");
+            Check(catalog.Find(LifeAudioCue.Water).clips.Length == 2 && catalog.Find(LifeAudioCue.Water).clips.Distinct().Count() == 2, "Water keeps two selected short variations");
             Check(catalog.voices.Length == 5 && new[] { "dog", "squirrel", "fox", "sheep", "deer" }.All(id => catalog.VoiceFor(id)), "Five species use authored syllable voices");
-            Check(catalog.sounds.SelectMany(s => s.clips).Concat(catalog.voices.Select(v => v.clip)).Distinct().Count() == 26, "26 distinct final clips");
+            Check(catalog.sounds.SelectMany(s => s.clips).Concat(catalog.voices.Select(v => v.clip)).Distinct().Count() == 23, "23 distinct final clips");
             Check(catalog.Surface((Material)null) == LifeAudioSurface.Unknown && catalog.Surface((TerrainLayer)null) == LifeAudioSurface.Unknown, "Unknown surface is not guessed as dirt");
             Check(catalog.terrainSurfaces.Any(s => s.surface == LifeAudioSurface.Grass) && catalog.terrainSurfaces.Any(s => s.surface == LifeAudioSurface.Dirt) && catalog.terrainSurfaces.Any(s => s.surface == LifeAudioSurface.Stone), "Actual terrain has grass dirt stone reference mappings");
             Check(catalog.materialSurfaces.Length > 0 && catalog.materialSurfaces.All(s => s.material), "Actual mesh materials have explicit reference mappings");

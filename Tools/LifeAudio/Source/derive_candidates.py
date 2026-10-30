@@ -27,27 +27,24 @@ def decode(name):
 
 # ID, source, start/end seconds, peak dBFS, fade in/out or loop overlap, use.
 SPECS = [
- ("step_grass_a", "grass_steps_fission9_public_hq.mp3", .095, .385, -12, .003, .035, False, "A13 recorded grass contact a"),
- ("step_grass_b", "grass_steps_fission9_public_hq.mp3", .795, 1.005, -12, .003, .035, False, "A13 recorded grass contact b"),
- ("step_dirt_a", "dirt_walk_aglinder_public_hq.mp3", 9.12, 9.40, -12, .004, .025, False, "A13 ordinary dirt walking variant a"),
- ("step_dirt_b", "dirt_walk_aglinder_public_hq.mp3", 9.64, 9.91, -12, .004, .025, False, "A13 ordinary dirt walking variant b"),
- ("step_stone_a", "StoneOriginal/Fantozzi-footsteps/ogg/Fantozzi-StoneL1.ogg", 0.0, None, -12, .003, .025, False, "A13 stone left-step variant a"),
- ("step_stone_b", "StoneOriginal/Fantozzi-footsteps/ogg/Fantozzi-StoneR1.ogg", 0.0, None, -12, .003, .025, False, "A13 stone right-step variant b"),
+ ("step_grass_a", "Approved20261030/step_grass_a.wav", 0.000000, None, -7, 0.003, 0.025, False, "A13 recorded grass contact a"),
+ ("step_dirt_a", "Approved20261030/step_dirt_a.wav", 0.000000, None, -12, 0.003, 0.025, False, "A13 ordinary dirt walking variant a"),
+ ("step_stone_a", "Approved20261030/step_stone_a.wav", 0.000000, None, -8, 0.003, 0.025, False, "A13 selected short stone step"),
  ("ui_soft_tick", "ui_tick_001.ogg", 0.0, None, -18, .001, .004, False, "A01 shared interface feedback"),
  ("progress_soft", "progress_confirmation_001.ogg", 0.0, None, -16, .004, .035, False, "A02 shared progress confirmation"),
- ("paper_move", "paper_bookFlip1.ogg", .275, .575, -10, .004, .035, False, "A03 book and actual page motion"),
+ ("paper_move", "Approved20261030/paper_move.wav", 0.079208, None, -6, 0.003, 0.035, False, "A03 book and actual page motion"),
  ("stroke_soft_loop", "stroke_pencil_write.ogg", .10, 1.30, -22, .08, 0, True, "A04 moving pen loop"),
- ("camera_shutter", "camera_photo.ogg", .112, .32, -8, .004, .035, False, "A05 camera capture start"),
- ("grass_fiber_loop", "grass_rustle_clusman_public_hq.mp3", 2.10, 3.30, -20, .10, 0, True, "A06 grass fiber harvest and weaving"),
- ("soft_contact", "soft_contact_000.ogg", 0.0, None, -16, .002, .018, False, "A07 shared soft material contact"),
- ("water_touch_a", "water_splash_09.ogg", 0.0, None, -16, .005, .035, False, "A08 water contact variant a"),
- ("water_touch_b", "water_splash_10.ogg", 0.0, None, -16, .005, .035, False, "A08 water contact variant b"),
- ("water_lap", "liquid_lap_cat_public_hq.mp3", 5.10, 5.62, -19, .015, .045, False, "A09 mouth-liquid contact; source cat drinking milk, no vocal call"),
+ ("camera_shutter", "Approved20261030/camera_shutter.wav", 0.107229, None, -6, 0.003, 0.035, False, "A05 camera capture start"),
+ ("grass_fiber_loop", "Approved20261030/grass_fiber_loop.wav", 0.000000, None, -20, 0.1, 0, True, "A06 grass fiber harvest and weaving"),
+ ("soft_contact", "Approved20261030/soft_contact.wav", 0.000000, None, -12, 0.002, 0.018, False, "A07 shared soft material contact"),
+ ("water_touch_a", "Approved20261030/water_touch_a.wav", 0.000000, None, -10, 0.003, 0.035, False, "A08 water contact variant a"),
+ ("water_touch_b", "Approved20261030/water_touch_b.wav", 0.000000, None, -10, 0.003, 0.035, False, "A08 water contact variant b"),
+ ("water_lap", "Approved20261030/water_lap.wav", 0.000000, None, -14, 0.005, 0.035, False, "A09 mouth-liquid contact; source cat drinking milk, no vocal call"),
  ("weather_release", "wind_woosh_loop.ogg", 2.85, 3.30, -17, .045, .20, False, "A10 accepted weather gesture short air cue"),
- ("rain_loop", "rain_1_loop_candidate.ogg", 0.0, 27.0, -20, .15, 0, True, "A11 local rain loop"),
- ("wind_loop", "wind_woosh_loop.ogg", 0.0, None, -22, .15, 0, True, "A12 local wind loop"),
+ ("rain_loop", "Approved20261030/rain_loop.wav", 0.000000, None, -22, 0.15, 0, True, "A11 local rain loop"),
+ ("wind_loop", "Approved20261030/wind_loop.wav", 0.000000, None, -18, 0.4, 0, True, "A12 local wind loop"),
  ("outdoor_quiet_loop", "outdoor_cricket_augmentality.ogg", 0.0, None, -28, .25, 0, True, "B03 quiet outdoor insect ambience"),
- ("shore_soft_loop", "shore_jasinski_alkaibeach.flac", 0.0, None, -12, .6, 0, True, "B04 ocean surf from jasinski Alki Beach CC0"),
+ ("shore_soft_loop", "Approved20261030/shore_soft_loop.wav", 0.000000, None, -6, 0.25, 0, True, "B04 selected shore wave by transitking CC0"),
 ]
 selected = set(sys.argv[1:])
 if selected - {spec[0] for spec in SPECS}:
@@ -101,7 +98,7 @@ for clip_id, name, begin, end, peak_db, fade_in, fade_out, loop, use in SPECS:
         human_listening_passed=False, unity_imported_by_this_task=False)
     records.append(rec)
     print(f"{clip_id}: {rec['duration_seconds']}s, {rec['bytes']} bytes")
-manifest = dict(date="2026-10-26", status="21 PCM exports ready for runtime integration and in-game listening",
+manifest = dict(date="2026-10-26", status="PCM exports ready for runtime integration and in-game listening",
     source_files_preserved=True, lossless_master_claim=False,
     note="WAV exports are derived from lossy OGG/MP3 sources; WAV does not restore lost source quality. Human listening pending.",
     decoder=str(FFMPEG), decoder_version="ffmpeg 3.0.1 (existing installed executable; no new software installed)",

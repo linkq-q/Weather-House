@@ -19,8 +19,8 @@ const sounds = [
   ['ui_soft_tick', .25, .12], ['progress_soft', .36, .5], ['paper_move', .65, .2], ['stroke_soft_loop', .18, 0],
   ['camera_shutter', .7, .25], ['grass_fiber_loop', .38, .2, .26], ['soft_contact', .45, .2],
   [['water_touch_a', 'water_touch_b'], .38, .2], ['water_lap', .45, .25], ['weather_release', .38, .2],
-  ['rain_loop', .2, 0], ['wind_loop', .17, 0], [['step_grass_a', 'step_grass_b'], .34, .18],
-  [['step_dirt_a', 'step_dirt_b'], .35, .18], [['step_stone_a', 'step_stone_b'], .29, .18],
+  ['rain_loop', .2, 0], ['wind_loop', .17, 0], ['step_grass_a', .34, .18],
+  ['step_dirt_a', .35, .18], ['step_stone_a', .29, .18],
   ['outdoor_quiet_loop', .13, 0], ['shore_soft_loop', .4, 0]
 ];
 const clipGuids = new Map();
