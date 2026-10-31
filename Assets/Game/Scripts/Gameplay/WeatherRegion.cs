@@ -12,11 +12,19 @@ namespace WeatherHousePrototype
         public LocalWeather initialWeather = LocalWeather.Rain;
         public LocalWeather Current => initialized ? currentWeather : initialWeather;
         public float Wetness { get; private set; }
+        public bool localPlayerWeather;
+        [HideInInspector] public bool useWindPrefab = true;
+        public bool SoundActive => weatherActive;
+        public int SoundStrength => strength;
+        private bool weatherActive = true;
+        private int strength = 1;
+        private readonly ParticleSystem.Particle[] boundedParticles = new ParticleSystem.Particle[3200];
 
         private LocalWeather currentWeather;
         private bool initialized;
         private ParticleSystem rain;
         private ParticleSystem leaves;
+        private WeatherHouse.Life.LifeWindEffect windEffect;
         private Material particleMaterial;
         private Texture2D particleTexture;
         private Light sunshine;
@@ -30,12 +38,13 @@ namespace WeatherHousePrototype
 
         private void Update()
         {
-            float target = Current == LocalWeather.Rain ? 1f : 0f;
+            float target = weatherActive && Current == LocalWeather.Rain ? 1f : 0f;
             Wetness = Mathf.MoveTowards(Wetness, target,
                 Time.deltaTime / (Current == LocalWeather.Sun ? 12f : 24f));
             if (sunshine != null)
                 sunshine.intensity = Mathf.MoveTowards(sunshine.intensity,
-                    Current == LocalWeather.Sun ? 3f : 0f, Time.deltaTime * 2f);
+                    weatherActive && Current == LocalWeather.Sun ? (localPlayerWeather && strength == 2 ? 3.8f : 3f) : 0f, Time.deltaTime * 2f);
+            if (localPlayerWeather) { BoundParticles(rain); BoundParticles(leaves); }
         }
 
         public bool Contains(Vector3 point)
@@ -48,10 +57,37 @@ namespace WeatherHousePrototype
 
         public void SetWeather(LocalWeather weather)
         {
+            weatherActive = true;
             currentWeather = weather;
             initialized = true;
             SetEmission(rain, weather == LocalWeather.Rain);
             SetEmission(leaves, weather == LocalWeather.Wind);
+            if (windEffect) windEffect.SetWeather(weather == LocalWeather.Wind, strength, radius);
+        }
+
+        public void SetLocalWeather(LocalWeather weather, int intensity, bool active)
+        {
+            currentWeather = weather; initialized = true;
+            weatherActive = active; strength = Mathf.Clamp(intensity, 1, 2);
+            SetEmission(rain, active && weather == LocalWeather.Rain);
+            SetEmission(leaves, active && weather == LocalWeather.Wind);
+            if (windEffect) windEffect.SetWeather(active && weather == LocalWeather.Wind, strength, radius);
+            if (rain) { var emission = rain.emission; emission.rateOverTime = radius * radius * (strength == 2 ? 4f : 1.5f); }
+            if (leaves)
+            {
+                var emission = leaves.emission; emission.rateOverTime = strength == 2 ? 22f : 7f;
+                var velocity = leaves.velocityOverLifetime; velocity.x = strength == 2 ? 5f : 1.4f;
+            }
+            if (!active) { rain?.Clear(); leaves?.Clear(); }
+        }
+
+        private void BoundParticles(ParticleSystem particles)
+        {
+            if (!particles || !particles.isPlaying) return;
+            int count = particles.GetParticles(boundedParticles);
+            for (int i = 0; i < count; i++)
+                if (!Contains(boundedParticles[i].position)) boundedParticles[i].remainingLifetime = 0f;
+            particles.SetParticles(boundedParticles, count);
         }
 
         private static void SetEmission(ParticleSystem effect, bool active)
@@ -111,21 +147,33 @@ namespace WeatherHousePrototype
             collision.lifetimeLoss = 1f;
             collision.sendCollisionMessages = false;
 
-            leaves = CreateParticles("Local Wind Leaves", .15f, 3f, .13f,
-                new Color(.57f, .62f, .26f, .8f), 14f, 1.8f);
-            var velocity = leaves.velocityOverLifetime;
-            velocity.enabled = true;
-            velocity.space = ParticleSystemSimulationSpace.World;
-            velocity.x = 3.5f;
-            velocity.y = .35f;
-            velocity.z = .7f;
-            var noise = leaves.noise;
-            noise.enabled = true;
-            noise.strength = .6f;
-            noise.frequency = .5f;
-            var rotation = leaves.rotationOverLifetime;
-            rotation.enabled = true;
-            rotation.z = 2f;
+            if (localPlayerWeather)
+            {
+                if (useWindPrefab)
+                {
+                    var prefab = Resources.Load<WeatherHouse.Life.LifeWindEffect>("LifeWeather/Wind");
+                    if (prefab) windEffect = Instantiate(prefab, transform, false);
+                    else Debug.LogError("Missing LifeWeather/Wind prefab.", this);
+                }
+            }
+            else
+            {
+                leaves = CreateParticles("Local Wind Leaves", .15f, 3f, .13f,
+                    new Color(.57f, .62f, .26f, .8f), 14f, 1.8f);
+                var velocity = leaves.velocityOverLifetime;
+                velocity.enabled = true;
+                velocity.space = ParticleSystemSimulationSpace.World;
+                velocity.x = 3.5f;
+                velocity.y = .35f;
+                velocity.z = .7f;
+                var noise = leaves.noise;
+                noise.enabled = true;
+                noise.strength = .6f;
+                noise.frequency = .5f;
+                var rotation = leaves.rotationOverLifetime;
+                rotation.enabled = true;
+                rotation.z = 2f;
+            }
 
             var lightObject = new GameObject("Local sunshine");
             lightObject.transform.SetParent(transform, false);
@@ -135,7 +183,7 @@ namespace WeatherHousePrototype
             sunshine.type = LightType.Spot;
             sunshine.color = new Color(1f, .87f, .58f);
             sunshine.range = Mathf.Min(radius * 2f, 48f);
-            sunshine.spotAngle = 130f;
+            sunshine.spotAngle = localPlayerWeather ? 2f * Mathf.Atan(radius / 12f) * Mathf.Rad2Deg : 130f;
             sunshine.intensity = 0f;
             sunshine.shadows = LightShadows.None;
         }

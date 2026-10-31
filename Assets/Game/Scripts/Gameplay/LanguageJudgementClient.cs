@@ -34,6 +34,8 @@ namespace WeatherHousePrototype
             "错误、含糊、部分理解或依据不足时understood=false，evidenceGlyphIds必须为空。" +
             "正确时只在evidenceGlyphIds中列出本次回答确实证明理解且存在于输入glyphIds的字ID。" +
             "不能因为读懂整句就自动确认全部字；字ID与词义对应关系不明确时不要猜测，返回空证据列表。" +
+            "context中的本句字义边界给出了可信的ID与词义对应。请逐项核对玩家实际表达的概念；" +
+            "若玩家明确表达了某个概念及其约束，就应返回对应ID，不要求玩家使用英文ID或逐字翻译。" +
             "feedback用简短中文说明是否理解或还需补充什么，不公开未确认字的标准释义。" +
             "只返回一个JSON对象，恰有understood布尔值、evidenceGlyphIds字符串数组、feedback字符串三个字段；" +
             "不要Markdown代码围栏、额外文字、工具调用或其他字段。";
@@ -60,9 +62,14 @@ namespace WeatherHousePrototype
             }
         }
 
-        public IEnumerator Judge(JudgementInput input, Action<JudgementResult> complete)
+        public IEnumerator Judge(JudgementInput input, Action<JudgementResult> complete, Func<bool> cancelled = null)
         {
             if (complete == null) throw new ArgumentNullException(nameof(complete));
+            if (cancelled != null && cancelled())
+            {
+                complete(Failure("语义判断已取消，猜测已保留。"));
+                yield break;
+            }
             AIConfiguration configuration;
             string configurationError;
             if (!TryLoadConfiguration(out configuration, out configurationError))
@@ -99,13 +106,16 @@ namespace WeatherHousePrototype
                     new ChatMessage { role = "user", content = JsonUtility.ToJson(input) }
                 }
             };
+            string payloadJson = JsonUtility.ToJson(payload);
+            if (new Uri(configuration.baseUrl).Host.Equals("api.deepseek.com", StringComparison.OrdinalIgnoreCase))
+                payloadJson = JsonUtility.ToJson(new DeepSeekRequest { model = payload.model, messages = payload.messages });
             string endpoint = configuration.baseUrl.TrimEnd('/') + "/chat/completions";
             using (var request = new UnityWebRequest(endpoint, "POST"))
             {
                 UnityWebRequestAsyncOperation operation = null;
                 try
                 {
-                    request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload)));
+                    request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(payloadJson));
                     request.downloadHandler = new DownloadHandlerBuffer();
                     request.timeout = configuration.timeoutSeconds;
                     // A redirect must not forward a local API key to a different endpoint.
@@ -123,11 +133,17 @@ namespace WeatherHousePrototype
                     complete(Failure("无法启动AI请求，请检查本地配置与网络环境。"));
                     yield break;
                 }
-                yield return operation;
+                while (!operation.isDone && !(cancelled != null && cancelled())) yield return null;
+                if (cancelled != null && cancelled())
+                {
+                    request.Abort();
+                    complete(Failure("语义判断已取消，猜测已保留。"));
+                    yield break;
+                }
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     complete(Failure(request.responseCode > 0
-                        ? "AI服务返回HTTP " + request.responseCode + "，本次未确认任何词义。"
+                        ? "AI服务报告 HTTP " + request.responseCode + "，本次未确认任何词义。"
                         : "AI请求失败或超时，本次未确认任何词义，可以重试。"));
                     yield break;
                 }
@@ -139,7 +155,7 @@ namespace WeatherHousePrototype
                     response.choices[0] == null || response.choices[0].message == null ||
                     string.IsNullOrWhiteSpace(response.choices[0].message.content))
                 {
-                    complete(Failure("AI服务未返回有效的文字判断，本次未确认任何词义。"));
+                    complete(Failure("未收到AI服务的有效文字判断，本次未确认任何词义。"));
                     yield break;
                 }
                 var choice = response.choices[0];
@@ -167,7 +183,7 @@ namespace WeatherHousePrototype
                 foreach (var id in parsed.evidenceGlyphIds)
                     if (string.IsNullOrWhiteSpace(id) || !allowed.Contains(id) || !seen.Add(id))
                     {
-                        result = Failure("AI返回了当前句之外或重复的字ID，本次未确认任何词义。");
+                        result = Failure("AI给出了当前句之外或重复的字ID，本次未确认任何词义。");
                         return false;
                     }
                 if (!parsed.understood && parsed.evidenceGlyphIds.Length != 0)
@@ -243,6 +259,16 @@ namespace WeatherHousePrototype
         private class ChatMessage { public string role, content; }
         [Serializable]
         private class ChatCompletionRequest { public string model; public ChatMessage[] messages; public bool stream = false; }
+        [Serializable]
+        private class DeepSeekRequest : ChatCompletionRequest
+        {
+            public ThinkingMode thinking = new ThinkingMode();
+            public ResponseFormat response_format = new ResponseFormat();
+            public int max_tokens = 768;
+            public float temperature = 0;
+        }
+        [Serializable] private class ThinkingMode { public string type = "disabled"; }
+        [Serializable] private class ResponseFormat { public string type = "json_object"; }
         [Serializable]
         private class ChatCompletionResponse { public ChatChoice[] choices; }
         [Serializable]

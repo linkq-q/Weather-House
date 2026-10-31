@@ -1,0 +1,49 @@
+{
+  "result": "PASS",
+  "unchanged_effects": [
+    "step_grass_a",
+    "step_dirt_a",
+    "step_stone_a",
+    "ui_soft_tick",
+    "progress_soft",
+    "paper_move",
+    "stroke_soft_loop",
+    "camera_shutter",
+    "grass_fiber_loop",
+    "soft_contact",
+    "water_touch_a",
+    "water_touch_b",
+    "water_lap",
+    "rain_loop",
+    "wind_loop",
+    "outdoor_quiet_loop",
+    "shore_soft_loop"
+  ],
+  "runtime_wav_bytes": 6467052,
+  "new_magic": [
+    {
+      "id": "weather_release",
+      "seconds": 4.231854,
+      "seam_sample_jump": 0,
+      "clipped_samples": 0
+    },
+    {
+      "id": "magic_cast_a_loop",
+      "seconds": 3.53,
+      "seam_sample_jump": 57,
+      "clipped_samples": 0
+    },
+    {
+      "id": "magic_cast_b_loop",
+      "seconds": 3.81,
+      "seam_sample_jump": 205,
+      "clipped_samples": 0
+    },
+    {
+      "id": "magic_failed",
+      "seconds": 3.539479,
+      "seam_sample_jump": 0,
+      "clipped_samples": 0
+    }
+  ]
+}

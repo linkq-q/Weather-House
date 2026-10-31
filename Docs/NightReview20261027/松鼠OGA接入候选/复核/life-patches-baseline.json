@@ -1,0 +1,14 @@
+{
+  "status": "STAGED_ONLY_NO_ACTUAL_ASSETS_CS_WRITE",
+  "baselineSha256": {
+    "Assets/Game/Life/World/LifeWorld.Setup.cs": "53748c0a3df0e1442f3a5f78e1e2913dd38b7c4e0ada6505f872d2372193fe7f",
+    "Assets/Game/Life/World/LifeWorld.Drinking.cs": "40cbf0b147e5d19d2e6273fbcfaa6f734dd5dc672adc6ac56011c324bf17e582"
+  },
+  "candidateSha256": {
+    "Assets/Game/Life/World/LifeWorld.Setup.cs": "6632331a66f28a164d605c651986d6b1a164fc566a7febbed22c6925dc2a0ac0",
+    "Assets/Game/Life/World/LifeWorld.Drinking.cs": "3d52edb4bbfe7755cb27d228adb9fad8c086cf4cf9c5f5e060000e327d70d64c"
+  },
+  "preserved": "legacy rest/drink path, water consumption threshold/contact window, pair approach, return target/rest, animal root and population",
+  "change": "OGA same-rig rest/idle and drink; model-specific head skin + calibrated head-local lip and root contact; no old clip fallback for a present OGA profile",
+  "pending": "Explicit Unity installer geometry check; true BakeMesh plus TransformPoint retained consistently with this project 2022.3 skinning reference"
+}

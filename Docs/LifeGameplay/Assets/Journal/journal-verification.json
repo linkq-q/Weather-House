@@ -1,0 +1,47 @@
+{
+  "checks": [
+    {
+      "clip": "BookOpen",
+      "status": "PASS",
+      "seconds": 1.0,
+      "maxReimportVertexErrorMetres": 1.341104507446289e-07
+    },
+    {
+      "clip": "PageTurn",
+      "status": "PASS",
+      "seconds": 0.9,
+      "maxReimportVertexErrorMetres": 7.300048299977713e-08
+    }
+  ],
+  "meshCount": 9,
+  "boneCount": 78,
+  "openBlenderBounds": {
+    "min": [
+      -0.23600000143051147,
+      -0.14259934425354004,
+      -0.002199999988079071
+    ],
+    "max": [
+      0.23600000143051147,
+      0.14259934425354004,
+      0.035908009856939316
+    ]
+  },
+  "closedBlenderBounds": {
+    "min": [
+      -0.0010389538947492838,
+      -0.14259934425354004,
+      -0.0009999984176829457
+    ],
+    "max": [
+      0.23600000143051147,
+      0.14259934425354004,
+      0.07500000298023224
+    ]
+  },
+  "readingHeightSpan": 0.00720801018178463,
+  "midTurnCrossSectionAngleDegrees": 53.22550586213164,
+  "minimumTurnClearanceMetres": 0.00018808042051308982,
+  "midTurnMaximumHeight": 0.22006231546401978,
+  "closedPageMinimumSeparation": 0.00218399241566658
+}

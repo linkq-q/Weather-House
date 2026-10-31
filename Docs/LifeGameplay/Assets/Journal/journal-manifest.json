@@ -1,0 +1,133 @@
+{
+  "asset": "LifeAssets/JournalBook",
+  "metres": true,
+  "bones": 78,
+  "meshCount": 9,
+  "vertices": 11774,
+  "triangles": 22520,
+  "sourceArtwork": [
+    "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/PaperAged.png",
+    "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/CoverAged.png"
+  ],
+  "paperLayersPerSide": 24,
+  "bendingControlGrid": [
+    25,
+    3
+  ],
+  "gutterDepthMetres": 0.0048,
+  "gutterWidthMetres": 0.01180000000000001,
+  "readingHeightMetres": [
+    0.0287,
+    0.03590801021168986
+  ],
+  "clips": {
+    "BookOpen": 1.0,
+    "PageTurn": 0.9
+  },
+  "artworkBlenderRectangle": {
+    "minX": -0.236,
+    "maxX": 0.236,
+    "minY": -0.14259934853420195,
+    "maxY": 0.14259934853420195,
+    "width": 0.472,
+    "height": 0.2851986970684039
+  },
+  "pageBlenderRectangles": {
+    "PageLeft": [
+      -0.22372799999999998,
+      -0.133472990228013,
+      0.22278399999999998,
+      0.26865717263843647
+    ],
+    "PageRight": [
+      0.01085600000000001,
+      -0.133472990228013,
+      0.214288,
+      0.26865717263843647
+    ]
+  },
+  "materials": {
+    "JournalCloth": {
+      "texture": "CoverAged",
+      "offset": [
+        0.2,
+        0.2
+      ],
+      "scale": [
+        0.15,
+        0.15
+      ]
+    },
+    "JournalCover": {
+      "texture": "CoverAged",
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "JournalGutter": {
+      "texture": "PaperAged",
+      "offset": [
+        0.35,
+        0.1
+      ],
+      "scale": [
+        0.1,
+        0.8
+      ]
+    },
+    "JournalPageLeft": {
+      "texture": "PaperAged",
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "JournalPageRight": {
+      "texture": "PaperAged",
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "JournalPaperEdge": {
+      "texture": null,
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "JournalPaperEdgeLight": {
+      "texture": null,
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ]
+    }
+  },
+  "readers": {
+    "PageLeft": "UV0 0..1",
+    "PageRight": "UV0 0..1",
+    "TurningPage": "slot0 front UV0 0..1; slot1 back UV0 0..1, reversed U to read after turn"
+  }
+}

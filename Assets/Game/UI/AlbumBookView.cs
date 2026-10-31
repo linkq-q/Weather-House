@@ -32,7 +32,7 @@ namespace WeatherHousePrototype
         };
 
         public static RectTransform Create(Transform parent, bool photosSelected,
-            UnityAction selectSymbols, UnityAction selectPhotos, UnityAction close, UnityAction flipGlyphs)
+            UnityAction selectSymbols, UnityAction selectPhotos, UnityAction close, UnityAction flipGlyphs, UnityAction previousPage = null)
         {
             var book = Node(parent, "Notebook", Vector2.zero, ReferenceSize);
             ArtButton(book, "Symbols tab", photosSelected ? "TabSymbolsIdle" : "TabSymbolsSelected",
@@ -41,7 +41,10 @@ namespace WeatherHousePrototype
                 new Rect(342f, 75f, 82f, 69f), selectPhotos);
             ArtButton(book, "Close album", "ArrowLeft", new Rect(148f, 446f, 88f, 71f), close);
             Art(book, "Book artwork", "Book", new Rect(211f, 108f, 1228f, 742f));
-            var pageTurn = Place(book, "Next symbols", new Rect(1170f, 682f, 180f, 120f)).gameObject.AddComponent<Image>();
+            var pageBack = Place(book, "Previous symbols", new Rect(236f, 130f, 575f, 690f)).gameObject.AddComponent<Image>();
+            pageBack.color = Color.clear;
+            Bind(pageBack, previousPage);
+            var pageTurn = Place(book, "Next symbols", new Rect(845f, 130f, 575f, 690f)).gameObject.AddComponent<Image>();
             pageTurn.color = Color.clear;
             Bind(pageTurn, flipGlyphs);
             return book;
@@ -49,16 +52,23 @@ namespace WeatherHousePrototype
 
         public static RawImage Photo(Transform book, int slot, Texture2D texture, string name, UnityAction click = null)
         {
-            if (slot < 0 || slot >= Photos.Length) throw new ArgumentOutOfRangeException(nameof(slot));
-            Art(book, "Photo frame " + (slot + 1), "Frame", Frames[slot]);
+            if (slot < 0 || slot >= 8) throw new ArgumentOutOfRangeException(nameof(slot));
+            Rect frame = Frames[slot % 4], opening = Photos[slot % 4];
+            if (slot >= 4) { frame.x += 596f; opening.x += 596f; }
+            Art(book, "Photo frame " + (slot + 1), "Frame", frame);
+            bool hasPhoto = texture != null;
             if (texture == null)
                 texture = Resources.Load<Texture2D>("AlbumBook/" + (click == null ? "PhotoEmpty" : "PhotoMissing"));
-            RawImage photo = Place(book, name, Photos[slot]).gameObject.AddComponent<RawImage>();
+            RawImage photo = Place(book, name, opening).gameObject.AddComponent<RawImage>();
             photo.texture = texture;
+            if (hasPhoto)
+                photo.gameObject.AddComponent<AlbumPhotoPaper>().bounds = new Vector4(
+                    opening.xMin / ReferenceSize.x, 1f - opening.yMax / ReferenceSize.y,
+                    opening.xMax / ReferenceSize.x, 1f - opening.yMin / ReferenceSize.y);
             photo.raycastTarget = click != null;
             // Crop the source to fill the opening while preserving its original proportions.
             float sourceAspect = texture == null ? 1f : texture.width / (float)texture.height;
-            float targetAspect = Photos[slot].width / Photos[slot].height;
+            float targetAspect = opening.width / opening.height;
             photo.uvRect = sourceAspect > targetAspect
                 ? new Rect((1f - targetAspect / sourceAspect) * .5f, 0f, targetAspect / sourceAspect, 1f)
                 : new Rect(0f, (1f - sourceAspect / targetAspect) * .5f, 1f, sourceAspect / targetAspect);

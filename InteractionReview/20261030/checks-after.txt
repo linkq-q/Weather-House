@@ -1,0 +1,8 @@
+PASS Left/right page clicks route separately
+PASS Left page has a full-height click area
+PASS Orbit reaches behind character
+PASS Orbit reaches both sides at 170 degrees
+PASS Fish entire body stays under surface and above bottom
+PASS Reject water too shallow for fish body
+PASS Nearby canopy never switches entire tree to ShadowsOnly
+PASS Shutter renders fresh grass before LateUpdate: clumps=202, draws=9, green pixels=1090065

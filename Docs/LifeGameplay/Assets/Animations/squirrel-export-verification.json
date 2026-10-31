@@ -1,0 +1,176 @@
+[
+  {
+    "clip": "SquirrelIdle",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 3.2,
+    "maxReimportBonePositionError": 1.0864124333174817e-06,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 4.86061168619993e-07,
+    "minimumSkinClearance": -4.250302959585284e-08,
+    "originalFbxUnitContract": {
+      "fileUnitScale": 1.0,
+      "rigLocalScale": [
+        100.0,
+        99.99998474121094,
+        99.99998474121094
+      ],
+      "headLocalPosition": [
+        -5.587935447692871e-09,
+        0.079904705286026,
+        -3.5390257835388184e-08
+      ]
+    },
+    "unityOriginalPrefabBinding": "requires Unity pose audit; Blender reimport alone is insufficient"
+  },
+  {
+    "clip": "SquirrelRestDown",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 2.0,
+    "maxReimportBonePositionError": 4.056292053704321e-07,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 4.86061168619993e-07,
+    "minimumSkinClearance": 4.364580274973662e-08,
+    "originalFbxUnitContract": {
+      "fileUnitScale": 1.0,
+      "rigLocalScale": [
+        100.0,
+        99.99998474121094,
+        99.99998474121094
+      ],
+      "headLocalPosition": [
+        -2.0489096641540527e-08,
+        0.079904705286026,
+        -3.5390257835388184e-08
+      ]
+    },
+    "unityOriginalPrefabBinding": "requires Unity pose audit; Blender reimport alone is insufficient"
+  },
+  {
+    "clip": "SquirrelRestLoop",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 3.2,
+    "maxReimportBonePositionError": 1.2237110833911781e-06,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 4.86061168619993e-07,
+    "minimumSkinClearance": 4.3645802583203164e-08,
+    "originalFbxUnitContract": {
+      "fileUnitScale": 1.0,
+      "rigLocalScale": [
+        100.0,
+        99.99998474121094,
+        99.99998474121094
+      ],
+      "headLocalPosition": [
+        7.450580596923828e-09,
+        0.07990467548370361,
+        -4.470348358154297e-08
+      ]
+    },
+    "unityOriginalPrefabBinding": "requires Unity pose audit; Blender reimport alone is insufficient"
+  },
+  {
+    "clip": "SquirrelRestUp",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 2.2,
+    "maxReimportBonePositionError": 0.00010110748736192287,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 4.86061168619993e-07,
+    "minimumSkinClearance": 4.364580274973662e-08,
+    "originalFbxUnitContract": {
+      "fileUnitScale": 1.0,
+      "rigLocalScale": [
+        100.0,
+        99.99998474121094,
+        99.99998474121094
+      ],
+      "headLocalPosition": [
+        1.4901161193847656e-08,
+        0.07990465313196182,
+        -5.21540641784668e-08
+      ]
+    },
+    "unityOriginalPrefabBinding": "requires Unity pose audit; Blender reimport alone is insufficient"
+  },
+  {
+    "clip": "SquirrelDrink",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 3.0,
+    "maxReimportBonePositionError": 4.185608597155851e-07,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 4.86061168619993e-07,
+    "minimumSkinClearance": 1.4412674276265136e-08,
+    "originalFbxUnitContract": {
+      "fileUnitScale": 1.0,
+      "rigLocalScale": [
+        100.0,
+        99.99998474121094,
+        99.99998474121094
+      ],
+      "headLocalPosition": [
+        -2.0489096641540527e-08,
+        0.079904705286026,
+        -3.5390257835388184e-08
+      ]
+    },
+    "unityOriginalPrefabBinding": "requires Unity pose audit; Blender reimport alone is insufficient"
+  },
+  {
+    "clip": "SquirrelAccept",
+    "status": "PASS",
+    "bones": 27,
+    "durationSeconds": 2.0,
+    "maxReimportBonePositionError": 3.125749439957812e-07,
+    "maxReimportRotationErrorRadians": 0,
+    "maxRestPositionError": 4.86061168619993e-07,
+    "minimumSkinClearance": -1.993477510842112e-08,
+    "originalFbxUnitContract": {
+      "fileUnitScale": 1.0,
+      "rigLocalScale": [
+        100.0,
+        99.99998474121094,
+        99.99998474121094
+      ],
+      "headLocalPosition": [
+        -2.0489096641540527e-08,
+        0.079904705286026,
+        -3.5390257835388184e-08
+      ]
+    },
+    "unityOriginalPrefabBinding": "requires Unity pose audit; Blender reimport alone is insufficient"
+  },
+  {
+    "seam": "SquirrelIdle -> SquirrelRestDown",
+    "status": "PASS",
+    "maxBonePositionError": 1.4975481660844222e-07
+  },
+  {
+    "seam": "SquirrelRestDown -> SquirrelRestLoop",
+    "status": "PASS",
+    "maxBonePositionError": 6.143906154658885e-08
+  },
+  {
+    "seam": "SquirrelRestLoop -> SquirrelRestUp",
+    "status": "PASS",
+    "maxBonePositionError": 6.143906154658885e-08
+  },
+  {
+    "seam": "SquirrelRestLoop -> SquirrelRestLoop",
+    "status": "PASS",
+    "maxBonePositionError": 0.0
+  },
+  {
+    "seam": "SquirrelRestUp -> SquirrelIdle",
+    "status": "PASS",
+    "maxBonePositionError": 1.4975481660844222e-07
+  },
+  {
+    "seam": "SquirrelIdle -> SquirrelIdle",
+    "status": "PASS",
+    "maxBonePositionError": 0.0
+  }
+]

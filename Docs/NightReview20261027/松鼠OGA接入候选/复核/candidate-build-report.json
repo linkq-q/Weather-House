@@ -1,0 +1,227 @@
+{
+  "status": "OFFLINE_NATURAL_MATERIAL_CANDIDATE_EXPORTED_UNITY_PENDING",
+  "sourceSha256": {
+    "lecense.txt": "8d9d600c6a94201059ab69e2a976efb48bb2b8eb4289499b20debab0284042de",
+    "squirrel-anim.blend": "150016dac5a6a700f5726c84e18bb66f7d03b23c35f2b7d636a41f413980927f",
+    "squirrel-body-norm.png": "67feb49457736301642dbf0213e1f0e50d802282b641208b9a4c57552b50c483",
+    "squirrel-body.png": "842ac1f7d43477e7cb3818a7da2d10f9f0aed6ecf3eb78fccbd2e4992c43c7de",
+    "squirrel-head-norm.png": "17c94ea3c123a55f92381d1447abfa191214c08cd18b1fbe6a5787c5d7fca9e1",
+    "squirrel-head.png": "210de47d5797dcb928d4cdecc755ceaba7b51b4a864a7f2009e3846bb02f9321"
+  },
+  "candidateFiles": [
+    "Squirrel_OGA_Natural_Source.blend",
+    "Squirrel_OGA_Natural_Unity.fbx"
+  ],
+  "bones": [
+    "Main",
+    "Pan",
+    "Backbone",
+    "Backbone.001",
+    "Neck",
+    "Head",
+    "Mouth",
+    "Arm_L",
+    "Arm_L.001",
+    "Arm_L.002",
+    "Arm_R",
+    "Arm_R.001",
+    "Arm_R.002",
+    "Leg_L",
+    "Leg_L.001",
+    "Leg_L.002",
+    "Leg_L.003",
+    "Leg_R",
+    "Leg_R.001",
+    "Leg_R.002",
+    "Leg_R.003",
+    "Tail",
+    "Tail.001",
+    "Tail.002",
+    "Tail.003",
+    "Tail.004",
+    "Tail.005",
+    "IK-Pan",
+    "IK-Tail",
+    "IK-Leg_L",
+    "IK-Leg_R",
+    "IK-Arm_L",
+    "IK-Arm_R",
+    "IK-Head"
+  ],
+  "sourceActionCount": 28,
+  "exportedActionNames": [
+    "Idle.000",
+    "Idle.001",
+    "Idle.002",
+    "Idle.004",
+    "Run",
+    "Run.Begin",
+    "Run.End"
+  ],
+  "candidateBodyVerticesAndWeightsUnchanged": true,
+  "candidateHeadRebuiltForNonUndeadShape": true,
+  "meshStats": {
+    "Ears": {
+      "vertices": 36,
+      "triangles": 32
+    },
+    "Fingers": {
+      "vertices": 120,
+      "triangles": 200
+    },
+    "Head": {
+      "vertices": 781,
+      "triangles": 1552
+    },
+    "Squirrel": {
+      "vertices": 1839,
+      "triangles": 3664
+    },
+    "Teeth": {
+      "vertices": 56,
+      "triangles": 72
+    }
+  },
+  "includedMeshes": [
+    "SquirrelPawsMesh",
+    "SquirrelBodyMesh",
+    "SquirrelHeadNaturalMesh"
+  ],
+  "excludedMeshes": "Original Head, Teeth, Ears alpha hair-card tufts hidden in source blend and omitted from FBX. New closed low-detail head/ears/eyes/nose weighted to unchanged original Head bone; body/feet mesh and all 34 bones/28 source actions retained.",
+  "naturalMaterialAssignmentCounts": {
+    "Ears": {
+      "0": 16
+    },
+    "Fingers": {
+      "5": 100
+    },
+    "Head": {
+      "0": 564,
+      "3": 140,
+      "4": 72
+    },
+    "Squirrel": {
+      "0": 1548,
+      "2": 284
+    },
+    "Teeth": {
+      "6": 36
+    }
+  },
+  "materials": [
+    {
+      "name": "OGA Natural Chestnut Fur",
+      "baseColorLinear": [
+        0.35640013217926025,
+        0.14702726900577545,
+        0.05448027700185776,
+        1.0
+      ],
+      "roughness": 0.8799999952316284
+    },
+    {
+      "name": "OGA Natural Cream Belly",
+      "baseColorLinear": [
+        0.6795424818992615,
+        0.5457244515419006,
+        0.35153260827064514,
+        1.0
+      ],
+      "roughness": 0.8799999952316284
+    },
+    {
+      "name": "OGA Natural Tail",
+      "baseColorLinear": [
+        0.2622506618499756,
+        0.09989872574806213,
+        0.0382043719291687,
+        1.0
+      ],
+      "roughness": 0.8799999952316284
+    },
+    {
+      "name": "OGA Natural Muzzle",
+      "baseColorLinear": [
+        0.6038273572921753,
+        0.42869049310684204,
+        0.2345505803823471,
+        1.0
+      ],
+      "roughness": 0.8799999952316284
+    },
+    {
+      "name": "OGA Natural Eyes Nose",
+      "baseColorLinear": [
+        0.017641954123973846,
+        0.01032982300966978,
+        0.00802319310605526,
+        1.0
+      ],
+      "roughness": 0.550000011920929
+    },
+    {
+      "name": "OGA Natural Paws",
+      "baseColorLinear": [
+        0.1119324266910553,
+        0.05126945674419403,
+        0.027320891618728638,
+        1.0
+      ],
+      "roughness": 0.8799999952316284
+    },
+    {
+      "name": "OGA Natural Incisors",
+      "baseColorLinear": [
+        0.7304607629776001,
+        0.6514056324958801,
+        0.47353148460388184,
+        1.0
+      ],
+      "roughness": 0.8799999952316284
+    },
+    {
+      "name": "OGA Natural Inner Ear",
+      "baseColorLinear": [
+        0.4677838087081909,
+        0.28314873576164246,
+        0.16513219475746155,
+        1.0
+      ],
+      "roughness": 0.8999999761581421
+    }
+  ],
+  "normalMapConnected": false,
+  "oldDiffuseTextureUsed": false,
+  "sourceUnits": "NONE, scale_length=1; no claimed physical real-world author scale",
+  "candidateUnits": "METRIC, 1 Blender unit = 1 metre, authored fixed parent scale .2; source bone matrices/skin local coordinates and animation keys preserved, except separately rebuilt natural head surface",
+  "candidateForward": "Source faces Blender -Y. FBX axis_forward=-Z, axis_up=Y; Unity visual forward/grounding still must be checked after import.",
+  "applyRootMotionProposal": false,
+  "rootMainMotionSource": "No measured Main world translation in Run; see source audit. No root-motion animation has been newly added.",
+  "loopBoundary": "Native Run source endpoint mesh gap max 0.0268297624 source units; x.2 candidate scale about 5.37mm, not edited or described as perfectly seamless. Idle.000/.001/.002/.004 endpoints matched at sampled source boundaries.",
+  "mouthReferenceCandidateOnly": {
+    "meshPointLocal": [
+      -2e-08,
+      -1.90449595,
+      1.76679397
+    ],
+    "headBoneLocal": [
+      -3e-07,
+      0.82199466,
+      0.53516638
+    ],
+    "worldMetresAtIdle0": [
+      -0.0,
+      -0.38089919,
+      0.35347381
+    ],
+    "boundary": "Reference surface point only. No Drink clip; cannot reuse old hard-coded Head-local offsets or claim water-contact validation."
+  },
+  "previewBeforeBoundary": "Original undead head/body geometry and diffuse PNG reconnected to a neutral Principled material roughness .5/specular .5, no normal map. Blender5.1-converted original source nodes have no image/normal links, so this is explicitly a diffuse compatibility comparison, not proof of untouched source node rendering.",
+  "unityOrAssetsTouched": false,
+  "bodyBoundaryCapsAdded": 1,
+  "bodyTopologyBoundary": "Source body vertices/weights retained; open body/neck boundaries capped with new faces. Original downloaded source package remains byte-identical.",
+  "originalHeadMeshesRetainedHiddenInSourceBlend": true,
+  "originalDownloadedPackageByteIdentical": true,
+  "newHeadWeightsExplicitlyNormalized": true,
+  "unityIntegration": "Root owns scene/profile binding; offline artifact producer has not operated Unity."
+}

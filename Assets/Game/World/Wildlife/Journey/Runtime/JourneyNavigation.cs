@@ -657,12 +657,12 @@ namespace WeatherHouse.WildlifeJourney
                 swimSpeed = value.swimSpeed, waterAversion = value.waterAversion, waterlineHeight = value.waterlineHeight,
                 bodyEnvelope = value.bodyEnvelope, bodyHeading = value.bodyHeading, bodyOwner = value.bodyOwner };
         }
-        internal static bool SameProfile(JourneyProfile a, JourneyProfile b)
+        internal static bool SameProfile(JourneyProfile a, JourneyProfile b, bool includeHeading = true)
         {
             return a == null || b == null ? a == b : a.bodyRadius == b.bodyRadius && a.wadeDepth == b.wadeDepth &&
                 a.canSwim == b.canSwim && a.maxSwimDistance == b.maxSwimDistance && a.walkSpeed == b.walkSpeed &&
                 a.swimSpeed == b.swimSpeed && a.waterAversion == b.waterAversion && a.waterlineHeight == b.waterlineHeight &&
-                a.bodyEnvelope.Equals(b.bodyEnvelope) && a.bodyHeading.Equals(b.bodyHeading) && a.bodyOwner == b.bodyOwner;
+                a.bodyEnvelope.Equals(b.bodyEnvelope) && (!includeHeading || a.bodyHeading.Equals(b.bodyHeading)) && a.bodyOwner == b.bodyOwner;
         }
 
         private IEnumerator SearchSteps(Vector3 start, Vector3 goal, JourneyProfile profile, ISet<int> blockedLinks, float initialSwimDistance, RouteSearch search)

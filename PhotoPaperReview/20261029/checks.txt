@@ -1,0 +1,33 @@
+PASS Journal shader imports without errors
+PASS Photo sheen property exists (absent in baseline shader)
+PASS Real JournalBook rig binds for 8 photos
+PASS Eight real photo masks cover both pages
+PASS Right page keeps four independent photo bounds
+PASS Cover and spine both use the existing oil-paint shader
+PASS MagicBook impasto/brush scale/sheen preserved
+PASS Solid olive base and fixed studio lighting enabled
+PASS 01-after-open contains a visible GPU-rendered book
+PASS photo-matte-control contains a visible GPU-rendered book
+PASS photo-static-repeat contains a visible GPU-rendered book
+PASS Stationary sheen is stable without time-driven sweeping
+PASS Photo treatment produces a real GPU image difference
+PASS 00-before-open contains a visible GPU-rendered book
+PASS Real JournalBook rig binds for 1 photos
+PASS turn-15 contains a visible GPU-rendered book
+PASS turn-32 contains a visible GPU-rendered book
+PASS turn-55 contains a visible GPU-rendered book
+PASS turn-75 contains a visible GPU-rendered book
+PASS Turning front/back retain their own 8-photo and 1-photo masks
+PASS Drag completes naturally
+PASS Partial last page clears seven old masks
+PASS 02-last-page contains a visible GPU-rendered book
+PASS Real JournalBook rig binds for 0 photos
+PASS 03-empty-page contains a visible GPU-rendered book
+PASS Empty placeholders remain matte
+PASS Real JournalBook rig binds for 8 photos
+PASS Opening intro fan remains matte
+PASS Last opening leaf reveals the target photo material
+PASS Opening sequence completes
+PASS Both shaders compiled successfully after real GPU draws
+PASS 04-final-open contains a visible GPU-rendered book
+Play=True during capture; isolated project; main scene/save untouched.

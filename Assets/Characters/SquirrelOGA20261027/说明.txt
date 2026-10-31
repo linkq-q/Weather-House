@@ -1,0 +1,13 @@
+OGA 四足松鼠普通毛色接入资源，2026-10-27。
+CC0作者 Čestmír Dammer / CDmir；OpenGameArt协作者 TinyWorlds。
+https://opengameart.org/content/undead-squirrel-animated
+原下载包保持不变。原身体顶点/权重与34骨保留，颈口加面封闭；重做封闭低细节普通头、眼鼻与耳朵，消除原几何空洞/伤斑外观。
+FBX含7个原生take与6个明确派生take：
+原生 Idle.000 / Idle.001 / Idle.002 / Idle.004 / Run / Run.Begin / Run.End。
+派生 RestDown_Derived 1秒、RestLoop_Derived 2秒、RestUp_Derived 1秒、Drink_Derived 3秒；均为同一34骨FK动作，逐帧接地，不是原作者睡眠/饮水动作。
+派生 RunSlow_Derived 0.75秒是Run放慢，供walk槽使用，不是独立Walk。RunGrounded_Derived 0.375秒为原Run常量抬升19.15毫米，保留原腾空起伏。Run两端原有约5.37毫米最大网格差异未掩称完美循环。
+原下载28动作全保存在Natural_Source.blend；LifeDerived_Source.blend含保留7原生+6派生。源文件不放Assets，避免Unity自动调用Blender。
+没有原生Walk / Turn / Sleep / Eat / Drink；切勿混绑旧27骨架clips。forage/greet/alert现暂映射原生Idle.000，未假称新进食/挥手动作。
+8个普通URP/Lit纯色材质，无图片/法线/噪声，低高光；EyesClosed只压缩292个眼部顶点。未添加特殊材质。
+骨架Generic，Animator.ApplyRootMotion=false。移动由现有WildlifeAgent负责。通过的是Blender FBX回读、权重/有限值/派生接缝和实际离线渲染；Unity灯光、导入、场景实例、饮水可视接触和Play验收由显式工具执行，不以离线预览代替。
+Editor安装工具与LifeWorld分支候选在VIZ/source-candidate，由root核对baseline后统一复制并显式运行；本目录仅新增资源，没有自动刷新/自动场景回调。

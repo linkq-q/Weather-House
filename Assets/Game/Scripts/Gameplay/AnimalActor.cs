@@ -1,4 +1,5 @@
 using UnityEngine;
+using WeatherHouse.Life;
 
 namespace WeatherHousePrototype
 {
@@ -17,13 +18,14 @@ namespace WeatherHousePrototype
         public bool background;
         public Material visualMaterial;
         public bool RequestSatisfied => !ExternalPresentation && region != null && region.Current == requestedWeather;
-        public string[] CurrentGlyphIds => ExternalPresentation ? (ecology ? ecology.CurrentGlyphIds : System.Array.Empty<string>()) :
+        private LifeSpeaker LifeSpeaker => GetComponent<LifeSpeaker>();
+        public string[] CurrentGlyphIds => LifeOnboardingSpeech.Current(this) ? LifeOnboardingSpeech.Current(this).Request.glyphIds : LifeSpeaker && LifeSpeaker.Current != null ? LifeSpeaker.Current.glyphIds : ExternalPresentation ? (ecology ? ecology.CurrentGlyphIds : System.Array.Empty<string>()) :
             RequestSatisfied ? satisfiedGlyphIds : requestGlyphIds;
-        public string UtteranceId => ExternalPresentation ? (ecology ? ecology.UtteranceId : animalId + ".unavailable") :
+        public string UtteranceId => LifeOnboardingSpeech.Current(this) ? LifeOnboardingSpeech.Current(this).Utterance : LifeSpeaker && LifeSpeaker.Current != null ? animalId + "." + LifeSpeaker.Current.id + "." + LifeSpeaker.Revision : ExternalPresentation ? (ecology ? ecology.UtteranceId : animalId + ".unavailable") :
             animalId + (RequestSatisfied ? ".satisfied" : ".request");
         public Transform VisualRoot => ExternalPresentation ? (ecology ? ecology.VisualRoot : null) : transform.Find("Visual");
         public bool IsAvailableForObservation => isActiveAndEnabled && (!ExternalPresentation || (ecology && ecology.IsAvailable));
-        public bool HasAmbientSpeech => ExternalPresentation && ecology && ecology.HasAmbientSpeech;
+        public bool HasAmbientSpeech => LifeOnboardingSpeech.Current(this) || (LifeSpeaker && LifeSpeaker.Current != null) || (ExternalPresentation && ecology && ecology.HasAmbientSpeech);
         public bool HasAmbientPresentation => ExternalPresentation && ecology && ecology.HasAmbientPresentation;
         public bool UsesAutomaticGreeting => ExternalPresentation;
         public Vector3 BubbleAnchor => ExternalPresentation ? (ecology ? ecology.BubbleAnchor : transform.position) :
@@ -32,6 +34,7 @@ namespace WeatherHousePrototype
         {
             get
             {
+                if (LifeSpeaker && LifeSpeaker.Current != null) return LifeSpeaker.Current.context;
                 if (ExternalPresentation) return ecology ? ecology.BehaviourDescription : "暂时不在这里";
                 if (region == null) return "在林间四处张望";
                 if (region.Current == LocalWeather.Rain)

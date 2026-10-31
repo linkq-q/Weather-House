@@ -1,0 +1,3769 @@
+{
+    "status": "PASS",
+    "utc": "2026-10-26T19:04:30.0850704Z",
+    "error": "",
+    "boundary": "Isolated-save world and animation integration. Player fixture positions are arranged; animals move only through their original population, bodies and collision. Weather is invoked through the local-weather controller. A declared already-understood E7 help fixture enters LifeProgress.Accept and World.OnTaskAccepted before crafting; its active-help lease holds the main animal at its current position, with no claimed AI service judgement. Audio focus input is set true for consumption checks then restored; counts prove dispatched audio requests, not human listening. Bone contact and animation weights supplement, not replace, human visual acceptance.",
+    "checks": [
+        "E7 uses two distinct existing stable animals",
+        "Both squirrels bind the real lie/rest/rise clips",
+        "Declared already-understood E7 help enters the real active-task gate before crafting and weather waits",
+        "Async fixture begins with empty hands",
+        "Actual elapsed crafting produces the mat without FinishCraft reflection",
+        "Actual F places the crafted mat at the communal bed",
+        "Rain-filled bowl and wet mat alone do not complete E7",
+        "Actual rain then sun retains water and dries the mat",
+        "E7 invitation has an accessible nearby player standing point",
+        "Communal invitation prioritizes the stable companion over wandering secondary animals",
+        "Invitation does not complete E7 before both animals arrive and rest",
+        "Both animals actually walked from their original positions",
+        "Both real rest sequences pass through lying down into the rest loop",
+        "Both imported rest loops carry real animation mixer weight",
+        "The real sleeping pair produces sleep and shared-activity photo evidence in one frame",
+        "Restoring the same resting state twice keeps one companion invitation",
+        "Restoring renews both actual leases synchronously without an artificial rise transition",
+        "Duplicate references cannot make one animal count as two resting animals",
+        "Drinking uses a real selectable bowl interaction",
+        "World audio is installed for actual consumption checks",
+        "Bowl interaction starts approach and does not remove water before contact",
+        "Approaching a bowl cannot play a drinking contact sound",
+        "The drinking fixture selects the main squirrel for the repeat invitation regression",
+        "Repeat invitation uses the actual communal bed interaction",
+        "Repeated F invitation preserves the same drinking approach and consumes no water",
+        "The accepted repeat invitation only selects where the animal rests after drinking",
+        "Drinking first rises to standing and plays the authored Drink clip",
+        "Actual mouth contact precedes measured water consumption",
+        "One actual mouth-water consumption plays exactly one drinking sound (before=0, after=1)",
+        "Shared drinking starts from the real bowl interaction",
+        "Both shared drinkers begin with a recorded real rest destination",
+        "A second real F retains the nearby companion's invitation while the route becomes available",
+        "The reproduced occupied-route case keeps the second invitation pending instead of discarding it",
+        "Waiting holds a real short lease without walking off, starting Drink, removing water or playing contact audio",
+        "Leaving the local circle cancels waiting and restores the prior rest intention without consuming water",
+        "Both animals can be invited again after cancellation through the same real bowl interaction",
+        "Two different animals actually contact the same water surface at the same time",
+        "The two actual drinkers produce a visible shared-drinking P22 photograph",
+        "Repeated shared-drinking animation consumes exactly one measured sip per animal",
+        "Both real controllers return to their original rest destinations and sleeping clips after consuming water",
+        "Wetting the mat triggers both rise clips and invalidates the current rest condition",
+        "All existing animal collision components remain enabled as before",
+        "Food comes from a different region than the bedding material",
+        "Feeding starts with a real harvested bundle beside the original sheep",
+        "Repeated F reserves one bundle and cannot consume or complete help before real forage playback",
+        "Reserving food before forage playback does not play its consumption cue",
+        "The original forage clip gains mixer weight before the bundle is consumed and food help completes",
+        "Real grass consumption plays its fiber cue once (before=3, after=4)",
+        "Actual feeding retains its visible food and forage pose for a five-second photography window",
+        "Real forage playback, visible mouth and the consumed grass prop jointly satisfy the eating photo",
+        "A mouth-level opaque obstacle rejects eating even while the actual forage state continues",
+        "Another F during the same eating action cannot consume a second bundle",
+        "Releasing the life lease immediately cancels the temporary forage action",
+        "A later feeding action can start normally",
+        "Grass from the other map area also feeds the same actual animal through real forage playback",
+        "A third source can be reserved before the cancellation regression",
+        "Cancellation before playback preserves the bundle and does not fabricate food help"
+    ],
+    "observations": [
+        "0.67s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=开始把草束编成一张垫。; notebookSaveError=; lifeSaveError=",
+        "1.68s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=开始把草束编成一张垫。; notebookSaveError=; lifeSaveError=",
+        "2.69s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "3.70s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "4.70s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "5.70s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "6.73s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "7.76s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "8.77s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "9.78s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "10.78s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "11.81s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "12.82s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "13.85s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "14.87s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "15.88s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "16.90s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "17.91s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "18.92s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "19.94s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "20.96s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "21.97s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "23.00s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "24.00s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "25.01s main=(-2.708, 4.481, -1.218) Standing; companion=(2.162, 2.813, -9.134) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "26.02s main=(-2.592, 4.492, -1.710) Standing; companion=(1.933, 2.979, -8.728) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "27.06s main=(-2.437, 4.499, -2.365) Standing; companion=(1.630, 3.215, -8.190) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "28.10s main=(-2.282, 4.499, -3.022) Standing; companion=(1.326, 3.455, -7.649) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "29.11s main=(-2.131, 4.499, -3.663) Standing; companion=(1.029, 3.687, -7.122) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "30.15s main=(-1.977, 4.499, -4.315) Standing; companion=(0.726, 3.910, -6.585) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "31.16s main=(-1.967, 4.499, -4.359) LyingDown; companion=(0.428, 4.109, -6.055) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "32.21s main=(-1.967, 4.499, -4.359) LyingDown; companion=(0.122, 4.280, -5.512) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "33.21s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.166, 4.404, -4.988) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "34.23s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.405, 4.478, -4.428) Standing; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "35.24s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.634, 4.498, -4.110) LyingDown; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "36.26s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.634, 4.498, -4.110) LyingDown; feedback=这次相遇记在手账里了。 有新的字义记下来了。; notebookSaveError=; lifeSaveError=",
+        "37.40s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=喝完水后，它会回来歇脚。; notebookSaveError=; lifeSaveError=; mouth=(-2.022, 4.700, -4.527) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "38.40s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=喝完水后，它会回来歇脚。; notebookSaveError=; lifeSaveError=; mouth=(-2.053, 4.777, -4.513) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "39.51s main=(-1.967, 4.499, -4.359) Sleeping; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=喝完水后，它会回来歇脚。; notebookSaveError=; lifeSaveError=; mouth=(-2.061, 4.779, -4.509) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "40.55s main=(-1.967, 4.499, -4.359) GettingUp; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=喝完水后，它会回来歇脚。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.554, -4.477) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "41.57s main=(-1.967, 4.499, -4.359) GettingUp; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=喝完水后，它会回来歇脚。; notebookSaveError=; lifeSaveError=; mouth=(-1.953, 4.646, -4.465) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "42.61s main=(-1.950, 4.499, -4.536) Standing; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=喝完水后，它会回来歇脚。; notebookSaveError=; lifeSaveError=; mouth=(-2.126, 4.765, -4.589) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "43.63s main=(-1.902, 4.499, -5.045) Standing; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=; mouth=(-2.089, 4.775, -5.057) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "44.67s main=(-1.862, 4.491, -5.458) Standing; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=; mouth=(-1.947, 4.634, -5.535) water=(-1.936, 4.533, -5.737); skinDistance=0 consumed=False",
+        "45.67s main=(-1.862, 4.491, -5.458) Standing; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.940, 4.535, -5.544) water=(-1.936, 4.528, -5.737); skinDistance=0.001273772 consumed=True",
+        "46.68s main=(-1.862, 4.491, -5.458) Standing; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.940, 4.535, -5.544) water=(-1.936, 4.528, -5.737); skinDistance=0.001273772 consumed=True",
+        "47.72s main=(-1.862, 4.491, -5.458) GettingUp; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=",
+        "48.74s main=(-1.913, 4.499, -4.795) Standing; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=",
+        "49.74s main=(-1.922, 4.499, -4.672) LyingDown; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=",
+        "50.76s main=(-1.922, 4.499, -4.672) LyingDown; companion=(-0.634, 4.498, -4.110) Sleeping; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=",
+        "51.79s main=(-1.922, 4.499, -4.672) GettingUp; companion=(-0.634, 4.498, -4.110) GettingUp; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.938, 4.520, -4.781) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-0.735, 4.521, -4.185) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "52.81s main=(-1.922, 4.499, -4.672) GettingUp; companion=(-0.634, 4.498, -4.110) GettingUp; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.931, 4.615, -4.790) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-0.737, 4.630, -4.198) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "53.95s main=(-1.906, 4.499, -4.862) Standing; companion=(-0.634, 4.498, -4.110) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-2.093, 4.770, -4.877) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-0.734, 4.672, -4.176) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "54.97s main=(-1.855, 4.491, -5.439) Standing; companion=(-0.634, 4.498, -4.110) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-2.040, 4.762, -5.460) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-0.734, 4.671, -4.176) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "56.14s main=(-1.855, 4.491, -5.439) Standing; companion=(-1.098, 4.498, -4.389) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.642, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-1.208, 4.810, -4.203) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "57.34s main=(-1.855, 4.491, -5.439) Standing; companion=(-1.598, 4.499, -4.690) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.643, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-1.712, 4.806, -4.501) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "58.36s main=(-1.855, 4.491, -5.439) Standing; companion=(-1.999, 4.499, -4.931) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.643, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-2.108, 4.811, -4.743) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "59.38s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.390, 4.499, -5.167) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.642, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-2.502, 4.806, -4.976) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "60.43s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.744, 4.499, -5.380) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.643, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-2.855, 4.810, -5.196) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "61.47s main=(-1.855, 4.491, -5.439) Standing; companion=(-3.209, 4.499, -5.660) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.643, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-3.322, 4.807, -5.471) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "62.62s main=(-1.855, 4.491, -5.439) Standing; companion=(-3.047, 4.499, -5.779) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.642, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-3.261, 4.809, -5.808) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "63.63s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.464, 4.497, -5.916) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.643, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-2.516, 4.804, -6.130) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "64.63s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.643, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-2.101, 4.782, -6.221) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "65.68s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=同伴在等一条空路。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.642, -5.506) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False; mouth=(-1.954, 4.645, -5.947) water=(-1.936, 4.528, -5.737); skinDistance=0 consumed=False",
+        "66.71s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.537, -5.523) water=(-1.936, 4.519, -5.737); skinDistance=0.001274115 consumed=True; mouth=(-1.958, 4.524, -5.920) water=(-1.936, 4.519, -5.737); skinDistance=0.001455257 consumed=True",
+        "67.80s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.536, -5.522) water=(-1.936, 4.519, -5.737); skinDistance=0.001274169 consumed=True; mouth=(-1.958, 4.523, -5.921) water=(-1.936, 4.519, -5.737); skinDistance=0.001455168 consumed=True",
+        "68.80s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.642, -5.506) water=(-1.936, 4.519, -5.737); skinDistance=0.001274215 consumed=True; mouth=(-1.962, 4.644, -5.935) water=(-1.936, 4.519, -5.737); skinDistance=0.00145518 consumed=True",
+        "69.93s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.537, -5.523) water=(-1.936, 4.519, -5.737); skinDistance=0.001274115 consumed=True; mouth=(-1.962, 4.525, -5.916) water=(-1.936, 4.519, -5.737); skinDistance=0.001455551 consumed=True",
+        "70.96s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.537, -5.523) water=(-1.936, 4.519, -5.737); skinDistance=0.001274156 consumed=True; mouth=(-1.962, 4.525, -5.916) water=(-1.936, 4.519, -5.737); skinDistance=0.001455709 consumed=True",
+        "71.96s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.640, -5.507) water=(-1.936, 4.519, -5.737); skinDistance=0.001274302 consumed=True; mouth=(-1.962, 4.643, -5.934) water=(-1.936, 4.519, -5.737); skinDistance=0.001455671 consumed=True",
+        "72.97s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.546, -5.526) water=(-1.936, 4.519, -5.737); skinDistance=0.001274302 consumed=True; mouth=(-1.962, 4.535, -5.913) water=(-1.936, 4.519, -5.737); skinDistance=0.001455671 consumed=True",
+        "73.97s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.537, -5.523) water=(-1.936, 4.519, -5.737); skinDistance=0.001274131 consumed=True; mouth=(-1.962, 4.525, -5.916) water=(-1.936, 4.519, -5.737); skinDistance=0.001455719 consumed=True",
+        "75.01s main=(-1.855, 4.491, -5.439) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=它喝了一口水。; notebookSaveError=; lifeSaveError=; mouth=(-1.936, 4.585, -5.527) water=(-1.936, 4.519, -5.737); skinDistance=0.001274219 consumed=True; mouth=(-1.962, 4.579, -5.911) water=(-1.936, 4.519, -5.737); skinDistance=0.001455566 consumed=True",
+        "76.04s main=(-1.864, 4.495, -5.332) Standing; companion=(-2.055, 4.472, -6.012) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "77.08s main=(-1.909, 4.499, -4.813) Standing; companion=(-2.002, 4.474, -5.932) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "78.11s main=(-1.923, 4.499, -4.638) LyingDown; companion=(-1.666, 4.483, -5.416) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "79.12s main=(-1.923, 4.499, -4.638) LyingDown; companion=(-1.341, 4.492, -4.918) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "80.15s main=(-1.923, 4.499, -4.638) Sleeping; companion=(-1.011, 4.497, -4.411) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "81.19s main=(-1.923, 4.499, -4.638) Sleeping; companion=(-0.780, 4.499, -4.058) LyingDown; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "82.21s main=(-1.923, 4.499, -4.638) Sleeping; companion=(-0.780, 4.499, -4.058) LyingDown; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "83.25s main=(-1.923, 4.499, -4.638) Sleeping; companion=(-0.780, 4.499, -4.058) Sleeping; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "84.26s main=(-1.923, 4.499, -4.638) Sleeping; companion=(-0.780, 4.499, -4.058) Sleeping; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "85.27s main=(-1.923, 4.499, -4.638) Sleeping; companion=(-0.780, 4.499, -4.058) GettingUp; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "86.28s main=(-1.923, 4.499, -4.638) GettingUp; companion=(-0.780, 4.499, -4.058) GettingUp; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "87.32s main=(-1.923, 4.499, -4.638) GettingUp; companion=(-0.780, 4.499, -4.058) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "88.35s main=(-1.806, 4.499, -4.579) Standing; companion=(-0.888, 4.499, -4.113) Standing; feedback=绵羊吃下了草。; notebookSaveError=; lifeSaveError=",
+        "89.37s main=(-1.460, 4.499, -4.403) Standing; companion=(-1.206, 4.499, -4.274) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "90.39s main=(-1.460, 4.499, -4.403) Standing; companion=(-1.206, 4.499, -4.274) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "91.42s main=(-1.460, 4.499, -4.403) Standing; companion=(-1.206, 4.499, -4.274) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "92.43s main=(-1.460, 4.499, -4.403) Standing; companion=(-1.206, 4.499, -4.274) Standing; feedback=这次相遇记在手账里了。; notebookSaveError=; lifeSaveError=",
+        "93.49s main=(-1.460, 4.499, -4.403) Standing; companion=(-1.206, 4.499, -4.274) Standing; feedback=等它停下来再递草。; notebookSaveError=; lifeSaveError=",
+        "94.09s main=(-1.460, 4.499, -4.403) Standing; companion=(-1.206, 4.499, -4.274) Standing; feedback=雨的手势记在手账里。; notebookSaveError=; lifeSaveError="
+    ],
+    "drinks": [
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Sleeping",
+            "seconds": 37.39512252807617,
+            "distance": 1.1048535108566285,
+            "rotationError": 54.261165618896487,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 17.666667938232423,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9665285348892213,
+                "y": 4.499298095703125,
+                "z": -4.358526229858398
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -2.0217196941375734,
+                "y": 4.700095176696777,
+                "z": -4.52686882019043
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Sleeping",
+            "seconds": 38.39662170410156,
+            "distance": 1.1048535108566285,
+            "rotationError": 54.261165618896487,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 16.66516876220703,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9665285348892213,
+                "y": 4.499298095703125,
+                "z": -4.358526229858398
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -2.0530455112457277,
+                "y": 4.777365684509277,
+                "z": -4.51333475112915
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Sleeping",
+            "seconds": 39.511558532714847,
+            "distance": 1.1048535108566285,
+            "rotationError": 54.261165618896487,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 15.55023193359375,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9665285348892213,
+                "y": 4.499298095703125,
+                "z": -4.358526229858398
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -2.0610804557800295,
+                "y": 4.778635501861572,
+                "z": -4.50900411605835
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "GettingUp",
+            "seconds": 40.54634094238281,
+            "distance": 1.1048535108566285,
+            "rotationError": 54.261165618896487,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 14.515449523925782,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9665285348892213,
+                "y": 4.499298095703125,
+                "z": -4.358526229858398
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -1.9355885982513428,
+                "y": 4.554413318634033,
+                "z": -4.476645469665527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "GettingUp",
+            "seconds": 41.568389892578128,
+            "distance": 1.1048535108566285,
+            "rotationError": 54.261165618896487,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 13.493400573730469,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9665285348892213,
+                "y": 4.499298095703125,
+                "z": -4.358526229858398
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -1.9528249502182007,
+                "y": 4.64551305770874,
+                "z": -4.46480655670166
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 42.60831832885742,
+            "distance": 0.9268220663070679,
+            "rotationError": 13.199017524719239,
+            "speed": 0.649183452129364,
+            "started": -1.0,
+            "remaining": 12.453472137451172,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9497638940811158,
+                "y": 4.499298095703125,
+                "z": -4.5357666015625
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -2.1260321140289308,
+                "y": 4.765092372894287,
+                "z": -4.589184761047363
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 43.633094787597659,
+            "distance": 0.41537222266197207,
+            "rotationError": 4.144331455230713,
+            "speed": 0.6491848826408386,
+            "started": -1.0,
+            "remaining": 11.428695678710938,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9016027450561524,
+                "y": 4.499298095703125,
+                "z": -5.044943809509277
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -2.089293956756592,
+                "y": 4.775420188903809,
+                "z": -5.0573320388793949
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 44.665042877197269,
+            "distance": 0.0,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 46.863460540771487,
+            "remaining": 10.396747589111329,
+            "skinDistance": 0.0,
+            "clipWeight": 0.9122914671897888,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -1.9466878175735474,
+                "y": 4.6343607902526859,
+                "z": -5.535441875457764
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.532947063446045,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 45.67310333251953,
+            "distance": 0.0,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 46.863460540771487,
+            "remaining": 9.388687133789063,
+            "skinDistance": 0.0012737715151160956,
+            "clipWeight": 0.9999992847442627,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -1.9403249025344849,
+                "y": 4.53476619720459,
+                "z": -5.54412317276001
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 46.68210220336914,
+            "distance": 0.0,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 46.863460540771487,
+            "remaining": 8.379688262939454,
+            "skinDistance": 0.0012737715151160956,
+            "clipWeight": 1.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "target": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "controllerTarget": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "stand": {
+                "x": -1.8624889850616456,
+                "y": 4.490547180175781,
+                "z": -5.458470344543457
+            },
+            "mouth": {
+                "x": -1.9403254985809327,
+                "y": 4.534733295440674,
+                "z": -5.544093608856201
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "GettingUp",
+            "seconds": 51.790992736816409,
+            "distance": 0.7994900345802307,
+            "rotationError": 38.60488510131836,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 31.649600982666017,
+            "skinDistance": 0.0,
+            "clipWeight": 7.064634875246888e-22,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9222217798233033,
+                "y": 4.499298095703125,
+                "z": -4.671522617340088
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.938332200050354,
+                "y": 4.519546985626221,
+                "z": -4.780925750732422
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "GettingUp",
+            "seconds": 51.790992736816409,
+            "distance": 0.0,
+            "rotationError": 6.297173023223877,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 31.649600982666017,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": true,
+            "position": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "target": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "controllerTarget": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "stand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "mouth": {
+                "x": -0.7353289723396301,
+                "y": 4.521336078643799,
+                "z": -4.185064792633057
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "GettingUp",
+            "seconds": 52.807899475097659,
+            "distance": 0.7994900345802307,
+            "rotationError": 38.60488510131836,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 30.632694244384767,
+            "skinDistance": 0.0,
+            "clipWeight": 3.543747690341457e-27,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9222217798233033,
+                "y": 4.499298095703125,
+                "z": -4.671522617340088
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.931320071220398,
+                "y": 4.61456298828125,
+                "z": -4.789949417114258
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "GettingUp",
+            "seconds": 52.807899475097659,
+            "distance": 0.0,
+            "rotationError": 6.297173023223877,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 30.632694244384767,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": true,
+            "position": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "target": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "controllerTarget": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "stand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "mouth": {
+                "x": -0.736931562423706,
+                "y": 4.629881381988525,
+                "z": -4.1980204582214359
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 53.95486068725586,
+            "distance": 0.6087069511413574,
+            "rotationError": 5.7320170402526859,
+            "speed": 0.6491828560829163,
+            "started": -1.0,
+            "remaining": 29.485733032226564,
+            "skinDistance": 0.0,
+            "clipWeight": 1.2660135871809455e-32,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.9056670665740967,
+                "y": 4.499298095703125,
+                "z": -4.861586093902588
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -2.092813730239868,
+                "y": 4.76970911026001,
+                "z": -4.877260208129883
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 53.95486068725586,
+            "distance": 0.0,
+            "rotationError": 6.297173023223877,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 29.485733032226564,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": true,
+            "position": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "target": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "controllerTarget": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "stand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "mouth": {
+                "x": -0.7341577410697937,
+                "y": 4.671807289123535,
+                "z": -4.175595760345459
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 54.972347259521487,
+            "distance": 0.029011961072683336,
+            "rotationError": 5.732153415679932,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 28.468246459960939,
+            "skinDistance": 0.0,
+            "clipWeight": 6.306384551188292e-38,
+            "scale": 0.4485176205635071,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -2.0402374267578127,
+                "y": 4.7620649337768559,
+                "z": -5.459827423095703
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 54.972347259521487,
+            "distance": 0.0,
+            "rotationError": 6.297173023223877,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 28.468246459960939,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": true,
+            "position": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "target": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "controllerTarget": {
+                "x": -0.6340692043304443,
+                "y": 4.498204231262207,
+                "z": -4.109530448913574
+            },
+            "stand": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "mouth": {
+                "x": -0.7341577410697937,
+                "y": 4.670694351196289,
+                "z": -4.175595760345459
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 56.13928985595703,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 27.30130386352539,
+            "skinDistance": 0.0,
+            "clipWeight": 1.1742881131041967e-42,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361093044281006,
+                "y": 4.641830921173096,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 56.13928985595703,
+            "distance": 2.612718343734741,
+            "rotationError": 121.81057739257813,
+            "speed": 0.5967102646827698,
+            "started": -1.0,
+            "remaining": 27.30130386352539,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": true,
+            "planning": false,
+            "position": {
+                "x": -1.0980334281921387,
+                "y": 4.498152732849121,
+                "z": -4.3889288902282719
+            },
+            "target": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "controllerTarget": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.2080011367797852,
+                "y": 4.809579372406006,
+                "z": -4.2025041580200199
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 57.34042739868164,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 26.10016632080078,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.642993450164795,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 57.34042739868164,
+            "distance": 2.029378652572632,
+            "rotationError": 121.81056213378906,
+            "speed": 0.5967102646827698,
+            "started": -1.0,
+            "remaining": 26.10016632080078,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": true,
+            "planning": false,
+            "position": {
+                "x": -1.59775710105896,
+                "y": 4.499298095703125,
+                "z": -4.689863204956055
+            },
+            "target": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "controllerTarget": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.711507797241211,
+                "y": 4.806358814239502,
+                "z": -4.501152992248535
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 58.35776138305664,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 25.08283233642578,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.642697811126709,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 58.35776138305664,
+            "distance": 1.561556100845337,
+            "rotationError": 121.81055450439453,
+            "speed": 0.596710741519928,
+            "started": -1.0,
+            "remaining": 25.08283233642578,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": true,
+            "planning": false,
+            "position": {
+                "x": -1.9985216856002808,
+                "y": 4.499298095703125,
+                "z": -4.931204795837402
+            },
+            "target": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "controllerTarget": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -2.107564926147461,
+                "y": 4.810594081878662,
+                "z": -4.743363380432129
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 59.377864837646487,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 24.062728881835939,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.6418280601501469,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 59.377864837646487,
+            "distance": 1.105155348777771,
+            "rotationError": 121.81053924560547,
+            "speed": 0.5967094302177429,
+            "started": -1.0,
+            "remaining": 24.062728881835939,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": true,
+            "planning": false,
+            "position": {
+                "x": -2.3895018100738527,
+                "y": 4.499298095703125,
+                "z": -5.166653633117676
+            },
+            "target": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "controllerTarget": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -2.502478837966919,
+                "y": 4.806209087371826,
+                "z": -4.976278305053711
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 60.43363571166992,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 23.0069580078125,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.642834663391113,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 60.43363571166992,
+            "distance": 0.6913090348243713,
+            "rotationError": 121.81055450439453,
+            "speed": 0.5967118144035339,
+            "started": -1.0,
+            "remaining": 23.0069580078125,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": true,
+            "planning": false,
+            "position": {
+                "x": -2.744027614593506,
+                "y": 4.499298095703125,
+                "z": -5.380148887634277
+            },
+            "target": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "controllerTarget": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -2.855257034301758,
+                "y": 4.810160160064697,
+                "z": -5.195982933044434
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 61.468589782714847,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 21.972003936767579,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.642862319946289,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 61.468589782714847,
+            "distance": 0.14799842238426209,
+            "rotationError": 121.81048583984375,
+            "speed": 0.5967113971710205,
+            "started": -1.0,
+            "remaining": 21.972003936767579,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": true,
+            "planning": false,
+            "position": {
+                "x": -3.2094600200653078,
+                "y": 4.499298095703125,
+                "z": -5.660432815551758
+            },
+            "target": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "controllerTarget": {
+                "x": -3.336244583129883,
+                "y": 4.499298095703125,
+                "z": -5.736782073974609
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -3.321885824203491,
+                "y": 4.8067755699157719,
+                "z": -5.470526218414307
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 62.621822357177737,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 20.818771362304689,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.64183235168457,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 62.621822357177737,
+            "distance": 1.0440047979354859,
+            "rotationError": 171.66331481933595,
+            "speed": 0.5967091917991638,
+            "started": -1.0,
+            "remaining": 20.818771362304689,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -3.047471761703491,
+                "y": 4.499298095703125,
+                "z": -5.77858304977417
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -3.2605538368225099,
+                "y": 4.809463977813721,
+                "z": -5.80751371383667
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 63.62704849243164,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 19.81354522705078,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.642751693725586,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 63.62704849243164,
+            "distance": 0.4441757798194885,
+            "rotationError": 102.47415161132813,
+            "speed": 0.5967098474502564,
+            "started": -1.0,
+            "remaining": 19.81354522705078,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.4635589122772219,
+                "y": 4.496696472167969,
+                "z": -5.915844440460205
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -2.515658378601074,
+                "y": 4.804124355316162,
+                "z": -6.130319118499756
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 64.63334655761719,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 18.8072509765625,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.642963886260986,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Wander",
+            "restPhase": "Standing",
+            "seconds": 64.63334655761719,
+            "distance": 0.024133462458848954,
+            "rotationError": 102.47415924072266,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 18.8072509765625,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -2.1006200313568117,
+                "y": 4.782451152801514,
+                "z": -6.220799446105957
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 65.67733764648438,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 17.763259887695314,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.641856670379639,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 65.67733764648438,
+            "distance": 0.024133462458848954,
+            "rotationError": 6.748928546905518,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 17.763259887695314,
+            "skinDistance": 0.0,
+            "clipWeight": 0.0,
+            "scale": 0.5123807191848755,
+            "ready": false,
+            "lease": true,
+            "active": true,
+            "consumed": false,
+            "touching": false,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.954054594039917,
+                "y": 4.644647598266602,
+                "z": -5.946689605712891
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.528146743774414,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 66.71306610107422,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 68.08025360107422,
+            "remaining": 16.72753143310547,
+            "skinDistance": 0.0012741148239001632,
+            "clipWeight": 0.999984085559845,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.936326265335083,
+                "y": 4.5365519523620609,
+                "z": -5.522848129272461
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 66.71306610107422,
+            "distance": 0.024133462458848954,
+            "rotationError": 2.5392911434173586,
+            "speed": 0.0,
+            "started": 68.08025360107422,
+            "remaining": 16.72753143310547,
+            "skinDistance": 0.0014552571810781956,
+            "clipWeight": 0.999984085559845,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9580248594284058,
+                "y": 4.5240912437438969,
+                "z": -5.92047643661499
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 67.79827117919922,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 68.08025360107422,
+            "remaining": 15.642326354980469,
+            "skinDistance": 0.0012741691898554564,
+            "clipWeight": 1.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9363186359405518,
+                "y": 4.535887241363525,
+                "z": -5.5222697257995609
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 67.79827117919922,
+            "distance": 0.024133462458848954,
+            "rotationError": 2.5392911434173586,
+            "speed": 0.0,
+            "started": 68.08025360107422,
+            "remaining": 15.642326354980469,
+            "skinDistance": 0.0014551683561876417,
+            "clipWeight": 1.0,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.958062767982483,
+                "y": 4.523332118988037,
+                "z": -5.921135902404785
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 68.80440521240235,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 14.636192321777344,
+            "skinDistance": 0.0012742147082462907,
+            "clipWeight": 0.3411758542060852,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9361069202423096,
+                "y": 4.641889572143555,
+                "z": -5.506186485290527
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 68.80440521240235,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": -1.0,
+            "remaining": 14.636192321777344,
+            "skinDistance": 0.0014551798813045025,
+            "clipWeight": 0.3411758542060852,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9624238014221192,
+                "y": 4.6444621086120609,
+                "z": -5.935318470001221
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 69.92755126953125,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 71.38143157958985,
+            "remaining": 13.513046264648438,
+            "skinDistance": 0.0012741148239001632,
+            "clipWeight": 0.9999690651893616,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9363337755203248,
+                "y": 4.537220001220703,
+                "z": -5.523414134979248
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 69.92755126953125,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 71.38143157958985,
+            "remaining": 13.513046264648438,
+            "skinDistance": 0.001455551479011774,
+            "clipWeight": 0.9999690651893616,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9621646404266358,
+                "y": 4.5248541831970219,
+                "z": -5.915637493133545
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 70.95696258544922,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 71.38143157958985,
+            "remaining": 12.483634948730469,
+            "skinDistance": 0.00127415603492409,
+            "clipWeight": 1.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9363312721252442,
+                "y": 4.537004470825195,
+                "z": -5.523234844207764
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 70.95696258544922,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 71.38143157958985,
+            "remaining": 12.483634948730469,
+            "skinDistance": 0.001455708872526884,
+            "clipWeight": 1.0,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9621673822402955,
+                "y": 4.524608135223389,
+                "z": -5.9158430099487309
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 71.96361541748047,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 71.38143157958985,
+            "remaining": 11.476982116699219,
+            "skinDistance": 0.0012743020197376609,
+            "clipWeight": 1.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.936120629310608,
+                "y": 4.640262126922607,
+                "z": -5.507227420806885
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 71.96361541748047,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 71.38143157958985,
+            "remaining": 11.476982116699219,
+            "skinDistance": 0.001455670571886003,
+            "clipWeight": 1.0,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9624080657958985,
+                "y": 4.642568588256836,
+                "z": -5.934129238128662
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 72.96647644042969,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 74.76641845703125,
+            "remaining": 10.47412109375,
+            "skinDistance": 0.0012743020197376609,
+            "clipWeight": 0.9989572763442993,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.936362624168396,
+                "y": 4.546448707580566,
+                "z": -5.525610446929932
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 72.96647644042969,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 74.76641845703125,
+            "remaining": 10.47412109375,
+            "skinDistance": 0.001455670571886003,
+            "clipWeight": 0.9989572763442993,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9621316194534302,
+                "y": 4.535398006439209,
+                "z": -5.913128852844238
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 73.9732666015625,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 74.76641845703125,
+            "remaining": 9.467330932617188,
+            "skinDistance": 0.0012741314712911845,
+            "clipWeight": 0.9999999403953552,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9363316297531129,
+                "y": 4.537034511566162,
+                "z": -5.523260116577148
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 73.9732666015625,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 74.76641845703125,
+            "remaining": 9.467330932617188,
+            "skinDistance": 0.0014557191170752049,
+            "clipWeight": 0.9999999403953552,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9621670246124268,
+                "y": 4.524642467498779,
+                "z": -5.91581392288208
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 75.00611114501953,
+            "distance": 0.029011961072683336,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 74.76641845703125,
+            "remaining": 8.434486389160157,
+            "skinDistance": 0.001274219248443842,
+            "clipWeight": 1.0,
+            "scale": 0.4485176205635071,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -1.85536527633667,
+                "y": 4.491155624389648,
+                "z": -5.439094543457031
+            },
+            "target": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "controllerTarget": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "stand": {
+                "x": -1.8528478145599366,
+                "y": 4.489594459533691,
+                "z": -5.467997074127197
+            },
+            "mouth": {
+                "x": -1.9363863468170167,
+                "y": 4.5849761962890629,
+                "z": -5.527410507202148
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 2.9802322387695315e-8,
+                "y": 0.16146636009216309,
+                "z": -2.9802322387695315e-8
+            },
+            "bodyHalf": {
+                "x": 0.16916128993034364,
+                "y": 0.16146636009216309,
+                "z": 0.12856757640838624
+            }
+        },
+        {
+            "animal": "squirrel",
+            "state": "Idle",
+            "restPhase": "Standing",
+            "seconds": 75.00611114501953,
+            "distance": 0.024133462458848954,
+            "rotationError": 0.0,
+            "speed": 0.0,
+            "started": 74.76641845703125,
+            "remaining": 8.434486389160157,
+            "skinDistance": 0.001455566263757646,
+            "clipWeight": 1.0,
+            "scale": 0.5123807191848755,
+            "ready": true,
+            "lease": true,
+            "active": true,
+            "consumed": true,
+            "touching": true,
+            "canTurn": true,
+            "routeClear": true,
+            "approaching": false,
+            "planning": false,
+            "position": {
+                "x": -2.054661989212036,
+                "y": 4.472230911254883,
+                "z": -6.011963367462158
+            },
+            "target": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "controllerTarget": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "stand": {
+                "x": -2.0311689376831056,
+                "y": 4.47007942199707,
+                "z": -6.017486095428467
+            },
+            "mouth": {
+                "x": -1.9621046781539918,
+                "y": 4.579410552978516,
+                "z": -5.911072254180908
+            },
+            "water": {
+                "x": -1.9362444877624512,
+                "y": 4.518547058105469,
+                "z": -5.736782073974609
+            },
+            "bodyCenter": {
+                "x": 4.6193599700927737e-7,
+                "y": 0.18445682525634767,
+                "z": 1.1920928955078126e-7
+            },
+            "bodyHalf": {
+                "x": 0.19324801862239839,
+                "y": 0.18445706367492677,
+                "z": 0.14687393605709077
+            }
+        }
+    ],
+    "drinkCandidates": [
+        "reserved body: (-0.634, 4.498, -4.110) -> (-2.031, 4.470, -6.017) face=0.8",
+        "scene route: (-0.634, 4.498, -4.110) -> (-0.936, 4.388, -5.737) face=255.6",
+        "scene route: (-0.634, 4.498, -4.110) -> (-1.229, 4.329, -6.444) face=298.0",
+        "reserved body: (-0.634, 4.498, -4.110) -> (-1.936, 4.397, -6.737) face=352.5",
+        "reserved body: (-0.634, 4.498, -4.110) -> (-2.643, 4.488, -6.444) face=55.1",
+        "reserved body: (-0.634, 4.498, -4.110) -> (-2.936, 4.499, -5.737) face=107.2",
+        "clear: (-0.634, 4.498, -4.110) -> (-2.643, 4.499, -5.030) face=148.2",
+        "reserved body: (-2.643, 4.499, -5.030) -> (-2.031, 4.470, -6.017) face=0.8",
+        "clear: (-0.634, 4.498, -4.110) -> (-1.936, 4.499, -4.737) face=184.2",
+        "reserved body: (-1.936, 4.499, -4.737) -> (-2.031, 4.470, -6.017) face=0.8",
+        "clear: (-0.634, 4.498, -4.110) -> (-1.229, 4.482, -5.030) face=219.1",
+        "reserved body: (-1.229, 4.482, -5.030) -> (-2.031, 4.470, -6.017) face=0.8",
+        "scene route: (-0.634, 4.498, -4.110) -> (-0.536, 4.335, -5.737) face=259.4",
+        "scene route: (-0.634, 4.498, -4.110) -> (-0.946, 4.230, -6.727) face=303.2",
+        "scene route: (-0.634, 4.498, -4.110) -> (-1.936, 4.351, -7.137) face=355.2",
+        "reserved body: (-0.634, 4.498, -4.110) -> (-2.926, 4.491, -6.727) face=51.6",
+        "clear: (-0.634, 4.498, -4.110) -> (-3.336, 4.499, -5.737) face=102.1",
+        "clear: (-3.336, 4.499, -5.737) -> (-2.031, 4.470, -6.017) face=0.8"
+    ],
+    "audioObservations": [
+        "0.333s state count=0 fiberCount=1 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=105.943 nextDrink=0.000 nextFiber=103.698",
+        "0.667s state count=0 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=107.385 nextDrink=0.000 nextFiber=106.143",
+        "37.062s before isolated focus fixture count=0 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=143.780 nextDrink=0.000 nextFiber=106.143",
+        "37.062s isolated focus fixture count=0 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=143.780 nextDrink=0.000 nextFiber=106.143",
+        "45.260s state count=1 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=154.206 nextDrink=154.456 nextFiber=106.143",
+        "45.260s first actual consumption count=1 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=154.206 nextDrink=154.456 nextFiber=106.143",
+        "47.528s single drink completed; baseline=0 count=1 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=156.474 nextDrink=154.456 nextFiber=106.143",
+        "66.498s state count=2 fiberCount=2 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=175.593 nextDrink=175.843 nextFiber=106.143",
+        "87.965s remote grass gathered count=2 fiberCount=3 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=197.061 nextDrink=175.843 nextFiber=197.261",
+        "87.965s feeding fixture arrived from remote gather count=2 fiberCount=3 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=197.061 nextDrink=175.843 nextFiber=197.261",
+        "88.190s feeding baseline after gather cooldown count=2 fiberCount=3 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=197.285 nextDrink=175.843 nextFiber=197.261",
+        "88.270s state count=2 fiberCount=4 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=197.365 nextDrink=175.843 nextFiber=197.565",
+        "88.270s actual forage consumption; baseline=3 count=2 fiberCount=4 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=197.365 nextDrink=175.843 nextFiber=197.565",
+        "93.433s state count=2 fiberCount=5 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=203.527 nextDrink=175.843 nextFiber=202.395",
+        "93.621s state count=2 fiberCount=6 focus=True appFocus=True ready=True enabled=True player=True listenerPause=False listenerVolume=1 unscaled=203.715 nextDrink=175.843 nextFiber=203.915"
+    ],
+    "photoFailures": [],
+    "drinkStartTransitions": [
+        "frame=1346 time=53.80142 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=False lease=True state=Wander rest=GettingUp distanceOK=False speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.799490035 angle=38.6048851 speed=0 position=(-1.922222, 4.499298, -4.671523) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=True approaching=False ready=False lease=True state=Idle rest=GettingUp distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0 angle=6.297173 speed=0 position=(-0.634069, 4.498204, -4.109530) target=(-0.634069, 4.498204, -4.109530) stand=(0.000000, 0.000000, 0.000000)",
+        "frame=1397 time=55.9566879 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=False lease=True state=Wander rest=Standing distanceOK=False speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.775693357 angle=33.14834 speed=0.649182 position=(-1.920157, 4.499298, -4.695230) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=True approaching=False ready=False lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0 angle=6.297173 speed=0 position=(-0.634069, 4.498204, -4.109530) target=(-0.634069, 4.498204, -4.109530) stand=(0.000000, 0.000000, 0.000000)",
+        "frame=1421 time=57.20865 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=False lease=True state=Wander rest=Standing distanceOK=True speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=5.73215342 speed=0.649178743 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=True approaching=False ready=False lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0 angle=6.297173 speed=0 position=(-0.634069, 4.498204, -4.109530) target=(-0.634069, 4.498204, -4.109530) stand=(0.000000, 0.000000, 0.000000)",
+        "frame=1422 time=57.249836 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=False lease=True state=Wander rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=5.73215342 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=True approaching=False ready=False lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0 angle=6.297173 speed=0 position=(-0.634069, 4.498204, -4.109530) target=(-0.634069, 4.498204, -4.109530) stand=(0.000000, 0.000000, 0.000000)",
+        "frame=1425 time=57.5296745 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=False lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=5.73215342 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=True ready=False lease=True state=Wander rest=Standing distanceOK=False speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=3.09464359 angle=158.702774 speed=0.596710265 position=(-0.685187, 4.498065, -4.140314) target=(-3.336245, 4.499298, -5.736782) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1426 time=57.5940857 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=True ready=False lease=True state=Wander rest=Standing distanceOK=False speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=3.05620933 angle=149.041245 speed=0.5967092 position=(-0.718112, 4.498043, -4.160141) target=(-3.336245, 4.499298, -5.736782) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1540 time=64.0165 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=True ready=False lease=True state=Wander rest=Standing distanceOK=True speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0363616943 angle=121.810562 speed=0.5967099 position=(-3.305095, 4.499298, -5.718024) target=(-3.336245, 4.499298, -5.736782) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1541 time=64.05244 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=True ready=False lease=True state=Wander rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0363616943 angle=121.810524 speed=0 position=(-3.305095, 4.499298, -5.718024) target=(-3.336245, 4.499298, -5.736782) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1542 time=64.0884247 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=True ready=False lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0363616943 angle=121.810524 speed=0 position=(-3.305095, 4.499298, -5.718024) target=(-3.336245, 4.499298, -5.736782) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1543 time=64.1296 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=False lease=True state=Idle rest=Standing distanceOK=False speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=1.30865014 angle=121.810524 speed=0 position=(-3.305095, 4.499298, -5.718024) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1548 time=64.30664 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=False lease=True state=Wander rest=Standing distanceOK=False speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=1.28548467 angle=127.633804 speed=0.596712053 position=(-3.282544, 4.499298, -5.723325) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1597 time=66.92514 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=False lease=True state=Wander rest=Standing distanceOK=True speedOK=False facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0241334625 angle=102.474159 speed=0.5967116 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1598 time=66.95999 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=False lease=True state=Wander rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0241334625 angle=102.474159 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1601 time=67.07976 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=False lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=False started=False restartPending=False latePartner=False sharedRounds=0 startTime=-1 age=not-started distance=0.0241334625 angle=102.474159 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1623 time=68.08025 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=False sharedRounds=1 startTime=68.08025 age=0 distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=False sharedRounds=1 startTime=68.08025 age=0 distance=0.0241334625 angle=2.53929114 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1625 time=68.1608 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=True sharedRounds=1 startTime=68.08025 age=0.08054352 distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=True sharedRounds=1 startTime=68.08025 age=0.08054352 distance=0.0241334625 angle=2.53929114 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1684 time=71.12587 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=True latePartner=False sharedRounds=1 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=True latePartner=False sharedRounds=1 startTime=-1 age=not-started distance=0.0241334625 angle=2.53929114 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1690 time=71.38143 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=False sharedRounds=2 startTime=71.38143 age=0 distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=False sharedRounds=2 startTime=71.38143 age=0 distance=0.0241334625 angle=0 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1692 time=71.56268 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=True sharedRounds=2 startTime=71.38143 age=0.181251526 distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=True sharedRounds=2 startTime=71.38143 age=0.181251526 distance=0.0241334625 angle=0 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1752 time=74.48098 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=True latePartner=False sharedRounds=2 startTime=-1 age=not-started distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=False restartPending=True latePartner=False sharedRounds=2 startTime=-1 age=not-started distance=0.0241334625 angle=0 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1758 time=74.76642 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=False sharedRounds=3 startTime=74.76642 age=0 distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=False sharedRounds=3 startTime=74.76642 age=0 distance=0.0241334625 angle=0 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)",
+        "frame=1760 time=74.83411 WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=True sharedRounds=3 startTime=74.76642 age=0.06768799 distance=0.0290119611 angle=0 speed=0 position=(-1.855365, 4.491156, -5.439095) target=(-1.852848, 4.489594, -5.467997) stand=(-1.852848, 4.489594, -5.467997) | WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19 planning=False approaching=False ready=True lease=True state=Idle rest=Standing distanceOK=True speedOK=True facingOK=True started=True restartPending=False latePartner=True sharedRounds=3 startTime=74.76642 age=0.06768799 distance=0.0241334625 angle=0 speed=0 position=(-2.054662, 4.472231, -6.011963) target=(-2.031169, 4.470079, -6.017486) stand=(-2.031169, 4.470079, -6.017486)"
+    ],
+    "animalIds": [
+        "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/14",
+        "WeatherHouse_WatersideV2/08 分区动物与群体行为[8]/agent.squirrel/19"
+    ],
+    "seconds": 94.09467315673828,
+    "maximumFrameDistance": 0.06491848826408386,
+    "firstTravel": 3.227303981781006,
+    "secondTravel": 5.749577522277832,
+    "mouthAtDrink": {
+        "x": -1.94032621383667,
+        "y": 4.534846305847168,
+        "z": -5.544066905975342
+    },
+    "waterAtDrink": {
+        "x": -1.9362444877624512,
+        "y": 4.528146743774414,
+        "z": -5.736782073974609
+    }
+}

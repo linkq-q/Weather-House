@@ -1,0 +1,52 @@
+{
+  "status": "PASS_DOCUMENT_QA_GAME_IMPLEMENTATION_PENDING",
+  "date": "2026-10-27",
+  "staticChecks": [
+    "UTF-8 readable, no replacement characters",
+    "Unique IDs and all local links/anchors resolve",
+    "12 onboarding stages and 5 selectable storyboards",
+    "Source facts and proposal-only boundaries explicit"
+  ],
+  "browserChecks": [
+    {
+      "viewport": [
+        1360,
+        1000
+      ],
+      "documentWidth": 1360,
+      "visualReview": "PASS_readable_header_body",
+      "screenshot": "C:\\Users\\31483\\.codex\\visualizations\\2026\\10\\26\\01a178cf-479b-7f41-af26-309b1776f6d5\\onboarding-v2-desktop.png"
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "documentWidth": 390,
+      "visualReview": "PASS_no_page_overflow",
+      "screenshot": "C:\\Users\\31483\\.codex\\visualizations\\2026\\10\\26\\01a178cf-479b-7f41-af26-309b1776f6d5\\onboarding-v2-mobile.png"
+    },
+    {
+      "check": "clicked storyboard 5",
+      "actualTitle": "镜头 5 · 回到小魔女",
+      "screenshot": "C:\\Users\\31483\\.codex\\visualizations\\2026\\10\\26\\01a178cf-479b-7f41-af26-309b1776f6d5\\onboarding-v2-storyboard.png",
+      "visualReview": "PASS_selectable_schematic_not_runtime"
+    }
+  ],
+  "browserSession": "weatherhouse-onboarding-v2 (closed after QA)",
+  "lastChangesAfterScreenshots": "Added concise-summary/source links and narrowed source absence statement; HTML structure unchanged; final static link checks rerun. Screenshots are report-browser proof, not Unity screenshots.",
+  "notChecked": [
+    "Unity behavior or visuals",
+    "new player comprehension/playtest",
+    "cinematic camera route in actual scene",
+    "print/PDF output",
+    "implementation of new guess/hint/context/onboarding mechanisms"
+  ],
+  "ownedFiles": [
+    "新手引导策划V2.html",
+    "简要结论.txt",
+    "来源与范围.json",
+    "交付复核.json"
+  ],
+  "scope": "Only this V2 document directory and identical Desktop mirror; no Assets, scene, real saves or Git operations."
+}

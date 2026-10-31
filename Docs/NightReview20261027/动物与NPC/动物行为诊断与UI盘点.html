@@ -1,0 +1,90 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>动物与 NPC · 已实施行为与实测复核</title>
+<style>:root{--paper:#f5f3e8;--ink:#253b34;--muted:#657268;--line:#d7ddcd;--green:#3c6850;--gold:#aa793d}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 'Microsoft YaHei',sans-serif}header,main{max-width:1180px;margin:auto;padding:32px}header{padding-top:65px;border-bottom:2px solid var(--ink)}.eyebrow{font-size:12px;letter-spacing:3px;color:var(--green)}h1{font-size:40px;line-height:1.3;margin:15px 0}h2{font-size:25px;margin:48px 0 18px}h3{font-size:19px}p{max-width:1000px}nav{display:flex;gap:18px;flex-wrap:wrap;margin:26px 0 0}a{color:var(--green)}.lead{font-size:21px}.status{background:#e6eadb;border-left:5px solid var(--green);padding:18px 23px;margin:22px 0}.warn{border-color:var(--gold);background:#f0e4d0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{border:1px solid var(--line);padding:20px;background:#fbfaf4}.small{font-size:13px;color:var(--muted)}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.65}th,td{border-bottom:1px solid var(--line);padding:13px 12px;vertical-align:top;text-align:left}th{background:#e9ecdf}code{font:12px/1.6 Consolas,monospace;overflow-wrap:anywhere}pre{white-space:pre-wrap;background:#243b33;color:#e9eddf;padding:22px;line-height:1.7;font-size:13px;overflow-wrap:anywhere}details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:bold}.tag{display:inline-block;font-size:11px;letter-spacing:1px;color:var(--green);background:#e0e8d8;padding:1px 8px;margin-right:6px}.red{color:#985e37}li{margin:9px 0}.scroll{overflow-x:auto}footer{padding:36px 0;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}@media(max-width:800px){header,main{padding:23px}.grid{grid-template-columns:1fr}h1{font-size:30px}table{min-width:800px}}
+.evidence{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}.evidence figure{margin:0}.evidence img{display:block;width:100%;height:auto;border:1px solid var(--line)}figcaption{font-size:13px;color:var(--muted);margin-top:8px}.runtime-proof{margin:25px 0;padding:20px 24px;background:#fff;border:1px solid var(--line)}.runtime-proof strong{font-size:20px}.pass{color:#285b3d;font-weight:700}.log{font-size:12px;line-height:1.65;overflow-x:auto;white-space:pre}.refs{font-size:13px;overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:3px solid #aa793d;outline-offset:4px}@media(max-width:800px){.evidence{grid-template-columns:1fr}.log{white-space:pre-wrap}}
+</style>
+<header><div class="eyebrow">WEATHER HOUSE / 2026.10.27 / PLAY VERIFIED</div><h1>动物先过自己的生活<br>玩家再走进它们的日常</h1>
+<p class="lead">闲时交还原有生态控制器；正在帮助、交谈与明确行动时保留短租约。已在正式水岸场景的隔离 Play 中验证。</p>
+<div class="status"><strong>已实施并通过本轮专项回归。</strong>关键狗在 24.01 秒模拟时间内最大离起点 <b>2.576877m</b>；<b>11</b> 个次级地面个体实际移动超过 0.75m。帮助状态抢占与移除后的释放均 PASS。世界动作 57 项 PASS，包含新 P22 双动物共饮摄影。</div>
+<p class="small">漫游结果落盘于 2026-10-27 03:02:40；世界动作回归开始 2026-10-26T19:04:30.0850704Z，03:06:08 结束。没有专项漫游录像或 after 截图，本页不声称已经完成连续运动的人工观感验收；P22 照片属于另一项共饮证据。</p>
+<nav><a href="#cause">原因与修复</a><a href="#reference">设计参考</a><a href="#change">当前实现</a><a href="#checks">原始实测</a><a href="#ui">UI 盘点</a><a href="../UI截图/UI截图汇总.html">当前 UI 截图汇总</a></nav></header>
+<main><section id="cause"><h2>01 · 固定站位与转身受阻，分别处理</h2>
+<div class="grid"><article class="card"><span class="tag">原问题</span><h3>闲时短租约被持续续约</h3><p>原 LifeWorld 每 0.5 秒给全部 Binding 续约 1.5 秒的同一目标，初始目标为 home。WildlifeAgent.Think 发现 HasLifeTarget 就提前返回，动物抵达后仍无法恢复普通自然决策。</p></article>
+<article class="card"><span class="tag">已实施</span><h3>按实际控制需要续约</h3><p>休息、饮水、天气退避、演示和明确邀请继续由原控制器行动。对应动物的 Active 帮助任务、对话或理解判定期间，以当前身位驻留；空闲时不再续约，原短租约到期后恢复原有生活。</p></article>
+<article class="card"><span class="tag">本轮补齐</span><h3>保留朝向，寻找能退让的目标</h3><p>Ambient 地面动物在打招呼后，邻居可能挡住原地转身。首次候选验证失败后，追加以当前朝向验证同一候选的完整移动段；通过才选为目标。原移动器本来已有短步不转身退让，这次让选点阶段也能使用这种安全出口。</p></article></div>
+<p>次级个体原本已有种子随机、待机、觅食、社交、惊扰与返回群落逻辑。本次没有替换整个行为系统。普通地面自由巡游取点从 0.6R 扩至 0.9R，目标仍须位于原 habitatRadius 内并通过原可达性检查；Solitary 与 JourneyHerd 继续使用各自原路径。</p>
+<div class="scroll"><table><thead><tr><th>对象</th><th>生成器配置</th><th>本轮边界</th></tr></thead><tbody>
+<tr><td>狗群</td><td>3 只，半径 8m</td><td>dog/0 为本轮关键实测个体；运行日志确认 habitat radius=8m、routine=Ambient。</td></tr>
+<tr><td>兔 / 松鼠</td><td>兔两群 9–10m；松鼠 6 只、11m</td><td>沿用原群落和地面约束；松鼠共休、饮水和任务行动拥有优先控制权。</td></tr>
+<tr><td>狐 / 羊 / 鹿</td><td>狐 2 只、8m；羊 11m、鹿 13m</td><td>这些是生成器配置，不是本轮逐物种轨迹结论。狐狸 Solitary、羊 JourneyHerd、渡口固定角色未被本次 Ambient 选点整套替换。</td></tr>
+</tbody></table></div><p class="small">不把一次狗的 24 秒专项采样推广为“所有物种都已自然”，也不把位移增加当作 FPS 或整张地图覆盖率结论。</p></section>
+
+<section id="reference"><h2>02 · Voxel-Resort 与动森，只作为设计参考</h2>
+<h3>Voxel-Resort 的本地源码</h3><p>只读核对了 <code>C:/Users/31483/Documents/GitHub/Voxel-Resort</code>。<code>src/game/sim.ts</code> 的设施兴趣、心愿、朋友、距离与近期访问评分，以及走不到就短暂停留并释放占用，提供了“自行生活、目标结束后恢复活动”的设计参考；<code>src/docs/agency-api.md</code> 描述了地点锚点与个体行为分离。该仓库没有被本次修改。</p>
+<p>天气屋实际采用的是自身已有的 WildlifeAgent、短租约、LifeObject 状态与碰撞校验。本次没有移植 Voxel 的设施评分或心愿系统，没有新增开放式 AI 愿望生成，也没有改动既定字库、话轮前置与理解判定。</p>
+<h3>动森博物馆的可观察设计</h3><p><a href="https://www.future-press.com/acnh/pdf/ACNH_Autumn-2021-Update_EN.pdf">Future Press 官方伴侣指南，2021 更新，第 3 页</a>展示了水族馆、昆虫与其他展区；<a href="https://nhm.org/stories/my-virtual-museum-home">NHM 的亲历文章</a>记录了昼间飞行的鸟翼蝶与保持头朝上姿态的皇带鱼。可借鉴的是明确的展示空间与物种动作差异。</p><p>“移动、停留、观察、觅食与社交交替，少量关键角色保留稳定回访点”是本项目的设计取舍。这里没有任天堂内部源码，不推断其状态机、寻路、群聚权重或调度算法；参考观察不等于已实现相同算法。</p></section>
+
+<section id="change"><h2>03 · 已落地的三处运行时文件</h2><div class="scroll"><table><thead><tr><th>文件</th><th>当前职责</th><th>保留的约束</th></tr></thead><tbody>
+<tr><td><code>LifeWorld.Roaming.cs</code></td><td>私有 TryLifeStation 判断需要驻留的状态与本次目标。Active 帮助、对话、判定使用动物当前身位。</td><td>休息、明确邀请、饮水、天气退避与演示仍走原租约；非 Wildlife 绑定保留原行为。</td></tr>
+<tr><td><code>LifeWorld.cs</code></td><td>续租改为条件分派；无控制需求时不再续租。需要控制且已停步的关键个体才执行相关朝向刷新。</td><td>仍调用原 RequestLifeTarget；没有新增移动器或瞬移。</td></tr>
+<tr><td><code>WildlifeAgent.cs</code></td><td>普通地面 Ambient 自由目标使用 0.9R；候选失败时，追加固定当前朝向的完整段移动验证作为退让选点 fallback。</td><td>飞行、游泳、Solitary 的独立分支保留；仍须通过原地形、水域、坡差、玩家、外部刚体、障碍和同类体型检查。</td></tr>
+</tbody></table></div>
+<pre>闲时无控制需求 → 不续租 → 原 1.5 秒短租约到期 → 原生态决策继续
+帮助 / 对话 / 判定 → 当前身位驻留；结束后恢复原有控制权
+休息 / 饮水 / 明确邀请 / 天气退避 / 演示 → 原控制器与目标
+
+Ambient 地面候选：先按原目标朝向验证
+失败时再按当前朝向验证同一候选的完整移动段
+两次都失败 → 保持当前位置并按原节奏重试</pre>
+<p>固定朝向并未绕过碰撞与水域判定。<code>WildlifePopulation.TryMoveCore</code>仍逐段投影与校验，地面高度跨步超过 0.45m 会拒绝；玩家、外部身体、场景障碍和其他动物的包络检查继续执行。退让出口的目的，是避免“不能先原地转身”把所有候选一起否决。</p>
+<p class="refs"><a href="证据/运行源码核对.txt">当前源码行号与 SHA-256 摘录</a>记录三处实现及既有 TryMoveCore 参考，供对照代码；文档更新本身未修改 Assets。</p></section>
+
+<section id="checks"><h2>04 · 失败基线、最终轨迹与世界动作</h2>
+<div class="scroll"><table><thead><tr><th>阶段</th><th>实际读数 / 结果</th><th>能说明什么</th><th>证据</th></tr></thead><tbody>
+<tr><td>原持续站位租约</td><td>FAIL：闲时关键狗仍持有固定站位租约</td><td>自然决策尚未得到控制权；这一轮在首个关键门槛停止，没有完整 24 秒轨迹。</td><td><a href="证据/原站位租约失败.txt">原始失败文件</a></td></tr>
+<tr><td>解除租约后的中间诊断</td><td>24.03 模拟秒，最大位移 0.537638m</td><td>主控当时从真实 play-checks.txt 读取的中间诊断数值；完整原日志未单独归档，不能据本页复算，也不当作正式对照录像。</td><td>本次会话主控记录；旧文件已被最终回归覆盖</td></tr>
+<tr><td>最终固定朝向退让选点</td><td class="pass">PASS：24.01 模拟秒 / 24.06 墙钟秒；最大位移 2.576877m；次级移动 11 个</td><td>在这次隔离采样中，狗出现 Wander、Idle、Greet、Forage；边界断言、Active 抢占和释放通过。</td><td><a href="证据/最终漫游Play.txt">最终原始轨迹</a> · <a href="证据/最终漫游生命周期.txt">Play 生命周期结果</a></td></tr>
+</tbody></table></div>
+<p>“最大位移”是与采样起点的最远水平距离，不是累计路程。下列 TRACE 约每模拟秒记录一次；测试逐帧统计最大位移，并按原 1.45 倍栖息范围检查边界，保留既有惊扰余量；普通自由目标仍须通过原 habitatRadius 拒绝检查。测试要求至少三个次级个体移动超过 0.75m。本轮实测为 11 个，不宣称所有动物都已逐一验收。</p>
+<pre class="log">TRACE sim=0.00 position=(-43.854, 2.917, -45.444) destination=(-44.444, 2.908, -46.778) state=Greet speed=0.709 lease=False
+TRACE sim=5.17 position=(-43.383, 2.875, -45.643) destination=(-45.385, 2.995, -45.808) state=Wander speed=0.709 lease=False
+TRACE sim=7.22 position=(-44.832, 2.976, -45.762) destination=(-45.385, 2.995, -45.808) state=Wander speed=0.709 lease=False
+TRACE sim=13.28 position=(-45.120, 2.993, -45.431) destination=(-45.186, 3.011, -42.841) state=Wander speed=0.709 lease=False
+TRACE sim=17.40 position=(-45.496, 3.002, -43.885) destination=(-46.361, 3.000, -45.651) state=Wander speed=0.709 lease=False
+TRACE sim=20.47 position=(-46.199, 3.000, -45.320) destination=(-46.361, 3.000, -45.651) state=Forage speed=0.000 lease=False
+TRACE sim=23.55 position=(-46.199, 3.000, -45.320) destination=(-46.361, 3.000, -45.651) state=Forage speed=0.000 lease=False</pre>
+<div class="runtime-proof"><strong>任务控制权也已实测。</strong><p>隔离内存中声明 Active 帮助状态后，原站位短租约重新抢占漫游；移除帮助状态、等待原租约到期后恢复普通生活，二者均 PASS。该例验证真实状态与控制器交接，属于声明任务状态夹具，不代表调用 AI 服务或完整玩家接任务操作。</p></div>
+<div class="evidence"><div><h3>共饮摄影已闭环</h3><p>同一轮正式世界动作回归 <b>57 项 PASS</b>。浅盘模型仅将共饮碗的 WaterBowl 子级 Y 比例缩为 0.5；沿用真实站位、控制器、口部接触、身体可见与 P22 规则。24mm 是玩家现有 24–100mm 镜头范围内的合法广角。</p><p>首个 0.9m / 0° 机位中，两只不同松鼠同帧接触同一水面，身体和嘴部标记均可见；水量 0.1913219，水面可见。三轮饮水各自同步开始，每只只消费一次，随后均返回原休息地。主控已查看这张实际成功图。</p><p><a href="证据/世界动作57项.json">世界动作完整结果</a> · <a href="证据/P22共饮成功.json">实际照片 JSON</a> · <a href="证据/P22同帧视角.txt">同帧视角与深度</a></p><p class="small">照片时间 2026-10-26T19:05:39.8361292Z。它证明该次共饮取景与运行规则通过，不替代漫游动作的连续观感检查。</p></div><figure><a href="证据/P22共饮成功.png"><img src="证据/P22共饮成功.png" loading="lazy" alt="实际浅盘共饮照片，两只松鼠围在同一碗边"></a><figcaption>真实隔离 Play 截图，原图未编辑。共饮动作证据；不是漫游 after 截图。</figcaption></figure></div>
+<div class="status warn"><strong>仍需人工判断的范围</strong><p>本轮没有专项漫游录像或连续人工游玩验收；停留节奏、滑步和转身美感、所有物种的长期活动覆盖、关键角色回访体验仍应实际游玩检查。没有新增性能采样。松鼠骨骼与替换模型的比较仍见<a href="../松鼠动画/松鼠动作对比.html">独立动画报告</a>，不能把离线候选当成已替换到主场景。</p></div></section>
+
+<section class="runtime-proof"><h2>界面盘点的阅读方式</h2><p>下面保留最初的源码盘点，列的是现有控件与美术可统一处。当前实际截图、夹具条件和未拍到的状态，以<a href="../UI截图/UI截图汇总.html">统一 UI 截图汇总</a>为准；不把早期采图计划当作本轮缺图结论，也不在本报告宣称所有 UI 已完成视觉验收。</p></section>
+<section id="ui"><h2>05 · 玩家 UI 的完整源码盘点</h2><p>以下“缺口”指素材/视觉层可进一步统一的地方，不代表功能缺失。正式场景玩家界面分属 GameplayHud、LifeGestureInput、书页模块、生活物件标签和生态语泡。没有在已读正式入口里发现独立玩家背包、设置、标题菜单或 AI Key 配置页，不能把编辑器实验窗口算进待美化清单。</p><div class="scroll"><table><thead><tr><th>编号 / 实际入口</th><th>当前呈现与状态</th><th>可进一步统一的装饰</th><th>截图条件</th></tr></thead><tbody>
+<tr><td>U01 常态 HUD<br>C / J 快捷提示</td><td>小字体与程序式相机/手账图标；全屏叠加</td><td>已使用原风格图标，先验收留白和缩放；不新增常驻信息</td><td>清闲世界，无任务、无弹窗</td></tr>
+<tr><td>U02 状态反馈</td><td>白色呼吸文字，动态适配高度；用于成功、失败、保存失败</td><td>文字排版、成功/可恢复失败层级；保存失败必须保留清楚文案</td><td>拍照成功、无法施法、保存失败各一帧</td></tr>
+<tr><td>U03 动物字语泡</td><td>已有奶油色不规则程序气泡、字形、白色已知词标注</td><td>属于现有美化体系，检查叠色与远近大小；不得给未知字泄露释义</td><td>一已知一未知、全确认、生态对话各一帧</td></tr>
+<tr><td>U04 E 输入回复</td><td>草绿色玩家语泡 + 单行中文输入；上方纸按钮换话题</td><td>换话题按钮和光标/占位字可与原语泡细节统一</td><td>输入中（含中文IME）、换话题入口</td></tr>
+<tr><td>U05 已说出的话</td><td>原玩家语泡，长文本可水平滚动，约八秒回声</td><td>无额外图案；先核对长句可读及滚动暗示</td><td>短句一帧、长句一帧</td></tr>
+<tr><td>U06 C 相机</td><td>程序取景角、快门、点、对焦框；已有等比适配</td><td>已具备风格，不在本轮另造五种边框；检查教学提示与构图冲突</td><td>空闲、对焦、18帧记录中各一帧</td></tr>
+<tr><td>U07 J 实体书开合</td><td>实体纸、封皮、法线/AO、四叶扇落、四页签</td><td>已有完整呈现；保留当前效果，人工检查瞬间闪跳与节奏</td><td>扇开、揭页、落定</td></tr>
+<tr><td>U08 照片/字格主跨页</td><td>原四张照片位、贴纸、收集数量和右字格</td><td>既有布局，不随意重做；真实照片来源需明确</td><td>真实照片页、空照片页、缺图提示</td></tr>
+<tr><td>U09 字格状态/悬停</td><td>绿/蓝/黄纸色；悬停/选中绿描边；已理解字悬停释义</td><td>本轮已实现，等待统一图审；不加常驻文字或发光</td><td>三色同页、已知悬停、未知悬停、选中</td></tr>
+<tr><td>U10 字词详情</td><td>程序纸卡；未见、猜测输入、已确认、证据、练手势按钮</td><td>纸缘和控件已复用原库；正文层级/输入框仍较功能式</td><td>未见、已拍未解、已确认三态</td></tr>
+<tr><td>U11 Live 照片详情</td><td>程序纸卡、照片、字语、播放按钮、拍摄时语境</td><td>播放/暂停、缺帧和语境行的视觉层级；不显示内部XYZ/语义ID</td><td>开始、结束可重播、缺图/缺帧</td></tr>
+<tr><td>U12 手势列表</td><td>实体纸底上的纯色矩形按钮、已学会/练一练/寻找线索文字</td><td class="red">新增UI主要缺口：尚无独立纸签、图标和统一按钮细节</td><td>锁定、已解锁未练、已学会</td></tr>
+<tr><td>U13 手势示范/练习</td><td>浅色矩形示范纸/练习垫、笔尖和动态轨迹、文本反馈</td><td class="red">新增UI主要缺口：练习纸边、方向标识、成功/失败反馈仍偏功能样式</td><td>示范进行、正确轨迹、反方向失败</td></tr>
+<tr><td>U14 摄影任务页</td><td>六条半透明矩形任务纸、字语token、拍一张/相遇、小对勾</td><td class="red">新增UI主要缺口：任务条纸质与完成章、翻页箭头尚未整体美术统一</td><td>未解词、已解词、已完成、下一页</td></tr>
+<tr><td>U15 相遇记录详情</td><td>程序纸卡 + 标题/记录正文 + 关闭按钮</td><td>现有纸卡可复用；缺少记录层级/轻量日期或情境装饰，是否增加需另评</td><td>实际完成公开事件后的证据卡</td></tr>
+<tr><td>U16 右上帮助任务</td><td>深绿透明矩形、白字、两项/页与纯色翻页按钮；无任务时隐藏</td><td class="red">新增UI主要缺口：与手账纸页风格不一致，尚未做独立卡面</td><td>一项、两项、多页；无任务对照</td></tr>
+<tr><td>U17 物件/采集提示</td><td>底部文字提示 E采集/F交互，来自当前实际可执行动作</td><td class="red">新增UI主要缺口：按键符号/动作层级未统一；必须避免重复E/F提示</td><td>采草、拿草、编垫、放垫、邀休、递草各一帧</td></tr>
+<tr><td>U18 H 情境引导</td><td>默认 G手势/H提示；展开单句阶段提示，玩家主动开合</td><td class="red">新增UI主要缺口：纯文字；需与后续新手策划一起确定，不先加常驻大面板</td><td>首次入场、hello后、雨教学后、收起</td></tr>
+<tr><td>U19 G 世界施法</td><td>全屏笔迹、顶部/底部绘制说明、成功绿色/失败橙色反馈</td><td class="red">新增UI主要缺口：提示文字和反馈容器未统一；笔迹本身已有真实材质</td><td>起笔、正确、未学会、乱画、Esc取消</td></tr>
+<tr><td>U20 世界作用圈</td><td>地形采样范围圈、局部天气，属于世界视觉</td><td>与光照/草色的可辨性需人工验收；平台高度限制另记，不新增UI</td><td>晴、阴/雨、夜及坡地</td></tr>
+<tr><td>U21 生活点标签/范围</td><td>世界空间TextMesh/提示、LineRenderer圆环，按距离与摄影状态刷新</td><td class="red">新增UI主要缺口：程序线圈与世界文字较工具化；拍照时应不侵入照片</td><td>近距离物件、远距离隐藏、相机模式对照</td></tr>
+<tr><td>U22 新手专用引导</td><td>现有H提示与剧情前置可复用，完整首施法/首问候/首告别尚需单独策划</td><td>本次只策划，不创建新弹窗或改现有UI</td><td>待方案确认，不称已有画面</td></tr>
+</tbody></table></div><p class="small">“原型 Walker 的 OnGUI”和 JourneyLabControls 的调试窗仅作为实验/编辑器诊断入口，正式水岸是否意外激活应在截图前核查；不将它们计划成面向玩家的新UI。</p></section>
+<section id="shots"><h2>06 · 复跑入口与证据归属</h2><div class="scroll"><table><thead><tr><th>用途</th><th>现有入口</th><th>证据归属</th></tr></thead><tbody>
+<tr><td>自由活动、帮助抢占与释放</td><td><code>roaming-only → LifeRoamingPlayChecks</code></td><td>本页最终 Play 轨迹与统计；没有专项录像或漫游截图。</td></tr>
+<tr><td>共休、饮水、递草、恢复及 P22</td><td><code>world-only → LifeWorldAsyncChecks</code></td><td>本页 57 项结果、同帧 JSON 与 P22 实际成功图。</td></tr>
+<tr><td>书页、字格、气泡</td><td><code>ui-only → LifeUiPlayChecks</code></td><td>本页上方是源码盘点；实际图与 fixture 条件见统一 UI 汇总。</td></tr>
+<tr><td>摄影 / 相遇 / 交谈界面</td><td><code>photography-only / photography-interactions-only / dialogue-only</code></td><td>功能结果、作者回复夹具、真实 AI 与视觉验收须分别标明；本页不替代各专项报告。</td></tr>
+<tr><td>真实相册与统一界面采集</td><td><code>fresh-photos-only / ui-capture-only</code></td><td>原图、保存来源、输入状态与缺口以 UI 汇总及总玩法报告为准。</td></tr></tbody></table></div></section>
+<footer>更新边界 · 本页更新只读核对代码与现有主控 Play 证据，并同步桌面和项目文档；没有操作 Unity 或修改 Assets。Voxel-Resort 与动森仅提供设计参考。漫游与世界动作专项已 PASS，完整队列和最终人工验收请分别查看对应报告。<br><a href="报告证据校验.json">本页证据来源、时间与文件 SHA-256</a></footer></main></html>

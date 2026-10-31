@@ -1,0 +1,182 @@
+{
+  "status": "PASS_BLENDER_FBX_ROUNDTRIP_UNITY_PENDING",
+  "rigName": "Armature",
+  "boneCount": 34,
+  "boneNames": [
+    "Main",
+    "Pan",
+    "Backbone",
+    "Backbone.001",
+    "Neck",
+    "Head",
+    "Mouth",
+    "Arm_L",
+    "Arm_L.001",
+    "Arm_L.002",
+    "Arm_R",
+    "Arm_R.001",
+    "Arm_R.002",
+    "Leg_L",
+    "Leg_L.001",
+    "Leg_L.002",
+    "Leg_L.003",
+    "Leg_R",
+    "Leg_R.001",
+    "Leg_R.002",
+    "Leg_R.003",
+    "Tail",
+    "Tail.001",
+    "Tail.002",
+    "Tail.003",
+    "Tail.004",
+    "Tail.005",
+    "IK-Pan",
+    "IK-Tail",
+    "IK-Leg_L",
+    "IK-Leg_R",
+    "IK-Arm_L",
+    "IK-Arm_R",
+    "IK-Head"
+  ],
+  "sourceBonesMissing": [],
+  "meshes": [
+    {
+      "name": "SquirrelBodyMesh",
+      "vertices": 1839,
+      "triangles": 3674,
+      "materials": [
+        "OGA Natural Chestnut Fur",
+        "OGA Natural Cream Belly",
+        "OGA Natural Tail",
+        "OGA Natural Muzzle",
+        "OGA Natural Eyes Nose",
+        "OGA Natural Paws",
+        "OGA Natural Incisors"
+      ]
+    },
+    {
+      "name": "SquirrelHeadNaturalMesh",
+      "vertices": 1460,
+      "triangles": 2880,
+      "materials": [
+        "OGA Natural Chestnut Fur",
+        "OGA Natural Muzzle",
+        "OGA Natural Eyes Nose",
+        "OGA Natural Inner Ear"
+      ]
+    },
+    {
+      "name": "SquirrelPawsMesh",
+      "vertices": 120,
+      "triangles": 200,
+      "materials": [
+        "OGA Natural Chestnut Fur",
+        "OGA Natural Cream Belly",
+        "OGA Natural Tail",
+        "OGA Natural Muzzle",
+        "OGA Natural Eyes Nose",
+        "OGA Natural Paws",
+        "OGA Natural Incisors"
+      ]
+    }
+  ],
+  "headWeightSumRange": [
+    0.9999999599531293,
+    1.0000000298023224
+  ],
+  "headWeightedBones": [
+    "Arm_L",
+    "Arm_R",
+    "Backbone.001",
+    "Head",
+    "Mouth",
+    "Neck"
+  ],
+  "actions": [
+    {
+      "action": "Armature|Armature|Idle.000",
+      "frames": [
+        1.0,
+        20.0
+      ],
+      "lowestZRange": [
+        4.113757370305393e-07,
+        0.0006014442187733948
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.001",
+      "frames": [
+        1.0,
+        36.0
+      ],
+      "lowestZRange": [
+        4.113757370305393e-07,
+        0.0006005263421684504
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.002",
+      "frames": [
+        1.0,
+        52.0
+      ],
+      "lowestZRange": [
+        4.113757370305393e-07,
+        0.0005974745727144182
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Idle.004",
+      "frames": [
+        1.0,
+        39.0
+      ],
+      "lowestZRange": [
+        -0.002417447045445442,
+        4.113757370305393e-07
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "action": "Armature|Armature|Run",
+      "frames": [
+        1.0,
+        10.0
+      ],
+      "lowestZRange": [
+        -0.017090456560254097,
+        0.06691712141036987
+      ],
+      "endpointMaxVertexGap": 0.005365851800888777
+    },
+    {
+      "action": "Armature|Armature|Run.Begin",
+      "frames": [
+        1.0,
+        9.0
+      ],
+      "lowestZRange": [
+        -0.014801089651882648,
+        0.0005164955509826541
+      ],
+      "endpointMaxVertexGap": 0.6106227040290833
+    },
+    {
+      "action": "Armature|Armature|Run.End",
+      "frames": [
+        1.0,
+        9.0
+      ],
+      "lowestZRange": [
+        -0.014801089651882648,
+        0.0005164717440493405
+      ],
+      "endpointMaxVertexGap": 0.6106227040290833
+    }
+  ],
+  "boundary": "FBX roundtrip in Blender only. Unity importer/avatar/forward/material/contacts not verified by this script."
+}

@@ -1,0 +1,124 @@
+{
+  "status": "PASS",
+  "models": [
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/GrassBundle.fbx",
+      "materials": [
+        "GrassSage",
+        "RopeBrown",
+        "SeedCream",
+        "StrawGold",
+        "StrawOlive"
+      ],
+      "images": []
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/GrassMat.fbx",
+      "materials": [
+        "GrassSage",
+        "RopeBrown",
+        "SeedCream",
+        "StrawGold",
+        "StrawOlive"
+      ],
+      "images": []
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/GrassPatch.fbx",
+      "materials": [
+        "GrassSage",
+        "SeedCream",
+        "StrawGold",
+        "StrawOlive"
+      ],
+      "images": []
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalBook.fbx",
+      "materials": [
+        "JournalCloth",
+        "JournalCover",
+        "JournalGutter",
+        "JournalPageLeft",
+        "JournalPageRight",
+        "JournalPaperEdge",
+        "JournalPaperEdgeLight"
+      ],
+      "images": [
+        "CoverAged.png",
+        "PaperAged.png"
+      ]
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/RibbonFlag.fbx",
+      "materials": [
+        "RibbonCream",
+        "RopeBrown"
+      ],
+      "images": []
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/ShadeShelter.fbx",
+      "materials": [
+        "GrassSage",
+        "RopeBrown",
+        "StrawGold",
+        "StrawOlive"
+      ],
+      "images": []
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/WaterBowl.fbx",
+      "materials": [
+        "BowlClay",
+        "Water"
+      ],
+      "images": []
+    }
+  ],
+  "textures": [
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/CoverAged.png",
+      "bytes": 3685393,
+      "sha256": "b1572ec17929b9903ba8dbd37fa2dd10e988c18da72153aaab33db2977169eb5",
+      "textureType": 0,
+      "sRGB": true
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/CoverAged_Normal.png",
+      "bytes": 1441241,
+      "sha256": "c4b2c8a6579e88742fe7e0ed09eb7e3b5beec6e8bf4d2ac32db6087163a60077",
+      "textureType": 1,
+      "sRGB": false
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/CoverAged_AO.png",
+      "bytes": 470411,
+      "sha256": "6c07bc709f70f05fcec7b41bf994f8904e0e0e7b0a63a9eeb4b49a06bf3a64f3",
+      "textureType": 0,
+      "sRGB": false
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/PaperAged.png",
+      "bytes": 2185894,
+      "sha256": "dc2bef7cde6e30abfe6e4dabf376bfa0ab838a55724a6de0b6b6a36921115b90",
+      "textureType": 0,
+      "sRGB": true
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/PaperAged_Normal.png",
+      "bytes": 435313,
+      "sha256": "b49308e7a5cc352fb89f6ea0ef50efcfac661188e4ede606a2e3335cfa2d8c14",
+      "textureType": 1,
+      "sRGB": false
+    },
+    {
+      "path": "Assets/Game/Life/Art/Resources/LifeAssets/JournalTextures/PaperAged_AO.png",
+      "bytes": 237997,
+      "sha256": "c247237b48f908e08925e0beb634f9fefae9e57955260145ce9b8683036eb034",
+      "textureType": 0,
+      "sRGB": false
+    }
+  ],
+  "boundary": "FBX import and source/meta existence. Normal/AO are assigned by LifeArtImporter; animation-only FBX use no runtime materials. Unity native render validation remains separate."
+}

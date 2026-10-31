@@ -256,9 +256,11 @@ namespace WeatherHouse.Vegetation.Editor
                     "禁用必须清除 MPB 强度、区域及失效纹理引用。");
                 Require(block.GetFloat("_HasPlanarReflection")>.5f,"禁用涉水不可清除已有平面反射 MPB。");
                 interaction.enabled=true; yield return null; yield return null;
-                Require(interaction.CurrentTexture && interaction.CurrentTexture.IsCreated(),"重新启用可以重建临时 normal 场。");
+                Require(!interaction.CurrentTexture,"重新启用后，静止的水面不应提前分配 normal 场。");
+                interaction.ClearField();
+                Require(interaction.CurrentTexture && interaction.CurrentTexture.IsCreated(),"显式清场检查可以初始化中性 normal 场。");
                 Require(player.walkSpeed==walk && player.runSpeed==run && player.walkStride==stride && player.gravity==gravity,"验证与涉水组件不得改变移速、步幅或重力。");
-                report.AppendLine("Disable/re-enable: RT released and MPB interaction cleared; reflection retained; RT recreated. Original walk/run/stride/gravity unchanged.");
+                report.AppendLine("Disable/re-enable: RT released and MPB interaction cleared; reflection retained; lazy allocation until explicit reset. Original walk/run/stride/gravity unchanged.");
             }
             finally
             {

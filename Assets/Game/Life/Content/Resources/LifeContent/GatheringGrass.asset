@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1353fd661f54dd592964229e4cf0911, type: 3}
+  m_Name: GatheringGrass
+  m_EditorClassIdentifier:
+  speciesId: G1_TallBroad
+  displayName: 宽叶草
+  variants:
+  - {fileID: 4300000, guid: d2a0a718b6c9c15429d26c0f9b5804a1, type: 2}
+  - {fileID: 4300000, guid: ad143fe625ac7274d84d68e38cc77822, type: 2}
+  - {fileID: 4300000, guid: c87e07ea496639344b3cc974b4d85213, type: 2}

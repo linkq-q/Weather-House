@@ -1,0 +1,1057 @@
+{
+  "id": "A04",
+  "status": "OFFLINE_PASS_UNITY_PENDING",
+  "recipeSha256": "b6e637d12ca1766f051275fc5d19fe3ed5c7d518048e831ef382f7abab656145",
+  "sourcePrefab": "Assets/Environment/RuralRebuild20261025/Prefabs/A04.prefab",
+  "lods": [
+    {
+      "level": 0,
+      "sourceModel": "Assets/Environment/RuralRebuild20261025/A04/A04_LOD0.fbx",
+      "sourceSha256": "93277094350798e688b863eaf6860d8c9dd977e2004646d6217433d1651303e8",
+      "model": "Assets/Environment/BuildingRoofHarmony20261027/A04/A04_RoofHarmony_LOD0.fbx",
+      "modelSha256": "8646e66b8b6b7b8435a300ee993f50e025c4b6340079b45a27f5f1c5d77e5ef3",
+      "replacements": [
+        {
+          "objectName": "A04_BakedMesh",
+          "sourceMaterial": "A04_M028",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M028_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.001",
+          "sourceMaterial": "A04_M000",
+          "disabled": false,
+          "meshChanged": true,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_RoofTiles_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_WeatherWindow_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.002",
+          "sourceMaterial": "A04_M001",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M001_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.003",
+          "sourceMaterial": "A04_M002",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M002_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.004",
+          "sourceMaterial": "A04_M003",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M003_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.005",
+          "sourceMaterial": "A04_M004",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M004_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.006",
+          "sourceMaterial": "A04_M005",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M005_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.007",
+          "sourceMaterial": "A04_M006",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M006_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.008",
+          "sourceMaterial": "A04_M007",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M007_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.009",
+          "sourceMaterial": "A04_M008",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M008_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.010",
+          "sourceMaterial": "A04_M009",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M009_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.011",
+          "sourceMaterial": "A04_M010",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M010_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.012",
+          "sourceMaterial": "A04_M011",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M011_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.013",
+          "sourceMaterial": "A04_M012",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M012_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.014",
+          "sourceMaterial": "A04_M013",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M013_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.015",
+          "sourceMaterial": "A04_M014",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M014_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.016",
+          "sourceMaterial": "A04_M015",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M015_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.017",
+          "sourceMaterial": "A04_M016",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M016_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.018",
+          "sourceMaterial": "A04_M017",
+          "disabled": false,
+          "meshChanged": true,
+          "materials": [
+            "Assets/Environment/WeatherHouseV05/OilPaintPreview/WH05_Moss_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_WH05_Foliage_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.019",
+          "sourceMaterial": "A04_M018",
+          "disabled": true,
+          "meshChanged": true,
+          "materials": []
+        },
+        {
+          "objectName": "A04_BakedMesh.020",
+          "sourceMaterial": "A04_M019",
+          "disabled": true,
+          "meshChanged": true,
+          "materials": []
+        },
+        {
+          "objectName": "A04_BakedMesh.021",
+          "sourceMaterial": "A04_M020",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M020_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.022",
+          "sourceMaterial": "A04_M021",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M021_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.023",
+          "sourceMaterial": "A04_M022",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M022_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.024",
+          "sourceMaterial": "A04_M023",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M023_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.025",
+          "sourceMaterial": "A04_M024",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M024_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.026",
+          "sourceMaterial": "A04_M025",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M025_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.027",
+          "sourceMaterial": "A04_M026",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M026_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.028",
+          "sourceMaterial": "A04_M027",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M027_Oil.mat"
+          ]
+        }
+      ]
+    },
+    {
+      "level": 1,
+      "sourceModel": "Assets/Environment/RuralRebuild20261025/A04/A04_LOD1.fbx",
+      "sourceSha256": "605d740847c77b87c2a39ad95deb19809c9aab0864cc47baea438f7c33a9d4fe",
+      "model": "Assets/Environment/BuildingRoofHarmony20261027/A04/A04_RoofHarmony_LOD1.fbx",
+      "modelSha256": "2162552dcc5d8e54a38551bdf8efd8f34983956bb388a3da9c95f33da5fe095b",
+      "replacements": [
+        {
+          "objectName": "A04_BakedMesh",
+          "sourceMaterial": "A04_M028",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M028_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.001",
+          "sourceMaterial": "A04_M000",
+          "disabled": false,
+          "meshChanged": true,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_RoofTiles_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_WeatherWindow_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.002",
+          "sourceMaterial": "A04_M001",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M001_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.003",
+          "sourceMaterial": "A04_M002",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M002_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.004",
+          "sourceMaterial": "A04_M003",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M003_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.005",
+          "sourceMaterial": "A04_M004",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M004_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.006",
+          "sourceMaterial": "A04_M005",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M005_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.007",
+          "sourceMaterial": "A04_M006",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M006_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.008",
+          "sourceMaterial": "A04_M007",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M007_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.009",
+          "sourceMaterial": "A04_M008",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M008_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.010",
+          "sourceMaterial": "A04_M009",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M009_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.011",
+          "sourceMaterial": "A04_M010",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M010_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.012",
+          "sourceMaterial": "A04_M011",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M011_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.013",
+          "sourceMaterial": "A04_M012",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M012_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.014",
+          "sourceMaterial": "A04_M013",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M013_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.015",
+          "sourceMaterial": "A04_M014",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M014_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.016",
+          "sourceMaterial": "A04_M015",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M015_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.017",
+          "sourceMaterial": "A04_M016",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M016_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.018",
+          "sourceMaterial": "A04_M017",
+          "disabled": false,
+          "meshChanged": true,
+          "materials": [
+            "Assets/Environment/WeatherHouseV05/OilPaintPreview/WH05_Moss_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_WH05_Foliage_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.019",
+          "sourceMaterial": "A04_M018",
+          "disabled": true,
+          "meshChanged": true,
+          "materials": []
+        },
+        {
+          "objectName": "A04_BakedMesh.020",
+          "sourceMaterial": "A04_M019",
+          "disabled": true,
+          "meshChanged": true,
+          "materials": []
+        },
+        {
+          "objectName": "A04_BakedMesh.021",
+          "sourceMaterial": "A04_M020",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M020_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.022",
+          "sourceMaterial": "A04_M021",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M021_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.023",
+          "sourceMaterial": "A04_M022",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M022_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.024",
+          "sourceMaterial": "A04_M023",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M023_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.025",
+          "sourceMaterial": "A04_M024",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M024_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.026",
+          "sourceMaterial": "A04_M025",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M025_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.027",
+          "sourceMaterial": "A04_M026",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M026_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.028",
+          "sourceMaterial": "A04_M027",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M027_Oil.mat"
+          ]
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "sourceModel": "Assets/Environment/RuralRebuild20261025/A04/A04_LOD2.fbx",
+      "sourceSha256": "75a00c393cd599543b35684d83d369f8909e1b299c4497cd34b07936404d1ade",
+      "model": "Assets/Environment/BuildingRoofHarmony20261027/A04/A04_RoofHarmony_LOD2.fbx",
+      "modelSha256": "6d198a0a752ecaa45553ddd23d7d226f3498dad21a55f3b07247cf74be12814d",
+      "replacements": [
+        {
+          "objectName": "A04_BakedMesh",
+          "sourceMaterial": "A04_M028",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M028_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.001",
+          "sourceMaterial": "A04_M000",
+          "disabled": false,
+          "meshChanged": true,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_RoofTiles_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_WeatherWindow_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.002",
+          "sourceMaterial": "A04_M001",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M001_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.003",
+          "sourceMaterial": "A04_M002",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M002_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.004",
+          "sourceMaterial": "A04_M003",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M003_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.005",
+          "sourceMaterial": "A04_M004",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M004_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.006",
+          "sourceMaterial": "A04_M005",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M005_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.007",
+          "sourceMaterial": "A04_M006",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M006_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.008",
+          "sourceMaterial": "A04_M007",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M007_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.009",
+          "sourceMaterial": "A04_M008",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M008_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.010",
+          "sourceMaterial": "A04_M009",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M009_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.011",
+          "sourceMaterial": "A04_M010",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M010_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.012",
+          "sourceMaterial": "A04_M011",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M011_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.013",
+          "sourceMaterial": "A04_M012",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M012_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.014",
+          "sourceMaterial": "A04_M013",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M013_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.015",
+          "sourceMaterial": "A04_M014",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M014_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.016",
+          "sourceMaterial": "A04_M015",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M015_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.017",
+          "sourceMaterial": "A04_M016",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M016_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.018",
+          "sourceMaterial": "A04_M017",
+          "disabled": false,
+          "meshChanged": true,
+          "materials": [
+            "Assets/Environment/WeatherHouseV05/OilPaintPreview/WH05_Moss_Oil.mat",
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_WH05_Foliage_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.019",
+          "sourceMaterial": "A04_M018",
+          "disabled": true,
+          "meshChanged": true,
+          "materials": []
+        },
+        {
+          "objectName": "A04_BakedMesh.020",
+          "sourceMaterial": "A04_M019",
+          "disabled": true,
+          "meshChanged": true,
+          "materials": []
+        },
+        {
+          "objectName": "A04_BakedMesh.021",
+          "sourceMaterial": "A04_M020",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M020_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.022",
+          "sourceMaterial": "A04_M021",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M021_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.023",
+          "sourceMaterial": "A04_M022",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M022_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.024",
+          "sourceMaterial": "A04_M023",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M023_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.025",
+          "sourceMaterial": "A04_M024",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M024_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.026",
+          "sourceMaterial": "A04_M025",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M025_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.027",
+          "sourceMaterial": "A04_M026",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M026_Oil.mat"
+          ]
+        },
+        {
+          "objectName": "A04_BakedMesh.028",
+          "sourceMaterial": "A04_M027",
+          "disabled": false,
+          "meshChanged": false,
+          "materials": [
+            "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M027_Oil.mat"
+          ]
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "importName": "A04_M000",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M000.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M000_RoofTiles",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_RoofTiles_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M000.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M000_WeatherWindow",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M000_WeatherWindow_Oil.mat",
+      "family": "WeatherWindow",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M000.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M001",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M001_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M001.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M002",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M002_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M002.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M003",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M003_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M003.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M004",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M004_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M004.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M005",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M005_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M005.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M006",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M006_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M006.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M007",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M007_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M007.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M008",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M008_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M008.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M009",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M009_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M009.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M010",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M010_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M010.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M011",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M011_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M011.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M012",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M012_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M012.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M013",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M013_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M013.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M014",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M014_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M014.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M015",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M015_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M015.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M016",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M016_Oil.mat",
+      "family": "RoofTiles",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M016.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M017",
+      "path": "Assets/Environment/WeatherHouseV05/OilPaintPreview/WH05_Moss_Oil.mat",
+      "family": "Moss",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M017.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M020",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M020_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M020.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M021",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M021_Oil.mat",
+      "family": "WeatherWindow",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M021.mat",
+      "transparent": true,
+      "palette": false
+    },
+    {
+      "importName": "A04_M022",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M022_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M022.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M023",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M023_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M023.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M024",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M024_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M024.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M025",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M025_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M025.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M026",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M026_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M026.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M027",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M027_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M027.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_M028",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_M028_Oil.mat",
+      "family": "Architecture",
+      "sourcePath": "Assets/Environment/RuralRebuild20261025/A04/Materials/M028.mat",
+      "transparent": false,
+      "palette": false
+    },
+    {
+      "importName": "A04_WH05_Foliage",
+      "path": "Assets/Environment/BuildingRoofHarmony20261027/A04/Materials/A04_WH05_Foliage_Oil.mat",
+      "family": "Foliage",
+      "sourcePath": "Assets/Environment/WeatherHouseV05/OilPaintPreview/WH05_Foliage_Oil.mat",
+      "transparent": false,
+      "palette": true
+    }
+  ]
+}

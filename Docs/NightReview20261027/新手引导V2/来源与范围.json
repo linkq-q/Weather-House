@@ -1,0 +1,99 @@
+{
+  "version": "2026-10-27 V2",
+  "delivery": "PLAN_ONLY_NOT_IMPLEMENTED",
+  "gameFilesChanged": false,
+  "sceneOrSaveTouched": false,
+  "islandName": "雾汐岛（推荐暂名，未定稿）",
+  "rootKnownBoundary": "用户仍在Unity Play，未要求退出或操作Editor；手势不可绘制未在本文件宣称修复",
+  "closedBuildings": [
+    "A01",
+    "A04",
+    "A08"
+  ],
+  "removedBuilding": "A05",
+  "sourceFiles": [
+    {
+      "path": "Assets/Game/UI/GameplayHud.cs",
+      "sha256": "5263c854e53dc43f5e4b28dc393ec45786277c602410959abd4247d07fa90223"
+    },
+    {
+      "path": "Assets/Game/Scripts/Gameplay/GameplaySession.cs",
+      "sha256": "f346f5eecf1809410fe3e0c371b1f3fb5589d0b990dc7c95df7e9937b4e221b0"
+    },
+    {
+      "path": "Assets/Game/Scripts/Gameplay/LanguageNotebook.cs",
+      "sha256": "e398e54d3fa8f291cdeb943a8154474ab9365560caf6f3af6f14e5bd543fd809"
+    },
+    {
+      "path": "Assets/Game/Scripts/Gameplay/AnimalActor.cs",
+      "sha256": "bcf4645e95eac11601156b2fb54b8cb3e68772e5c959749193d92e3b9b199129"
+    },
+    {
+      "path": "Assets/Game/Life/Core/LifeSession.cs",
+      "sha256": "307a9a2d16e24bf75de36d3e7c5703a0bc6e87444b882c203ad84c7afc757b9f"
+    },
+    {
+      "path": "Assets/Game/Life/UI/LifeJournalChrome.cs",
+      "sha256": "d509b627e1a4eef50629c57f19387a9bd60c53afe0a5c20b3635c1d263e184ea"
+    },
+    {
+      "path": "Assets/Game/Life/UI/LifeGestureBook.cs",
+      "sha256": "d74bf560d6e9af6973572a3a20d7dde974657dd0f83441410670497a58632b3c"
+    },
+    {
+      "path": "Assets/Game/Life/UI/LifePhotoBook.cs",
+      "sha256": "3041a7f7c1b52f278c72ef29defe2d749900c072f72086e6d4a23b9f616927bc"
+    },
+    {
+      "path": "Assets/Game/Life/Content/LifeContent.cs",
+      "sha256": "6fc03ada8ae2d0f665eb10cf54f54d4cda0f77ec79d54841f30566e62530a2bf"
+    },
+    {
+      "path": "Assets/Game/Life/Photography/LifePhotoTasks.cs",
+      "sha256": "7a54b12465e89bd02f5601a4560a00bce8489b6b8714c655f58ea2e2931018df"
+    },
+    {
+      "path": "Assets/Game/Resources/WeatherHouseGlyphs.json",
+      "sha256": "5d95dda8e50eb76e870cb72fc1d2c91da16ca6616f7d80936a6c6b7ca7f0a5e0"
+    },
+    {
+      "path": "Docs/NightReview20261027/新手引导/新手引导策划.html",
+      "sha256": "1e1a8fe6511a4edad87f5011886812296aa15de60a97b5be4cd03486d531af33"
+    }
+  ],
+  "webSources": [
+    {
+      "url": "https://create.roblox.com/docs/production/game-design/onboarding-techniques",
+      "purpose": "contextual tutorials and targeted hints"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/117",
+      "purpose": "pause or stop motion and camera settings"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/104",
+      "purpose": "subtitles from first cinematic and readability"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/103",
+      "purpose": "labels and shapes supplement color"
+    }
+  ],
+  "externalSourcesCheckedOn": "2026-10-27",
+  "implementationProposals": [
+    "opening cinematic",
+    "lightweight onboarding coordinator",
+    "book word guess validation",
+    "hint inventory",
+    "unphotographed observed dialogue index",
+    "greeting and farewell hysteresis"
+  ],
+  "recommendations": [
+    "Keep current photo confirmation rewards and skip already confirmed guesses",
+    "Common synonyms locally; optional ambiguous explanation to AI; network failure consumes no hint",
+    "Three animals is an optional strengthening goal, not a three-species lock",
+    "First new confirmed glyph IDs only; initial want/reject excluded; tutorial hint separate"
+  ],
+  "timingBoundary": "All durations/distances and 8-13 minute total are untested design hypotheses",
+  "memoryUsage": "Light memory registry search found no specific onboarding requirements; current user and workspace sources are authoritative."
+}

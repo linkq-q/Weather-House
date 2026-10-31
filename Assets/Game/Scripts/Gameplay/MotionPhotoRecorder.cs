@@ -7,10 +7,19 @@ namespace WeatherHousePrototype
 {
     public class MotionPhotoRecorder : MonoBehaviour
     {
-        public const int Width = 512, Height = 288, FrameCount = 18;
-        public const float FramesPerSecond = 6f;
+        // Keep the component and on-disk folder names so existing scenes and photos remain readable.
+        public const int Width = 2560, Height = 1440, FrameCount = 1;
+        public const float FramesPerSecond = 0f;
         public bool IsRecording { get; private set; }
         public float CaptureProgress { get; private set; }
+#if UNITY_EDITOR
+        [Serializable] public struct CaptureCost
+        {
+            public int frame,unityFrame;
+            public double renderMs,readPixelsMs,applyMs,encodeMs,writeMs,totalMs;
+        }
+        public event Action<CaptureCost> CaptureMeasured;
+#endif
 
         private Camera captureCamera;
         private ObservationRecord pending;
@@ -22,16 +31,16 @@ namespace WeatherHousePrototype
         private string ownedFolder;
 
         public bool Capture(Camera camera, ObservationRecord snapshot,
-            Action<ObservationRecord> onCompleted, Action<string> onFailed = null)
+            Action<ObservationRecord> onCompleted, Action<string> onFailed = null, Func<bool> isSnapshotCurrent = null)
         {
             if (IsRecording)
             {
-                onFailed?.Invoke("正在记录动态照片，请等待本次记录完成。");
+                onFailed?.Invoke("正在保存照片，请稍候。");
                 return false;
             }
             if (!isActiveAndEnabled || camera == null || snapshot == null)
             {
-                onFailed?.Invoke("动态照片需要有效的相机、观察快照和启用的记录器。");
+                onFailed?.Invoke("拍照需要有效的相机、观察快照和启用的记录器。");
                 return false;
             }
 
@@ -40,7 +49,8 @@ namespace WeatherHousePrototype
             {
                 id = id, animalId = snapshot.animalId, utteranceId = snapshot.utteranceId,
                 glyphIds = snapshot.glyphIds == null ? Array.Empty<string>() : (string[])snapshot.glyphIds.Clone(),
-                weather = snapshot.weather, clipFolder = "MotionPhotos/" + id,
+                weather = snapshot.weather, clipFolder = "MotionPhotos/" + id, context = snapshot.context?.Copy(),
+                photoSnapshot = snapshot.photoSnapshot?.Copy(),
                 capturedUtcTicks = snapshot.capturedUtcTicks > 0 ? snapshot.capturedUtcTicks : DateTime.UtcNow.Ticks
             };
             captureCamera = camera;
@@ -50,62 +60,62 @@ namespace WeatherHousePrototype
             try
             {
                 string folder = ResolveFolder(pending);
-                if (Directory.Exists(folder)) throw new IOException("该动态照片目录已经存在，未覆盖原有记录。");
+                if (Directory.Exists(folder)) throw new IOException("该照片目录已经存在，未覆盖原有记录。");
                 Directory.CreateDirectory(folder);
                 ownedFolder = folder;
-                renderTexture = RenderTexture.GetTemporary(Width, Height, 24, RenderTextureFormat.ARGB32);
+                renderTexture = RenderTexture.GetTemporary(Width, Height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 4);
                 frameTexture = new Texture2D(Width, Height, TextureFormat.RGB24, false);
                 IsRecording = true;
+                // The ordinary photo belongs to this shutter instant, before any later dialogue turn.
+                if (!TryWriteFrame(0, out string error)) throw new IOException(error);
+                pending.frameCount = 1;
+                CaptureProgress = 1f / FrameCount;
                 recording = StartCoroutine(RecordFrames());
                 return true;
             }
             catch (Exception exception)
             {
-                FinishFailure("动态照片无法开始：" + exception.Message);
+                FinishFailure("照片无法保存：" + exception.Message);
                 return false;
             }
         }
 
         private IEnumerator RecordFrames()
         {
-            // Let the caller finish setting up the observation before the first world render.
+            // Render only at the shutter instant; publish on the next tick to preserve caller callback ordering.
             yield return null;
-            float startedAt = Time.realtimeSinceStartup;
-            for (int frame = 0; frame < FrameCount; frame++)
-            {
-                while (Time.realtimeSinceStartup < startedAt + frame / FramesPerSecond)
-                    yield return null;
-                if (!TryWriteFrame(frame, out string error))
-                {
-                    recording = null;
-                    FinishFailure(error);
-                    yield break;
-                }
-                CaptureProgress = (frame + 1f) / FrameCount;
-            }
-            while (Time.realtimeSinceStartup < startedAt + FrameCount / FramesPerSecond)
-                yield return null;
+            recording = null;
+            CompleteCapture();
+        }
 
-            string completionError = null;
+        private void CompleteCapture()
+        {
             try
             {
-                pending.frameCount = FrameCount;
                 pending.framesPerSecond = FramesPerSecond;
                 File.WriteAllText(Path.Combine(ownedFolder, "metadata.json"), JsonUtility.ToJson(pending, true));
             }
-            catch (Exception exception) { completionError = "动态照片保存失败：" + exception.Message; }
-            recording = null;
-            if (completionError != null)
+            catch (Exception exception)
             {
-                FinishFailure(completionError);
-                yield break;
+                // The index also contains the full snapshot; keep successful image files even if this sidecar fails.
+                pending.captureWarning = "照片元数据保存失败：" + exception.Message;
             }
+            recording = null;
             ObservationRecord result = pending;
             Action<ObservationRecord> callback = completed;
             ownedFolder = null;
             ResetCapture();
             CaptureProgress = 1f;
             callback?.Invoke(result);
+        }
+
+        // Legacy entry point: finish the pending still when the camera closes or the component disables.
+        public void FinishLiveCapture()
+        {
+            if (!IsRecording) return;
+            if (recording != null) StopCoroutine(recording);
+            recording = null;
+            CompleteCapture();
         }
 
         private bool TryWriteFrame(int index, out string error)
@@ -129,11 +139,35 @@ namespace WeatherHousePrototype
                     int uiLayer = LayerMask.NameToLayer("UI");
                     if (uiLayer >= 0) captureCamera.cullingMask &= ~(1 << uiLayer);
                     captureCamera.targetTexture = renderTexture;
+#if UNITY_EDITOR
+                    long costStart=System.Diagnostics.Stopwatch.GetTimestamp(),section=costStart;
+                    var cost=new CaptureCost{frame=index,unityFrame=Time.frameCount};
+#endif
+                    // The shutter runs before LateUpdate, where procedural grass is normally submitted.
+                    foreach (var grass in FindObjectsOfType<WeatherHouse.Hillside.HillsideGrassRenderer>())
+                        if (grass.isActiveAndEnabled && grass.gameObject.scene == captureCamera.gameObject.scene)
+                            grass.DrawForCamera(captureCamera, true);
                     captureCamera.Render();
+#if UNITY_EDITOR
+                    cost.renderMs=Elapsed(ref section);
+#endif
                     RenderTexture.active = renderTexture;
                     frameTexture.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
+#if UNITY_EDITOR
+                    cost.readPixelsMs=Elapsed(ref section);
+#endif
                     frameTexture.Apply(false, false);
-                    File.WriteAllBytes(Path.Combine(ownedFolder, FrameName(index)), frameTexture.EncodeToPNG());
+#if UNITY_EDITOR
+                    cost.applyMs=Elapsed(ref section);
+#endif
+                    byte[] png=frameTexture.EncodeToPNG();
+#if UNITY_EDITOR
+                    cost.encodeMs=Elapsed(ref section);
+#endif
+                    File.WriteAllBytes(Path.Combine(ownedFolder, FrameName(index)), png);
+#if UNITY_EDITOR
+                    cost.writeMs=Elapsed(ref section);cost.totalMs=Elapsed(ref costStart);CaptureMeasured?.Invoke(cost);
+#endif
                 }
                 finally
                 {
@@ -150,7 +184,7 @@ namespace WeatherHousePrototype
             }
             catch (Exception exception)
             {
-                error = "动态照片第 " + (index + 1) + " 帧记录失败：" + exception.Message;
+                error = "照片画面保存失败：" + exception.Message;
                 return false;
             }
         }
@@ -160,8 +194,14 @@ namespace WeatherHousePrototype
             if (!IsRecording) return;
             if (recording != null) StopCoroutine(recording);
             recording = null;
-            FinishFailure("动态照片已取消，未生成观察记录。");
+            FinishFailure("照片已取消，未生成观察记录。");
         }
+#if UNITY_EDITOR
+        static double Elapsed(ref long start)
+        {
+            long end=System.Diagnostics.Stopwatch.GetTimestamp();double elapsed=(end-start)*1000.0/System.Diagnostics.Stopwatch.Frequency;start=end;return elapsed;
+        }
+#endif
 
         private void FinishFailure(string message)
         {
@@ -195,26 +235,30 @@ namespace WeatherHousePrototype
             failed = null;
         }
 
-        private void OnDisable() { CancelCapture(); }
+        private void OnDisable() { FinishLiveCapture(); }
+        private void OnApplicationQuit() { FinishLiveCapture(); }
 
         public static Texture2D LoadFrame(ObservationRecord record, int index)
         {
             string folder = ResolveFolder(record);
-            if (index < 0 || index >= record.frameCount) throw new ArgumentOutOfRangeException(nameof(index), "动态照片帧号越界。");
+            if (index < 0 || index >= record.frameCount) throw new ArgumentOutOfRangeException(nameof(index), "照片画面序号越界。");
             string path = Path.Combine(folder, FrameName(index));
-            if (!File.Exists(path)) throw new FileNotFoundException("动态照片帧文件缺失。", path);
+            if (!File.Exists(path)) throw new FileNotFoundException("照片文件缺失。", path);
             var file = new FileInfo(path);
-            if (file.Length < 24 || file.Length > 2 * 1024 * 1024)
-                throw new InvalidDataException("动态照片帧文件大小无效。");
+            if (file.Length < 24 || file.Length > 24 * 1024 * 1024)
+                throw new InvalidDataException("照片文件大小无效。");
             byte[] bytes = File.ReadAllBytes(path);
             if (bytes[0] != 137 || bytes[1] != 80 || bytes[2] != 78 || bytes[3] != 71 ||
                 bytes[4] != 13 || bytes[5] != 10 || bytes[6] != 26 || bytes[7] != 10 ||
-                ReadBigEndian(bytes, 16) != Width || ReadBigEndian(bytes, 20) != Height)
-                throw new InvalidDataException("动态照片帧不是预期的 512×288 PNG。");
+                !((ReadBigEndian(bytes, 16) == Width && ReadBigEndian(bytes, 20) == Height) ||
+                  (ReadBigEndian(bytes, 16) == 512 && ReadBigEndian(bytes, 20) == 288)))
+                throw new InvalidDataException("照片不是受支持的 2560×1440 或旧版 512×288 PNG。");
             var texture = new Texture2D(2, 2, TextureFormat.RGB24, false);
             try
             {
-                if (!texture.LoadImage(bytes, false)) throw new InvalidDataException("动态照片帧无法解码。");
+                if (!texture.LoadImage(bytes, false)) throw new InvalidDataException("照片无法解码。");
+                texture.wrapMode = TextureWrapMode.Clamp;
+                texture.filterMode = FilterMode.Bilinear;
                 return texture;
             }
             catch
@@ -232,7 +276,7 @@ namespace WeatherHousePrototype
             if (segments.Length != 2 || segments[0] != "MotionPhotos" ||
                 !Guid.TryParseExact(segments[1], "N", out Guid id) || record.id != id.ToString("N"))
                 throw new ArgumentException("动态照片目录必须位于本地 MotionPhotos 目录内。", nameof(record));
-            string root = Path.GetFullPath(Path.Combine(Application.persistentDataPath, "MotionPhotos"));
+            string root = Path.GetFullPath(Path.Combine(GameplaySession.PersistenceDirectory, "MotionPhotos"));
             string folder = Path.GetFullPath(Path.Combine(root, segments[1]));
             if (!folder.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal))
                 throw new ArgumentException("动态照片目录超出了本地存储范围。", nameof(record));

@@ -33,8 +33,8 @@ namespace WeatherHousePrototype
                 var hud = session.GetComponent<GameplayHud>();
                 Require(hud != null && hud.isActiveAndEnabled && Get<Canvas>(hud, "canvas") != null, "Wait for HUD Start to finish.");
                 Require(!session.Judging && !session.Recorder.IsRecording, "Wait for the current judgement or capture to finish.");
-                Require(!hud.JournalOpen && !hud.CameraMode && !Get<bool>(hud, "dialogueOpen") &&
-                    Get<ObservationRecord>(hud, "expandedPhoto") == null, "Close the journal, reply panel and camera before running checks.");
+                Require(!hud.JournalOpen && !hud.CameraMode && !hud.IsDialogueOpen &&
+                    Get<ObservationRecord>(hud, "expandedPhoto") == null, "Close the journal and camera before running checks.");
                 Require(EventSystem.current == null || EventSystem.current.currentSelectedGameObject == null,
                     "Deselect the current UI control before running checks.");
                 ProceduralUiStyle.Parse(JsonUtility.ToJson(hud.uiStyle));
@@ -88,11 +88,11 @@ namespace WeatherHousePrototype
 
         private static IEnumerator CheckHud(GameplaySession session, GameplayHud hud, List<string> report)
         {
-            AnimalActor animal = session.animals.FirstOrDefault(a => a != null && a.CurrentGlyphIds?.Length > 0 &&
+            AnimalActor animal = session.animals.FirstOrDefault(a => a != null && a.CurrentGlyphIds?.Length > 0 && session.ShouldShowAnimalUtterance(a) &&
                 session.CurrentView.WorldToScreenPoint(a.BubbleAnchor).z > 0f);
             Require(animal != null, "At least one animal must be in front of the current view for a live bubble mesh check.");
             string serializedHud = EditorJsonUtility.ToJson(hud);
-            string replyDraft = Get<string>(hud, "replyDraft"), guessDraft = Get<string>(hud, "guessDraft");
+            string guessDraft = Get<string>(hud, "guessDraft");
             bool dirty = Get<bool>(hud, "dirty"), walkerEnabled = session.walker.enabled;
             bool inputBlocked = session.walker.InputBlocked, jumpBlocked = session.walker.JumpBlocked;
             bool cameraBlocked = session.walker.CameraInputBlocked;
@@ -106,12 +106,9 @@ namespace WeatherHousePrototype
                 Set(session, "nextObservation", float.PositiveInfinity);
                 Set(session, "<Observed>k__BackingField", animal);
                 session.walker.enabled = false;
-                Set(hud, "dialogueOpen", true);
-                Set(hud, "replyDraft", "调参时保留这段未发送的中文草稿。");
                 Apply(hud, serialized =>
                 {
                     serialized.FindProperty("animalBubbleSize").vector2Value = new Vector2(240f, 90f);
-                    serialized.FindProperty("playerBubbleSize").vector2Value = new Vector2(500f, 140f);
                     serialized.FindProperty("animalGlyphHeight").floatValue = 25f;
                     serialized.FindProperty("animalGlyphStrokeWidth").floatValue = 3f;
                     serialized.FindProperty("uiStyle.lineScale").floatValue = 1f;
@@ -121,26 +118,15 @@ namespace WeatherHousePrototype
                 yield return null;
                 Canvas.ForceUpdateCanvases();
                 Vector2 animalBefore = Find<ProceduralUiGraphic>(hud, "Animal bubble").rectTransform.sizeDelta;
-                Vector2 playerBefore = Find<ProceduralUiGraphic>(hud, "Player reply bubble").rectTransform.sizeDelta;
-                var input = Find<InputField>(hud, "Chinese reply");
-                input.text = "我还没发出去，调整字形和气泡后也要保留。";
-                string draft = input.text;
-                playerBefore = Find<ProceduralUiGraphic>(hud, "Player reply bubble").rectTransform.sizeDelta;
+                Check(!hud.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Player reply bubble" || t.name == "Chinese reply" || t.name == "Player spoken reply") && !hud.BlocksMovement,
+                    "Inspector rebuild leaves no reply UI or movement lock", report);
 
                 Apply(hud, serialized => serialized.FindProperty("animalBubbleSize").vector2Value = new Vector2(360f, 130f));
                 yield return null;
                 Canvas.ForceUpdateCanvases();
                 Vector2 animalAfter = Find<ProceduralUiGraphic>(hud, "Animal bubble").rectTransform.sizeDelta;
-                Check((animalAfter - animalBefore).sqrMagnitude > 1f &&
-                    Near(Find<ProceduralUiGraphic>(hud, "Player reply bubble").rectTransform.sizeDelta, playerBefore),
-                    "Changing animal size updates its live RectTransform and leaves player size unchanged", report);
-
-                Apply(hud, serialized => serialized.FindProperty("playerBubbleSize").vector2Value = new Vector2(650f, 180f));
-                yield return null;
-                Canvas.ForceUpdateCanvases();
-                Check((Find<ProceduralUiGraphic>(hud, "Player reply bubble").rectTransform.sizeDelta - playerBefore).sqrMagnitude > 1f &&
-                    Near(Find<ProceduralUiGraphic>(hud, "Animal bubble").rectTransform.sizeDelta, animalAfter),
-                    "Changing player size updates its live RectTransform and leaves animal size unchanged", report);
+                Check((animalAfter - animalBefore).sqrMagnitude > 1f,
+                    "Changing animal size updates its live RectTransform", report);
 
                 var glyphBefore = hud.GetComponentsInChildren<AnimalGlyphGraphic>().First();
                 float oldStroke = SolidStroke(glyphBefore);
@@ -158,7 +144,7 @@ namespace WeatherHousePrototype
                 Canvas.ForceUpdateCanvases();
                 var closeBefore = Find<ProceduralUiGraphic>(hud, "Close");
                 float closeStroke = SolidStroke(closeBefore), closeWidth = closeBefore.lineWidth;
-                int oldFontSize = Find<Text>(hud, "Input text").fontSize;
+                int oldFontSize = Find<Text>(hud, "Capture hint").fontSize;
                 Apply(hud, serialized =>
                 {
                     serialized.FindProperty("uiStyle.lineScale").floatValue = 1.8f;
@@ -171,19 +157,18 @@ namespace WeatherHousePrototype
                 Check(Mathf.Abs(closeAfter.lineWidth / closeWidth - 1.8f) < .001f &&
                     Mathf.Abs(SolidStroke(closeAfter) / closeStroke - 1.8f) < .02f,
                     "Overall line scale reaches the actual close-button Canvas mesh", report);
-                Text instruction = Find<Text>(hud, "Input text");
+                Text instruction = Find<Text>(hud, "Capture hint");
                 Check(instruction.fontStyle == FontStyle.Bold && instruction.fontSize == Mathf.RoundToInt(oldFontSize * 1.25f) &&
                     HasRenderedMesh(instruction),
                     "Font weight 700 and font scale 1.25 reach rendered Chinese text", report);
-                Check(Find<InputField>(hud, "Chinese reply").text == draft && Get<string>(hud, "replyDraft") == draft &&
-                    Get<string>(hud, "guessDraft") == guessDraft,
-                    "Repeated Inspector rebuilds preserve the unsent reply and existing guess draft", report);
+                Check(Get<string>(hud, "guessDraft") == guessDraft,
+                    "Repeated Inspector rebuilds preserve the existing dictionary guess draft", report);
                 int validCloseId = closeAfter.GetInstanceID();
                 Apply(hud, serialized => serialized.FindProperty("uiStyle.ink").stringValue = "#");
                 yield return null;
                 Canvas.ForceUpdateCanvases();
                 Check(Find<ProceduralUiGraphic>(hud, "Close").GetInstanceID() == validCloseId &&
-                    Find<InputField>(hud, "Chinese reply").text == draft && HasRenderedMesh(Find<Text>(hud, "Input text")),
+                    Get<string>(hud, "guessDraft") == guessDraft && HasRenderedMesh(Find<Text>(hud, "Capture hint")),
                     "An unfinished HEX edit preserves the last valid rendered HUD and draft", report);
                 Check(canvases.SequenceEqual(Ids<Canvas>()) && events.SequenceEqual(Ids<EventSystem>()),
                     "Inspector edits reuse existing Canvas and EventSystem instances", report);
@@ -199,11 +184,7 @@ namespace WeatherHousePrototype
                     if (hud != null)
                     {
                         hud.SetCameraMode(false);
-                        var input = Get<InputField>(hud, "replyInput");
-                        if (input != null) input.SetTextWithoutNotify(replyDraft ?? "");
                         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
-                        Set(hud, "dialogueOpen", false);
-                        Set(hud, "replyDraft", replyDraft);
                         Set(hud, "guessDraft", guessDraft);
                         EditorJsonUtility.FromJsonOverwrite(serializedHud, hud);
                         // Cleanup is synchronous even when an assertion stops the iterator.
@@ -220,9 +201,9 @@ namespace WeatherHousePrototype
                     session.walker.CameraInputBlocked = cameraBlocked;
                 }
             }
-            Check(EditorJsonUtility.ToJson(hud) == serializedHud && !hud.JournalOpen && !hud.CameraMode && !Get<bool>(hud, "dialogueOpen") &&
-                Get<string>(hud, "replyDraft") == replyDraft && Get<string>(hud, "guessDraft") == guessDraft && session.Observed == observed,
-                "Original Inspector values, idle HUD state, drafts and observation are restored", report);
+            Check(EditorJsonUtility.ToJson(hud) == serializedHud && !hud.JournalOpen && !hud.CameraMode && !hud.IsDialogueOpen &&
+                Get<string>(hud, "guessDraft") == guessDraft && session.Observed == observed,
+                "Original Inspector values, idle HUD state, guess draft and observation are restored", report);
         }
 
         private static void Apply(GameplayHud hud, Action<SerializedObject> change)

@@ -6,6 +6,8 @@ using UnityEngine;
 using ForestSpriteCharacter;
 using WeatherHouse.Vegetation;
 using WeatherHouse.WatersideV2;
+using WeatherHouse.Life;
+using WeatherHouse.WildlifeJourney;
 
 namespace WeatherHousePrototype
 {
@@ -31,17 +33,38 @@ namespace WeatherHousePrototype
         public bool Judging { get; private set; }
         public string Status { get; private set; } = "走近动物，观察它的动作与字语。C 拍照留证，J 打开手账。";
         public event Action Changed;
-        public string SavePath => Path.Combine(Application.persistentDataPath, "language-notebook.json");
-        private LanguageJudgementClient judge;
+        public static string PersistenceDirectory
+        {
+            get
+            {
+#if UNITY_EDITOR
+                string review = Environment.GetEnvironmentVariable("WEATHERHOUSE_LIFE_REVIEW_SAVE");
+                if (!string.IsNullOrWhiteSpace(review)) return review;
+#endif
+                return Application.persistentDataPath;
+            }
+        }
+        public string SavePath => Path.Combine(PersistenceDirectory, "language-notebook.json");
+#if UNITY_EDITOR
+        public string LastSaveError { get; private set; }
+#endif
         private GameplayHud hud;
         private float nextObservation;
         private string lastUtterance;
         private VegetationTopDownCamera orbit;
+        private LifeSession Life => GetComponent<LifeSession>();
+        private int conversationRevision;
+        private AnimalActor listenedAnimal;
+        private float listeningUntil;
+        public void BeginDialogue(AnimalActor animal)
+        {
+            conversationRevision++; lastUtterance = null;
+            listenedAnimal = animal; listeningUntil = Time.unscaledTime + Mathf.Max(.2f, automaticGreetingDuration);
+        }
 
         private void Awake()
         {
             Recorder = GetComponent<MotionPhotoRecorder>();
-            judge = GetComponent<LanguageJudgementClient>();
             hud = GetComponent<GameplayHud>();
             Catalog = JsonUtility.FromJson<GlyphCatalog>(Resources.Load<TextAsset>("WeatherHouseGlyphs").text);
             Notebook = new LanguageNotebook();
@@ -55,6 +78,8 @@ namespace WeatherHousePrototype
                 // Keep an unreadable save intact while the player uses a new session.
                 saveBlocked = true;
             }
+            Notebook.Normalize(Catalog);
+            Notebook.ApplyPhotoTasks();
             if (!walker && !forestSprite) forestSprite = FindObjectOfType<ForestSpriteDemoController>();
             if (!walker && !forestSprite) walker = FindObjectOfType<PrototypeWalker>();
             if (!PlayerTransform || !PlayerViewCamera) throw new InvalidOperationException("GameplaySession needs the scene's player and view camera.");
@@ -78,6 +103,7 @@ namespace WeatherHousePrototype
         private void Update()
         {
             RefreshInputBlocking();
+            if (LifeOnboarding.Blocks(this)) return;
             if (Time.unscaledTime < nextObservation) return;
             nextObservation = Time.unscaledTime + .2f;
             AnimalActor next = null;
@@ -86,7 +112,8 @@ namespace WeatherHousePrototype
             AnimalActor dialogueTarget = hud && hud.isActiveAndEnabled ? hud.DialogueTarget : null;
             if (hud && hud.isActiveAndEnabled && hud.IsDialogueOpen)
             {
-                if (dialogueTarget && dialogueTarget.IsAvailableForObservation && Vector3.Distance(PlayerTransform.position, dialogueTarget.transform.position) < 12f) next = dialogueTarget;
+                if (dialogueTarget && dialogueTarget.IsAvailableForObservation &&
+                    (Life ? Life.CanTalk(dialogueTarget) : Vector3.Distance(PlayerTransform.position, dialogueTarget.transform.position) < 12f)) next = dialogueTarget;
                 else hud.CloseDialogue();
             }
             if (next == null && view && view.enabled)
@@ -114,27 +141,95 @@ namespace WeatherHousePrototype
             }
             if (Observed && hud && hud.isActiveAndEnabled && !hud.JournalOpen && !hud.IsDialogueOpen)
                 Observed.TryBeginAutomaticGreeting(Time.unscaledTime, automaticGreetingDuration, automaticGreetingCooldown);
-            if (Observed != null && hud && hud.IsAnimalSpeechVisible(Observed) && lastUtterance != Observed.UtteranceId)
+            RefreshPhotoSpeechTarget();
+            if (Observed != null && hud && hud.IsAnimalSpeechVisible(Observed) && lastUtterance != DisplayedUtteranceId(Observed))
             {
-                lastUtterance = Observed.UtteranceId;
-                Notebook.Observe(Observed.animalId, Observed.UtteranceId, Observed.CurrentGlyphIds);
+                lastUtterance = DisplayedUtteranceId(Observed);
+                Notebook.Observe(Observed.animalId, lastUtterance, DisplayedGlyphIds(Observed));
+                ObserveDisplayedConversation(Observed);
                 Save();
                 Changed?.Invoke();
             }
         }
 
         public bool ShouldShowAnimalUtterance(AnimalActor animal) => animal && animal.IsAvailableForObservation &&
-            (!animal.UsesAutomaticGreeting || animal.HasAmbientSpeech || animal.HasAutomaticGreetingAt(Time.unscaledTime) ||
-             (hud && hud.isActiveAndEnabled && hud.DialogueTarget == animal));
+            (IsPhotoSpeechHeld(animal) ? photoSpeech.glyphs.Length > 0 :
+             !animal.UsesAutomaticGreeting || animal.HasAmbientSpeech || animal.HasAutomaticGreetingAt(Time.unscaledTime) ||
+             (hud && hud.isActiveAndEnabled && listenedAnimal == animal && Time.unscaledTime < listeningUntil));
+
+        sealed class PhotoSpeech
+        {
+            public AnimalActor animal;
+            public string utterance;
+            public string[] glyphs;
+            public LifeContextSnapshot context;
+            public LifeRequest request;
+            public JourneySocial social;
+            public bool usesSocial;
+        }
+        PhotoSpeech photoSpeech;
+        AnimalActor photoSpeechTarget;
+        bool photoSpeechTracking;
+
+        public bool IsPhotoSpeechHeld(AnimalActor animal) => animal && animal.IsAvailableForObservation && photoSpeech != null && photoSpeech.animal == animal;
+        public string DisplayedUtteranceId(AnimalActor animal) => IsPhotoSpeechHeld(animal) ? photoSpeech.utterance : animal ? animal.UtteranceId : "";
+        public string[] DisplayedGlyphIds(AnimalActor animal) => IsPhotoSpeechHeld(animal) ? photoSpeech.glyphs : animal ? animal.CurrentGlyphIds : Array.Empty<string>();
+        public bool UsesSocialPresentation(AnimalActor animal) => IsPhotoSpeechHeld(animal) ? photoSpeech.usesSocial : animal && animal.HasAmbientPresentation;
+
+        public void BeginPhotoSpeech()
+        {
+            photoSpeechTracking = true;
+            HoldPhotoSpeech(Observed);
+        }
+        void RefreshPhotoSpeechTarget()
+        {
+            if (photoSpeechTracking && photoSpeechTarget != Observed) HoldPhotoSpeech(Observed);
+        }
+        void HoldPhotoSpeech(AnimalActor animal)
+        {
+            ReleasePhotoSpeech(photoSpeech);
+            photoSpeechTarget = animal;
+            if (!animal || !animal.IsAvailableForObservation) return;
+            var ecology = animal.GetComponent<WildlifeInteractionTarget>();
+            var socialTurn = ecology ? ecology.CurrentSocialTurn : null;
+            bool shown = socialTurn != null || ShouldShowAnimalUtterance(animal);
+            var request = shown && Life && socialTurn == null ? Life.CurrentRequest(animal) : null;
+            photoSpeech = new PhotoSpeech { animal = animal,
+                utterance = shown ? (socialTurn != null ? ecology.SocialUtteranceId(socialTurn) : animal.UtteranceId) : "",
+                glyphs = shown ? (string[])((socialTurn != null ? socialTurn.glyphIds : animal.CurrentGlyphIds) ?? Array.Empty<string>()).Clone() : Array.Empty<string>(),
+                context = shown && Life && socialTurn == null ? Life.CaptureContext(animal)?.Copy() : null,
+                request = request == null ? null : JsonUtility.FromJson<LifeRequest>(JsonUtility.ToJson(request)),
+                social = ecology ? ecology.Social : null, usesSocial = socialTurn != null };
+            if (photoSpeech.social) photoSpeech.social.SetPhotoTarget(ecology.SocialMemberId, socialTurn != null);
+        }
+        void ReleasePhotoSpeech(PhotoSpeech captured)
+        {
+            // An older recording may finish after a different animal becomes the photo target.
+            if (captured == null || !ReferenceEquals(photoSpeech, captured)) return;
+            if (captured.social) captured.social.ClearPhotoTarget();
+            photoSpeech = null;
+        }
+        public void EndPhotoSpeech()
+        {
+            photoSpeechTracking = false;
+            ReleasePhotoSpeech(photoSpeech);
+            photoSpeechTarget = null;
+        }
+        void ObserveDisplayedConversation(AnimalActor animal)
+        {
+            if (Life && Life.World) Life.World.ObservePhotoConversation(IsPhotoSpeechHeld(animal) ? photoSpeech.request : Life.CurrentRequest(animal));
+        }
 
         public void RefreshInputBlocking()
         {
             bool movement = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.BlocksMovement;
+            movement |= Life && Life.GestureInputActive;
+            movement |= LifeOnboarding.Blocks(this);
             bool photo = isActiveAndEnabled && hud && hud.isActiveAndEnabled && hud.CameraMode;
-            if (walker) { walker.InputBlocked = movement; walker.JumpBlocked = photo; walker.CameraInputBlocked = photo; }
+            if (walker) { walker.InputBlocked = movement; walker.JumpBlocked = movement; walker.CameraInputBlocked = photo; }
             if (forestSprite)
             {
-                forestSprite.InputBlocked = movement; forestSprite.JumpBlocked = photo;
+                forestSprite.InputBlocked = movement; forestSprite.JumpBlocked = movement;
                 forestSprite.CameraInputBlocked = movement || photo;
             }
             if (orbit) orbit.InputBlocked = movement || photo;
@@ -142,33 +237,69 @@ namespace WeatherHousePrototype
 
         public void SaveGuess(string id, string guess)
         {
+            if (LifeOnboarding.TrySubmitGuess(this, id, guess)) return;
             Notebook.SetGuess(id, guess);
-            bool saved = Save();
-            Notify(saved ? "已记下你的猜测。可以继续寻找别处的线索。" : "猜测保留在本次游戏中，手账暂时无法写入磁盘。");
+            Notify(Save() ? "语义判断暂不可用。猜测已保留，可以稍后重试。" : "猜测保留在本次游戏中，手账暂时无法写入磁盘。");
         }
 
         public void TakePhoto()
         {
             if (Recorder.IsRecording) return;
             if (!PhotoRig.Active) { Notify("按 C 举起相机，再取景拍照。"); return; }
-            if (Observed == null) { Notify("先把附近的一只动物和它的字语放进取景框。"); return; }
+            if (photoSpeechTracking && photoSpeech == null && Observed) HoldPhotoSpeech(Observed);
             var animal = Observed;
-            bool speechVisible = hud && hud.IsAnimalSpeechVisible(animal);
+            bool speechVisible = animal && hud && hud.IsAnimalSpeechVisible(animal);
+            PhotoSpeech capturedSpeech = IsPhotoSpeechHeld(animal) ? photoSpeech : null;
+            string capturedUtterance = DisplayedUtteranceId(animal);
+            int capturedRevision = conversationRevision;
+            if (speechVisible) ObserveDisplayedConversation(animal);
+            string[] capturedAnimalGlyphs = speechVisible ? (string[])DisplayedGlyphIds(animal).Clone() : Array.Empty<string>();
+            LifeGlyphInscription.Reading[] inscriptions = LifeGlyphInscription.Capture(PhotoRig.CaptureCamera, Catalog);
             Recorder.Capture(PhotoRig.CaptureCamera, new ObservationRecord
             {
-                animalId = animal.animalId, utteranceId = speechVisible ? animal.UtteranceId : "",
-                glyphIds = speechVisible ? (string[])animal.CurrentGlyphIds.Clone() : Array.Empty<string>(),
-                weather = animal.region == null ? "" : animal.region.Current.ToString()
+                animalId = animal ? animal.animalId : "", utteranceId = speechVisible ? capturedUtterance : "",
+                glyphIds = LifeGlyphInscription.PhotoGlyphs(capturedAnimalGlyphs, inscriptions),
+                weather = Life ? Life.WeatherText : !animal || animal.region == null ? "" : animal.region.Current.ToString(),
+                context = speechVisible ? (capturedSpeech != null ? capturedSpeech.context?.Copy() : Life ? Life.CaptureContext(animal) : null) : null,
+                photoSnapshot = LifePhotoCapture.Capture(Life, PhotoRig.CaptureCamera)
             }, record =>
             {
-                Notebook.AddObservation(record);
+                ReleasePhotoSpeech(capturedSpeech);
+                Notebook.AddObservation(record, capturedAnimalGlyphs);
+                LifeGlyphInscription.Observe(Notebook, inscriptions);
+                int completed = Notebook.ApplyPhotoTasks();
                 bool saved = Save();
-                Notify(saved ? "动态照片已放进手账。点开照片后可播放。" : "照片已保存，但手账索引写入失败，本次游戏仍可查看。");
-            }, error => Notify("拍照未完成：" + error));
+                if (saved) LifeAudio.Play(LifeAudioCue.Ui);
+                if (completed > 0) LifeAudio.Play(LifeAudioCue.Progress);
+                bool recognitionFailed = !string.IsNullOrEmpty(record.photoSnapshot?.visibilityError);
+                string message = recognitionFailed ? "照片已保留，画面识别暂时失败，本次没有新增摄影记录。" : "";
+                if (!saved) message = "照片画面已保存，手账暂时无法写入磁盘，本次游戏仍可查看。" +
+                    (recognitionFailed ? " 画面识别暂时失败，本次没有新增摄影记录。" : "");
+                if (!string.IsNullOrEmpty(record.captureWarning)) message += " 照片附加信息未完整保存，画面已保留。";
+                Notify(message);
+            }, error =>
+            {
+                ReleasePhotoSpeech(capturedSpeech);
+                Debug.LogWarning("Photo capture failed: " + error, this);
+                Notify("这次照片没能保存，请再试一次。");
+            },
+                speechVisible ? (Func<bool>)(() => animal && animal.IsAvailableForObservation && Observed == animal &&
+                    DisplayedUtteranceId(animal) == capturedUtterance && conversationRevision == capturedRevision) : null);
+        }
+
+        public void RecordPublicContext(LifePublicContext context)
+        {
+            if (!Notebook.AddPublicContext(context)) return;
+            int completed = Notebook.ApplyPhotoTasks();
+            bool saved = Save();
+            if (completed > 0) LifeAudio.Play(LifeAudioCue.Progress);
+            string message = "这次相遇记在手账里了。";
+            Notify(message + (saved ? "" : " 手账暂未写入磁盘，本次游戏仍可查看。"));
         }
 
         public void Cast(LocalWeather weather)
         {
+            if (Life) { Notify("按 G 画出在手账中学会的天气手势。"); return; }
             WeatherRegion target = Observed != null ? Observed.region : null;
             if (target == null)
                 target = (regions ?? Array.Empty<WeatherRegion>()).Where(r => r != null && r.Contains(PlayerTransform.position))
@@ -181,54 +312,11 @@ namespace WeatherHousePrototype
             target.SetWeather(weather);
             if (animals.Where(a => !a.background).All(a => a.RequestSatisfied))
             {
-                Notify("四处生活的小请求都得到回应了。你可以继续探索森林，把新发现留进手账。");
+                Notify("四处生活的小请求都得到了帮助。你可以继续探索森林，把新发现留进手账。");
                 return;
             }
             Notify(weather == LocalWeather.Rain ? "雨落在这片地方。再看看动物的动作。" :
                 weather == LocalWeather.Sun ? "雨云散去。湿润的东西会慢慢晒干。" : "风吹过这片地方，叶子开始摇动。");
-        }
-
-        public void Reply(string chinese)
-        {
-            if (Judging) return;
-            var animal = hud && hud.DialogueTarget ? hud.DialogueTarget : Observed;
-            if (!animal || !animal.IsAvailableForObservation || Vector3.Distance(PlayerTransform.position, animal.transform.position) >= 12f)
-            { if (hud) hud.CloseDialogue(); Notify("它已经走远了，靠近后再继续交谈。"); return; }
-            if (string.IsNullOrWhiteSpace(chinese)) { Notify("写下你想对它说的话。"); return; }
-            if (animal.background) { Notify("你的话已经说出。它正在分享眼前的生活，可以继续观察它的动作和字语。"); return; }
-            if (animal.RequestSatisfied) { Notify("它的请求已经得到回应。可以继续观察它的生活，把新发现留进手账。"); return; }
-            var ids = (string[])animal.CurrentGlyphIds.Clone();
-            string context = animal.BehaviourDescription + "。当前天气：" + animal.region.Current + "。本句字义边界：" +
-                string.Join("；", Catalog.glyphs.Where(g => Array.IndexOf(ids, g.id) >= 0).Select(g => g.id + "=" + g.meaning + " " + g.boundary));
-            StartCoroutine(JudgeReply(new JudgementInput
-            {
-                animalId = animal.animalId, utteranceId = animal.UtteranceId,
-                requestMeaning = animal.requestMeaning, glyphIds = ids, playerReply = chinese, context = context
-            }));
-        }
-
-        private IEnumerator JudgeReply(JudgementInput input)
-        {
-            Judging = true;
-            Notify("动物在听你说……");
-            yield return judge.Judge(input, result =>
-            {
-                var originalAnimal = Array.Find(animals, a => a != null && a.animalId == input.animalId);
-                if (originalAnimal == null || originalAnimal.UtteranceId != input.utteranceId)
-                {
-                    Status = "动物眼前的情况已经变化。这次判断未确认词义，等它提出新请求再试试。";
-                    return;
-                }
-                int count = 0;
-                if (result.success && result.understood)
-                    foreach (string id in result.evidenceGlyphIds)
-                        if (Notebook.ConfirmFromJudgement(id, input.animalId, input.glyphIds, true)) count++;
-                bool saved = count == 0 || Save();
-                Status = result.success ? result.feedback + (count > 0 ? " 已确认 " + count + " 个字，可在手账中查看。" : "") : result.error;
-                if (!saved) Status += " 这些确认只保留在本次游戏中，尚未写入磁盘。";
-            });
-            Judging = false;
-            Changed?.Invoke();
         }
 
         private bool Save()
@@ -236,20 +324,30 @@ namespace WeatherHousePrototype
             if (saveBlocked) return false;
             try
             {
-                Directory.CreateDirectory(Application.persistentDataPath);
-                string temp = SavePath + ".tmp";
-                File.WriteAllText(temp, JsonUtility.ToJson(Notebook, true));
-                if (File.Exists(SavePath)) File.Replace(temp, SavePath, null);
-                else File.Move(temp, SavePath);
+                Directory.CreateDirectory(PersistenceDirectory);
+                LifeSaveFile.Write(SavePath, JsonUtility.ToJson(Notebook, true));
+#if UNITY_EDITOR
+                LastSaveError = string.Empty;
+#endif
                 return true;
             }
             catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
-            { Status = "手账保留在本次游戏中，但写入磁盘失败，请检查目录权限。"; return false; }
+            {
+#if UNITY_EDITOR
+                LastSaveError = error.GetType().Name + " 0x" + error.HResult.ToString("X8") + ": " + error.Message;
+#endif
+                Status = "手账保留在本次游戏中，但写入磁盘失败，请检查目录权限。"; return false;
+            }
         }
 
-        private void Notify(string message) { Status = message; Changed?.Invoke(); }
+        public bool SaveNotebook() => Save();
+        private void OnApplicationQuit() { if (Recorder) Recorder.FinishLiveCapture(); }
+        public void Notify(string message) { Status = message; Changed?.Invoke(); }
         private void OnDisable()
         {
+            EndPhotoSpeech();
+            listenedAnimal = null; listeningUntil = 0;
+            if (Recorder) Recorder.FinishLiveCapture();
             if (Judging) StopAllCoroutines();
             if (PhotoRig != null) PhotoRig.SetActive(false);
             if (walker != null) { walker.InputBlocked = false; walker.JumpBlocked = false; walker.CameraInputBlocked = false; walker.ShowLegacyHint = true; }

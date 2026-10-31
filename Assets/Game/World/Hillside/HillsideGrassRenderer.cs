@@ -163,9 +163,9 @@ namespace WeatherHouse.Hillside
             ValidateCache();
             Camera lodObserver = Application.isPlaying ? (viewCamera ? viewCamera : Camera.main) : camera;
             if (!lodObserver) lodObserver = camera;
-            bool immediate = populateImmediately && !Application.isPlaying;
+            bool immediate = populateImmediately;
             bool mayPopulate = camera.cameraType != CameraType.Reflection &&
-                (!Application.isPlaying || camera == (viewCamera ? viewCamera : Camera.main));
+                (populateImmediately || !Application.isPlaying || camera == (viewCamera ? viewCamera : Camera.main));
             if (Application.isPlaying && mayPopulate && budgetFrame != Time.frameCount)
             {
                 budgetFrame = Time.frameCount;

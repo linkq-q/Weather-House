@@ -55,6 +55,15 @@ namespace WeatherHouse.Hillside
             playables[target].SetSpeed(speed);
         }
 
+        public void RegisterClip(AnimationClip clip)
+        {
+            if(!clip || !graph.IsValid() || clips.Contains(clip))return;
+            int index=clips.Count;clips.Add(clip);mixer.SetInputCount(clips.Count);
+            var playable=AnimationClipPlayable.Create(graph,clip);playable.SetApplyFootIK(false);
+            graph.Connect(playable,0,mixer,index);mixer.SetInputWeight(index,0);
+            playables.Add(playable);weights.Add(0);
+        }
+
         public void Tick(float dt)
         {
             if (!graph.IsValid() || target < 0) return;

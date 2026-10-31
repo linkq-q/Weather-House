@@ -28,7 +28,7 @@ namespace WeatherHousePrototype.Editor
             var session = Object.FindObjectOfType<GameplaySession>();
             var hud = session.GetComponent<GameplayHud>();
             var report = new List<string> { DateTime.UtcNow.ToString("O"), "Actual Play HUD; simulated state, no AI calls." };
-            string[] hudNames = { "<JournalOpen>k__BackingField", "glyphDetailOpen", "dialogueOpen", "replyDraft", "lastReply", "echoUntil", "dirty", "expandedPhoto", "albumPhotosSelected", "page", "selectedGlyph", "lastCompositionFrame", "displayedStatus", "statusUntil" };
+            string[] hudNames = { "<JournalOpen>k__BackingField", "glyphDetailOpen", "dirty", "expandedPhoto", "albumPhotosSelected", "page", "selectedGlyph", "lastCompositionFrame", "displayedStatus", "statusUntil" };
             var state = hudNames.ToDictionary(n => n, n => Get(hud, n));
             var notebook = session.Notebook;
             string json = JsonUtility.ToJson(notebook), status = session.Status;
@@ -52,7 +52,7 @@ namespace WeatherHousePrototype.Editor
                 Vector2 statusPosition = statusRect.anchoredPosition;
                 Set(session, "<Judging>k__BackingField", true);
                 Call(hud, "UpdateStatus");
-                Check(label.text.Contains("听"), "Judging takes priority over the interaction hint", report);
+                Check(!label.text.Contains("动物在听你说"), "Legacy judgement state cannot display removed reply feedback", report);
                 Set(session, "<Judging>k__BackingField", false);
                 Set(session, "<Status>k__BackingField", "AI请求失败或超时，本次未确认任何词义，可以重试。");
                 Call(hud, "UpdateStatus");
@@ -64,34 +64,16 @@ namespace WeatherHousePrototype.Editor
                 typeof(GameplayHud).GetMethod("AnimateStatusGlow", Flags).Invoke(hud, new object[] { 1.25f });
                 Check(Mathf.Abs(low - glow.Intensity) > .01f, "Text glow breathes over unscaled time", report);
                 Check(statusRect.anchoredPosition == statusPosition, "Judging and failure stay at the same height", report);
-                Set(hud, "dialogueOpen", true); Set(hud, "replyDraft", ""); Call(hud, "RebuildModal");
-                var input = (InputField)Get(hud, "replyInput");
-                var replyRect = (RectTransform)input.transform.parent;
-                Vector3 replyCenter = replyRect.position;
-                Check(Vector3.Distance(replyCenter, statusRect.position) < .1f, "Reply and status share the same screen center", report);
-                float initialWidth = replyRect.sizeDelta.x;
-                input.text = "你希望雨停下来，让湿松果晒干，对吗？再让我认真想一想。";
-                Check(replyRect.sizeDelta.x > initialWidth && input.lineType == InputField.LineType.SingleLine && input.textComponent.horizontalOverflow == HorizontalWrapMode.Overflow,
-                    "Longer dialogue expands horizontally without wrapping", report);
-                input.text = "";
-                Check(input.GetComponent<Image>().color.a == 0f && input.textComponent.fontSize >= Mathf.RoundToInt(hud.playerBubbleSize.x / 900f * 30f),
-                    "Reply has no inner white panel and uses larger text", report);
-                Check(!hud.GetComponentsInChildren<Transform>().Any(t => t.name == "Reply instruction" || t.name == "Send reply" || (t.name == "Close" && t.IsChildOf(input.transform.parent))),
-                    "Reply removes its heading, send button and close button", report);
-                input.onSubmit.Invoke("");
-                Check((bool)Get(hud, "dialogueOpen"), "Empty Enter does not close or send", report);
+                Set(session, "<Observed>k__BackingField", null);
+                hud.ListenToAnimal(); Call(hud, "RebuildModal");
+                Check(!hud.IsDialogueOpen && hud.DialogueTarget == null && !hud.BlocksMovement,
+                    "The removed reply entry cannot open a modal or lock movement", report);
+                Check(!hud.GetComponentsInChildren<Transform>(true).Any(t => new[] {
+                    "Player reply bubble", "Chinese reply", "Player spoken reply", "Send reply" }.Contains(t.name)),
+                    "HUD has no player reply input, echo or send control", report);
+                Set(session, "<Observed>k__BackingField", observed);
                 Call(hud, "UpdateStatus");
-                Check(statusRect.anchoredPosition == statusPosition, "Opening the reply keeps the status height fixed", report);
-                input.text = "先选择中文，再按回车。";
-                Set(hud, "lastCompositionFrame", Time.frameCount);
-                input.onSubmit.Invoke(input.text);
-                Check((bool)Get(hud, "dialogueOpen"), "An IME commit frame does not send", report);
-                Set(hud, "lastCompositionFrame", -10);
-                // A background animal exits Reply before any network request or notebook write.
-                Set(session, "<Observed>k__BackingField", session.animals.First(a => a != null && a.background));
-                input.onSubmit.Invoke(input.text);
-                Check(!(bool)Get(hud, "dialogueOpen") && (string)Get(hud, "lastReply") == input.text,
-                    "Input submit reaches the existing reply flow exactly once", report);
+                Check(statusRect.anchoredPosition == statusPosition, "Listening keeps the shared status height fixed", report);
                 var empty = Resources.Load<Texture2D>("AlbumBook/PhotoEmpty");
                 var missing = Resources.Load<Texture2D>("AlbumBook/PhotoMissing");
                 Check(empty != null && missing != null && empty != missing, "Distinct generated empty and missing images load", report);

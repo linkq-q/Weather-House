@@ -1,0 +1,23 @@
+{
+  "status": "RECORDED",
+  "reportedAt": "2026-10-27T10:36:41.015377+08:00",
+  "result": "USER_REPORTED_NO_INK_LIVE_POINTER_DIAGNOSIS_PENDING",
+  "detail": "用户确认在书内按住拖动完全没有笔迹；当前仍在试玩，并要求先源码诊断与策划，不结束Play。旧截图测试直接SetPath/CompletePractice，另一路直接LearnGesture，未覆盖实际指针路径。根因、修复与Play复测均未完成。",
+  "userSymptom": "按住拖动完全没有笔迹",
+  "executionBoundary": "保留用户当前Play，不主动退出、不请求刷新、不操作实际存档或保存场景。",
+  "confirmed": [
+    "练习入口是J→天气手势→右下方Practice pad；上方仅演示。",
+    "LifeGesturePad在输入组件缺失或CanPractice为false时会拒绝按下。",
+    "HUD在Start缓存输入组件，LifeSession在Start动态添加输入组件。",
+    "正常执行顺序声明为LifeSession 60、HUD 200、输入220，不能只凭动态添加推断一定存在初始化竞态。",
+    "旧U13截图直接注入路径；旧Play流程直接学习手势，没有验证真实鼠标绘制。"
+  ],
+  "unconfirmed": [
+    "当前pad.input和HUD缓存是否为空或过期",
+    "当前练习框实际射线首命中",
+    "CanPractice的运行时各项条件",
+    "真实事件的采样和纸面可见性"
+  ],
+  "fixApplied": false,
+  "playRetested": false
+}

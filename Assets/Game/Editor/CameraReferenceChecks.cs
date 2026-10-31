@@ -167,8 +167,8 @@ namespace WeatherHousePrototype.Editor
             Quaternion rotation = view.transform.rotation;
             try
             {
-                // Active E conversation supplies the real presentation gate without changing greeting clocks or Notebook data.
-                hud.ToggleDialogue();
+                // Use the current animal presentation without accepting a task or writing progress.
+                Require(session.ShouldShowAnimalUtterance(animal), "Use an animal with a currently visible utterance.");
                 clear.Invoke(hud, null); update.Invoke(hud, null);
                 Canvas.ForceUpdateCanvases(); advance.Invoke(hud, new object[] { 0f });
                 var root = (RectTransform)rootField.GetValue(hud);

@@ -1,0 +1,90 @@
+[
+  {
+    "texture": "PaperAged_Normal",
+    "size": [
+      1024,
+      1024
+    ],
+    "linearChannelRanges": [
+      [
+        0.46274513006210327,
+        0.5372549295425415
+      ],
+      [
+        0.4862745404243469,
+        0.5137255191802979
+      ],
+      [
+        1.0,
+        1.0
+      ]
+    ],
+    "bake": "TANGENT NORMAL, +Y green"
+  },
+  {
+    "texture": "PaperAged_AO",
+    "size": [
+      1024,
+      1024
+    ],
+    "linearChannelRanges": [
+      [
+        0.917647123336792,
+        0.9921569228172302
+      ],
+      [
+        0.917647123336792,
+        0.9921569228172302
+      ],
+      [
+        0.917647123336792,
+        0.9921569228172302
+      ]
+    ],
+    "bake": "EMIT of procedural shallow cavity and symmetric edge occlusion; not whole-scene baked lighting"
+  },
+  {
+    "texture": "CoverAged_Normal",
+    "size": [
+      1024,
+      1024
+    ],
+    "linearChannelRanges": [
+      [
+        0.4117647409439087,
+        0.5960784554481506
+      ],
+      [
+        0.4274510145187378,
+        0.572549045085907
+      ],
+      [
+        0.988235354423523,
+        1.0
+      ]
+    ],
+    "bake": "TANGENT NORMAL, +Y green"
+  },
+  {
+    "texture": "CoverAged_AO",
+    "size": [
+      1024,
+      1024
+    ],
+    "linearChannelRanges": [
+      [
+        0.9137255549430847,
+        1.0
+      ],
+      [
+        0.9137255549430847,
+        1.0
+      ],
+      [
+        0.9137255549430847,
+        1.0
+      ]
+    ],
+    "bake": "EMIT of procedural shallow cavity and symmetric edge occlusion; not whole-scene baked lighting"
+  }
+]

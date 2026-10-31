@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloading: Jumping on dirt road #1 - BigSoundBank</title>
+
+    <!-- Robots : noindex absolu, page de téléchargement -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow">
+
+    <!-- Favicons — identiques au reste du site -->
+    <link rel="icon" href="https://bigsoundbank.com/images/favicon_192.png">
+    <link rel="icon" type="image/gif" href="https://bigsoundbank.com/images/favicon_192.gif">
+    <link rel="shortcut icon" type="image/x-icon" href="https://bigsoundbank.com/images/favicon.ico">
+    <link rel="icon" sizes="114x114" href="https://bigsoundbank.com/images/logo-bsb-carre-114.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://bigsoundbank.com/images/logo-bsb-carre-114.png">
+
+    <link rel="stylesheet" href="/css/style.css?v=442">
+    <script src="/js/scripts.js?v=442" defer></script>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .wrap {
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+        }
+
+        .lien-manuel {
+            font-size: 0.8rem;
+            color: var(--couleur10);
+            text-decoration: underline;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        /* Bouton retour */
+        .btn-retour {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--couleur10);
+            cursor: pointer;
+            text-decoration: none;
+            border: 1px solid var(--couleur10);
+            border-radius: var(--radius5);
+            padding: 5px 14px;
+        }
+        .btn-retour:hover {
+            background: var(--couleur5);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+
+    <p style="text-align:left; margin: 0 0 10px;"><a class="btn-retour" onclick="history.back()">← Go Back</a></p>
+
+    <!-- Pub aléatoire (BD ou tee-shirts) — style polaroid du site -->
+    <div class="polaroid-container">
+        <figure>
+            <div class="gallery">
+                <img class="photo photographie photo_detail no-zoom"
+                     src="/images/pub/pub-tee-shirts-evoluson.webp?v=442"
+                     alt="LaSonotheque t-shirts &amp; sweatshirts"
+                     loading="eager"
+                     style="cursor:pointer;" onclick="trackClicPub('tee-shirts'); window.open('https://lasonotheque.org/shop/tee-shirts-a28.html', '_blank');">
+            </div>
+        </figure>
+    </div>
+
+    
+        <!-- Mode simple : iframe + formulaire POST -->
+        <iframe name="dl-iframe" style="display:none;" aria-hidden="true"></iframe>
+        <form id="dl-form" action="/modules/telecharger.php" method="POST" target="dl-iframe">
+            <input type="hidden" name="id"     value="1837">
+            <input type="hidden" name="format" value="wav">
+            <input type="text" name="antibot_hp" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"><input type="hidden" name="antibot_ctx" value="download"><input type="hidden" name="antibot_n" value="63f91430077846cf5e5f87e094221fc9"><input type="hidden" name="antibot_ts" value="1793009001.9914">                            <p id="dl-countdown" style="text-align:center; font-size:1.4rem; font-weight:bold; color:var(--couleur10); transition: opacity 0.5s ease; opacity:1;">Automatic download in <span id="dl-countdown-num">5</span>s…</p>
+                <p style="text-align:center; font-size:0.85rem; margin:10px auto; max-width:400px; padding:8px 12px; background:var(--couleur5, #f3f3f3); border-radius:var(--radius5, 6px);">🎁 With a <a href="/account/"><strong>free account</strong></a>, the download is <strong>instant</strong> (and 1 ad-free day offered).</p>
+                        <p id="lien-manuel-wrap" style="text-align:center; display:none;">
+                <button type="submit" id="lien-manuel" style="background:none; border:none; padding:0; font-family:inherit; font-size:1.05rem; font-weight:bold; color:var(--couleur10); text-decoration:underline; cursor:pointer;">
+                    Download didn't start? Click here                </button>
+            </p>
+        </form>
+
+    
+
+</div>
+
+<script>
+    function trackClicPub(label) {
+        if (typeof gtag === 'function') {
+            gtag('event', 'clic_pub_download', {
+                'event_category': 'conversion',
+                'event_label':    label || ''
+            });
+        }
+    }
+
+        // Délai d'attente : 5s pour les visiteurs anonymes, 0s pour les comptes connectés.
+    // En mode WebView (Instagram, etc.), l'auto-submit est désactivé : l'utilisateur clique le bouton.
+    (function() {
+        var formId = 'dl-form';
+        var delaiMs = 5 * 1000;
+        var numEl   = document.getElementById('dl-countdown-num');
+
+        // Compte à rebours visuel (uniquement si l'élément existe, donc visiteur anonyme)
+        if (numEl) {
+            var restant = parseInt(numEl.textContent, 10) || 0;
+            var tick = setInterval(function() {
+                restant -= 1;
+                if (restant <= 0) {
+                    numEl.textContent = '0';
+                    clearInterval(tick);
+                } else {
+                    numEl.textContent = String(restant);
+                }
+            }, 1000);
+        }
+
+        function lancer() {
+            var f = document.getElementById(formId);
+            if (f) f.submit();
+        }
+
+        if (delaiMs <= 0) {
+            lancer();
+        } else {
+            setTimeout(lancer, delaiMs);
+        }
+
+        // 2 secondes après le déclenchement automatique : fondu enchaîné entre le compte à rebours et le lien manuel.
+        var delaiLienManuelMs = (delaiMs > 0 ? delaiMs : 5000) + 2000;
+        setTimeout(function() {
+            var countdown = document.getElementById('dl-countdown');
+            var wrap = document.getElementById('lien-manuel-wrap');
+            if (!countdown || !wrap) return;
+            countdown.style.opacity = '0';
+            setTimeout(function() {
+                countdown.innerHTML = wrap.innerHTML;
+                wrap.parentNode.removeChild(wrap);
+                countdown.style.opacity = '1';
+            }, 500);
+        }, delaiLienManuelMs);
+    })();
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a508a174ab2a1526',t:'MTc5MzAwOTAwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

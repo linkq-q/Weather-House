@@ -1,0 +1,8 @@
+FAIL animal roaming
+PASS Checks require the root's isolated Play save
+PASS Fresh idle world starts with its real idle controller, no dialogue or active help
+PASS The player is safely outside the key dog's nearby interaction range
+System.InvalidOperationException: An idle key dog releases the fixed station lease instead of remaining pinned
+  at WeatherHouse.Life.Editor.LifeRoamingPlayChecks.Require (System.Boolean condition, System.String message, System.Collections.Generic.List`1[T] checks) [0x0001b] in C:\unity project\Weather House\Assets\Game\Life\Editor\LifeRoamingPlayChecks.cs:129 
+  at WeatherHouse.Life.Editor.LifeRoamingPlayChecks+<Steps>d__1.MoveNext () [0x0039d] in C:\unity project\Weather House\Assets\Game\Life\Editor\LifeRoamingPlayChecks.cs:64 
+  at WeatherHouse.Life.Editor.LifeRoamingPlayChecks+<Run>d__0.MoveNext () [0x00042] in C:\unity project\Weather House\Assets\Game\Life\Editor\LifeRoamingPlayChecks.cs:23 

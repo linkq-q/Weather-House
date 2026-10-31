@@ -1,0 +1,8 @@
+PASS butterflies have zero outline; animal-only shadow sampling; environment/ground pixel regression passed.
+PASS player front/back captures, same-frame old/new deepest shading; source texture and cape cull mode retained; no emission term.
+PASS dog: 1 renderers; original texture and approved material values; same-frame camera comparison.
+PASS squirrel: 3 renderers; original texture and approved material values; same-frame camera comparison.
+PASS fox: 1 renderers; original texture and approved material values; same-frame camera comparison.
+PASS sheep: 1 renderers; original texture and approved material values; same-frame camera comparison.
+PASS deer: 1 renderers; original texture and approved material values; same-frame camera comparison.
+PASS covered=148 renderers, shared source materials=28; player included; live animation bindings retained. Animal RT allocation estimate=77.7 MiB at current resolution. This is an allocation observation, not an FPS benchmark.

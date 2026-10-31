@@ -1,0 +1,50 @@
+{
+    "status": "PASS",
+    "samples": [
+        {
+            "scenario": "clear floor, yaw 0",
+            "originalSamples": 6,
+            "optimizedSamples": 3,
+            "originalEnd": {
+                "x": -1200.0,
+                "y": 0.0,
+                "z": -1199.9000244140625
+            },
+            "optimizedEnd": {
+                "x": -1200.0,
+                "y": 0.0,
+                "z": -1199.9000244140625
+            }
+        },
+        {
+            "scenario": "clear floor, yaw 30",
+            "originalSamples": 6,
+            "optimizedSamples": 3,
+            "originalEnd": {
+                "x": -1200.0,
+                "y": 0.0,
+                "z": -1199.9000244140625
+            },
+            "optimizedEnd": {
+                "x": -1200.0,
+                "y": 0.0,
+                "z": -1199.9000244140625
+            }
+        },
+        {
+            "scenario": "static obstacle",
+            "originalSamples": 0,
+            "optimizedSamples": 0,
+            "originalEnd": {
+                "x": -1200.0,
+                "y": 0.0,
+                "z": -1200.0
+            },
+            "optimizedEnd": {
+                "x": -1200.0,
+                "y": 0.0,
+                "z": -1200.0
+            }
+        }
+    ]
+}

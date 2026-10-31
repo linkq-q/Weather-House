@@ -1,0 +1,398 @@
+[
+  {
+    "id": "GrassPatch",
+    "description": "One collectible clump; visual identity distinct from decorative grass.",
+    "fbx": "Assets/Game/Life/Art/Resources/LifeAssets/GrassPatch.fbx",
+    "blender": "Tools/LifeAssets/Source/GrassPatch.blend",
+    "unit": "metres",
+    "blenderBoundsXYZ": {
+      "min": [
+        -0.2706446647644043,
+        -0.22978249192237854,
+        -0.0004879621264990419
+      ],
+      "max": [
+        0.2427223026752472,
+        0.2687016725540161,
+        0.5779271125793457
+      ],
+      "size": [
+        0.5133669674396515,
+        0.49848416447639465,
+        0.5784150747058447
+      ]
+    },
+    "unitySizeXYZ": [
+      0.5133669674396515,
+      0.5784150747058447,
+      0.49848416447639465
+    ],
+    "origin": "ground centre; root at zero",
+    "objects": [
+      {
+        "name": "HarvestGrass",
+        "vertices": 670,
+        "triangles": 1028,
+        "materials": [
+          "GrassSage",
+          "SeedCream",
+          "StrawOlive",
+          "StrawGold"
+        ]
+      }
+    ],
+    "fbxReimport": {
+      "status": "PASS",
+      "meshCount": 1,
+      "blenderBoundsXYZ": {
+        "min": [
+          -0.2706446647644043,
+          -0.22978246212005615,
+          -0.00048797306953929365
+        ],
+        "max": [
+          0.2427223026752472,
+          0.2687017023563385,
+          0.5779271125793457
+        ],
+        "size": [
+          0.5133669674396515,
+          0.49848416447639465,
+          0.578415085648885
+        ]
+      }
+    }
+  },
+  {
+    "id": "GrassBundle",
+    "description": "Single bundle sufficient for one mat; not medicinal licorice.",
+    "fbx": "Assets/Game/Life/Art/Resources/LifeAssets/GrassBundle.fbx",
+    "blender": "Tools/LifeAssets/Source/GrassBundle.blend",
+    "unit": "metres",
+    "blenderBoundsXYZ": {
+      "min": [
+        -0.33890458941459656,
+        -0.10399311780929565,
+        0.025607693940401077
+      ],
+      "max": [
+        0.3388952910900116,
+        0.1497618705034256,
+        0.2543922960758209
+      ],
+      "size": [
+        0.6777998805046082,
+        0.25375498831272125,
+        0.22878460213541985
+      ]
+    },
+    "unitySizeXYZ": [
+      0.6777998805046082,
+      0.22878460213541985,
+      0.25375498831272125
+    ],
+    "origin": "ground centre; root at zero",
+    "objects": [
+      {
+        "name": "HayBundle",
+        "vertices": 1170,
+        "triangles": 2100,
+        "materials": [
+          "GrassSage",
+          "StrawOlive",
+          "StrawGold",
+          "SeedCream",
+          "RopeBrown"
+        ]
+      }
+    ],
+    "fbxReimport": {
+      "status": "PASS",
+      "meshCount": 1,
+      "blenderBoundsXYZ": {
+        "min": [
+          -0.33890458941459656,
+          -0.10399311035871506,
+          0.025607693940401077
+        ],
+        "max": [
+          0.3388952910900116,
+          0.1497618854045868,
+          0.2543922960758209
+        ],
+        "size": [
+          0.6777998805046082,
+          0.25375499576330185,
+          0.22878460213541985
+        ]
+      }
+    }
+  },
+  {
+    "id": "GrassMat",
+    "description": "Reusable woven grass mat; moisture changes material, not inventory type.",
+    "fbx": "Assets/Game/Life/Art/Resources/LifeAssets/GrassMat.fbx",
+    "blender": "Tools/LifeAssets/Source/GrassMat.blend",
+    "unit": "metres",
+    "blenderBoundsXYZ": {
+      "min": [
+        -0.5329999923706055,
+        -0.3830000162124634,
+        0.007783094421029091
+      ],
+      "max": [
+        0.523263692855835,
+        0.3787902593612671,
+        0.05621690675616264
+      ],
+      "size": [
+        1.0562636852264404,
+        0.7617902755737305,
+        0.04843381233513355
+      ]
+    },
+    "unitySizeXYZ": [
+      1.0562636852264404,
+      0.04843381233513355,
+      0.7617902755737305
+    ],
+    "origin": "ground centre; root at zero",
+    "objects": [
+      {
+        "name": "GrassMat",
+        "vertices": 4320,
+        "triangles": 8532,
+        "materials": [
+          "GrassSage",
+          "StrawOlive",
+          "StrawGold",
+          "SeedCream",
+          "RopeBrown"
+        ]
+      }
+    ],
+    "fbxReimport": {
+      "status": "PASS",
+      "meshCount": 1,
+      "blenderBoundsXYZ": {
+        "min": [
+          -0.5329999923706055,
+          -0.3830000162124634,
+          0.007783068343997002
+        ],
+        "max": [
+          0.523263692855835,
+          0.3787902593612671,
+          0.05621693283319473
+        ],
+        "size": [
+          1.0562636852264404,
+          0.7617902755737305,
+          0.04843386448919773
+        ]
+      }
+    }
+  },
+  {
+    "id": "WaterBowl",
+    "description": "Fixed ceramic catchment bowl; independent WaterSurface child.",
+    "fbx": "Assets/Game/Life/Art/Resources/LifeAssets/WaterBowl.fbx",
+    "blender": "Tools/LifeAssets/Source/WaterBowl.blend",
+    "unit": "metres",
+    "blenderBoundsXYZ": {
+      "min": [
+        -0.36000001430511475,
+        -0.36000001430511475,
+        0.014999999664723873
+      ],
+      "max": [
+        0.36000001430511475,
+        0.36000001430511475,
+        0.1770000010728836
+      ],
+      "size": [
+        0.7200000286102295,
+        0.7200000286102295,
+        0.16200000140815973
+      ]
+    },
+    "unitySizeXYZ": [
+      0.7200000286102295,
+      0.16200000140815973,
+      0.7200000286102295
+    ],
+    "origin": "ground centre; root at zero",
+    "objects": [
+      {
+        "name": "Bowl",
+        "vertices": 480,
+        "triangles": 864,
+        "materials": [
+          "BowlClay"
+        ]
+      },
+      {
+        "name": "WaterSurface",
+        "vertices": 48,
+        "triangles": 46,
+        "materials": [
+          "Water"
+        ]
+      }
+    ],
+    "fbxReimport": {
+      "status": "PASS",
+      "meshCount": 2,
+      "blenderBoundsXYZ": {
+        "min": [
+          -0.36000001430511475,
+          -0.36000001430511475,
+          0.01499998476356268
+        ],
+        "max": [
+          0.36000001430511475,
+          0.36000001430511475,
+          0.177000030875206
+        ],
+        "size": [
+          0.7200000286102295,
+          0.7200000286102295,
+          0.16200004611164331
+        ]
+      }
+    }
+  },
+  {
+    "id": "RibbonFlag",
+    "description": "Tied cloth indicator; Ribbon pivot at tie and vertex red weight from 0 to 1.",
+    "fbx": "Assets/Game/Life/Art/Resources/LifeAssets/RibbonFlag.fbx",
+    "blender": "Tools/LifeAssets/Source/RibbonFlag.blend",
+    "unit": "metres",
+    "blenderBoundsXYZ": {
+      "min": [
+        -0.032999999821186066,
+        -0.04477468878030777,
+        0.0
+      ],
+      "max": [
+        0.6649999618530273,
+        0.04427936673164368,
+        1.25
+      ],
+      "size": [
+        0.6979999616742134,
+        0.08905405551195145,
+        1.25
+      ]
+    },
+    "unitySizeXYZ": [
+      0.6979999616742134,
+      1.25,
+      0.08905405551195145
+    ],
+    "origin": "ground centre; root at zero",
+    "objects": [
+      {
+        "name": "Post",
+        "vertices": 16,
+        "triangles": 28,
+        "materials": [
+          "RopeBrown"
+        ]
+      },
+      {
+        "name": "Ribbon",
+        "vertices": 68,
+        "triangles": 128,
+        "materials": [
+          "RibbonCream"
+        ]
+      }
+    ],
+    "fbxReimport": {
+      "status": "PASS",
+      "meshCount": 2,
+      "blenderBoundsXYZ": {
+        "min": [
+          -0.032999999821186066,
+          -0.0447746217250824,
+          -2.491430617368451e-09
+        ],
+        "max": [
+          0.6649999618530273,
+          0.04427945241332054,
+          1.25
+        ],
+        "size": [
+          0.6979999616742134,
+          0.08905407413840294,
+          1.2500000024914306
+        ]
+      }
+    }
+  },
+  {
+    "id": "ShadeShelter",
+    "description": "Small three-sided shelter with opaque sloping roof; front opening faces Unity +Z.",
+    "fbx": "Assets/Game/Life/Art/Resources/LifeAssets/ShadeShelter.fbx",
+    "blender": "Tools/LifeAssets/Source/ShadeShelter.blend",
+    "unit": "metres",
+    "blenderBoundsXYZ": {
+      "min": [
+        -0.949999988079071,
+        -0.7798526287078857,
+        0.004999999888241291
+      ],
+      "max": [
+        0.9479999542236328,
+        0.7798526287078857,
+        1.4830901622772217
+      ],
+      "size": [
+        1.8979999423027039,
+        1.5597052574157715,
+        1.4780901623889804
+      ]
+    },
+    "unitySizeXYZ": [
+      1.8979999423027039,
+      1.4780901623889804,
+      1.5597052574157715
+    ],
+    "origin": "ground centre; root at zero",
+    "objects": [
+      {
+        "name": "ShadeShelter",
+        "vertices": 272,
+        "triangles": 432,
+        "materials": [
+          "RopeBrown",
+          "GrassSage",
+          "StrawOlive",
+          "StrawGold"
+        ]
+      }
+    ],
+    "fbxReimport": {
+      "status": "PASS",
+      "meshCount": 1,
+      "blenderBoundsXYZ": {
+        "min": [
+          -0.949999988079071,
+          -0.7798525094985962,
+          0.004999949596822262
+        ],
+        "max": [
+          0.9479999542236328,
+          0.7798526883125305,
+          1.4830901622772217
+        ],
+        "size": [
+          1.8979999423027039,
+          1.5597051978111267,
+          1.4780902126803994
+        ]
+      }
+    }
+  }
+]

@@ -101,7 +101,7 @@ namespace WeatherHouse.WatersideV2.Editor
             var orbit = camera.gameObject.AddComponent<VegetationTopDownCamera>();
             player.demoCamera = camera; orbit.player = player; orbit.baseYaw = 45; orbit.pitch = 43; orbit.distance = 18;
             orbit.distanceRange = new Vector2(12, 24); orbit.pitchRange = new Vector2(30, 52);
-            orbit.yawLimit = 45; orbit.fieldOfView = 35; orbit.lookAhead = .8f; orbit.SnapToPlayer();
+            orbit.yawLimit = 180; orbit.fieldOfView = 35; orbit.lookAhead = .8f; orbit.SnapToPlayer();
             var context = root.AddComponent<HillsidePlayerGround>(); context.terrain = terrain; context.player = player;
             if (player.capeCloth && player.capeCloth.cloth)
             {

@@ -1,0 +1,48 @@
+{
+  "sourceRun": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\183210550",
+  "sourceRunShots": 52,
+  "adopted": [
+    {
+      "id": "U05",
+      "state": "long-reply",
+      "file": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\183210550\\U05_long-reply.png",
+      "capturedUtc": "2026-10-26T18:32:20.7347244Z",
+      "capturedHongKong": "2026-10-27 02:32:20.734 +08:00",
+      "entry": "GameplayHud.BuildReplyEcho",
+      "condition": "Long draft fixture through existing echo presenter; prior temporary status cleared in isolated capture; no submitted reply or AI result claimed",
+      "source": "",
+      "sourceWrittenUtc": "",
+      "sha256": "71442E441A5C31E90DD78C5D85C87296E889F5E80127B324E27E84C10E40E99E",
+      "width": 1613,
+      "height": 943,
+      "unityFrame": 147,
+      "fixture": true,
+      "reused": false
+    },
+    {
+      "id": "U20",
+      "state": "rain-and-range",
+      "file": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\ui-capture\\183210550\\U20_rain-and-range.png",
+      "capturedUtc": "2026-10-26T18:32:41.1493043Z",
+      "capturedHongKong": "2026-10-27 02:32:41.149 +08:00",
+      "entry": "LifeGestureInput.Cancel / actual local rain and LifeCastRange",
+      "condition": "Actual rain and lower-opacity world boundary after leaving G; no drawing overlay",
+      "source": "",
+      "sourceWrittenUtc": "",
+      "sha256": "17383184458232911D30EC1DB5D33602D126D97A2518E7C486470B7A22FF4503",
+      "width": 1613,
+      "height": 943,
+      "unityFrame": 492,
+      "fixture": true,
+      "reused": false
+    }
+  ],
+  "gaps": [
+    "U05/short-reply: System.InvalidOperationException: U05 reply echo is not visible at capture\r\n  at WeatherHouse.Life.Editor.LifeUiCaptureReview.Capture (WeatherHouse.Life.Editor.LifeUiCaptureReview+Report report, WeatherHouse.Life.Editor.LifeUiCaptureReview+Job job) [0x002f6] in C:\\unity project\\Weather House\\Assets\\Game\\Life\\Editor\\LifeUiCaptureReview.cs:270 \r\n  at WeatherHouse.Life.Editor.LifeUiCaptureReview+<Steps>d__9.MoveNext () [0x0086c] in C:\\unity project\\Weather House\\Assets\\Game\\Life\\Editor\\LifeUiCaptureReview.cs:100 ",
+    "U22: standalone onboarding UI is not implemented; planning HTML is not a game screenshot.",
+    "U04: OS IME candidates and human keyboard submission are not simulated; manual input verification remains.",
+    "U03 ecology bubble variant; U17 feed/invite-rest variants; U20 night/overcast and alternate resolutions need root's separate actual setups.",
+    "U18 post-hello/post-rain guidance and U19 unlearned/cancel variants are not separately captured in this batch. Timed book images cannot establish smooth animation; root's visual review remains."
+  ],
+  "boundary": "Only these two successful PNGs are adopted. Original 53-image manifest/index remain unchanged. Long echo is visible; short echo still has no successful PNG. U20 leaves G without changing production range opacity."
+}

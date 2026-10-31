@@ -1,0 +1,12 @@
+PASS plan whitelist, revision, duplicates, empty/truncated responses, non-thinking JSON payload
+PASS cancelled, late, unavailable and duplicate completion gates
+PASS stable personality, 183 / 1000 outgoing fixture animals
+PASS incremental A* wall detour, swept-segment validation and body-width rejection
+PASS movement continues while reply pending, player lease priority, sleep state and resume
+FAIL System.InvalidOperationException: Ordinary movement invalidated background herd plan
+  at WeatherHouse.Hillside.Editor.AnimalAutonomyChecks.CheckRollingHerd () [0x00163] in C:\unity project\Weather House\Temp\AnimalAIValidation\Assets\Game\World\Wildlife\Editor\AnimalAutonomyChecks.cs:109 
+  at WeatherHouse.Hillside.Editor.AnimalAutonomyChecks+<Run>d__3.MoveNext () [0x00343] in C:\unity project\Weather House\Temp\AnimalAIValidation\Assets\Game\World\Wildlife\Editor\AnimalAutonomyChecks.cs:50 
+  at System.Collections.Generic.List`1[T].AddEnumerable (System.Collections.Generic.IEnumerable`1[T] enumerable) [0x00059] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.Collections.Generic.List`1[T].InsertRange (System.Int32 index, System.Collections.Generic.IEnumerable`1[T] collection) [0x000f4] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at System.Collections.Generic.List`1[T].AddRange (System.Collections.Generic.IEnumerable`1[T] collection) [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at WeatherHouse.Hillside.Editor.AnimalAutonomyChecks.Batch () [0x00008] in C:\unity project\Weather House\Temp\AnimalAIValidation\Assets\Game\World\Wildlife\Editor\AnimalAutonomyChecks.cs:22 

@@ -1,0 +1,10 @@
+PASS Six animation cycles produce twelve contacts at any movement speed
+PASS Rewound animation does not replay old contacts
+PASS Slow frame consumes one contact without a catch-up burst
+PASS Surface-level foot is included in wading
+PASS Dry bridge above water is excluded
+PASS Deep underwater support is excluded
+FAIL System.Exception: Actual supported movement follows animation contacts, not distance; steps=0
+  at FootstepAudioProbe.Check (System.Boolean ok, System.String label) [0x0001a] in C:\unity project\Weather House\PhotoPaperReview\20261029\UnityProject\Assets\FootstepAudioChecks.cs:59 
+  at FootstepAudioProbe+<Steps>d__9.MoveNext () [0x00532] in C:\unity project\Weather House\PhotoPaperReview\20261029\UnityProject\Assets\FootstepAudioChecks.cs:115 
+  at FootstepAudioProbe+<Start>d__7.MoveNext () [0x00041] in C:\unity project\Weather House\PhotoPaperReview\20261029\UnityProject\Assets\FootstepAudioChecks.cs:66 

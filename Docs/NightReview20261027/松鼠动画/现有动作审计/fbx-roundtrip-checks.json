@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "boundary": "Independent Blender FBX reimport with 119 subframe samples per clip. This checks original hierarchy/vertex count, constant world-floor alignment and loop endpoints; it does not verify Unity Animator binding or visible naturalness.",
+  "checks": [
+    {
+      "id": "walk",
+      "boneCount": 27,
+      "vertexCount": 8476,
+      "frames": [
+        2.0,
+        61.0
+      ],
+      "samples": 119,
+      "minimumFloor": -0.41766682267189026,
+      "maximumFloor": -0.33402737975120544,
+      "minimumPrefabGap": -8.702932996032531e-05,
+      "maximumPrefabGap": 0.04980721049416781,
+      "endpointMaxVertexDistance": 0.0,
+      "sourceAssetsUnmodified": true
+    },
+    {
+      "id": "run",
+      "boneCount": 27,
+      "vertexCount": 8476,
+      "frames": [
+        2.0,
+        61.0
+      ],
+      "samples": 119,
+      "minimumFloor": -0.41752099990844727,
+      "maximumFloor": -0.3025401532649994,
+      "minimumPrefabGap": -4.0276985163734125e-08,
+      "maximumPrefabGap": 0.06859058798735859,
+      "endpointMaxVertexDistance": 0.0,
+      "sourceAssetsUnmodified": true
+    }
+  ]
+}

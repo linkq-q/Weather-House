@@ -1,0 +1,348 @@
+{
+  "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+  "reviewedUtc": "2026-10-27T10:42:49.371511+00:00",
+  "reviewer": "building_roofs_astra / model visual inspection with view_image",
+  "evidenceKind": "Unity edit-mode offscreen URP render; copied camera; not Play footage",
+  "captureUtc": "2026-10-27T10:26:42.7133168Z",
+  "captureReceipt": {
+    "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\prepared_capture-report.json",
+    "sha256": "c8ed038f3dbe848335b05b03e87329f85b8a8e676f06b5e7046ff1c0429065c2",
+    "bytes": 265124
+  },
+  "imagesIndividuallyViewed": 14,
+  "blockingFindings": [],
+  "humanApproval": "NOT_REQUESTED_OR_ASSERTED_BY_THIS_REVIEW",
+  "scope": "七栋各一张近景、一张较远距离图；判断画面可见部分的屋顶形态、材质分区和与天气屋的风格关系。",
+  "globalObservations": [
+    "可见屋面没有不合理大片透空洞、塑料折片或明显整片漂浮苔草。灰色裸露部分都有实体瓦片承托。",
+    "与用户当前天气屋参考相比，绿色油画块面、稀疏细碎表层、边缘叶簇、露瓦磨损区属于相同视觉语言。",
+    "木、石、玻璃、金属与苔藓在可见处保持分区；这是画面判断，不替代全部材质槽的程序验证。"
+  ],
+  "limitations": [
+    "未进行 Play 验证、相机移动或 LOD 过渡动画验证；game-distance 文件名不代表 Play 截图。",
+    "每栋只有同方向两种距离，背面、遮挡部位和极近距离微小交叠未覆盖。",
+    "静态图片不能证明透明材质所有排序、动态闪烁、性能或碰撞行为。",
+    "模型视觉复核不等于用户审美批准。原 Blender 参考只用于形态来源比较，不能直接比较曝光与色温。"
+  ],
+  "captureGuardsReported": {
+    "allSceneTransformsUnchanged": true,
+    "sceneDirtyStatesUnchanged": true,
+    "mainCameraUnchanged": true,
+    "selectionUnchanged": true,
+    "activeSceneUnchanged": true,
+    "sceneSaved": false
+  },
+  "scenesBefore": [
+    {
+      "handle": -1956664,
+      "path": "Assets/Scenes/WeatherHouse_WatersideV2.unity",
+      "dirty": true
+    }
+  ],
+  "scenesAfter": [
+    {
+      "handle": -1956664,
+      "path": "Assets/Scenes/WeatherHouse_WatersideV2.unity",
+      "dirty": true
+    }
+  ],
+  "references": [
+    {
+      "path": "C:\\Users\\31483\\AppData\\Local\\Temp\\codex-clipboard-9c6b6873-8ecd-4dc4-a218-b648f74ca41b.png",
+      "sha256": "e32ff269e2fb92381ba47cce9396595e67ba78dc26632acc3108fb8fb88125c5",
+      "bytes": 250093,
+      "width": 370,
+      "height": 325,
+      "role": "用户提供的当前天气屋场景截图",
+      "viewed": true
+    },
+    {
+      "path": "C:\\Users\\31483\\Desktop\\天气屋\\整体精修样板_20261024_v05\\渲染\\03_苔草屋面细节.png",
+      "sha256": "ee03325d1689a31d17a97a322809fd27d7e62d431aac7f8244a47cb9f5c72053",
+      "bytes": 3362684,
+      "width": 1600,
+      "height": 1200,
+      "role": "原 v05 Blender 屋面细节，形态参照",
+      "viewed": true
+    },
+    {
+      "path": "C:\\Users\\31483\\Desktop\\天气屋\\整体精修样板_20261024_v05\\渲染\\02_游戏距离预览.png",
+      "sha256": "04f28ae3e65addff91d0d000c813fea3d84fb3b19d08bfd17f1eea3c5306e533",
+      "bytes": 2770235,
+      "width": 1920,
+      "height": 1080,
+      "role": "原 v05 Blender 整体参考，形态参照",
+      "viewed": true
+    }
+  ],
+  "buildings": [
+    {
+      "id": "A01",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A01 · 湖畔集雨温室",
+      "applyUtc": "2026-10-27T10:24:04.4032307Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A01-unity-apply.json",
+        "sha256": "cc9d51bfb126a2bae5e949d4d45883c07e35c90f74371519832abf1442f0f0f8",
+        "bytes": 623
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A01_close.png",
+          "sha256": "11a058d26a8a24b6a2a2a536e566d799feea804d97633675dd141ff8956881ae",
+          "bytes": 1719850,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "温室中央玻璃网格保留，苔藓沿弯曲端带与边缘铺设。木框、石基、玻璃分区清楚，未见苔藓覆盖中央玻璃或悬浮大片。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A01_game-distance.png",
+          "sha256": "72786453a989aad154b8e9c7109793adf9e8fff63a034a8f01b2d2c868ac6aa8",
+          "bytes": 1943931,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "玻璃屋面网格和两侧苔藓轮廓仍清晰，当前视角未见轮廓破裂。"
+        }
+      ],
+      "limitations": [
+        "松树遮挡左侧立面与部分屋檐，不能据此确认被挡部位。",
+        "玻璃呈灰白雾面，能看见部分内部梁架；本组图不足以确认所有背面和多层透明排序。"
+      ],
+      "glassShaderMaterialPathsAtReview": [
+        "Assets/Environment/BuildingRoofHarmony20261027/A01/Materials/A01_M013_Oil.mat",
+        "Assets/Environment/BuildingRoofHarmony20261027/A01/Materials/A01_M029_Oil.mat"
+      ]
+    },
+    {
+      "id": "A02",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A02 · 望湖风信亭",
+      "applyUtc": "2026-10-27T10:24:13.6016361Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A02-unity-apply.json",
+        "sha256": "179489a0008dcbbe52ede2de9c2466503c4985821592fb50ccdec5e6142d0dd0",
+        "bytes": 624
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A02_close.png",
+          "sha256": "7167247bf4334894a163fdf8d25d51cbdf1ab6b2e3460b76bbf7767486cbaee1",
+          "bytes": 1373522,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "多面屋顶贴合原轮廓，浅苔层、细碎叶层与边缘草可辨。右坡灰色区域能看见连续瓦片，非透空洞。顶部铜棕小亭、深色木柱、浅石基分区正常。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A02_game-distance.png",
+          "sha256": "bef605a9bccd18ae4d5126969dc13f94f3c062ef7df100cc4534d428711e8c9c",
+          "bytes": 1583614,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "屋顶与小亭轮廓稳定；绿色笔触块面和露瓦区仍可辨，未见大片漂浮或错误材质色块。"
+        }
+      ],
+      "limitations": [
+        "可见拱面通透，未见黑色板状遮挡；实际 capture 材质清单中没有 OilPaintGlassHarmony 或 WeatherWindow 材质，不能将此图称为 A02 新透明玻璃验证。",
+        "远图不能确认单根草叶贴合。"
+      ],
+      "glassShaderMaterialPathsAtReview": []
+    },
+    {
+      "id": "A03",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A03 · 海岬避雨驿",
+      "applyUtc": "2026-10-27T10:24:18.3802980Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A03-unity-apply.json",
+        "sha256": "61b23a8fe60f8b8bfff16c38b83b355243298b5085011f6febe8ef159887418e",
+        "bytes": 883
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A03_close.png",
+          "sha256": "663a13a17347b5e02534616a3a089d0ffa0ee23073ed64cdd61fd5ef31e5010b",
+          "bytes": 1668137,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "四坡屋顶与烟囱、小铜顶衔接完整。前檐局部灰色露瓦有实体承托，未见透空大洞。木梁、石砌烟囱与墙面、苔藓保持独立外观。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A03_game-distance.png",
+          "sha256": "0afa2e868bef1599bc3525ea38589fc7498896969bfed2424130637757395d5a",
+          "bytes": 1482726,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "小屋整体轮廓和苔藓颜色保持统一；右侧松树遮挡一部分屋面与台阶。"
+        }
+      ],
+      "limitations": [
+        "单视角、树木遮挡限制右侧与背面检查。",
+        "墙面油画色斑较大，但该图中未见苔藓材质错铺到墙体的迹象。"
+      ]
+    },
+    {
+      "id": "A04",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A04 · 潮湾船坞风铃楼",
+      "applyUtc": "2026-10-27T10:24:25.7933521Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A04-unity-apply.json",
+        "sha256": "d3e25c02a038bba8e27595fbee5a5610c11840aefa704876f03fb58680edd908",
+        "bytes": 624
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A04_close.png",
+          "sha256": "7c91fc0cacd6cb8519778fe5412216142185fb8f8e6a354129b842bbc733bcff",
+          "bytes": 1164124,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "主弯曲双坡屋顶与小塔顶均有同类苔藓。三处明显露瓦区域有完整灰瓦承托，檐口、门窗、木构保持可读，没有破洞式透出背景。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A04_game-distance.png",
+          "sha256": "4df00f0cd580f4ecc8caa4ac69cfd7e524253ca2db8c47902291c058af0a8919",
+          "bytes": 1224937,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "两层屋顶和小塔轮廓清楚，苔藓未变为粗大悬浮片。"
+        }
+      ],
+      "limitations": [
+        "青蓝窗面在本图可辨，不能凭单张静态图确认透明排序和室内可见性。",
+        "未覆盖靠水侧背面。"
+      ]
+    },
+    {
+      "id": "A06",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A06 · 草坡牧场暖棚",
+      "applyUtc": "2026-10-27T10:24:32.3290138Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A06-unity-apply.json",
+        "sha256": "5045630ef6e52c6590723166087879b9bc9936ecc888ea6f9a5433f0750cecf0",
+        "bytes": 838
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A06_close.png",
+          "sha256": "b088f341dd1bef21b2c9133d27bced1db08d015903725842fd97c26fc1f89859",
+          "bytes": 1595296,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "长双坡屋面上两处较大的灰瓦磨损区能看到连续瓦片和接缝。苔藓贴合弯曲屋面，细草在屋脊和檐口分布，没有明显浮起的大片。石墙、木柱、瓦片各自可辨。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A06_game-distance.png",
+          "sha256": "ce0162f46ab086077efe51c5105e701b2211e80d9b15a630c15fae96e0fc5196",
+          "bytes": 1556765,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "长屋的苔藓轮廓与背景 A03 同属一套风格，露瓦区仍读作实体屋面。"
+        }
+      ],
+      "limitations": [
+        "画面主要是长墙与一侧屋面，门窗侧和另一坡未验证。"
+      ]
+    },
+    {
+      "id": "A07",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A07 · 林间草药调配屋",
+      "applyUtc": "2026-10-27T10:24:40.0150720Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A07-unity-apply.json",
+        "sha256": "a3405889a8a30f3073f3262364c99337dd894fcee9882196e079d04318e6e6d3",
+        "bytes": 624
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A07_close.png",
+          "sha256": "78a8bd63a4387046bd5683ef493221589f9f70fb4915ed09fccaad01099115a5",
+          "bytes": 1627710,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "多面屋顶覆盖连续，右侧与左前檐局部灰瓦保留。窗框、青蓝窗面、石墙、木柱和顶端金属框装置分区清楚，未见材质错槽造成的大面积异色。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A07_game-distance.png",
+          "sha256": "e3ea51d050d0bbdbee83d0bc8e5aaaf1bd0da5114aeb34398133b01f65f52bd9",
+          "bytes": 2062804,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "本图右下同时包含当前天气屋；两栋的苔藓绿色块面、露瓦和细碎边缘语言接近。A07 屋顶没有明显轮廓跳变或悬浮片。"
+        }
+      ],
+      "limitations": [
+        "此图只能确认当前距离下的静态结果，不能确认 LOD 切换过程。",
+        "顶端玻璃装置的通透性不是本组图的充分验证项。"
+      ]
+    },
+    {
+      "id": "A09",
+      "status": "PASS_VISIBLE_EDITOR_IMAGE_SCOPE",
+      "hierarchy": "乡村水岸增量 · 20261025/A09 · 木制休憩雨棚",
+      "applyUtc": "2026-10-27T10:24:46.6298017Z",
+      "applyReceipt": {
+        "path": "C:\\unity project\\Weather House\\Docs\\NightReview20261027\\建筑屋顶与油画材质\\A09-unity-apply.json",
+        "sha256": "acad0b3f14c950c43d38cdb234ff1393f603252985d8b264309305d0e41add20",
+        "bytes": 623
+      },
+      "views": [
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A09_close.png",
+          "sha256": "658e7372310c7b5d76e05d5f7358a6a966f6e070b6356c5dddb41aec6975e7f1",
+          "bytes": 1082576,
+          "width": 1600,
+          "height": 1000,
+          "view": "close",
+          "individuallyViewed": true,
+          "observation": "细苔层沿弯曲雨棚顶铺设，右侧露瓦带有完整瓦片承托。木架、长椅、石柱脚未被苔藓材质覆盖。浅色檐口叶簇较醒目，形态对应原 v05 参考的三角软垂边缘；未见其整体脱离屋面。"
+        },
+        {
+          "path": "C:\\unity project\\Weather House\\LifeGameplayReview\\20261027\\building-roofs\\A09_game-distance.png",
+          "sha256": "d8ffb69a233142464632f3dd1c9b28d8d75973ea9466c8e982154230cfa0f9e6",
+          "bytes": 1175247,
+          "width": 1600,
+          "height": 1000,
+          "view": "game-distance",
+          "individuallyViewed": true,
+          "observation": "雨棚轮廓、屋脊和露瓦带清楚，未出现被否定版本的大片塑料皱片或锯齿透空破洞。"
+        }
+      ],
+      "limitations": [
+        "由于雨棚较小，同类檐口叶簇在近景中的比例比大建筑更醒目；这是可见风格差异，当前图没有显示需要阻断的几何缺陷。"
+      ]
+    }
+  ],
+  "writesInThisReview": [
+    "C:\\Users\\31483\\.codex\\visualizations\\2026\\10\\26\\01a178cf-479b-7f41-af26-309b1776f6d5\\building-roof-look-candidate\\unity-visual-review-20261027\\review.json",
+    "C:\\Users\\31483\\.codex\\visualizations\\2026\\10\\26\\01a178cf-479b-7f41-af26-309b1776f6d5\\building-roof-look-candidate\\unity-visual-review-20261027\\review.md"
+  ],
+  "unityOperationsByReviewer": [],
+  "sourcePrefabSceneModificationsByReviewer": []
+}

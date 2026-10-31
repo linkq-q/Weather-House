@@ -17,6 +17,12 @@ namespace WeatherHousePrototype
         [SerializeField] private int memberId;
         [SerializeField] private string stableId;
         private Transform agentHead;
+        public string SpeciesId => herd ? "sheep" : agent ? agent.speciesId : null;
+        public JourneySocial Social => herd ? herd.social : null;
+        public int SocialMemberId => memberId;
+        public JourneyConversation CurrentSocialTurn => IsAvailable && Social && Social.isActiveAndEnabled &&
+            Social.ActiveConversation?.speakerId == memberId ? Social.ActiveConversation : null;
+        public string SocialUtteranceId(JourneyConversation turn) => stableId + ".social." + turn.sequenceId + "." + turn.turnIndex + "." + string.Join("+", turn.glyphIds ?? Array.Empty<string>());
 
         private JourneyMember Member
         {
@@ -40,10 +46,10 @@ namespace WeatherHousePrototype
         }
         public Transform VisualRoot => herd ? Member?.visualRoot : agent ? (agent.visualRoot ? agent.visualRoot : agent.transform) : null;
         public bool HasAmbientSpeech => IsAvailable && herd && herd.social && herd.social.isActiveAndEnabled &&
-            herd.social.ActiveConversation != null && herd.social.ActiveConversation.speakerId == memberId && herd.social.VisibleBubbleCount > 0;
+            herd.social.PresentationConversation != null && herd.social.PresentationConversation.speakerId == memberId && herd.social.VisibleBubbleCount > 0;
         public bool HasAmbientPresentation => IsAvailable && herd && herd.social && herd.social.isActiveAndEnabled &&
             herd.social.HasPresentedBubbleFor(memberId);
-        private JourneyConversation VisibleConversation => HasAmbientSpeech ? herd.social.ActiveConversation : null;
+        private JourneyConversation VisibleConversation => HasAmbientSpeech ? herd.social.PresentationConversation : null;
         // A greeting is a life exchange, not a weather quest or evidence that a word has been learned.
         public string[] CurrentGlyphIds
         {
@@ -51,7 +57,7 @@ namespace WeatherHousePrototype
             {
                 JourneyConversation turn = VisibleConversation;
                 return turn != null ? (turn.glyphIds != null ? (string[])turn.glyphIds.Clone() : Array.Empty<string>()) :
-                    IsAvailable ? new[] { "hello" } : Array.Empty<string>();
+                    IsAvailable ? new[] { "you", "hello" } : Array.Empty<string>();
             }
         }
         public string UtteranceId
@@ -59,8 +65,7 @@ namespace WeatherHousePrototype
             get
             {
                 JourneyConversation turn = VisibleConversation;
-                return stableId + (turn != null ? ".social." + turn.sequenceId + "." + turn.turnIndex + "." + string.Join("+", turn.glyphIds ?? Array.Empty<string>()) :
-                    IsAvailable ? ".greeting" : ".unavailable");
+                return turn != null ? SocialUtteranceId(turn) : stableId + (IsAvailable ? ".greeting" : ".unavailable");
             }
         }
         public Vector3 BubbleAnchor
@@ -100,7 +105,7 @@ namespace WeatherHousePrototype
                 WildlifeSolitaryRoutine routine = agent.SolitaryRoutine;
                 if (routine != null)
                 {
-                    if (routine.ReturningHome) return "沿着可通行的路线返回自己的休息地";
+                    if (routine.ReturningHome) return "沿着可通行的路线前往自己的休息地";
                     string place = routine.Activity == SolitaryActivity.Drink ? "饮水处" : routine.Activity == SolitaryActivity.Forage ? "觅食处" :
                         routine.Activity == SolitaryActivity.Rest ? "休息处" : routine.Activity == SolitaryActivity.Patrol ? "巡游地点" : "观察点";
                     if (!routine.IsWorking) return routine.HasTarget ? "正在前往选定的" + place : "停下来寻找可到达的活动地点";
@@ -117,7 +122,7 @@ namespace WeatherHousePrototype
                 {
                     case WildlifeState.Greet: return "正在和附近的动物打招呼";
                     case WildlifeState.Forage: return "停下来觅食";
-                    case WildlifeState.ReturnHome: return "正在返回熟悉的活动区域";
+                    case WildlifeState.ReturnHome: return "正在前往熟悉的活动区域";
                     case WildlifeState.Takeoff: return "正在起飞";
                     case WildlifeState.Fly: return "正在空中飞行";
                     case WildlifeState.Landing: return "正在寻找落脚处降落";
@@ -181,10 +186,26 @@ namespace WeatherHousePrototype
                 var actor = source.root.GetComponent<AnimalActor>() ?? source.root.gameObject.AddComponent<AnimalActor>();
                 actor.BindExternalPresentation(target);
                 actor.animalId = source.id; actor.displayName = DisplayName(source.species); actor.background = true;
-                actor.requestGlyphIds = new[] { "hello" }; actor.satisfiedGlyphIds = new[] { "hello" };
+                actor.requestGlyphIds = new[] { "you", "hello" }; actor.satisfiedGlyphIds = new[] { "you", "hello" };
                 result[i] = actor;
             }
             return result;
+        }
+        public static AnimalActor BindRuntime(WildlifeAgent source, WildlifePopulation owner, string id, string name)
+        {
+            if (!CanConverse(source) || !owner || string.IsNullOrWhiteSpace(id) ||
+                owner.agents == null || Array.IndexOf(owner.agents, source) < 0)
+                throw new ArgumentException("Runtime interaction needs an animal owned by its population and a stable identity.");
+            var target = source.GetComponent<WildlifeInteractionTarget>();
+            if (target || source.GetComponent<AnimalActor>())
+                throw new InvalidOperationException("Runtime binding only accepts newly created, unbound animals.");
+            target = source.gameObject.AddComponent<WildlifeInteractionTarget>();
+            target.agent = source; target.population = owner; target.stableId = id; target.FindHead();
+            var actor = source.gameObject.AddComponent<AnimalActor>();
+            actor.BindExternalPresentation(target);
+            actor.animalId = id; actor.displayName = string.IsNullOrWhiteSpace(name) ? DisplayName(source.speciesId) : name;
+            actor.background = true; actor.requestGlyphIds = new[] { "you", "hello" }; actor.satisfiedGlyphIds = new[] { "you", "hello" };
+            return actor;
         }
         private void FindHead()
         {

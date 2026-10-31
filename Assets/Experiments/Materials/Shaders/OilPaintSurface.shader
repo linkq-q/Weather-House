@@ -24,6 +24,7 @@ Shader "Weather House/Oil Paint Surface"
         _ShadowFill("Minimum Shadow Fill", Range(0,1)) = .22
         _Impasto("Raised Paint Relief", Range(0,2)) = .45
         _Smoothness("Paint Sheen", Range(0,1)) = .38
+        [ToggleUI] _StudioLighting("Fixed journal studio lighting", Float) = 0
     }
     SubShader
     {
@@ -46,6 +47,7 @@ Shader "Weather House/Oil Paint Surface"
             float4 _BrushAtlas_TexelSize;
             float4 _BaseMap_ST;
             float _TextureInfluence, _Cull;
+            float _StudioLighting;
         CBUFFER_END
 
         TEXTURE2D(_BaseMap);
@@ -237,6 +239,11 @@ Shader "Weather House/Oil Paint Surface"
                     shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 #endif
                 Light sun = GetMainLight(shadowCoord);
+                if (_StudioLighting > .5)
+                {
+                    sun.direction = normalize(float3(-.78,.52,.35));
+                    sun.color = 1; sun.shadowAttenuation = 1; sun.distanceAttenuation = 1;
+                }
                 float visibility = sun.shadowAttenuation * sun.distanceAttenuation;
                 // Model the large light/shadow shape with geometry; paint relief only affects the sheen below.
                 float geometricNdotL = dot(normalWS,sun.direction);
@@ -266,6 +273,7 @@ Shader "Weather House/Oil Paint Surface"
                     palette *= lerp(half3(1,1,1), SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv).rgb, _TextureInfluence);
 
                 half3 ambient = max(SampleSH(normalWS),0);
+                if (_StudioLighting > .5) ambient = 0;
                 half3 fill = max(ambient * .8,half3(_ShadowFill,_ShadowFill,_ShadowFill));
                 // Cast shadows attenuate direct light once. Colored ambient/fill keeps the chosen shadow pigment readable.
                 half3 color = palette * (fill + sun.color * ((.15 + .85 * form) * visibility));
@@ -275,7 +283,7 @@ Shader "Weather House/Oil Paint Surface"
                 float sheen = pow(saturate(dot(paintedNormal,halfDirection)),exponent);
                 sheen *= (.025 + _Impasto * .14) * lerp(.55,1,brush.z) * visibility * saturate(dot(normalWS,sun.direction));
                 color += sun.color * lerp(half3(1,1,1),_HighlightColor.rgb,.35) * sheen;
-                return half4(MixFog(color,input.fog),1);
+                return half4(_StudioLighting > .5 ? color : MixFog(color,input.fog),1);
             }
             ENDHLSL
         }

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>天气屋｜新手引导策划 V2</title>
+<style>
+:root{--desk:#eaf0ed;--paper:#fffdf6;--ink:#263d45;--muted:#51666b;--water:#426d7a;--line:#c3d0c9;--wash:#e3ebe6;--yellow:#f2e0bc;--blue:#c3d5d5;--green:#cfd7bc;--note:#f1ead7}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--desk);color:var(--ink);font:16px/1.85 "Microsoft YaHei","PingFang SC",sans-serif}header,main,footer{max-width:1120px;margin:auto;padding:32px 44px;background:var(--paper)}header{padding-top:48px;border-top:10px solid var(--water)}h1,h2,h3{font-family:"SimSun","Songti SC",serif;line-height:1.45}h1{font-size:38px;margin:8px 0 20px}h2{font-size:28px;margin:0 0 22px;padding-top:36px}h3{font-size:21px;margin:24px 0 12px}p{max-width:55em;margin:10px 0 17px}a{color:#245e70;text-underline-offset:3px}a:hover{color:#123f4b}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #845d17;outline-offset:4px}.version,.small{font-size:13px;color:var(--muted)}.lead{font-size:20px;max-width:48em}.scope,.note{padding:17px 21px;border-left:4px solid var(--water);background:var(--wash);margin:24px 0}.note{background:var(--note);border-color:#a38842}nav{display:flex;gap:8px 18px;flex-wrap:wrap;padding:14px 0;border-block:1px solid var(--line)}nav a{font-size:14px}section{scroll-margin-top:16px}section+section{margin-top:28px;border-top:1px solid var(--line)}.compare{display:grid;grid-template-columns:1fr 1fr;gap:24px}.compare>div{padding:4px 0 8px}.compare h3{border-bottom:2px solid var(--line);padding-bottom:8px}.table-wrap{overflow:auto;margin:15px 0 24px}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.75}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:12px}th{background:var(--wash)}td:first-child{font-weight:600}td p{margin:4px 0}li{margin:8px 0}ul,ol{padding-left:24px}.route{margin:25px 0;padding:21px 24px;background:#edf2ef;border-left:4px solid var(--water);line-height:2.2}.route b{white-space:nowrap}.status{font-size:12px;padding:2px 7px;background:var(--wash);white-space:nowrap}.candidate{background:#eee3c9}.shot-frame{aspect-ratio:16/9;background:#314f59;position:relative;overflow:hidden;margin:18px 0 8px;border:1px solid #314f59}.shot-frame svg{width:100%;height:100%;display:block}.shot-copy{position:absolute;inset:auto 5% 5%;padding:11px 15px;background:#203841e8;color:#fffdf7;font-size:15px;max-width:90%}.shot-title{position:absolute;left:5%;top:5%;padding:5px 9px;background:#f8fbf0e8;font-size:14px}.shot-controls{display:flex;gap:8px;flex-wrap:wrap}button{font:inherit;cursor:pointer;background:var(--paper);color:var(--ink);border:1px solid #738d91;padding:8px 13px;border-radius:3px}button[aria-pressed="true"]{color:white;background:var(--water)}.caption{font-size:13px;color:var(--muted)}.island-name{font-size:24px;font-family:"SimSun","Songti SC",serif}.glyph{width:39px;height:47px;vertical-align:middle;color:var(--ink);fill:none;stroke:currentColor;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.glyph.small-glyph{width:27px;height:33px}.expression{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.word-samples{display:flex;gap:18px;flex-wrap:wrap;padding:18px 0}.word-sample{display:flex;gap:9px;align-items:center;max-width:265px}.circle{width:62px;height:62px;border-radius:50%;border:2px solid #73827a;display:grid;place-items:center;flex:0 0 auto}.circle .glyph{width:32px;height:39px}.green{background:var(--green)}.blue{background:var(--blue)}.yellow{background:var(--yellow)}.stage{border-top:2px solid var(--line);padding-top:18px;margin:25px 0}.stage h3{margin:0 0 10px}.stage .prompt{padding:9px 15px;background:#eff3e9;border-left:3px solid #99ab94}.stage dl{display:grid;grid-template-columns:110px 1fr;margin:0}.stage dt,.stage dd{margin:0;padding:7px 0;border-bottom:1px solid #e1e7df}.stage dt{font-weight:600;font-size:14px;padding-right:14px}.stage dd{font-size:14px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px}.manuscript{border:1px solid var(--line);padding:22px 26px;background:#f7f7ec;white-space:pre-line}.hint{font-style:normal;font-weight:600;color:#735b20}code{font-size:12px;word-break:break-word}details{border-top:1px solid var(--line);padding:16px 0}summary{font-weight:600;cursor:pointer}.source-list li{font-size:14px}footer{border-top:1px solid var(--line);font-size:13px;color:var(--muted);padding-bottom:42px}.print-button{float:right;margin-left:16px}.film-rule{font-weight:600}svg[hidden]{display:none}body>svg{position:absolute;width:0;height:0;overflow:hidden}@media(max-width:740px){header,main,footer{padding:25px 20px}h1{font-size:29px}h2{font-size:24px}.compare,.two-col{grid-template-columns:1fr;gap:4px}.stage dl{grid-template-columns:1fr}.stage dt{padding-bottom:0;border:0}.stage dd{padding-top:3px}.table-wrap table{min-width:780px}.shot-copy{font-size:12px;line-height:1.6;padding:6px 9px}.shot-title{font-size:11px}.print-button{float:none;margin:0 0 15px}.word-sample{max-width:100%}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}@media print{body{background:white;color:#172b31}header,main,footer{max-width:none;padding:20px 0}nav,.print-button,.shot-controls,.shot-frame{display:none}.table-wrap{overflow:visible}table{font-size:10px}.table-wrap table{min-width:0}th,td{padding:6px}h2{break-after:avoid}.stage{break-inside:avoid}.scope,.note{background:none}a{color:inherit}details>div{display:block!important}summary{list-style:none}.compare,.two-col{grid-template-columns:1fr 1fr}p,li{orphans:3;widows:3}}
+</style>
+</head>
+<body>
+<svg aria-hidden="true"><defs>
+<symbol id="g-hello" viewBox="0 0 100 120"><path d="M28 23 H56 Q72 23 72 39 V48 Q72 62 56 62 H44 Q28 62 28 78 V87 Q28 103 44 103 H72"/><path d="M29 42 H46"/></symbol>
+<symbol id="g-goodbye" viewBox="0 0 100 120"><path d="M28 23 H56 Q72 23 72 39 V48 Q72 62 56 62 H44 Q28 62 28 78 V87 Q28 103 44 103 H72"/><path d="M54 84 H71"/></symbol>
+<symbol id="g-want" viewBox="0 0 100 120"><path d="M36 19 H53 Q68 19 68 34 V50 Q68 65 53 65 H36 V103"/></symbol>
+<symbol id="g-reject" viewBox="0 0 100 120"><path d="M12 43 V78"/><path d="M36 19 H53 Q68 19 68 34 V50 Q68 65 53 65 H36 V103"/></symbol>
+<symbol id="g-rain" viewBox="0 0 100 120"><path d="M40 38 V53 Q40 60 47 60 H57 Q64 60 64 67 V82 Q64 89 57 89 H40 V104"/><path d="M22 30 V21 Q22 13 30 13 H70 Q78 13 78 21 V30 M50 13 V29 M23 58 V79 Q23 89 33 89"/></symbol>
+<symbol id="g-water" viewBox="0 0 100 120"><path d="M40 38 V53 Q40 60 47 60 H57 Q64 60 64 67 V82 Q64 89 57 89 H40 V104"/><path d="M26 20 H52 M26 20 V69 Q26 77 34 77 H40"/></symbol>
+</defs></svg>
+<header>
+<button class="print-button" type="button" onclick="window.print()">打印 / 导出 PDF</button>
+<p class="version">2026 年 10 月 27 日 · 第二版策划 · 供评审，尚未实施 · <a href="简要结论.txt">阅读简要结论</a></p>
+<h1>从雾中的岛<br>到第一场自己的雨</h1>
+<p class="lead">先交代“为什么由我来照料这座岛”，再让玩家从相遇与分别中理解第一对动物语。手账留下证据，魔法回应需要，摄影把这段生活带回书里。</p>
+<div class="scope"><strong>这次交付只更新策划。</strong>整合本轮 9 点设想、你好与再见成对学习，以及“雨练轨迹 → 理解请求 → G 真实施雨 → 收起天气 → 再见”的完整闭环。没有制作开场、改游戏界面或存档；现有源码事实与新机制分列。天气手势无法绘制属于必须先修好的入口问题，不能用教程文字代替修复。</div>
+<nav aria-label="策划目录"><a href="#opinion">客观意见</a><a href="#facts">现有与新增</a><a href="#film">开场分镜</a><a href="#book">手账与颜色</a><a href="#flow">完整流程</a><a href="#encounters">相遇与道别</a><a href="#meaning">判词与 AI</a><a href="#hints">线索机会</a><a href="#photos">摄影衔接</a><a href="#recovery">跳过与保存</a><a href="#review">验收</a><a href="#sources">依据</a></nav>
+</header>
+<main id="main">
+<section id="opinion">
+<h2>先判断这套引导哪里成立，哪里会卡住</h2>
+<p><strong>这套顺序的叙事动机比昨晚方案完整，最需要调整的是密度和打断次数。</strong>背景故事、奶奶的书、观察动物、整理照片都属于同一件事，能够形成自然衔接。操作说明可以直说，未知动物语的含义则要让行为、时机和记录共同说明。前者清楚不会破坏氛围，后者提前翻译才会削弱发现感。</p>
+<div class="compare">
+<div><h3>昨晚方案的实质缺口</h3><ul><li>从走路、问好很快进入施雨，没有解释一家人为什么离岛、玩家为什么需要照料动物，也没有把奶奶的书建立为持续陪伴。</li><li>把你好放前面、再见放雨后，距离过远；玩家难以在相似字形与相反社交时机之间形成对照。</li><li>默认玩家理解 J 的四个页签、空照片位、圆圈颜色和“记猜测”的意义，这些正是新玩家最容易误读的部分。</li><li>写出了练习路线，却没有以“玩家能否在纸上真实描画”作为开场放行条件。现有练习不可用时，后续链条全部失效。</li><li>摄影仅被当成可选尾声，没有充分教会“拍下话语 → 按字回看语境 → 修正猜测”。</li></ul></div>
+<div><h3>这次设想需要收住的部分</h3><ul><li>开场后立刻逐页讲完所有功能，再强制相遇、自动开书、再翻任务页、再自动开书，会让世界探索被反复中断。</li><li>“三只动物”适合鼓励探索；若被实现成三种物种、必须走遍远区才能继续，就会把社交观察变成搜集配额。</li><li>“线索非常宝贵，不要滥用”容易让新玩家不敢求助。先教一次安全使用，再说明如何恢复次数更合适。</li><li>“随便拍拍”不足以教摄影任务：玩家可能连续拍空景、不知道是否对，也可能以为每张照片都会给词。</li><li>已有照片奖励能直接确字。新案若要求所有人固定先猜一次，会惩罚提前拍照和旧档玩家。</li></ul></div>
+</div>
+<p>推荐保留完整内容，拆成两轮用书。第一轮只建立手账、已知字和社交观察；第二轮借一张真实照片解释证据，再顺势学雨。四页签先各用一句话定位，不要求连点四页完成考试。功能在第一次用到时再展开，是本案对 <a href="https://create.roblox.com/docs/production/game-design/onboarding-techniques">Roblox 官方情境教学建议</a>的应用；具体节奏仍需本项目的新玩家试玩验证。</p>
+<div class="note"><strong>三个不抢先决定的点。</strong>“雾汐岛”为推荐暂名；书内填写词义并判对错、线索次数是新增机制；开场时长、距离滞回和停留时长是待试玩的参数。它们在本文件中是可评审方案，没有写入游戏。</div>
+</section>
+<section id="facts">
+<h2>把当前实现和下一步设计分开</h2>
+<div class="table-wrap"><table><thead><tr><th>事项</th><th>当前源码可确认的事实</th><th>本版提出的变化</th></tr></thead><tbody>
+<tr><td>开场与剧情</td><td>昨晚交付的是 HTML 策划；所读核心数据没有新增教学里程碑或线索库存，本案不以已制作电影开场为前提。</td><td>新增可跳过地图运镜、奶奶书信、角色吐槽及分段教学。</td></tr>
+<tr><td>已知字</td><td><code>LifeSession.Start / LanguageNotebook.Normalize</code> 将 <code>want</code> 和 <code>reject</code> 设为已确认。用户说的“不想要”对应内部 ID <code>reject</code>，不是 <code>not_want</code>。</td><td>在首次开书中同时突出这两个现成已知字，解释这是奶奶留下的起点。</td></tr>
+<tr><td>书上填词</td><td><code>SaveGuess → SetGuess</code> 只保存文字，不验证正确性。正式 Life 模式的对话理解成功负责理解 / 帮助，不直接走旧的跨个体确字分支。</td><td>新增“验证猜测”的轻量流程，不能把现有“记下来”按钮描述为已经会判词。</td></tr>
+<tr><td>颜色与上下文</td><td>绿灰为未有照片，蓝灰为已拍但未确认，暖黄为已确认；未见过的字形隐藏。当前“查看相关照片”筛实际照片，尚不是“所有历史对话”全文列表。</td><td>增加不靠颜色的状态标签；提议整合可追溯的现场记录与照片上下文，不把未拍到的内容伪造成照片。</td></tr>
+<tr><td>你好与再见</td><td>已有 <code>dog.hello / fox.hello / dog.bye / fox.bye</code>、问候展示窗口与动物自身冷却。已有公开问候 / 道别摄影语境。</td><td>统一明确的进入与离开社交时机、去抖、观察计数。不能据此声称“玩家每次走开已自动说再见”已经实现。</td></tr>
+<tr><td>天气手势</td><td>源码在 J 太阳页签创建示范与练习垫；雨 / 收起天气可学习，学会后 G 施放，当前施法半径 8m。用户实际反馈不能绘制，源码存在不等于入口可用。</td><td>把可输入、正确 / 反向 / 取消的真实验证放在前置验收；教程接入统一可用入口。</td></tr>
+<tr><td>摄影确字</td><td>P20 / P21 分别以真实问候 / 道别情境奖励 <code>hello / goodbye</code>；P05 以可见降雨奖励 <code>rain</code>。正常肖像不等于问候。</td><td>保留这条奖励路径。推荐先做首对猜词再教相机；自由玩家提前确字时跳过猜词，不延发奖励、不撤销已知字。</td></tr>
+<tr><td>每三字一线索</td><td>当前 <code>LanguageNotebook</code> 没有该库存、累计器或第一次猜错的线索图标。</td><td>新增一次教学线索与每 3 个新确字获得 1 次的规则，独立于动物相遇次数。</td></tr>
+</tbody></table></div>
+<p class="small">以上为静态源码核对，不替代 Game 里的交互验证。源码阅读范围与 SHA 见同目录“来源与范围.json”；其他智能体同时修复手势与实际任务名，本文件不承担这些实现变更。</p>
+<div class="note"><strong>本轮新增 UI 规范同样适用于引导。</strong>玩家讲话与中文输入统一使用动物语泡的白色气泡风格；右上任务默认仅有白色极简图标，玩家点开才看气泡面板，圆形左右箭头翻页，避免提前铺满任务信息。字义浮层只保留动物字、短中文与相关照片按钮；照片标题放大，去除多余说明。引导解释使用临时批注，不把长篇教程塞回已要求精简的常驻界面。以上为用户明确的候选界面规范，本文件没有实施或宣称验收通过。</div>
+</section>
+<section id="film">
+<h2>开场是一封带玩家走过岛屿的家书</h2>
+<p><span class="island-name">推荐暂名 · 雾汐岛</span>。“雾”保留隐藏于海上的神秘感，“汐”连接水岸与周期，也能自然容纳天气家族。备选只保留“隐潮岛”和“听岚岛”；岛名尚未定稿，现有地图与存档名称不改。</p>
+<p>将“家族掌控天气、与动物互惠数百年、家人去魔法会议、这一段由小魔女照料”作为开场必须传达的四件事。小魔女“什么都不会”建议理解为<strong>没独立照料过，也不会读动物语</strong>；她能依照奶奶留下的轨迹施雨，避免马上施法与角色台词发生矛盾。</p>
+<div class="manuscript"><strong>奶奶留下的文字 / 旁白候选</strong>
+“雾汐岛藏在海雾和季风之间。
+几百年来，咱们家世代研习天气魔法，和岛上的动物朋友一起生活。
+我们为它们唤来雨水、留住晴天；它们也照料着这座岛，把礼物和见闻带回家门。
+这次的天气魔法会议，把大家都叫去了远方。
+奶奶把手账留给你。这段日子，岛上的生活，就拜托你啦。”
+
+镜头落到小魔女，短暂停顿，头顶中文语泡
+<strong>“可是我还什么都不会啊！”</strong></div>
+<p>这段文字可先做无配音版本，保留环境声和字幕；配音不是教学放行条件。开场不需要新建全家角色或播放无法在正式玩法重现的华丽魔法表演。</p>
+<figure style="margin:22px 0">
+<div class="shot-controls" role="group" aria-label="开场分镜预览"><button type="button" data-shot="0" aria-pressed="true">全岛</button><button type="button" data-shot="1" aria-pressed="false">家与天气屋</button><button type="button" data-shot="2" aria-pressed="false">动物的生活</button><button type="button" data-shot="3" aria-pressed="false">林地与湿岸</button><button type="button" data-shot="4" aria-pressed="false">回到小魔女</button></div>
+<div class="shot-frame">
+<svg viewBox="0 0 960 540" role="img" aria-labelledby="shot-map-title"><title id="shot-map-title">开场五个镜头的构图草图，不是正式地图</title><rect width="960" height="540" fill="#6f939d"/><path d="M112 235 Q113 135 253 94 Q401 57 499 115 Q575 55 713 133 Q874 199 818 322 Q844 410 688 454 Q574 499 481 446 Q358 501 202 409 Q83 350 112 235Z" fill="#b9c8aa"/><path d="M194 223 Q297 135 364 164 Q338 300 235 350Z" fill="#718d78"/><path d="M568 300 Q697 256 752 326 L699 422 L544 415Z" fill="#96ad88"/><path d="M397 144 Q488 186 485 271 Q485 344 555 389" fill="none" stroke="#7fa1a4" stroke-width="28"/><path d="M260 282 Q383 322 483 269 Q599 201 702 230" fill="none" stroke="#d8d7b1" stroke-width="10"/><ellipse cx="463" cy="275" rx="62" ry="47" fill="#d0d6b5"/><path d="M431 274 L463 247 L495 274 V305 H431Z" fill="#f7f0d6" stroke="#627b76" stroke-width="3"/><path d="M309 306 L336 286 L364 306 V331 H309Z" fill="#e9dec3" stroke="#627b76" stroke-width="3"/><circle cx="651" cy="240" r="10" fill="#eef0d9"/><circle cx="678" cy="259" r="8" fill="#e8e8d4"/><path d="M192 189 Q304 162 454 262 Q563 344 670 260 Q619 169 399 210 Q312 250 334 310" fill="none" stroke="#f8f8df" stroke-width="3" stroke-dasharray="8 9"/><g fill="#304f59" font-family="Microsoft YaHei,sans-serif" font-size="18"><text x="179" y="181">林地</text><text x="602" y="214">牧场</text><text x="584" y="383">芦苇湿岸</text><text x="421" y="332">中央小岛</text><text x="250" y="365">天气屋与初始区域</text></g><circle id="shot-marker" cx="185" cy="120" r="26" fill="#fff9dc" stroke="#365964" stroke-width="4"/><text id="shot-number" x="185" y="127" font-family="Microsoft YaHei,sans-serif" text-anchor="middle" fill="#263d45" font-size="20">1</text></svg>
+<span id="shot-title" class="shot-title">镜头 1 · 雾中的全岛</span><p id="shot-copy" class="shot-copy">高位斜俯视慢推，先建立岛与海的关系；岛名随第一句旁白出现。</p></div>
+<figcaption class="caption">16∶9 构图示意。位置、路线和距离为讲述关系的草图，不是地图坐标、Unity 截图或已验证镜头。点击只切换策划说明，没有自动播放。</figcaption>
+</figure>
+<div class="table-wrap"><table><thead><tr><th>镜头 / 目标时长</th><th>看什么，怎么移动</th><th>剧情信息与声音</th><th>边界</th></tr></thead><tbody>
+<tr><td>1 全岛 · 0–8 秒</td><td>高位斜俯视，从海雾边缘缓慢进入，完整读到岛的主要轮廓；不绕岛旋转。</td><td>岛名，海雾、季风的第一句。海风与近岸水声，不强加大音量音效。</td><td>实际地图可能不足以一镜涵盖全部轮廓，需在场景实测取景，不能凭草图定坐标。</td></tr>
+<tr><td>2 家与中央 · 8–18 秒</td><td>经过中央小岛与天气屋这组已成立的核心，斜俯视降一些高度，保持相同运动方向。</td><td>家族世代学习天气魔法；展示屋、书与日常生活的尺度。</td><td>保留中央组原布局，不为开场重新摆房子。</td></tr>
+<tr><td>3 牧场生活 · 18–29 秒</td><td>路过草坡牧场，读到动物、饮水点与休息处的联系。只需一到两种真实动物活动。</td><td>通过天气互相照料、交换礼物和见闻。礼物先由文字交代，不伪装现有交换系统。</td><td>不临时召集所有动物、不要求表演尚不存在的 AI。</td></tr>
+<tr><td>4 林缘到湿岸 · 29–40 秒</td><td>用缓推与一次柔和转场连接林地、芦苇湿岸；露出可辨的风貌，随后朝初始区域回归。</td><td>家人离岛参加会议，奶奶留下手账。旁白从世界收束到“你”。</td><td>A01 / A04 / A08 暂未开放，最多远景经过；A05 已删除，不恢复、不出镜、不作为教学目的地。</td></tr>
+<tr><td>5 落到玩家 · 40–50 秒</td><td>沿可辨的回家方向落至正式初始镜头，最后 2–3 秒近乎静止；与玩家可操控镜头的位置、朝向、FOV 连续交接。</td><td>“岛上的生活就拜托你啦。”环境声接续；小魔女冒出“可是我还什么都不会啊！”。</td><td>先落稳再显示语泡，留阅读时间。HUD 恢复后才允许新手提示出现。</td></tr>
+</tbody></table></div>
+<p class="film-rule">目标为约 50 秒，可跳过、可暂停、可重看文字；这不是必须达到的计时指标。</p>
+<ul><li><strong>16∶9 是画面比例。</strong>16∶9 屏上不再叠粗黑边压成 2.35∶1。16∶10 或超宽屏可用留边保持 16∶9 安全构图，不能拉伸画面；字幕和跳过按钮在安全区内。</li><li>电影感来自缓慢运镜、明确景别和声音衔接。不开强运动模糊、相机晃动或反复大幅滚转。提供静态分镜 / 减少运镜选项，设计依据为 <a href="https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/117">Xbox 关于视觉运动可暂停、可关闭的建议</a>。</li><li>字幕从开场默认可读，每屏 1–2 行，背景具备稳定对比，可暂停阅读；正文重看保存在书中。旁白也配字幕，参考 <a href="https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/104">Xbox 字幕指南</a>。</li><li>跳过不丢开场事实：直接落到相同初始画面，书信可回看；退出途中不记录任何虚构的动物观察、词义或施法。</li></ul>
+</section>
+<section id="book">
+<h2>第一次开书，只让玩家建立一张简单的地图</h2>
+<p>底部亮字建议写“奶奶把手账留下了。按 <strong>J</strong> 看看她的提醒。”不反复闪烁。第一次由玩家主动打开；给四个页签各一句定位，随后只停在符号页。鼠标可自由移动，不锁住四个必须点击的位置。</p>
+<div class="table-wrap"><table><thead><tr><th>现有页签</th><th>首次只说一句</th><th>真正展开的时机</th></tr></thead><tbody>
+<tr><td>符号页</td><td>“右边是岛上的动物语。先记下你见过的字，再慢慢弄懂。”</td><td>本轮立即用。左侧是真实照片的证据位置，空着是正常的新档状态。</td></tr>
+<tr><td>照片页</td><td>“亲自拍下的片刻，会留在这里。”</td><td>首次拍到说话动物后，再教展开 / 播放 / 按字找上下文。</td></tr>
+<tr><td>天气手势页（太阳）</td><td>“奶奶把天气魔法的笔记也留在了这里。”</td><td>动物提出雨的请求时再看动态示范与实际描画。</td></tr>
+<tr><td>摄影挑战页（相机）</td><td>“这几页是奶奶留下的摄影挑战。”</td><td>首对词学习后展开，任务表达保留动物语。</td></tr>
+</tbody></table></div>
+<p>随后同时突出两个现成的暖黄色圆圈。建议书页批注为“这是岛上通用的动物语。奶奶只来得及替你注好两个字。”<strong>想要 / 不想要</strong>的中文显示已知含义，其他未知字不临时给中文答案。“试着从朋友们的举动中，弄懂更多吧。”语气比“你还什么都不会”更能让玩家愿意尝试。</p>
+<div class="word-samples"><div class="word-sample"><span class="circle yellow"><svg class="glyph" role="img" aria-label="想要字形"><use href="#g-want"/></svg></span><span>已确认<br><strong>想要</strong></span></div><div class="word-sample"><span class="circle yellow"><svg class="glyph" role="img" aria-label="不想要字形"><use href="#g-reject"/></svg></span><span>已确认<br><strong>不想要</strong></span></div><div class="word-sample"><span class="circle green"><svg class="glyph" role="img" aria-label="已遇见未确认的你好字形"><use href="#g-hello"/></svg></span><span>见过，未确认<br>可以先记猜测</span></div><div class="word-sample"><span class="circle blue"><svg class="glyph" role="img" aria-label="有照片尚未确认的再见字形"><use href="#g-goodbye"/></svg></span><span>有照片，未确认<br>可以回看语境</span></div></div>
+<div class="table-wrap"><table><thead><tr><th>状态</th><th>当前颜色事实</th><th>建议同时给的可读含义</th></tr></thead><tbody>
+<tr><td>尚未见过</td><td>没有字形；底色不构成独立的“锁定机制”。</td><td>空圆圈 / “还未遇见”。不暗示走到一个地点会自动认字。</td></tr><tr><td>见过，暂无照片</td><td>绿灰圆圈，字形出现。</td><td>“见过”；有猜测时显示“已记猜测”，保持未确认状态，不额外添一套颜色。</td></tr><tr><td>有照片，未确认</td><td>蓝灰圆圈。</td><td>照片角标 + “有记录”。蓝色不等于答错，也不等于还差一张指定照片。</td></tr><tr><td>已经确认</td><td>暖黄圆圈。</td><td>“已确认” + 可读取的释义。黄色表示系统当前已给出该词义；不声称每位玩家都已通过认知测试。</td></tr>
+</tbody></table></div>
+<p>颜色解释只在首次已知字附近出现一次，状态含义继续可悬停 / 点击查看。不要仅靠绿色、蓝色、黄色区分进度，文字与角标应能单独解释状态，依据为 <a href="https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/103">Xbox 对颜色与其他信息通道共同使用的建议</a>。这里的角标和状态标签是提案，尚未接入。</p>
+</section>
+<section id="flow">
+<h2>一条完整的推荐顺序</h2>
+<div class="route"><b>开场落地</b> → <b>J 认识奶奶的书</b> → <b>相遇与离开，对照你好 / 再见</b> → <b>成对记猜测与一次线索</b> → <b>摄影页与 C 记录话语</b> → <b>按字回看语境</b> → <b>雨·练轨迹</b> → <b>理解请求</b> → <b>G 真实施雨</b> → <b>收起天气</b> → <b>再见·可随时回来</b> → 自由拍照与岛上生活</div>
+<p>以下是教学推荐次序，不是锁地图的关卡链。用时暂估 8–13 分钟，含约 50 秒开场；自主探索可以更久。只有真实事件推进状态；不靠等待秒数假完成。每步保存的是已成立的事实，而非“教程帮玩家做过”的结果。</p>
+
+<article class="stage"><h3>N00 · 家书落地</h3><p class="prompt">“可是我还什么都不会啊！”</p><dl><dt>触发 / 动作</dt><dd>新档进入局内。看或跳过开场，在正式初始镜头获得控制。</dd><dt>成功</dt><dd>镜头交接结束，角色控制恢复；玩家知道家人离开及自己的照料责任。</dd><dt>失败恢复</dt><dd>读不完可暂停或回看文字；画面加载慢不放任镜头穿模，先静止于安全已加载节点。</dd><dt>可跳 / 保存点</dt><dd>可跳。仅保存开场看过 / 跳过状态，不赠技能和词；老档不强播。</dd></dl></article>
+<article class="stage"><h3>N01 · 奶奶留下的两条注释</h3><p class="prompt">“按 J 看看奶奶的手账。”</p><dl><dt>触发 / 动作</dt><dd>玩家落地后站稳，主动 J 开书。四页签各一句；认识左侧照片位、右侧动物语及想要 / 不想要。</dd><dt>成功</dt><dd>玩家知道书可关、可再开；两个已知圆圈同时被解释，空照片位不是缺资源。</dd><dt>失败恢复</dt><dd>提前关书保留当前位置，J 可接着看；不强迫点四个页签。手势入口不可用时单独修复，不能假标教学完成。</dd><dt>可跳 / 保存点</dt><dd>可收起说明。保存“看过手账介绍”提示状态；既有 want / reject 事实不重复发奖。</dd></dl></article>
+<article class="stage"><h3>N02 · 和朋友相遇，也看看分别</h3><p class="prompt">“去岛上转转，看看朋友们相遇和分开时会说什么。”</p><dl><dt>触发 / 动作</dt><dd>合书后自由行走。接近时动物说 hello；玩家准备离开、动物仍可见时说 goodbye，形成一对。建议软目标是遇见 3 只不同个体，<strong>不要求 3 个物种</strong>，不指向未开放房屋。</dd><dt>成功</dt><dd>至少真实看到一次清楚的问候和一次清楚的道别；第三只提供对照，不把远区搜寻作为开书门槛。主推先形成一对即可继续，3 只作为可选加强观察。</dd><dt>失败恢复</dt><dd>如果只看到 hello，就引导“准备离开时，回头看看”；错过可回访。首次两次有效观察后仍停滞，给附近第二只的方向提示，不瞬移动物。</dd><dt>可跳 / 保存点</dt><dd>随时去别处。保存实际动物 ID、话轮、关系与字形；同一动物绕进绕出不算新个体、不赚新字或线索。</dd></dl></article>
+<article class="stage"><h3>N03 · 这两个字，像不像一对</h3><p class="prompt">“有两个字，总在相遇与分别时出现。”</p><dl><dt>触发 / 动作</dt><dd>观察证据成立后挂起一次开书请求；仅在玩家停稳、无相机 / 对话 / 输入 / 施法时自动开一次，或让玩家 J 接受。点两个实际字形，先猜 hello，再对照 goodbye。</dd><dt>成功</dt><dd>用常见同义词或等义解释识别各自含义，两个结果独立记录；不会 hello 正确就顺便确认 goodbye。教学线索按下一节执行。</dd><dt>失败恢复</dt><dd>第一次有效的 hello 猜测不符后亮出线索图标；“和朋友相遇时，常说的第一句话？”输入为空、网络失败不算猜错。猜过 bye 仍不懂，可回看分别记录。</dd><dt>可跳 / 保存点</dt><dd>可关书继续找证据。保留各词猜测、验证结果、教学线索已用状态。提前拍照 / 旧档已确认的词直接跳过，不变回未知。</dd></dl></article>
+<article class="stage"><h3>N04 · 奶奶留给照片的页</h3><p class="prompt">“这些挑战用动物语写成。认得的字，会帮你读懂一部分。”</p><dl><dt>触发 / 动作</dt><dd>仍在书里时轻提示相机页签，由玩家点开。先认识一条单字摄影目标，不解释全部 26 项和所有验收条件。</dd><dt>成功</dt><dd>知道挑战表达是动物语，已知部分可读、未知部分可探索；完成标记能回到真实证据。</dd><dt>失败恢复</dt><dd>若全部看不懂，用“先拍下说话的朋友”给操作目标，不把整页译成中文任务清单。不会拍照不扣任务次数。</dd><dt>可跳 / 保存点</dt><dd>可稍后看。仅保存介绍状态，不发词、不直接完成任何摄影任务。</dd></dl></article>
+<article class="stage"><h3>N05 · 把一句话留住</h3><p class="prompt">“按 C 举起相机。把正在说话的朋友和它的话一起留在画面里。”</p><dl><dt>触发 / 动作</dt><dd>回到世界后提供 C；先拍一只可见、正在说话的动物，按现有快门键拍摄。先只教举机、取景、快门、退出；镜头高级参数以后再说。</dd><dt>成功</dt><dd>真实照片 / 动态片刻记录完成且可读；照片里字语来自实际快门语境。普通说话照片完成操作教学，不保证满足 P20 / P21。</dd><dt>失败恢复</dt><dd>动物被遮挡、刚好不说话时留一句具体提示，可重新靠近重演。保存失败不声称已永久入册，草稿和已有照片保留。</dd><dt>可跳 / 保存点</dt><dd>可先探索。只有真实新记录落地才保存首次有效拍摄，未成功的快门不计；连续重复照片不重复教学奖励。</dd></dl></article>
+<article class="stage"><h3>N06 · 书里的字把片刻连起来</h3><p class="prompt">“照片里的话也留下了。点一个字，看看它还在哪些片刻里出现过。”</p><dl><dt>触发 / 动作</dt><dd>录制 / 保存完成并退出相机，安全时再自动开书一次。展开刚拍的照片，点一个字，查看对应的照片及已有现场对话记录。</dd><dt>成功</dt><dd>玩家知道同一个字可能在不同说话者、地点和情境出现；看到的是历史快门 / 观察事实，不是动物当前新话。</dd><dt>失败恢复</dt><dd>只有一条记录也可完成；明确“先留下这一条，下次再来对照”。当前只有相关照片能力，补全未拍对话列表须后续实现；不伪造满页记录。</dd><dt>可跳 / 保存点</dt><dd>可关闭，J 可恢复到刚拍记录。保存查看过上下文的提示状态；不把点击字当作确字。</dd></dl></article>
+<article class="stage"><h3>N07 · 雨 · 先在纸上练轨迹</h3><p class="prompt">“奶奶特意标出了雨。先跟着笔尖，在纸上试一次。”</p><dl><dt>触发 / 动作</dt><dd>看到关键动物的 want + rain，或主动翻到手势页。雨是直接教学特例：明确含义与图形，选雨、看方向、真实一笔描画。</dd><dt>成功</dt><dd>原识别器判正确并记录学会雨；纸上反馈可见，世界仍不下雨。不能用“点了已学会”按钮代替轨迹。</dd><dt>失败恢复</dt><dd>反向、半笔、小到不可辨时明确允许重练；示范可暂停 / 重播。指针射线被书面遮住、根本不接输入时应报入口故障，而不是说玩家画错。</dd><dt>可跳 / 保存点</dt><dd>已会者略过练习。未会者可暂缓；以真实 learnedGestures 为准，不修改其他手势权限。</dd></dl></article>
+<article class="stage"><h3>N08 · 理解它为什么想要雨</h3><p class="prompt">“回到它身边，说说你觉得它需要什么。”</p><dl><dt>触发 / 动作</dt><dd>合书，走到关键动物现有近谈范围（3.5m），E 交谈；结合已知 want 与雨，在白色气泡输入自己的中文解释。</dd><dt>成功</dt><dd>实际当前话轮判理解成功并接受“在院门的圈内画雨手势”帮助，右上白色任务图标给轻提示；玩家点开才看该具体任务，不自动铺开后续要求。书里猜对词不代替听懂当前请求。</dd><dt>失败恢复</dt><dd>含糊“我来帮你”仅提示再具体一点；离开、切话轮、AI 失败保留草稿，旧回调不接任务。不借教程跳过实际理解。</dd><dt>可跳 / 保存点</dt><dd>已接受该请求者直接继续；可先自由试雨，但不能把尚未接的帮助追认完成。保存实际理解与接受状态。</dd></dl></article>
+<article class="stage"><h3>N09 · G · 让雨落在自己身边</h3><p class="prompt">“合上手账，按 G。看看这次笔迹会把雨带到哪里。”</p><dl><dt>触发 / 动作</dt><dd>无输入焦点，G 进入施法，一笔画雨。让范围圈帮助理解天气围绕玩家当前所在位置，动物与水碗在圈内。</dd><dt>成功</dt><dd>正确手势使世界实际下雨，雨滴 / 声音 / 表面和碗变化可观察。满足已接受任务才完成帮助。当前半径 8m，不能远程点动物施法。</dd><dt>失败恢复</dt><dd>失败重画、取消退出、范围外返回附近；J / C / 对话互斥。鼠标画书与世界施法不串输入。</dd><dt>可跳 / 保存点</dt><dd>已有真实成功可略过讲解；首次施法事件与技能状态分开存，不因会画就伪写世界成功。</dd></dl></article>
+<article class="stage"><h3>N10 · 把天气收起来</h3><p class="prompt">“雨已经够了。奶奶也留下了收起天气的手势。”</p><dl><dt>触发 / 动作</dt><dd>先观察雨的效果，再 J 学 / 练 clear，回世界 G 收起。若已会，直接实践，不重复跑书页教程。</dd><dt>成功</dt><dd>实际天气停止；碗中已有的水仍留着。把“雨在落”和“水留下”分开，给后续水字与摄影留空间。</dd><dt>失败恢复</dt><dd>Esc 仅取消描画，不能算天气已收起；错画可重来，积水不被教程清空。不同时教日照、风与强弱。</dd><dt>可跳 / 保存点</dt><dd>可暂缓，但 H 保留清除入口；保存真实 clear 学习 / 成功事实，不默认确认水字。</dd></dl></article>
+<article class="stage"><h3>N11 · 再见不是结束，朋友还会在这里</h3><p class="prompt">“这次先说再见吧。想再聊时，随时回来。”</p><dl><dt>触发 / 动作</dt><dd>完成照料后，玩家从交谈中离开；动物给 goodbye，复现前面与 hello 成对观察的分别时机。愿意时可 E 回应，不强迫又填一遍已确认词。</dd><dt>成功</dt><dd>玩家看见留下者也会说再见；动物随后恢复区域内生活。自由拍照、回访与后续帮助开放，不出现全岛任务清单。</dd><dt>失败恢复</dt><dd>语泡因遮挡错过可回访。仅关闭窗口 / 走开不是“玩家已理解再见”的证据，不能自动确字。</dd><dt>可跳 / 保存点</dt><dd>可离开。结束强引导，保留所有实际语言、照片、帮助与世界状态；清除提示不等于把全教程任务代做。</dd></dl></article>
+</section>
+<section id="encounters">
+<h2>你好与再见要由社交关系触发，不能由镜头边缘触发</h2>
+<p>本案主推把三只动物作为软观察目标，允许先理解一对后继续，第三只在自由探索中补足。若最终保留“三只后自动开书”的硬要求，至少只要求<strong>三个不同个体</strong>，都应在可达、已开放的短路线附近；这是与主推方案不同的可选版本，需试玩再定。</p>
+<div class="two-col"><div><h3>相遇</h3><ul><li>动物与玩家都可见、未被其他交互占用，玩家真正进入社交近区并持续短暂停留后才说 hello。</li><li>建议试验值为进入 3.5m、稳定约 0.6 秒；使用视线检查，背后穿过、隔墙靠近不记“看见了招呼”。这些数值尚未实现。</li><li>如果 hello 与“想要交流”同时出现，可以保留 <code>hello + want</code> 句；至少一条配套例句应只有 hello，避免玩家把两个字整体猜成你好。</li></ul></div><div><h3>分别</h3><ul><li>本次确实有过相遇，玩家开始远离、结束一轮交流时给 goodbye。建议外圈约 5m、远离持续约 0.8 秒，不能在 3.49m / 3.51m 抖动时反复切字。</li><li>玩家离开时动物留在原地说 goodbye；另给动物离开、玩家留下的稳定对照，排除把该字误解为“去”。</li><li>说话窗口应在对象仍能看见 / 拍到时开始，留约 6–10 秒可拍余量。遮挡或高速跑远时不把玩家没看见的字记为观察完成。</li></ul></div></div>
+<div class="note"><strong>去抖与计数的底线。</strong>每个体保留本轮相遇状态与冷却；内外圈滞回，不因切目标、开关 J 或相机重置。建议试验冷却沿用现有 30 秒量级。观察去重键是动物稳定 ID + 本轮语境，教学“不同个体”计数按稳定 ID 去重；认识新字、发线索按首次确字 ID 去重。同一只狗往返十次不会获得十次进度。</div>
+<p>对话 / 被理解的帮助优先于环境招呼，不插进正在输入的句子。关键动物保持容易回访的活动范围；次级动物在所属群落活动。教程只安排清楚的短机会，不冻结全岛、不反复瞬移动物。</p>
+</section>
+<section id="meaning">
+<h2>书里填词不必每次都调用 AI</h2>
+<p><strong>建议本地处理常见同义词，AI 只处理更自由、较模糊的解释。</strong>“你好、打招呼、问候”没有必要等待远程服务；“它在跟刚来的朋友表示友好”可以交给 AI 结合已看到的语境判断。两条路径遵守同一份语义边界。书里的验证只判断词义，不替玩家接取动物当前帮助。</p>
+<div class="table-wrap"><table><thead><tr><th>词 / 稳定例句</th><th>可以接受的理解</th><th>应区分的误解</th><th>判断建议</th></tr></thead><tbody>
+<tr><td><span class="expression"><svg class="glyph" aria-label="你好" role="img"><use href="#g-hello"/></svg>你好</span><br>dog.hello：hello + want<br>fox.hello：hello</td><td>你好、您好、嗨、问候、打招呼；意思为见面时向对方致意。</td><td>“你是好的”、你、想要东西、再见。看到熟悉动物不自动代表再次看见。</td><td>完整输入归一化后的常见等义词本地通过；长解释看是否体现见面问候。“友好”过宽，返回需要再说明，不能粗暴当错。</td></tr>
+<tr><td><span class="expression"><svg class="glyph" aria-label="再见" role="img"><use href="#g-goodbye"/></svg>再见</span><br>dog.bye：goodbye<br>fox.bye：goodbye</td><td>再见、拜拜、道别、告别、回头见；意思为结束当前交谈或分别。</td><td>去、来、再次看见；“晚上了”不能等同告别。留下者也可以说。</td><td>同样本地优先。“晚安”“以后还会见到”需结合含义澄清，不凭一个子串判对。</td></tr>
+<tr><td><span class="expression"><svg class="glyph" aria-label="想要" role="img"><use href="#g-want"/></svg>想要</span><br>dog.rain.lesson：want + rain</td><td>希望接下来出现所指条件；在本句中想要雨。</td><td>看见雨、现在正在下雨、只是在说话；整字不拆成“我 + 要”。</td><td>开场已知，提供可回看的释义，不额外考试。整句理解仍需说清想要什么。</td></tr>
+<tr><td><span class="expression"><svg class="glyph" aria-label="不想要" role="img"><use href="#g-reject"/></svg>不想要</span><br>dog.rain：rain + reject</td><td>明确希望排除所指条件；本句是不想继续淋雨。</td><td>无所谓、没提要求、下雨；不想大雨不自动等于要小雨。</td><td>开场已知。后来用相同雨字配肯定 / 拒绝作对照，避免玩家只看雨字就照做。</td></tr>
+<tr><td><span class="expression"><svg class="glyph" aria-label="雨" role="img"><use href="#g-rain"/></svg>雨</span><br>want + rain / rain + reject</td><td>从上方落下的雨；手势教学可以直接告诉词义。</td><td>水、湿、乌云；纸上画对不等于世界已下雨。</td><td>直接教学例外；后续 P05 真实确字仍按原规则。不要把世界施雨、书内猜测和 AI 理解混成一个状态。</td></tr>
+<tr><td>收起天气（动作）<br>G clear</td><td>停止玩家唤起的天气，已有积水保留。</td><td>仅取消画线、清空碗、确认水字。</td><td>用实际世界状态判断；不是新动物语字，不计新字奖励。</td></tr>
+</tbody></table></div>
+<h3>三个结果，比“AI 说对 / 错”更合适</h3>
+<ol><li><strong>意思相符。</strong>已有真实观察作为依据，新增确认该词；事件必须幂等，重复提交不重复发线索。</li><li><strong>意思不符。</strong>保留猜测，提示“再看看它分别在什么时候说”。首次有效失败可出现教学线索；不羞辱、不扣关系。</li><li><strong>还不够明确 / 服务暂不可用。</strong>保留输入，允许补充或继续观察；网络错误不算失败、不消费线索、不把正确常用答案卡在服务之后。</li></ol>
+<p>AI 只拿目标字、语义边界及玩家真实已有的有限上下文，不能随意确认同句其他未知字。不要用“含有你好就对”的子串规则，例如“我觉得不是你好”必须进入否定处理。中文输入法选词 Enter 不提交；书内“记猜测”和“验证含义”需要明确区分，按钮与反馈不能让玩家误以为写下即确字。以上判词流程是新提案，不是当前功能。</p>
+</section>
+<section id="hints">
+<h2>线索是一条可恢复的帮助，不是一笔不敢花的钱</h2>
+<p>保留“每新解锁 3 个字得到一次线索”的设定。建议提示为“每确认三个新字，就能再读懂奶奶的一条提示。也可以先回看照片，慢慢想。”避免在玩家第一次失败时强调浪费。</p>
+<div class="table-wrap"><table><thead><tr><th>规则</th><th>推荐口径</th></tr></thead><tbody>
+<tr><td>第一次教学机会</td><td>hello 首次有效猜测不符后显示线索图标，给 1 次专用示范：“和朋友相遇时，常说的第一句话？”这一次不扣普通库存。猜对者也能看见“以后可在这里找线索”的位置说明，不为了教学强迫答错。</td></tr>
+<tr><td>触发消耗</td><td>主动点“查看本字线索”并实际显示新内容后才扣 1；仅悬停、打开输入框、AI 失败不扣。已经看过的同一条可免费重看。</td></tr>
+<tr><td>每 3 字发 1 次</td><td>按首次从未确认变为确认的稳定字 ID 累加。hello、goodbye、雨若各通过真实路径首次确字，可形成第一组；普通摄影和互动奖励同计。开场赠予的 want / reject 不计，收起天气不是字也不计。</td></tr>
+<tr><td>不刷奖励</td><td>重复拍照、重复猜对、重复观察同动物、重放教程、重新读旧档均不再次累计。一次事件确认多个新字时逐字去重，跨 3 的部分留到下一组。</td></tr>
+<tr><td>零库存也能继续</td><td>操作帮助、重看原有照片、再观察动物一直免费；新手基础步骤不以库存为门槛。bye 卡住时先回看分别语境，不再凭空赠一组奖励。</td></tr>
+<tr><td>存档边界</td><td>库存、新字集合、已看线索 ID 与教学专用线索记录需要原子结算；书内判词与线索属于新增存档设计。本轮未迁移真实存档，旧档是否补发需实施前明确，不追溯重发。</td></tr>
+</tbody></table></div>
+</section>
+<section id="photos">
+<h2>摄影任务先让玩家知道“我在找什么”</h2>
+<p>本页是给制作者看的对应表，游戏内保留动物语表达。<strong>实际任务名称应等于表达的意思</strong>；“树根后的尾巴”“落在碗里的雨”等文学句可以做地点批注或氛围说明，不能替代动物语的实际任务名。下表以稳定任务 ID 与表达核对，实际名称修订由负责该单元的智能体完成。</p>
+<div class="table-wrap"><table><thead><tr><th>任务 / 实际表达</th><th>实际名称与目标</th><th>首轮如何轻提示</th></tr></thead><tbody>
+<tr><td>P20 · <svg class="glyph" role="img" aria-label="你好字形"><use href="#g-hello"/></svg> <code>hello</code></td><td>你好。动物可见，照片绑定真实问候情境；普通肖像不算。</td><td>只说“把它刚才的招呼留住”，不要求再次猜已知字。拍对后回看该任务的真实证据。</td></tr>
+<tr><td>P21 · <svg class="glyph" role="img" aria-label="再见字形"><use href="#g-goodbye"/></svg> <code>goodbye</code></td><td>再见。照片绑定真实道别；动物留在原地也可以。</td><td>结束照料后回头，示范同一个留下的动物也会说。错过可重新相遇，不鼓励反复跑圈刷进度。</td></tr>
+<tr><td>P05 · <svg class="glyph" role="img" aria-label="雨字形"><use href="#g-rain"/></svg> <code>rain</code></td><td>雨。画面中能看见正在落雨；不要求画中必有碗。</td><td>自己的第一场雨是自然机会；未拍仍能结束教学，不让雨一直下到玩家被迫拍照。</td></tr>
+<tr><td>P06 · <svg class="glyph" role="img" aria-label="水字形"><use href="#g-water"/></svg> <code>water</code></td><td>水。画面里有合格水面；本来就有水也可以。</td><td>雨停后碗里留水，给下一次自由拍照一个可观察方向。不直接翻译未知水字，也不强制分两次拍。</td></tr>
+<tr><td>P01 / P02 / P03</td><td>狐狸 / 松鼠 / 草，均为单对象单字摄影目标。</td><td>自由阶段如停滞，只突出本地可拍的一条。选玩家已靠近的真实对象，不强制跑去未开放建筑。</td></tr>
+</tbody></table></div>
+<p>首张说话照片的操作任务与 P20 完成要分开：若说的是别的需求，照片真实记录也应被接纳为“会使用相机”，无需把它错误归为你好。任务页显示匹配与否，照片仍入册；不出现“照片无效”的含糊反馈。</p>
+<h3>“所有出现过这个字的对话”应是什么范围</h3>
+<p>推荐一处上下文视图，明确分为“照片中的片刻”和“现场听到的话”。按同一个稳定字 ID 检索本人已见的记录，保留当时说话者、话轮、顺序和可用图片；没有照片就显示文本 / 字形记录标签，不补造画面。点击当前字只筛历史，不确认词义，不读取玩家还没看到的幕后脚本。</p>
+<p>保留照片可直接确字的现有规则。主路线在相机教学前先猜首对词；提前举机、旧档或误打误撞已拿到 P20 / P21 奖励的玩家，直接看到释义并略过对应猜词，仍可通过其他未知字学习线索入口。这样不用专门压住新手的摄影奖励。</p>
+<p class="prompt">自由拍照阶段建议文案：“拍下你想记住的片刻吧。想试试奶奶的挑战，也可以翻回那几页。”若玩家不知从何下手，再提示“你刚刚见过的一个字，或许已经能拍下来”。不持续显示“0 / 26”，不把自由探索变成任务清单。</p>
+</section>
+<section id="recovery">
+<h2>自动开书、自由顺序与旧档的边界</h2>
+<ul><li><strong>自动开书最多在首轮两个有意义的节点请求。</strong>一对社交语境形成之后、首张说话照片保存之后。请求可排队，不在冲刺、悬崖边、输入中、拍摄中、施法中抢控制；如果玩家已手动看过对应内容，请求取消。被关闭后改为 J 小提示，不能循环弹回。</li><li><strong>先做过就承认。</strong>已经理解、拍过、会雨 / clear 或完成照料的档按事实跳过讲解；没有真实理解记录，不凭黄色圆圈捏造过去曾亲自回复。教程重播只重看提示。</li><li><strong>离开任务区域不惩罚。</strong>继续允许本地探索和照片证据，关键动物可回访。A01 / A04 / A08 的暂未开放提示由实际功能单元处理；引导路线不让玩家进门，A05 不存在于本版场景。</li><li><strong>保持一件主事。</strong>屏幕底部最多一条教学动作；动物语泡、手势示范、验证输入框和字幕不能同屏抢读。右上只显示真正接受的帮助，教学建议不冒充动物任务。</li><li><strong>失败原路可恢复。</strong>网络失败留草稿，照片存盘失败保留原文件，画笔不可用先修入口，词未学会不扣关系。不在教程里另建语言、奖励、摄影或导航的副本。</li></ul>
+<p>后续最小实现建议是一个轻量教学协调层：监听原有书 / 对话 / 真实快门 / 手势 / 天气事件，保存无法从现有事实推导的“提示看过 / 开场跳过 / 初次操作”标记。新增判词与线索各自有清楚的事实来源，教学层不代写它们。具体字段与旧档迁移属于实施设计，本版不改真实存档。</p>
+</section>
+<section id="review">
+<h2>未来验收，不把策划通过当成玩家已经学会</h2>
+<div class="table-wrap"><table><thead><tr><th>用例</th><th>必须观察到的结果</th></tr></thead><tbody>
+<tr><td>T01 正常新档</td><td>从开场到你好 / 再见成对观察、书内验证、摄影证据、雨练习、理解请求、施雨、收雨、道别的真实闭环。核心提示不互相覆盖。</td></tr>
+<tr><td>T02 开场比例 / 可读性</td><td>16∶9、16∶10、超宽屏无拉伸 / 裁关键点，字幕和跳过入口可读；暂停、跳过、静态版本均能落到相同初始相机并恢复控制。</td></tr>
+<tr><td>T03 开场中断 / 旧档</td><td>退出途中重进不丢原进度、不重发词；已玩档不被强制看开场。书信可主动重看。</td></tr>
+<tr><td>T04 手势真实入口</td><td>书内可按下、拖动、释放看到笔迹；正轨迹通过、逆向 / 半画拒绝。J / C / E / Esc 取消与焦点互斥，无纸上画雨引发世界下雨。</td></tr>
+<tr><td>T05 社交滞回与去抖</td><td>在内外圈边缘来回、切目标、开关书，相遇 / 道别不反复闪字；同个体十次不满足三个不同个体，不刷字或线索。</td></tr>
+<tr><td>T06 对象与视线</td><td>背后、隔墙、视野外不计有效观察；真问候和真道别各有稳定窗口；动物留下和动物离开都能说明 goodbye。</td></tr>
+<tr><td>T07 相遇软门槛</td><td>不用找三种物种，不进 A01 / A04 / A08，不出现 A05；已得到清楚社交对照者可继续，第三只作为扩展观察。</td></tr>
+<tr><td>T08 猜词语义</td><td>常见同义词无需网络，长等义句能正确处理；“不是你好”“去”“再次看见”不被错误确认；两个词独立结算。</td></tr>
+<tr><td>T09 失败与 AI</td><td>空输入 / IME 选词不误交；超时、服务失败、模糊答案分别反馈，不扣线索、不假判错；书内确字不接动物帮助。</td></tr>
+<tr><td>T10 线索</td><td>第一次失败图标与教学线索可用，猜对者不被强迫答错；每三首次确字只发一次；重复照片、旧档读取、重播不重发，已看提示免费重看。</td></tr>
+<tr><td>T11 提前摄影</td><td>直接完成 P20 / P21 的词保持黄色，跳过已知词猜测；普通说话照片也完成相机操作教学，但不被冒认为问候照片。</td></tr>
+<tr><td>T12 历史上下文</td><td>点击字能回到真实已见记录，区分照片 / 未拍现场；不同物种、话轮和旧照片不被现在的世界改写，不提前泄露未知后台台词。</td></tr>
+<tr><td>T13 施法 / 收雨</td><td>学会、理解帮助、真实雨、真实 clear 分别验收。当前 8m 范围成立，Esc 不算 clear；碗水保留，雨与水不混作同一个目标。</td></tr>
+<tr><td>T14 自动开书</td><td>跑动 / 输入 / 相机录制 / G 描画期间只排队，不抢控制；提前手动查看后不再弹；关闭后不会反复强开。</td></tr>
+<tr><td>T15 保存与幂等</td><td>每阶段退出续玩从事实继续，原照片、任务与世界不重置；写盘失败明确保留原文件，不伪称永久保存。</td></tr>
+<tr><td>T16 无声 / 色觉 / 减少动态</td><td>关声音仍能读故事和反馈；灰阶能认状态标签；减少动态不影响判字、观测和操作，字幕不遮重要字语。</td></tr>
+<tr><td>T17 新玩家试玩</td><td>至少 3 名不了解机制者，只看游戏。记录找书、第一次相遇 / 道别理解、第一次有效摄影、第一次纸上 / 世界施雨及主动求助的停顿；询问其能否解释颜色、雨水区别和“留下的人也会说再见”。不以通关时长代替理解。</td></tr>
+</tbody></table></div>
+<p>本轮只检查文档内容、来源、链接、桌面 / 窄屏可读性。尚未制作以上游戏逻辑，也未进行新玩家试玩；所有距离、时长与自动开书节奏都不能称为已验证的最佳值。</p>
+</section>
+<section id="sources">
+<h2>来源与使用范围</h2>
+<ol class="source-list"><li>本轮用户 9 点新手引导设想，以及后续“你好 / 再见一起学、相遇你好、离开再见、保留雨与收雨闭环”的明确补充，为新版的首要依据。岛名仍待用户定稿。</li><li><a href="../新手引导/新手引导策划.html">昨晚新手引导原稿</a>，用于核对旧案缺口；不覆盖本轮新要求。</li><li>项目当前源码：<code>Assets/Game/UI/GameplayHud.cs</code>、<code>Scripts/Gameplay/GameplaySession.cs</code>、<code>LanguageNotebook.cs</code>、<code>AnimalActor.cs</code>、<code>Life/Core/LifeSession.cs</code>、<code>Life/UI/LifeJournalChrome.cs</code>、<code>LifeGestureBook.cs</code>、<code>LifePhotoBook.cs</code>、<code>Life/Content/LifeContent.cs</code>、<code>Life/Photography/LifePhotoTasks.cs</code> 与实际字库。内嵌字形取自项目字库，未重新发明笔形。</li><li><a href="https://create.roblox.com/docs/production/game-design/onboarding-techniques">Roblox Creator Hub · Onboarding techniques</a>，支持把功能教学放到首次相关使用、为真正停滞者补提示；本项目步骤与数值是本案设计判断。</li><li><a href="https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/117">Xbox Accessibility Guideline 117 · Visual distractions and motion settings</a>，支持运动内容可暂停 / 停止、减少附加相机运动。</li><li><a href="https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/104">Xbox Accessibility Guideline 104 · Subtitles and captions</a>，支持开场即有字幕、字幕可读可配置，以及旁白不只靠声音传达。</li><li><a href="https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/103">Xbox Accessibility Guideline 103 · Additional channels for visual and audio cues</a>，支持状态同时用文字 / 形状解释，避免只靠颜色。</li></ol>
+<p class="small">外部页面于 2026-10-27 核对。没有引用未获取的动森内部算法，也没有把可参考原则当作本项目试玩结论。附带<a href="简要结论.txt">简要结论.txt</a>便于转发；<a href="来源与范围.json">来源与范围.json</a>记录核对文件、来源与仅策划边界。</p>
+</section>
+</main>
+<footer>天气屋 · 新手引导 V2。保留旧稿，新增独立目录。开场、判词、线索、全语境检索与教程协调层均为待实施提案；天气手势和任务名称的修复由对应实现单元另行验证。</footer>
+<script>
+const shots=[{x:185,y:120,title:'镜头 1 · 雾中的全岛',text:'高位斜俯视慢推，先建立岛与海的关系；岛名随第一句旁白出现。'},{x:458,y:274,title:'镜头 2 · 家与天气屋',text:'中央小岛和天气屋是视觉核心；讲清家族与天气魔法的关系。'},{x:665,y:244,title:'镜头 3 · 动物的生活',text:'看动物、饮水与休息处的联系；互惠由生活细节承接，不靠堆叠新演出。'},{x:617,y:365,title:'镜头 4 · 林地与湿岸',text:'用一次柔和转场连接风貌，再朝初始区域收束；未开放建筑只作远景。'},{x:335,y:314,title:'镜头 5 · 回到小魔女',text:'落到正式初始相机并停稳，小魔女说“可是我还什么都不会啊！”，随后交还控制。'}];
+document.querySelectorAll('[data-shot]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset.shot),shot=shots[i];document.querySelectorAll('[data-shot]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.getElementById('shot-marker').setAttribute('cx',shot.x);document.getElementById('shot-marker').setAttribute('cy',shot.y);const n=document.getElementById('shot-number');n.setAttribute('x',shot.x);n.setAttribute('y',shot.y+7);n.textContent=i+1;document.getElementById('shot-title').textContent=shot.title;document.getElementById('shot-copy').textContent=shot.text;}));
+</script>
+</body></html>

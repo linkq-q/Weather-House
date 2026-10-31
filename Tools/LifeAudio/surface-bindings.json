@@ -1,0 +1,20 @@
+{
+  "evidence": "Temp/LifeAudioStaging/surface-audit.tsv; read-only live WatersideV2 terrain and collider inventory 2026-10-26",
+  "note": "Terrain uses the dominant alphamap layer. Sand belongs to the current dirt/soft-ground pool. Stone collider material references are explicit. Wood/unknown surfaces stay silent until an appropriate clip is approved; no fallback converts the map to dirt.",
+  "terrain": [
+    ["Assets/Game/World/WatersideV2/Generated/Meadow.terrainlayer", "grass"],
+    ["Assets/Game/World/WatersideV2/Generated/Path.terrainlayer", "dirt"],
+    ["Assets/Game/World/WatersideV2/Generated/TerrainMaterialAB/Rock_3.terrainlayer", "stone"],
+    ["Assets/Game/World/WatersideV2/Generated/TerrainMaterialAB/Sand_1.terrainlayer", "dirt"]
+  ],
+  "materials": [
+    ["Assets/HIGHLANDS - Stylized Environment/Materials/Forest/Stones_Rocks.mat", "stone"],
+    ["Assets/Game/World/WatersideV2/Generated/WarmLimestone.mat", "stone"],
+    ["Assets/Game/World/WatersideV2/Generated/Props/Props/Stones_Rocks_48235a3b.mat", "stone"],
+    ["Assets/Environment/DDriveLibrary/AncientRuins/MATERIALS/M_square_pillar.mat", "stone"],
+    ["Assets/Environment/DDriveLibrary/AncientRuins/MATERIALS/M_stoneblocks_01_ancient 1.mat", "stone"],
+    ["Assets/Environment/DDriveLibrary/AncientRuins/MATERIALS/M_stoneblocks_02_ancient.mat", "stone"],
+    ["Assets/Environment/RuralRebuild20261025/A03/Materials/M002.mat", "stone"],
+    ["Assets/Environment/RuralRebuild20261025/A06/Materials/M002.mat", "stone"]
+  ]
+}

@@ -1,0 +1,165 @@
+本文件为当前运行源码只读摘录，未在本报告更新中修改Assets。三处运行时文件为LifeWorld.Roaming.cs、LifeWorld.cs、WildlifeAgent.cs；WildlifePopulation为保留约束的既有参考。
+
+Assets/Game/Life/World/LifeWorld.Roaming.cs
+SHA-256 662731a0778bff0c325c973638f4cfec1f6f2e415cbff15d0af481092b0b8507
+10:         bool TryLifeStation(Binding animal, out Vector3 target)
+11:         {
+12:             target = animal.target;
+13:             if (!animal.wildlife || animal.rest || animal.weatherRetreat || Flat(animal.target, animal.home) > .25f ||
+14:                 drinks.Any(drink => drink.animal == animal) || demonstrationKey == animal.speaker.key)
+15:                 return true;
+16:             GameplayHud hud = owner.GetComponent<GameplayHud>();
+17:             if (owner.Progress.tasks.Any(task => task != null && task.status == LifeTaskStatus.Active && task.animalId == animal.speaker.Actor.animalId) ||
+18:                 (hud && hud.DialogueTarget == animal.speaker.Actor) ||
+19:                 (owner.Gameplay.Judging && owner.Gameplay.Observed == animal.speaker.Actor))
+20:             {
+21:                 target = animal.speaker.transform.position;
+22:                 return true;
+23:             }
+24:             return false;
+25:         }
+26:     }
+27: }
+
+Assets/Game/Life/World/LifeWorld.cs
+SHA-256 8f098e30bef61a4d5a7518150c254980e06f0ca7ac4b486b3ea851033ff4a033
+191:                 bool hold=TryLifeStation(b,out Vector3 stationTarget);
+192:                 bool ok=!hold || (b.wildlife?b.wildlife.RequestLifeTarget(stationTarget,1.5f,b.rest,drinks.Any(d=>d.animal==b)?.045f:.22f):b.herd && b.herd.RequestLifeTarget(b.member,stationTarget,1.5f));
+193:                 if(!ok && b.speaker.Current!=null) b.speaker.Current.context="当前通路受阻，可以靠近并重新邀请；动物不会瞬移。";
+194:                 else if(b.speaker.Current!=null)b.speaker.Current.context="关键动物在附近生活点活动，可回访。";
+195:                 LifeRequest turn=b.speaker.Current;
+196:                 LifeSpeaker listener=turn==null?null:FindSpeaker(turn.listenerKey);
+197:                 Vector3 look=listener?listener.transform.position:Player.position;
+198:                 if(!listener && turn!=null && (turn.eventId=="E3"||turn.eventId=="E4"||turn.eventId=="E6b"))look=AnchorPosition(turn.targetId);
+199:                 if(hold && b.wildlife && b.wildlife.ActualSpeed<.05f && !drinks.Any(d=>d.animal==b) && Flat(b.speaker.transform.position,Player.position)<8)b.wildlife.FaceLifePoint(look,.5f);
+200:                 if(b.herd && Flat(b.speaker.transform.position,Player.position)<8)b.herd.FaceLifePoint(b.member,look,.5f);
+201:                 if(owner.Progress.friendlyAnimals.Contains(b.speaker.Actor.animalId) && friendlyPresented.Add(b.speaker.Actor.animalId))
+202:                 {
+203:                     if(b.wildlife)b.wildlife.RequestLifeAction(b.wildlife.clips.greet,2);
+204:                     if(b.herd)b.herd.RequestLifeGreeting(b.member);
+205:                 }
+206:             }
+207:             if(!DryMatAt(commonRestId) || CommonWater(commonRestId)<.12f)
+208:             {
+209:                 foreach(WildlifeAgent animal in invited)if(animal)animal.ReleaseLifeTarget();
+210:                 invited.Clear();invitedTargets.Clear();
+
+Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs
+SHA-256 8ec989cd7a9f1c8911448669aa5516ce013913e3bab6b65d4eba7d8c46e617af
+302:         private void ChooseDestination(float now, bool home)
+303:         {
+304:             if (solitary != null) { ApplySolitary(now); return; }
+305:             nextDestination = now + random.Range(3.5f, 7f);
+306:             Vector3 center = home ? habitatCenter : population.GroupCenter(groupId, habitatCenter);
+307:             if (locomotion == WildlifeLocomotion.Ground)
+308:                 center = Vector3.Lerp(habitatCenter, center, .4f);
+309:             for (int attempt = 0; attempt < 14; attempt++)
+310:             {
+311:                 Vector3 candidate;
+312:                 if (locomotion == WildlifeLocomotion.Flying)
+313:                 {
+314:                     if (speciesId == "robin")
+315:                     {
+316:                         var slot = new WildlifeRandom(population.worldSeed, spawnId, "robin_flock_slot");
+317:                         Vector2 offset = slot.InCircle(1.7f);
+318:                         if (attempt > 0) offset += random.InCircle(1);
+319:                         candidate = population.RobinFlightWaypoint(groupId, habitatCenter) + new Vector3(offset.x, 0f, offset.y);
+320:                     }
+321:                     else
+322:                     {
+323:                         Vector2 offset = random.InCircle(Mathf.Max(12f, habitatRadius));
+324:                         candidate = center + new Vector3(offset.x, 0f, offset.y);
+325:                     }
+326:                     candidate.x = Mathf.Clamp(candidate.x, population.worldBounds.min.x + 2f, population.worldBounds.max.x - 2f);
+327:                     candidate.z = Mathf.Clamp(candidate.z, population.worldBounds.min.z + 2f, population.worldBounds.max.z - 2f);
+328:                 }
+329:                 else if (locomotion == WildlifeLocomotion.Swimming && waterAreaIndex >= 0 && waterAreaIndex < population.waterAreas.Length)
+330:                 {
+331:                     HabitatVolume water = population.waterAreas[waterAreaIndex];
+332:                     Vector2 offset = random.InCircle(.82f);
+333:                     candidate = water.center + new Vector3(offset.x * water.radii.x, 0f, offset.y * water.radii.y);
+334:                 }
+335:                 else
+336:                 {
+337:                     Vector2 offset = random.InCircle(home ? Mathf.Min(2f, habitatRadius) : habitatRadius * .9f);
+338:                     candidate = center + new Vector3(offset.x, 0f, offset.y);
+339:                     if (HorizontalDistance(candidate, habitatCenter) > habitatRadius) continue;
+340:                 }
+341:                 // Neighbours can prevent an in-place turn after greeting; the existing mover can safely back out without turning.
+342:                 if (!population.TryMove(this, candidate, out Vector3 valid) &&
+343:                     !(locomotion == WildlifeLocomotion.Ground && population.TryMove(this, candidate, out valid, transform.rotation))) continue;
+344:                 destination = valid;
+345:                 return;
+346:             }
+347:             destination = transform.position;
+348:             nextDestination = now + .8f;
+349:         }
+350: 
+351:         private void ChooseFleeDestination(float now)
+352:         {
+353:             Vector3 away = transform.position - threat;
+354:             away.y = 0f;
+355:             if (away.sqrMagnitude < .01f) away = transform.forward;
+
+Assets/Game/World/Wildlife/Runtime/WildlifeAgent.cs
+SHA-256 8ec989cd7a9f1c8911448669aa5516ce013913e3bab6b65d4eba7d8c46e617af
+459:                 Vector3 displacement = steering.normalized * Mathf.Min(speed * dt, direction.magnitude);
+460:                 Vector3 before = transform.position;
+461:                 bool accepted = population.TryMove(this, before + displacement, out Vector3 next, proposedRotation);
+462:                 // A neighbour may block turning while a short step without turning can safely back out.
+463:                 if (!accepted && locomotion == WildlifeLocomotion.Ground && proposedRotation != transform.rotation &&
+464:                     population.TryMove(this, before + displacement, out next, transform.rotation))
+465:                 { accepted = true; proposedRotation = transform.rotation; }
+466:                 if (accepted)
+467:                 {
+468:                     transform.position = next;
+469:                     transform.rotation = proposedRotation;
+470:                     ActualSpeed = HorizontalDistance(before, next) / Mathf.Max(.001f, dt);
+471:                 }
+472:                 else { ActualSpeed = 0f; nextDestination = Mathf.Min(nextDestination, now + .1f); }
+473:             }
+474:             else
+475:             {
+476:                 ActualSpeed = 0f;
+477:                 if (locomotion == WildlifeLocomotion.Flying && (State == WildlifeState.Takeoff || State == WildlifeState.Landing || altitude == 0f))
+
+Assets/Game/World/Wildlife/Runtime/WildlifePopulation.cs
+SHA-256 b5b9a87a47ef91a14f1f5786aa4a79f5b21e847ffee11bdb03237b553bc922cc
+409:         private bool TryMoveCore(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? facing, WildlifeAgent socialTarget,
+410:             Vector3? queryOrigin = null, Quaternion? queryRotation = null)
+411:         {
+412:             Vector3 origin = queryOrigin ?? agent.transform.position;
+413:             Quaternion originRotation = queryRotation ?? agent.transform.rotation;
+414:             projected = origin;
+415:             Vector3 delta = requested - origin;
+416:             bool groundBody = agent.locomotion == WildlifeLocomotion.Ground && agent.BodyEnvelope.Valid;
+417:             Quaternion heading = facing ?? WildlifeBodyEnvelope.Heading(delta, originRotation);
+418:             if (groundBody && !facing.HasValue && !CanRotateAt(agent, origin, originRotation, heading)) return false;
+419:             float horizontalDistance = new Vector2(delta.x, delta.z).magnitude;
+420:             // Check the whole segment: checking only a safe endpoint would permit crossing a narrow pond.
+421:             int steps = Mathf.Max(1, Mathf.CeilToInt(horizontalDistance / Mathf.Max(.12f, agent.Radius)));
+422:             if (steps > 256) return false;
+423:             Vector3 previous = origin;
+424:             Quaternion previousRotation = facing.HasValue ? originRotation : heading;
+425:             for (int i = 1; i <= steps; i++)
+426:             {
+427:                 if (!TryProjectPosition(agent, Vector3.Lerp(origin, requested, (float)i / steps), out Vector3 sample)) return false;
+428:                 if (agent.locomotion == WildlifeLocomotion.Ground && Mathf.Abs(sample.y - previous.y) > .45f) return false;
+429:                 if (PlayerCollision && !PlayerCollision.AllowsAnimalMove(previous, sample, agent.Radius, agent.BodyEnvelope)) return false;
+430:                 if (!ExternalBodiesAllowMove(agent, previous, sample)) return false;
+431:                 Quaternion rotation = facing.HasValue ? Quaternion.Slerp(originRotation, heading, (float)i / steps) : heading;
+432:                 if (groundBody && !bodyPhysics.Clear(agent.BodyEnvelope, previous, previousRotation, sample, rotation, obstacleMask,
+433:                     owner: agent.transform, player: PlayerCollision, ignoreAnimals: true)) return false;
+434:                 if (groundBody && !GroundBodiesAllowMove(agent, previous, previousRotation, sample, rotation, socialTarget)) return false;
+435:                 previousRotation = rotation;
+436:                 previous = sample;
+437:             }
+438:             projected = previous;
+439:             if (groundBody) return true;
+440:             Vector3 actualDelta = projected - origin;
+441:             Vector3 lift = agent.locomotion == WildlifeLocomotion.Ground ? Vector3.up * (agent.Radius + .08f) : Vector3.zero;
+442:             if (agent.locomotion == WildlifeLocomotion.Flying && agent.AirHeight < .01f) lift = Vector3.up * (agent.Radius + .08f);
+443:             int overlaps = Physics.OverlapSphereNonAlloc(projected + lift, Mathf.Max(.05f, agent.Radius * .8f),
+444:                 overlapHits, obstacleMask, QueryTriggerInteraction.Ignore);
+445:             if (overlaps == overlapHits.Length) return false;
+446:             for (int i = 0; i < overlaps; i++)

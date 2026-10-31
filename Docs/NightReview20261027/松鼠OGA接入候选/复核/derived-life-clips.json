@@ -1,0 +1,127 @@
+{
+  "status": "DERIVED_OFFLINE_COMPLETE_REQUIRES_VISUAL_REVIEW_AND_UNITY",
+  "sourceFbxSha256": "92cd57492c3146a761a71d421199eea839fab90ba0b1a76cd20f16dfed011355",
+  "outputFbxSha256": "7ec1e1cc7de63fe9b01c2a44a350b33584e314c63127e43f563a17b5698bc8b8",
+  "nativeActionNames": [
+    "Idle.000",
+    "Idle.001",
+    "Idle.002",
+    "Idle.004",
+    "Run",
+    "Run.Begin",
+    "Run.End"
+  ],
+  "derived": [
+    {
+      "name": "RestDown_Derived",
+      "frames": [
+        0,
+        24
+      ],
+      "durationSeconds": 1.0,
+      "kind": "derived same OGA 34-bone FK rig",
+      "loop": false,
+      "lowestZRange": [
+        0.001999972853809595,
+        0.0020000103395432234
+      ],
+      "endpointMaxVertexGap": 0.6070495843887329
+    },
+    {
+      "name": "RestLoop_Derived",
+      "frames": [
+        0,
+        48
+      ],
+      "durationSeconds": 2.0,
+      "kind": "derived same OGA 34-bone FK rig",
+      "loop": true,
+      "lowestZRange": [
+        0.001999972388148308,
+        0.002000047592446208
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "name": "RestUp_Derived",
+      "frames": [
+        0,
+        24
+      ],
+      "durationSeconds": 1.0,
+      "kind": "derived same OGA 34-bone FK rig",
+      "loop": false,
+      "lowestZRange": [
+        0.001999972853809595,
+        0.0020000103395432234
+      ],
+      "endpointMaxVertexGap": 0.6070495843887329
+    },
+    {
+      "name": "Drink_Derived",
+      "frames": [
+        0,
+        72
+      ],
+      "durationSeconds": 3.0,
+      "kind": "derived same OGA 34-bone FK rig",
+      "loop": false,
+      "lowestZRange": [
+        0.0019999726209789515,
+        0.0020000215154141188
+      ],
+      "endpointMaxVertexGap": 0.0
+    },
+    {
+      "name": "RunSlow_Derived",
+      "frames": [
+        0,
+        18
+      ],
+      "durationSeconds": 0.75,
+      "kind": "derived same OGA 34-bone FK rig",
+      "loop": true,
+      "lowestZRange": [
+        0.0020628676284104586,
+        0.09117792546749115
+      ],
+      "endpointMaxVertexGap": 0.005365860182791948
+    },
+    {
+      "name": "RunGrounded_Derived",
+      "frames": [
+        0,
+        9
+      ],
+      "durationSeconds": 0.375,
+      "kind": "derived same OGA 34-bone FK rig",
+      "loop": true,
+      "lowestZRange": [
+        0.003852319670841098,
+        0.08592335879802704
+      ],
+      "endpointMaxVertexGap": 0.005365860182791948
+    }
+  ],
+  "nativeIdleMaxVertexDeltaBeforeAfterMetres": 0.0,
+  "restSeamsMetres": {
+    "down_to_sleep": 1.3328003944934608e-07,
+    "sleep_to_up": 1.3328003944934608e-07,
+    "idle_to_down": 0.0
+  },
+  "eyeClosedVertexCount": 292,
+  "headVertexCount": 1460,
+  "drinkPoseSearch": {
+    "targetLipHeightMetres": 0.105,
+    "neckPitchDegrees": 10,
+    "headPitchDegrees": 20,
+    "visibleLipWorld": [
+      -1.4238728418547453e-08,
+      -0.5964938998222351,
+      0.10427241027355194
+    ],
+    "muzzleVertexId": 366
+  },
+  "runVerticalConstantLiftMetres": 0.019153540626168253,
+  "boundary": "All additional motions are derived FK clips, not author-provided Walk/Sleep/Drink. RunSlow is retimed Run; RunGrounded adds a constant vertical lift and preserves jump phases. Main X/Y is unchanged; vertical Main correction is skeletal grounding, not gameplay root motion. Runtime ApplyRootMotion must remain false. Unity importer, scene scale, bowl contact and visible appearance require explicit runtime validation."
+}
