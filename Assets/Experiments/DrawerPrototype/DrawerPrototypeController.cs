@@ -63,7 +63,7 @@ namespace WeatherHouse.DrawerPrototype
         Material paperSide, paperTop, paperFold, crease, green, sage, wood, dark, cream, glowMaterial;
         PhysicMaterial friction;
         Canvas canvas;
-        RectTransform dialog, closeTarget, completePanel, hint;
+        RectTransform dialog, closeTarget, completePanel, restartPanel, hint;
         Text title, description;
         Font font;
         AudioSource sound;
@@ -367,6 +367,10 @@ namespace WeatherHouse.DrawerPrototype
             completePanel.gameObject.AddComponent<Image>().sprite = sprite;
             Label(completePanel,"Ready",Vector2.zero,new Vector2(340,60),25,TextAnchor.MiddleCenter).text = "东西都带齐了，点击出发 →";
             completePanel.gameObject.SetActive(false);
+            restartPanel = UiRect("Replay opening",ui.transform,new Vector2(-555,-360),new Vector2(235,60));
+            restartPanel.gameObject.AddComponent<Image>().sprite = sprite;
+            Label(restartPanel,"Replay",Vector2.zero,new Vector2(220,50),22,TextAnchor.MiddleCenter).text = "重新体验开场";
+            restartPanel.gameObject.SetActive(false);
         }
 
         RectTransform UiRect(string name, Transform parent, Vector2 position, Vector2 size)
@@ -425,6 +429,8 @@ namespace WeatherHouse.DrawerPrototype
         public void Pointer(Vector2 screen, bool down, bool held, bool up)
         {
             if (busy) return;
+            if (!selected && restartPanel.gameObject.activeSelf && down && RectTransformUtility.RectangleContainsScreenPoint(restartPanel,screen))
+            { TryRestartOpening(); return; }
             if (!selected && Progress.Complete && completePanel.gameObject.activeSelf && down && RectTransformUtility.RectangleContainsScreenPoint(completePanel,screen))
             { TryLeave(); return; }
             if (selected)
@@ -603,7 +609,11 @@ namespace WeatherHouse.DrawerPrototype
             item.transform.localScale = Vector3.one*ShelfScale(item.item);
         }
 
-        void RefreshCompletion() { if (completePanel) completePanel.gameObject.SetActive(Progress.Complete && !selected); }
+        void RefreshCompletion()
+        {
+            if (completePanel) completePanel.gameObject.SetActive(Progress.Complete && !selected);
+            if (restartPanel) restartPanel.gameObject.SetActive(Progress.Count > 0 && !selected && !readOnly);
+        }
 
         void Save()
         {

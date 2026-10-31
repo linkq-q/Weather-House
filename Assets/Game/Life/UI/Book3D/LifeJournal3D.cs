@@ -356,6 +356,7 @@ namespace WeatherHouse.Life
             model = Instantiate(prefab, presentation); model.name = "JournalBook";
             foreach (Transform part in model.GetComponentsInChildren<Transform>(true)) part.gameObject.layer = BookLayer;
             var animator = model.GetComponent<Animator>(); if (animator) animator.enabled = false;
+            var animation = model.GetComponent<Animation>(); if (animation) animation.enabled = false;
             foreach (Renderer renderer in model.GetComponentsInChildren<Renderer>(true))
             {
                 // These two legacy tabs would duplicate the three interactive tabs above the book.

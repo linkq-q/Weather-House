@@ -8,6 +8,16 @@ namespace WeatherHouse.DrawerPrototype
     public sealed partial class DrawerPrototypeController
     {
         public const string WorldScene = "Assets/Scenes/WeatherHouse_WatersideV2.unity";
+        public bool TryRestartOpening()
+        {
+            if (busy || selected || readOnly || Progress == null || Progress.Count == 0) return false;
+            DrawerProgress previous = Progress;
+            Progress = new DrawerProgress(); Save();
+            if (readOnly) { Progress = previous; RefreshCompletion(); return false; }
+            busy = true;
+            SceneManager.LoadSceneAsync(gameObject.scene.path, LoadSceneMode.Single);
+            return true;
+        }
         public bool TryLeave()
         {
             if (busy || selected || Progress == null || !Progress.Complete) return false;

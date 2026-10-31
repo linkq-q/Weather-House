@@ -32,6 +32,7 @@ namespace WeatherHouse.Life
                 rigs[i] = UnityEngine.Object.Instantiate(prefab, holders[i]);
                 foreach (Transform part in rigs[i].GetComponentsInChildren<Transform>(true)) part.gameObject.layer = layer;
                 foreach (Animator animator in rigs[i].GetComponentsInChildren<Animator>(true)) animator.enabled = false;
+                foreach (Animation animation in rigs[i].GetComponentsInChildren<Animation>(true)) animation.enabled = false;
                 foreach (Renderer renderer in rigs[i].GetComponentsInChildren<Renderer>(true))
                 {
                     renderer.enabled = false;

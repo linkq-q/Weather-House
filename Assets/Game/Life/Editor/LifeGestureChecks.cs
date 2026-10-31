@@ -53,6 +53,7 @@ namespace WeatherHouse.Life.Editor
             AnimationClip open = Array.Find(clips, clip => clip.name.EndsWith("BookOpen", StringComparison.Ordinal));
             AnimationClip turn = Array.Find(clips, clip => clip.name.EndsWith("PageTurn", StringComparison.Ordinal));
             Require(open && turn && open.length > .5f && turn.length > .5f, "Physical opening and page-turn clips are imported.");
+            Require(open.legacy && turn.legacy, "Manually sampled journal clips must work in a standalone player without an enabled Animator.");
             var holder = new GameObject("Journal orientation check") { hideFlags = HideFlags.HideAndDontSave };
             holder.transform.rotation = Quaternion.Euler(0, 180, 0);
             GameObject instance = UnityEngine.Object.Instantiate(prefab, holder.transform); instance.hideFlags = HideFlags.HideAndDontSave;
