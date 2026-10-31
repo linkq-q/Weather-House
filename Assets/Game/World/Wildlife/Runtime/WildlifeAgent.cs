@@ -17,6 +17,7 @@ namespace WeatherHouse.Hillside
         public WildlifeClips clips = new WildlifeClips();
         public WildlifeForageContactData forageContactData;
         public Vector2 scaleRange = new Vector2(.85f, 1.15f);
+        [SerializeField, HideInInspector] private float bakedVisualScaleFactor = 1f;
         public float walkSpeed = 1f, runSpeed = 2.5f, bodyRadius = .3f;
         public float flightHeight = 5f, swimDepth = .4f;
         [Range(0f, 1f)] public float timidity = .6f, sociability = .5f;
@@ -38,7 +39,7 @@ namespace WeatherHouse.Hillside
         private Vector3 lifeTarget;
         private float lifeUntil;
         private float lifeArrival=.22f;
-        private bool lifeRest;
+        private bool lifeRest,lifeUrgent;
         private AnimationClip lifeAction;
         private float lifeActionUntil;
         public bool HasLifeTarget => isActiveAndEnabled && population && population.SimulationTime < lifeUntil;
@@ -51,21 +52,30 @@ namespace WeatherHouse.Hillside
         Vector3 interruptedDestination;
         WildlifeState interruptedState;
 
-        public bool RequestAutonomousTarget(Vector3 target, bool rest)
+        public bool RequestAutonomousTarget(Vector3 target, bool rest, bool urgent=false)
         {
             if (HasLifeTarget && !AutonomousTarget || State == WildlifeState.Alert || State == WildlifeState.Flee) return false;
             Vector3 previous = destination; WildlifeState state = State; bool continuing = AutonomousTarget;
             if (!TryLifeTarget(target, 2, rest, .22f)) return false;
             if (!continuing) { interruptedDestination = previous; interruptedState = state; }
-            AutonomousTarget = true;
+            AutonomousTarget = true;lifeUrgent=urgent && !rest;
             return true;
         }
         public void ReleaseAutonomousTarget()
         {
             if (!AutonomousTarget) return;
-            AutonomousTarget = false; lifeUntil = 0; lifeRest = false;
+            AutonomousTarget = false; lifeUntil = 0; lifeRest = lifeUrgent = false;
             destination = interruptedDestination;
             if (population) SetState(interruptedState, population.SimulationTime, 3f);
+        }
+
+        // Renew only an existing owner; budgeted planning must not accidentally release its movement or waiting place.
+        public bool KeepAutonomousTarget(bool holdPosition=false)
+        {
+            if(!AutonomousTarget || !HasLifeTarget || State==WildlifeState.Alert || State==WildlifeState.Flee)return false;
+            lifeUntil=population.SimulationTime+2;
+            if(holdPosition){lifeTarget=transform.position;lifeRest=lifeUrgent=false;}
+            return true;
         }
 
         // A short renewable lease uses the same body checks and animation owner as ordinary life.
@@ -74,7 +84,7 @@ namespace WeatherHouse.Hillside
             bool changed=!HasLifeTarget || AutonomousTarget || (target-lifeTarget).sqrMagnitude>.01f || rest!=lifeRest;
             if (!TryLifeTarget(target, seconds, rest, arrivalRadius)) return false;
             if (changed) IntentRevision++;
-            AutonomousTarget = false;
+            AutonomousTarget = false;lifeUrgent=false;
             return true;
         }
         private bool TryLifeTarget(Vector3 target, float seconds, bool rest, float arrivalRadius)
@@ -88,7 +98,7 @@ namespace WeatherHouse.Hillside
             ReleasePartner();if (!AutonomousTarget) solitary?.Interrupt(false);
             return true;
         }
-        public void ReleaseLifeTarget() { lifeUntil=0;lifeRest=false;AutonomousTarget=false;IntentRevision++;solitary?.Interrupt(false); }
+        public void ReleaseLifeTarget() { lifeUntil=0;lifeRest=lifeUrgent=false;AutonomousTarget=false;IntentRevision++;solitary?.Interrupt(false); }
         public void RequestLifeAction(AnimationClip clip,float seconds)
         {
             if(!clip || !population || !HasLifeTarget)return;
@@ -132,9 +142,25 @@ namespace WeatherHouse.Hillside
         private Quaternion solitaryHeadPose;
         private bool solitaryPoseApplied;
 
+#if UNITY_EDITOR
+        public bool BakeVisualScale(int seed)
+        {
+            if (Application.isPlaying || !visualRoot || visualRoot == transform || !visualRoot.IsChildOf(transform)) return false;
+            var sizing = new WildlifeRandom(seed, spawnId, speciesId);
+            float factor = sizing.Range(Mathf.Max(.1f, scaleRange.x), Mathf.Max(.1f, scaleRange.y));
+            Vector3 scale = capturedScale ? baseVisualScale : visualRoot.localScale / Mathf.Max(.1f, bakedVisualScaleFactor);
+            Vector3 position = capturedScale ? baseVisualPosition : visualRoot.localPosition / Mathf.Max(.1f, bakedVisualScaleFactor);
+            if (Mathf.Abs(bakedVisualScaleFactor-factor)<.000001f &&
+                (visualRoot.localScale-scale*factor).sqrMagnitude<1e-12f && (visualRoot.localPosition-position*factor).sqrMagnitude<1e-12f) return false;
+            visualRoot.localScale=scale*factor;visualRoot.localPosition=position*factor;
+            bakedVisualScaleFactor=factor;
+            return true;
+        }
+#endif
+
         public void Initialize(WildlifePopulation owner)
         {
-            lifeUntil=lifeActionUntil=0;lifeAction=null;lifeRest=false;
+            lifeUntil=lifeActionUntil=0;lifeAction=null;lifeRest=lifeUrgent=false;
             forageContact.Restore();
             RestoreSolitaryPose();
             restAnimation.Reset();
@@ -148,7 +174,11 @@ namespace WeatherHouse.Hillside
             if (visualRoot != null)
             {
                 if (!capturedScale)
-                { baseVisualScale = visualRoot.localScale; baseVisualPosition = visualRoot.localPosition; capturedScale = true; }
+                {
+                    // Saved edit-mode previews already contain this individual size; apply it exactly once.
+                    float baked = Mathf.Max(.1f, bakedVisualScaleFactor);
+                    baseVisualScale = visualRoot.localScale / baked; baseVisualPosition = visualRoot.localPosition / baked; capturedScale = true;
+                }
                 visualRoot.localScale = baseVisualScale * ScaleFactor;
                 visualRoot.localPosition = baseVisualPosition * ScaleFactor;
             }
@@ -188,9 +218,7 @@ namespace WeatherHouse.Hillside
         {
             if (HasLifeTarget)
             {
-                separation=population.ExternalSeparation(this);destination=lifeTarget;
-                WildlifeState desired=HorizontalDistance(transform.position,lifeTarget)<lifeArrival?WildlifeState.Idle:WildlifeState.Wander;
-                if(State!=desired)SetState(desired,now,3f);
+                separation=population.ExternalSeparation(this);ApplyLifeTarget(now);
                 return;
             }
             separation = population.ExternalSeparation(this);
@@ -451,8 +479,17 @@ namespace WeatherHouse.Hillside
             return false;
         }
 
+        void ApplyLifeTarget(float now)
+        {
+            destination=lifeTarget;
+            WildlifeState desired=HorizontalDistance(transform.position,lifeTarget)<lifeArrival?WildlifeState.Idle:WildlifeState.Wander;
+            if(State!=desired)SetState(desired,now,3f);
+        }
+
         internal void Move(float dt, float now)
         {
+            // Accepted targets belong to locomotion. Advancing a waypoint must not wait for the next budgeted Think.
+            if(HasLifeTarget)ApplyLifeTarget(now);
             if(HasLifeTarget && lifeAction && now<lifeActionUntil)
             {
                 ActualSpeed=0;animationPlayer.Play(lifeAction,false,1f);animationPlayer.Tick(dt);return;
@@ -482,7 +519,8 @@ namespace WeatherHouse.Hillside
                 float gap = locomotion == WildlifeLocomotion.Ground ? .025f : .35f;
                 moving = direction.magnitude > population.BodySpacing(this, partner, direction) + gap;
             }
-            float speed = (State == WildlifeState.Flee ? runSpeed : walkSpeed) * speedVariation;
+            bool rushing=HasLifeTarget && AutonomousTarget && lifeUrgent && !lifeRest;
+            float speed = (State == WildlifeState.Flee || rushing ? runSpeed : walkSpeed) * speedVariation;
             Quaternion proposedRotation = transform.rotation;
             if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
                 proposedRotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), dt * (State == WildlifeState.Flee ? 300f : 150f));
@@ -516,7 +554,7 @@ namespace WeatherHouse.Hillside
                     { landingApproach = false; SetState(WildlifeState.Takeoff, now, ClipDuration(clips.takeoff, 1.6f)); }
                 }
             }
-            if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f)
+            if ((moving || State == WildlifeState.Greet) && direction.sqrMagnitude > .001f && proposedRotation != transform.rotation)
                 if (population.CanRotate(this, proposedRotation)) transform.rotation = proposedRotation;
             if (solitary != null)
             {
@@ -535,11 +573,12 @@ namespace WeatherHouse.Hillside
                     if (population.CanRotate(this, rotation)) transform.rotation = rotation;
                 }
             }
-            AnimationClip clip = clips == null ? null : clips.ForState(State, locomotion);
+            AnimationClip clip = clips == null ? null : clips.ForState(rushing && moving ? WildlifeState.Flee : State, locomotion);
             bool repeat = State != WildlifeState.Alert && State != WildlifeState.Takeoff && State != WildlifeState.Landing;
-            float clipSpeed = State == WildlifeState.Flee && locomotion != WildlifeLocomotion.Flying && clips != null &&
+            float clipSpeed = (State == WildlifeState.Flee || rushing) && locomotion != WildlifeLocomotion.Flying && clips != null &&
                 clips.run != null && clips.run != clips.walk ? runSpeed : walkSpeed;
-            float playback = ActualSpeed > .05f ? Mathf.Clamp(ActualSpeed / Mathf.Max(.1f, clipSpeed), .65f, 1.8f) : 1f;
+            float playback = ActualSpeed > .05f ? Mathf.Max(.65f,ActualSpeed / Mathf.Max(.1f, clipSpeed)) : 1f;
+            if(!rushing)playback=Mathf.Min(playback,1.8f);
             animationPlayer.Play(clip, repeat, playback);
             animationPlayer.Tick(dt);
         }

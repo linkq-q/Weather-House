@@ -44,7 +44,7 @@ namespace WeatherHouse.Life.Editor
             try
             {
                 LifeWorldRouteAudit.Run();
-                check(world.GetComponentsInChildren<LifeLabel>(true).All(l=>l.gameObject.layer==LayerMask.NameToLayer("UI")),"All runtime location labels are excluded from motion photos by the UI layer");
+                check(world.GetComponentsInChildren<LifeLabel>(true).Length==0,"Runtime life objects create no location labels");
                 check(world.GetComponentsInChildren<LineRenderer>(true).All(l=>l.gameObject.layer==LayerMask.NameToLayer("UI")),"Runtime location rings use the UI layer as well");
                 check(Get<LifeObject>(world,"held")==null,"Review starts with empty hands");
                 LifeGatheringPlayChecks.Run(life,check);
@@ -171,19 +171,18 @@ namespace WeatherHouse.Life.Editor
                 foreach(string key in new[]{"sheep","fox"})
                 {
                     LifeObject warm=Find(world,key+".warm"),cold=Find(world,key+".cold");
-                    check(warm.State.IsWarm && warm.State.sheltered && !cold.State.IsWarm,"Cold and sheltered warm places retain distinct temperatures: "+key);
+                    check(warm.State.IsWarm && !cold.State.IsWarm,"Cold and warm places retain distinct temperatures without generated shelters: "+key);
                 }
                 foreach(LifeObject sheltered in world.Objects.Where(o=>o.State.sheltered))
                     check(HasRoof(world,sheltered.transform.position),"Sheltered object has an actual roof surface overhead: "+sheltered.State.id);
                 var roofs=Get<Dictionary<string,Renderer[]>>(world,"shelterVisuals");
-                check(ReferenceEquals(roofs["squirrel.dry"],roofs["squirrel.nest"]),"The dry demonstration reuses the nest roof instead of walling off the communal seats");
+                if(roofs.TryGetValue("squirrel.nest",out Renderer[] nestRoof) && nestRoof.Length>0)
+                    check(roofs.TryGetValue("squirrel.dry",out Renderer[] dryRoof) && ReferenceEquals(dryRoof,nestRoof),"The dry demonstration reuses an existing nest roof");
+                check(!world.GetComponentsInChildren<Transform>(true).Any(t=>t.name.StartsWith("生活背风遮棚",StringComparison.Ordinal)),"Life stations never generate green striped shelters");
                 check((bool)typeof(LifeWorld).GetMethod("SharedBowlSpace",Hidden).Invoke(world,new object[]{Find(world,"squirrel.common.bowl").transform.position}),
                     "The common bowl has clearance from original furniture and level nearby viewpoints");
-                LifeLabel label=world.GetComponentsInChildren<LifeLabel>(true).First();
-                player.position=label.transform.position;label.Refresh(player,life.Gameplay.CurrentView,true);
-                check(!label.gameObject.activeSelf,"World object labels are hidden while the photo rig is active");
-                label.Refresh(player,life.Gameplay.CurrentView,false);
-                check(label.gameObject.activeSelf,"Leaving photography restores a nearby world object label");
+                check(!world.GetComponentsInChildren<Transform>(true).Any(t=>t.name=="生活点提示" || t.name=="生活点范围"),
+                    "Runtime life points contain neither hidden nor visible location labels/rings");
                 WalkCoastalRoute(life,check);
                 check(life.Progress.tasks.Count==JsonUtility.FromJson<LifeProgress>(progressBefore).tasks.Count,"World-only test does not fabricate AI-understood tasks");
             }

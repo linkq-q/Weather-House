@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeatherHouse.Life
 {
@@ -59,5 +60,7 @@ namespace WeatherHouse.Life
             new LifePhotoTask{id="I04",title="先接水，再晒干",mode="互动情境",tokens=new[]{"first","rain","then","sunlight"},rewards=new[]{"first","then"},
                 action="跟随或自己试出两步计划，使碗有水、垫干；手账揭示先、后。",accept="计划情境已出现且生活结果成立。给词义是任务奖励，不宣称已证明玩家理解顺序。",recovery="接受分区施法等合理替代解；不为认字强迫重做。可用两锚点短行程复用先后。"},
         };
+        // Keep the full catalog for existing photographs and saves; only the teaching book is reduced.
+        public static IReadOnlyList<LifePhotoTask> VisibleTasks {get;}=Tasks.Where(task=>task.id!="P18" && task.id!="P19").ToArray();
     }
 }

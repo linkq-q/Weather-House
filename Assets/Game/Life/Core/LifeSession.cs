@@ -131,7 +131,7 @@ namespace WeatherHouse.Life
             if (range)
             {
                 if (weather.Active || GestureInputActive) range.Show(Gameplay.PlayerTransform.position, CastRadius,
-                    new Color(1f, .82f, .43f), weather.Active ? .9f : .45f, weather.Active);
+                    weather.Active ? .9f : .45f, weather.Active);
                 else range.Hide();
             }
             var hud = Gameplay.GetComponent<GameplayHud>();
@@ -174,6 +174,7 @@ namespace WeatherHouse.Life
                 !CanTalk(animal) || Gameplay.Observed != animal || animal.UtteranceId != utteranceId) return false;
             var request = CurrentRequest(animal);
             if (request != null && !Progress.CanPresent(request, World.Requests)) return false;
+            World.RecordAnimalEncounter(animal.animalId);
             var speech = LifeOnboardingSpeech.Current(animal);
             if (speech)
             {
@@ -188,8 +189,9 @@ namespace WeatherHouse.Life
             }
             string heardAnimalId = animal.animalId, heardUtteranceId = animal.UtteranceId;
             string[] heardGlyphs = (string[])animal.CurrentGlyphIds.Clone();
-            bool accepted = request != null && Progress.Hear(request, animal.animalId, true, true);
+            bool accepted = request != null && !(speaker && request == speaker.Story) && Progress.Hear(request, animal.animalId, true, true);
             if (accepted) World.OnTaskAccepted(request);
+            if (request != null) World.BeginGuidance(request);
             Gameplay.Notebook.Observe(heardAnimalId, heardUtteranceId, heardGlyphs);
             bool notebookSaved = Gameplay.SaveNotebook();
             bool progressSaved = SaveProgress();
@@ -201,7 +203,8 @@ namespace WeatherHouse.Life
         public bool IsGestureUnlocked(string id)
         {
             if (id == "rain" || id == "clear") return true;
-            return new[] { "sunlight", "wind", "weak", "strong" }.Contains(id) && Gameplay?.Notebook?.HasPhotoEvidence(id) == true;
+            return new[] { "sunlight", "wind", "weak", "strong" }.Contains(id) &&
+                (Progress.weatherMagicTestUnlocked || Gameplay?.Notebook?.HasPhotoEvidence(id) == true);
         }
         public bool IsGestureLearned(string id) => Progress.learnedGestures.Contains(id) && IsGestureUnlocked(id);
         public bool LearnGesture(string id)
@@ -237,6 +240,7 @@ namespace WeatherHouse.Life
             { Progress.photoTaskBookCollected = false; Gameplay.Notify("任务书暂时未能保存，请再试一次。"); return false; }
             Gameplay.Notify(""); Changed?.Invoke(); LifeAudio.Play(LifeAudioCue.Progress); return true;
         }
+        public bool SaveAnimalStories() => SaveProgress();
         private bool SaveProgress()
         {
             if (saveBlocked) return false;

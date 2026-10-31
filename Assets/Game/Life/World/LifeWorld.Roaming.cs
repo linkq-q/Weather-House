@@ -14,8 +14,7 @@ namespace WeatherHouse.Life
                 drinks.Any(drink => drink.animal == animal) || demonstrationKey == animal.speaker.key)
                 return true;
             GameplayHud hud = owner.GetComponent<GameplayHud>();
-            if (owner.Progress.tasks.Any(task => task != null && task.status == LifeTaskStatus.Active && task.animalId == animal.speaker.Actor.animalId) ||
-                (hud && hud.DialogueTarget == animal.speaker.Actor) ||
+            if ((hud && hud.DialogueTarget == animal.speaker.Actor) ||
                 (owner.Gameplay.Judging && owner.Gameplay.Observed == animal.speaker.Actor))
             {
                 target = animal.speaker.transform.position;

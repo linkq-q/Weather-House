@@ -86,7 +86,7 @@ namespace WeatherHouse.Life
                 anchors["sheep.feed"]=sheep.home;
                 Model("sheep.ribbon","牧场系牢的风布条",LifeObjectKind.Ribbon,"RibbonFlag",Near(sheep.home,new Vector3(1.5f,0,1.5f)));
                 Rest("sheep.cold","牧场风口",Near(sheep.home,new Vector3(2.3f,0,-1)),false,8);
-                Rest("sheep.warm","牧场遮棚",FindShelter(sheep.home),true,20);
+                Rest("sheep.warm","牧场暖处",FindShelter(sheep.home),true,20);
                 Model("sheep.bowl","固定饮水槽",LifeObjectKind.Bowl,"WaterBowl",Near(sheep.home,new Vector3(-2.6f,0,1.5f))).State.water=.65f;
             }
             if(bindings.TryGetValue("fox",out Binding fox))
@@ -95,8 +95,8 @@ namespace WeatherHouse.Life
                 Landmark("fox.here","狐狸指向的这里",Near(fox.home,new Vector3(0,0,1.7f)));
                 Landmark("fox.tree","狐狸的路标树",FindTree("fox.tree",fox.home));
                 Rest("fox.home","狐狸的地面住处",Near(fox.home,new Vector3(0,0,-2)),true,19);
-                Rest("fox.cold","林下小棚",Near(fox.home,new Vector3(-2.2f,0,0)),true,8);
-                Rest("fox.warm","林地遮棚",FindShelter(fox.home),true,20);
+                Rest("fox.cold","林下休息处",Near(fox.home,new Vector3(-2.2f,0,0)),true,8);
+                Rest("fox.warm","林地暖处",FindShelter(fox.home),true,20);
                 Model("fox.bowl","树荫边留水的碗",LifeObjectKind.Bowl,"WaterBowl",Near(fox.home,new Vector3(1.9f,0,0))).State.water=.55f;
                 Landmark("fox.sun","林间空地",Near(fox.home,new Vector3(2.3f,0,2)));
             }
@@ -127,7 +127,7 @@ namespace WeatherHouse.Life
             }
             else
             {
-                LifeObject dry=Model(key+".dry","棚下示范垫",LifeObjectKind.Mat,"GrassMat",Near(center,new Vector3(2.2f,0,-2.1f)));
+                LifeObject dry=Model(key+".dry","备用草垫",LifeObjectKind.Mat,"GrassMat",Near(center,new Vector3(2.2f,0,-2.1f)));
                 dry.State.sheltered=AddShelter(key+".dry",dry.transform.position);
             }
         }
@@ -145,7 +145,6 @@ namespace WeatherHouse.Life
             else SetupWarning+="缺少生活模型 "+resource+"；";
             var result=go.AddComponent<LifeObject>();
             result.Initialize(new LifeObjectState{id=id,kind=kind,position=position},label);objects.Add(id,result);interactables.Add(result);
-            if(kind!=LifeObjectKind.Bundle && kind!=LifeObjectKind.Mat)AddLabel(go.transform,label);
             return result;
         }
         LifeObject CreateItem(LifeObjectState state)
@@ -157,33 +156,18 @@ namespace WeatherHouse.Life
         void Landmark(string id,string label,Vector3 at)
         {
             if(invalidTargets.Contains(id))label="树目标暂不可达";
-            LifeObject obj=Station(id,label,LifeObjectKind.Landmark,at);
-            Ring(obj.transform,.45f,new Color(.9f,.75f,.39f,.65f));
+            Station(id,label,LifeObjectKind.Landmark,at);
         }
         void Rest(string id,string label,Vector3 at,bool sheltered,float temperature)
         {
             LifeObject obj=Station(id,label,LifeObjectKind.Rest,at);
             obj.State.sheltered=sheltered && AddShelter(id,at);obj.State.temperature=temperature;
-            Ring(obj.transform,.7f,temperature>=17?new Color(.83f,.61f,.3f,.65f):new Color(.37f,.7f,.85f,.65f));
         }
         LifeObject Station(string id,string label,LifeObjectKind kind,Vector3 at)
         {
             var go=new GameObject(label+" ["+id+"]");go.transform.SetParent(transform);go.transform.position=at;
             var item=go.AddComponent<LifeObject>();item.Initialize(new LifeObjectState{id=id,kind=kind,position=at},label);
-            objects.Add(id,item);interactables.Add(item);anchors[id]=at;AddLabel(go.transform,label);return item;
-        }
-        void Ring(Transform parent,float radius,Color color)
-        {
-            var ring=new GameObject("生活点范围");ring.layer=LayerMask.NameToLayer("UI");ring.transform.SetParent(parent,false);
-            var line=ring.AddComponent<LineRenderer>();line.useWorldSpace=false;line.loop=true;line.positionCount=40;
-            line.startWidth=line.endWidth=.025f;line.startColor=line.endColor=color;
-            if(!markerMaterial)markerMaterial=new Material(Shader.Find("Universal Render Pipeline/Unlit"));line.sharedMaterial=markerMaterial;
-            for(int i=0;i<40;i++){float a=i*Mathf.PI/20;line.SetPosition(i,new Vector3(Mathf.Cos(a)*radius,.035f,Mathf.Sin(a)*radius));}
-        }
-        void AddLabel(Transform parent,string text)
-        {
-            var go=new GameObject("生活点提示");go.transform.SetParent(parent,false);go.transform.localPosition=Vector3.up*.55f;
-            var label=go.AddComponent<LifeLabel>();label.Initialize(text);labels.Add(label);
+            objects.Add(id,item);interactables.Add(item);anchors[id]=at;return item;
         }
         Vector3 FindTree(string id,Vector3 center)
         {
@@ -219,19 +203,8 @@ namespace WeatherHouse.Life
         }
         bool AddShelter(string id,Vector3 point)
         {
-            if(HasExistingRoof(point)){BindExistingShelterVisuals(id,point);return true;}
-            GameObject shelter=Resources.Load<GameObject>("LifeAssets/ShadeShelter");
-            if(!shelter){SetupWarning+="缺少遮棚资源 "+id+"；";return false;}
-            Quaternion rotation=Quaternion.identity;
-            if(bindings.TryGetValue(id.Split('.')[0],out Binding animal))
-            {
-                Vector3 toward=animal.home-point;toward.y=0;
-                if(toward.sqrMagnitude>.01f)rotation=Quaternion.LookRotation(toward);
-            }
-            // The roof belongs to the place: picking up its mat must leave it standing.
-            GameObject roof=Instantiate(shelter,point,rotation,transform);roof.name="生活背风遮棚 ["+id+"]";
-            shelterVisuals[id]=roof.GetComponentsInChildren<Renderer>();
-            return true;
+            if(!HasExistingRoof(point))return false;
+            BindExistingShelterVisuals(id,point);return true;
         }
         Vector3 Near(Vector3 origin,Vector3 offset)
         {

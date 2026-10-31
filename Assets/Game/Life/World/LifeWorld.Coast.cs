@@ -21,6 +21,9 @@ namespace WeatherHouse.Life
             population.terrain=Terrain.activeTerrain;population.waterSurface=FindObjectOfType<WorldWaterSurface>();
             population.player=Player;population.worldSeed=20261026;
             population.worldBounds=new Bounds(new Vector3(72,10,-54),new Vector3(28,50,28));
+            // habitatRadius keeps ordinary roaming near the ferry; the map boundary must allow nearby shelter trips.
+            if(population.terrain)population.worldBounds=new Bounds(population.terrain.transform.position+population.terrain.terrainData.size*.5f,
+                population.terrain.terrainData.size+Vector3.up*50);
             WildlifeAgent sheep=CoastalAgent(assets.sheep,coastalSheep,6101,"渡口绵羊");
             WildlifeAgent deer=CoastalAgent(assets.deer,coastalDeer,6102,"渡口小鹿");
             population.agents=new[]{sheep,deer};

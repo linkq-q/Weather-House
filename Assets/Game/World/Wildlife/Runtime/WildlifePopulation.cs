@@ -34,6 +34,8 @@ namespace WeatherHouse.Hillside
         private readonly List<WildlifeAgent> neighbours = new List<WildlifeAgent>(MaxNeighbours);
         private readonly RaycastHit[] obstacleHits = new RaycastHit[24];
         private readonly Collider[] overlapHits = new Collider[24];
+        private readonly Collider[] floorCandidates = new Collider[32];
+        private readonly WildlifeDeckFootprint floorFootprint = new WildlifeDeckFootprint();
         private readonly List<ExternalBody> externalBodies = new List<ExternalBody>();
         private float decisionClock, nextAmbientAlarm;
         private float[] decisionDue;
@@ -202,7 +204,8 @@ namespace WeatherHouse.Hillside
                 int index = decisionCursor; decisionCursor = (decisionCursor + 1) % agents.Length;
                 WildlifeAgent agent = agents[index];
                 if (!agent || !agent.isActiveAndEnabled || SimulationTime < decisionDue[index]) continue;
-                if (!AnimalWorkBudget.TryTake()) { decisionCursor = index; break; }
+                if (!AnimalWorkBudget.TryBeginDecision(GetInstanceID(),out var decisionWork)) { decisionCursor = index; break; }
+                using var decisionScope = decisionWork;
                 decisionDue[index] = SimulationTime + Mathf.Max(.1f, decisionInterval);
                 FindNeighbours(agent, neighbours);
                 agent.Think(SimulationTime, neighbours); LastDecisionCount++;
@@ -345,7 +348,7 @@ namespace WeatherHouse.Hillside
             return true;
         }
 
-        public bool TryProjectPosition(WildlifeAgent agent, Vector3 requested, out Vector3 projected)
+        public bool TryProjectPosition(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? heading = null)
         {
             projected = requested;
             float radius = agent.Radius;
@@ -367,7 +370,7 @@ namespace WeatherHouse.Hillside
             }
             if (agent.locomotion == WildlifeLocomotion.Flying)
             {
-                if (agent.AirHeight < .01f) return TryLandingPosition(agent, requested, out projected);
+                if (agent.AirHeight < .01f) return TryLandingPosition(agent, requested, out projected, heading);
                 float surface = ground;
                 if (waterSurface) { if (waterSurface.Contains(requested)) surface = Mathf.Max(surface, waterSurface.Height(requested)); }
                 else foreach (HabitatVolume water in waterAreas)
@@ -375,10 +378,10 @@ namespace WeatherHouse.Hillside
                 projected.y = surface + agent.AirHeight;
                 return true;
             }
-            return TryLandingPosition(agent, requested, out projected);
+            return TryLandingPosition(agent, requested, out projected, heading);
         }
 
-        public bool TryLandingPosition(WildlifeAgent agent, Vector3 requested, out Vector3 projected)
+        public bool TryLandingPosition(WildlifeAgent agent, Vector3 requested, out Vector3 projected, Quaternion? heading = null)
         {
             projected = requested;
             float radius = agent.Radius;
@@ -395,6 +398,34 @@ namespace WeatherHouse.Hillside
             else foreach (HabitatVolume water in waterAreas)
                 if (water.Contains(requested, -radius)) return false;
             projected.y = GroundHeight(requested);
+            return TryFloorSupport(agent, requested, heading ?? agent.transform.rotation, ref projected);
+        }
+
+        bool TryFloorSupport(WildlifeAgent agent, Vector3 requested, Quaternion heading, ref Vector3 projected)
+        {
+            WildlifeBodyEnvelope body=agent.BodyEnvelope;
+            if(!body.Valid || obstacleMask.value==0)return true;
+            float ground=projected.y, foot=requested.y+body.Bottom;
+            float ceiling=Mathf.Max(ground,foot)+.45f;
+            Vector3 center=projected+heading*new Vector3(body.center.x,0,body.center.z);
+            float guard=WildlifeDeckFootprint.SeparationGuard(center.magnitude,center.magnitude);
+            float radius=body.HorizontalRadius+guard;
+            int count=Physics.OverlapBoxNonAlloc(new Vector3(center.x,(ground+ceiling)*.5f,center.z),
+                new Vector3(radius,(ceiling-ground)*.5f+.002f,radius),floorCandidates,Quaternion.identity,obstacleMask,QueryTriggerInteraction.Ignore);
+            if(count==floorCandidates.Length)return false;
+            float highest=ground;bool supported=false;
+            for(int i=0;i<count;i++)
+            {
+                var box=floorCandidates[i] as BoxCollider;
+                if(!box || box.transform.IsChildOf(agent.transform) || box.GetComponentInParent<WildlifeAgent>() ||
+                    (PlayerCollision && PlayerCollision.Owns(box)) || Vector3.Angle(box.transform.up,Vector3.up)>maxSlope)continue;
+                if(!floorFootprint.HighestTop(box,center,body.half+new Vector3(guard,0,guard),heading,out float top) ||
+                    top<ground-.001f || top>ceiling+.001f || top>ground+.45f && Mathf.Abs(top-foot)>.45f)continue;
+                highest=Mathf.Max(highest,top);supported=true;
+            }
+            // Settle onto the actual floor at initialization as well as during movement. The floor
+            // remains in every body sweep, so its sides, undersides and adjacent walls still block.
+            if(supported)projected.y=highest-body.Bottom+.001f;
             return true;
         }
 
@@ -439,14 +470,19 @@ namespace WeatherHouse.Hillside
             Quaternion previousRotation = facing.HasValue ? originRotation : heading;
             for (int i = 1; i <= steps; i++)
             {
-                if (!TryProjectPosition(agent, Vector3.Lerp(origin, requested, (float)i / steps), out Vector3 sample)) return false;
-                if (agent.locomotion == WildlifeLocomotion.Ground && Mathf.Abs(sample.y - previous.y) > .45f) return false;
-                if (PlayerCollision && !PlayerCollision.AllowsAnimalMove(previous, sample, agent.Radius, agent.BodyEnvelope)) return false;
-                if (!ExternalBodiesAllowMove(agent, previous, sample)) return false;
                 Quaternion rotation = facing.HasValue ? Quaternion.Slerp(originRotation, heading, (float)i / steps) : heading;
-                if (groundBody && !bodyPhysics.Clear(agent.BodyEnvelope, previous, previousRotation, sample, rotation, obstacleMask,
-                    owner: agent.transform, player: PlayerCollision, ignoreAnimals: true)) return false;
-                if (groundBody && !GroundBodiesAllowMove(agent, previous, previousRotation, sample, rotation, socialTarget)) return false;
+                if (!TryProjectPosition(agent, Vector3.Lerp(origin, requested, (float)i / steps), out Vector3 sample, rotation)) return false;
+                if (agent.locomotion == WildlifeLocomotion.Ground && Mathf.Abs(sample.y - previous.y) > .45f) return false;
+                if(groundBody)
+                {
+                    if(!BodyMoveClear(agent,previous,previousRotation,sample,rotation,socialTarget) &&
+                        !SmallBodyStepClear(agent,previous,previousRotation,sample,rotation,socialTarget))return false;
+                }
+                else
+                {
+                    if (PlayerCollision && !PlayerCollision.AllowsAnimalMove(previous, sample, agent.Radius, agent.BodyEnvelope)) return false;
+                    if (!ExternalBodiesAllowMove(agent, previous, sample)) return false;
+                }
                 previousRotation = rotation;
                 previous = sample;
             }
@@ -469,6 +505,27 @@ namespace WeatherHouse.Hillside
                 if (IsObstacle(obstacleHits[i].collider, agent)) return false;
             }
             return true;
+        }
+
+        bool BodyMoveClear(WildlifeAgent agent,Vector3 from,Quaternion before,Vector3 to,Quaternion after,WildlifeAgent socialTarget)
+        {
+            return (!PlayerCollision || PlayerCollision.AllowsAnimalMove(from,to,agent.Radius,agent.BodyEnvelope)) &&
+                ExternalBodiesAllowMove(agent,from,to) &&
+                bodyPhysics.Clear(agent.BodyEnvelope,from,before,to,after,obstacleMask,owner:agent.transform,player:PlayerCollision,ignoreAnimals:true) &&
+                GroundBodiesAllowMove(agent,from,before,to,after,socialTarget);
+        }
+
+        bool SmallBodyStepClear(WildlifeAgent agent,Vector3 from,Quaternion before,Vector3 to,Quaternion after,WildlifeAgent socialTarget)
+        {
+            float rise=Mathf.Abs(to.y-from.y);
+            if(rise<.002f || rise>.45f)return false;
+            // A diagonal foot projection can cut a slab's edge. Check a real lift/across/drop
+            // volume instead, including clearance above the head and on the far side.
+            float height=Mathf.Max(from.y,to.y);
+            Vector3 lift=new Vector3(from.x,height,from.z),across=new Vector3(to.x,height,to.z);
+            return BodyMoveClear(agent,from,before,lift,before,socialTarget) &&
+                BodyMoveClear(agent,lift,before,across,after,socialTarget) &&
+                BodyMoveClear(agent,across,after,to,after,socialTarget);
         }
 
         private bool IsObstacle(Collider collider, WildlifeAgent agent)

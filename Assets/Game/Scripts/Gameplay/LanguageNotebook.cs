@@ -109,7 +109,7 @@ namespace WeatherHousePrototype
             }
         }
 
-        public void AddObservation(ObservationRecord record)
+        public void AddObservation(ObservationRecord record, string[] observedGlyphIds = null)
         {
             if (record == null) throw new ArgumentNullException(nameof(record));
             if (string.IsNullOrWhiteSpace(record.id))
@@ -129,7 +129,7 @@ namespace WeatherHousePrototype
                 matchedPhotoTaskIds = record.matchedPhotoTaskIds == null ? Array.Empty<string>() : (string[])record.matchedPhotoTaskIds.Clone()
             };
             observations.Add(snapshot);
-            Observe(snapshot.animalId, snapshot.utteranceId, snapshot.glyphIds);
+            Observe(snapshot.animalId, snapshot.utteranceId, observedGlyphIds ?? snapshot.glyphIds);
         }
 
         public bool AddPublicContext(LifePublicContext context)

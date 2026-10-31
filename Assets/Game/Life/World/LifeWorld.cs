@@ -34,7 +34,7 @@ namespace WeatherHouse.Life
         sealed class Binding
         {
             public LifeSpeaker speaker;public WildlifeAgent wildlife;public WildlifePopulation population;public JourneyHerd herd;public int member;
-            public Vector3 home,target;public bool rest;public float lastRefresh;
+            public Vector3 home,target;public bool rest;
             public Behaviour tailWave;public bool oldTailEnabled;
             public AnimationClip oldIdle,oldDown,oldSleep,oldUp;public bool changedClips;
             public bool weatherRetreat;public Vector3 priorTarget;
@@ -57,8 +57,6 @@ namespace WeatherHouse.Life
         string craftingId;
         Vector3 craftStart;
         float craftEnd;
-        Material markerMaterial;
-        readonly List<LifeLabel> labels=new List<LifeLabel>();
         readonly List<WildlifeAgent> invited=new List<WildlifeAgent>();
         readonly List<Vector3> invitedTargets=new List<Vector3>();
         readonly Dictionary<WildlifeAgent,float> reactions=new Dictionary<WildlifeAgent,float>();
@@ -136,7 +134,7 @@ namespace WeatherHouse.Life
                 case "rain_weak":return NearTaskAnimal(request) && a.weatherSeen && a.localRain==1;
                 case "warm_rest":return objects.Values.Any(o=>o && o.State.kind==LifeObjectKind.Rest && o.State.IsWarm &&
                     NearTaskAnimal(request,o.transform.position) && DryMatAt(o.State.id) && ActedAfter(a,o,request) && AnimalAt(request.speakerKey,o.State.id));
-                case "arrive":return Flat(Player.position,a.player)>.5f && Flat(Player.position,AnchorPosition(request.targetId))<1.15f;
+                case "arrive":return Flat(Player.position,a.player)>.5f && PlayerInArrivalRegion(request.targetId);
                 case "animal_arrived":return a.stage>0 && AnimalAt(request.speakerKey,request.targetId);
                 case "walk_sequence":case "walk_reverse":return a.stage>=2;
                 case "common_rest":return CommonReady(a,commonRestId) && AtInvitedRest()>=2;
@@ -150,6 +148,7 @@ namespace WeatherHouse.Life
         void Update()
         {
             if(!owner || !Player)return;
+            UpdateGuidance();
             UpdateDemonstrations();
             if(held)
             {
@@ -174,7 +173,6 @@ namespace WeatherHouse.Life
             {
                 nextVisual=Time.time+.06f;
                 foreach(LifeObject obj in objects.Values)if(obj)obj.RefreshVisual(Time.time);
-                foreach(LifeLabel label in labels)if(label)label.Refresh(Player,owner.Gameplay.CurrentView,owner.Gameplay.PhotoRig && owner.Gameplay.PhotoRig.Active);
             }
             UpdateSequences();
             UpdatePhotoInteractions();
@@ -183,7 +181,7 @@ namespace WeatherHouse.Life
             if(Time.time<nextLifeTick)return;nextLifeTick=Time.time+.5f;
             foreach(Binding b in bindings.Values)
             {
-                if(!b.speaker)continue;
+                if(!b.speaker || guidance!=null && guidance.animal==b)continue;
                 if(b.rest)
                 {
                     LifeObject bed=objects.Values.FirstOrDefault(o=>o.State.kind==LifeObjectKind.Rest && Flat(o.transform.position,b.target)<.1f);
@@ -223,14 +221,16 @@ namespace WeatherHouse.Life
                 if(r.condition!="walk_sequence" && r.condition!="walk_reverse")continue;
                 string first=r.condition=="walk_sequence"?"fox.here":"fox.tree";
                 string last=r.condition=="walk_sequence"?"fox.tree":"fox.here";
-                if(a.stage==0 && Flat(Player.position,a.player)>.5f && Flat(Player.position,AnchorPosition(first))<1.15f)a.stage=1;
-                else if(a.stage==1 && Flat(Player.position,AnchorPosition(last))<1.15f)a.stage=2;
+                // Keep the two regions distinct: standing between overlapping circles must not complete both steps.
+                float radius=SequenceRegionRadius(first,last);
+                if(a.stage==0 && Flat(Player.position,a.player)>.5f && PlayerInArrivalRegion(first,radius))a.stage=1;
+                else if(a.stage==1 && PlayerInArrivalRegion(last,radius))a.stage=2;
             }
         }
         public void ApplyWeather(Vector3 center,float radius,LocalWeather kind,int strength,bool active,float deltaTime)
         {
             if(!Player || Flat(center,Player.position)>.1f || radius<=0 || deltaTime<=0)return;
-            if(autonomy && kind!=LocalWeather.Wind)autonomy.Rain(center,radius,active && kind==LocalWeather.Rain && strength>=2);
+            if(autonomy && kind!=LocalWeather.Wind)autonomy.Rain(center,radius,active && kind==LocalWeather.Rain,strength);
             if(active && demonstrationKey!=null && kind==demonstrationKind)StopDemonstration();
             if(kind==LocalWeather.Wind)playerWindActive=active;else playerSkyActive=active;
             foreach(Accepted a in accepted.Values)
@@ -366,6 +366,9 @@ namespace WeatherHouse.Life
             foreach(LifeObject item in objects.Values)
                 if(item && item.State.kind==LifeObjectKind.Mat && !item.State.held && !string.IsNullOrEmpty(item.State.slot) && objects.TryGetValue(item.State.slot,out LifeObject station))
                     item.State.position=item.transform.position=station.transform.position+Vector3.up*.045f;
+            // Saved shelter flags cannot retain roofs removed from the current scene.
+            foreach(LifeObject item in objects.Values)
+                if(item && item.State.sheltered)item.State.sheltered=HasExistingRoof(item.transform.position);
             accepted.Clear();foreach(Accepted a in data.accepted??new List<Accepted>())if(a!=null && Array.Exists(requests,r=>r.id==a.id))
             {
                 if(a.objects==null || a.objects.Count==0)
@@ -400,6 +403,7 @@ namespace WeatherHouse.Life
         public static float Flat(Vector3 a,Vector3 b)=>new Vector2(a.x-b.x,a.z-b.z).magnitude;
         void OnDestroy()
         {
+            StopGuidance(false);
             UnbindGatheringPlants();
             UnbindSceneContainers();
             CancelFeed();CancelDrinks();
@@ -415,7 +419,6 @@ namespace WeatherHouse.Life
             }
             foreach(WildlifeAgent a in invited)if(a)a.ReleaseLifeTarget();
             if(coastalRoot)Destroy(coastalRoot);
-            if(markerMaterial)Destroy(markerMaterial);
         }
     }
 }

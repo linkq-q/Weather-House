@@ -41,7 +41,11 @@ namespace WeatherHousePrototype.Editor
             { "hello", "28 23 72 103;29 42 46 42" },
             { "goodbye", "28 23 72 103;54 84 71 84" },
             { "self", "62 18 28 101;35 66 50 66" },
-            { "you", "62 18 28 101;74 66 89 66" }
+            { "you", "62 18 28 101;74 66 89 66" },
+            { "like", "36 19 68 83" },
+            { "look", "62 18 28 101;62 28 62 54;44 28 44 54" },
+            { "sea", "40 28 40 94;20 106 82 106;76 78 76 106" },
+            { "past", "50 18 63 102;50 38 50 76" }
         };
 
         [MenuItem("Weather House/Check Animal Glyph Geometry")]
@@ -54,7 +58,7 @@ namespace WeatherHousePrototype.Editor
                 TextAsset asset = Resources.Load<TextAsset>("WeatherHouseGlyphs");
                 Check(asset != null, "Original glyph resource exists");
                 Glyph[] glyphs = JsonUtility.FromJson<Glyphs>(asset.text).glyphs;
-                Check(glyphs.Length == 33, "Approved alphabet preserves 31 stable IDs and adds clear and there");
+                Check(glyphs.Length == 37, "Approved alphabet preserves 33 stable IDs and adds like, look, sea and past");
                 var ids = new HashSet<string>();
                 foreach (Glyph glyph in glyphs)
                 {
@@ -72,7 +76,7 @@ namespace WeatherHousePrototype.Editor
                         Check(Vector2.Distance(paths[i][0], from) < .001f && Vector2.Distance(paths[i][paths[i].Count - 1], to) < .001f,
                             glyph.id + " stroke " + i + " preserves authored endpoints");
                     }
-                    foreach (Rect rect in new[] { new Rect(0f, 0f, 100f, 120f), new Rect(-24f, -24f, 48f, 48f), new Rect(0f, 0f, 240f, 120f) })
+                    foreach (Rect rect in new[] { new Rect(0f, 0f, 100f, 120f), new Rect(-24f, -24f, 48f, 48f), new Rect(0f, 0f, 240f, 120f), new Rect(0f, 0f, 24f, 28.8f) })
                     using (var mesh = new VertexHelper())
                     {
                         AnimalGlyphGraphic.DrawPaths(mesh, paths, rect, Color.white);
@@ -85,7 +89,7 @@ namespace WeatherHousePrototype.Editor
                             Check(rect.Contains(new Vector2(vertex.position.x, vertex.position.y)), glyph.id + " fits its rect");
                         }
                     }
-                    report.Add("PASS " + glyph.id + ": " + (expected.Length > 0 ? "original authored endpoints, " : "approved extension, ") + "three sizes, finite nonempty geometry.");
+                    report.Add("PASS " + glyph.id + ": " + (expected.Length > 0 ? "authored endpoints, " : "approved extension, ") + "four sizes including24px, finite nonempty geometry.");
                 }
                 var curve = AnimalGlyphGraphic.ParseSvgBody("<path d=\"M0 0 Q0 10 10 10\"/>")[0];
                 Check(curve.Exists(point => Vector2.Distance(point, new Vector2(2.5f, 7.5f)) < .001f), "Quadratic curve midpoint");
@@ -94,8 +98,8 @@ namespace WeatherHousePrototype.Editor
                 Reject("<path d=\"M0 0 Q2\"/>");
                 Reject("<g transform=\"rotate(20)\"><path d=\"M0 0 V10\"/></g>");
                 Reject("<circle cx=\"10\" cy=\"10\" r=\"5\"/>");
-                report.Add("PASS quadratic midpoint; unknown commands, malformed parameters, transforms, and elements reject explicitly.");
-                report.Add("PASS 33 glyphs including the approved clear, there and revised shapes. This verifies geometry and parsing; visual review remains separate.");
+                report.Add("PASS quadratic midpoint; unknown commands, malformed parameters, unsupported transforms, and elements reject explicitly.");
+                report.Add("PASS 37 glyphs including like, look, sea and past; sea preserves its authored translation. This verifies geometry and parsing; visual review remains separate.");
             }
             catch (Exception exception)
             {

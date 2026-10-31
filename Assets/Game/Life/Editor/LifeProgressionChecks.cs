@@ -26,9 +26,11 @@ namespace WeatherHouse.Life.Editor
             check(!progress.CanPresent(Find("dog.water"), content) && !progress.CanPresent(Find("squirrel.mat"), content), "新档不提前发布后续主任务");
             check(progress.CanPresent(Find("squirrel.sequence"), content) && progress.CanPresent(Find("fox.sequence"), content), "摄影两步教学可提前参与，不由主线进度锁住");
             check(new[]{"sheep.self.player","sheep.self.deer","deer.self.sheep","sheep.here","fox.go"}.All(id=>progress.CanPresent(Find(id),content)),"I01至I03公开关系与短路演示无需先通主线");
-            check(new[] { "fox.home", "squirrel.home", "sheep.cold", "fox.cold", "sheep.warm", "fox.warm", "dog.hello", "fox.hello", "dog.bye", "fox.bye" }
-                .All(id => progress.CanPresent(Find(id), content)), "P11及P18至P21的全部公开语境可在新档先到当地时展示");
-            foreach (string id in new[] { "fox.home", "sheep.warm", "fox.warm" })
+            check(new[] { "fox.home", "squirrel.home", "dog.hello", "fox.hello", "dog.bye", "fox.bye" }
+                .All(id => progress.CanPresent(Find(id), content)), "P11及P20至P21的公开语境可在新档先到当地时展示");
+            check(content.Where(request => request.eventId == "E5").All(request => !progress.CanPresent(request, content)),
+                "冷暖教学定义保留，新档暂不展示");
+            foreach (string id in new[] { "fox.home" })
             {
                 LifeRequest request = Find(id); var help = new LifeProgress();
                 check(request.HasTask && !help.Hear(request, "photo-context-check", false, true) &&
@@ -51,11 +53,11 @@ namespace WeatherHouse.Life.Editor
             CompleteEvent(progress, content, "E1");
             check(progress.CanPresent(Find("squirrel.mat"), content) && !progress.CanPresent(Find("sheep.wind"), content), "E1完成开放窝垫，后期主任务仍等待");
             CompleteEvent(progress, content, "E2");
-            check(new[] { "squirrel.tree", "sheep.wind", "sheep.warm", "sheep.self.player", "sheep.here", "sheep.go" }
+            check(new[] { "squirrel.tree", "sheep.wind", "sheep.self.player", "sheep.here", "sheep.go" }
                 .All(id => progress.CanPresent(Find(id), content)), "E2后林地牧场与两段海岸事件并行");
             check(!progress.EventComplete("E6a", content) && progress.CanPresent(Find("sheep.here"), content), "可先去潮池，不强制E6a在E6b之前");
             check(!progress.EventComplete("E7", content), "开放两步公开教学不会自动完成结尾帮助");
-            foreach (string id in new[] { "E3", "E4", "E5", "E6a" }) CompleteEvent(progress, content, id);
+            foreach (string id in new[] { "E3", "E4", "E6a" }) CompleteEvent(progress, content, id);
             check(!progress.EventComplete("E7", content), "缺少实际帮助结果时结尾仍未完成");
             CompleteEvent(progress, content, "E6b");
             check(progress.CanPresent(Find("squirrel.sequence"), content), "生活事件完成后开放结尾，无全词典门槛");
@@ -94,7 +96,7 @@ namespace WeatherHouse.Life.Editor
                 fresh.heardRequests.Add("squirrel.sequence");
                 speaker.topicIndex = Array.FindIndex(speaker.requests, r => r.id == "squirrel.sequence");
                 check(speaker.Current.id == "squirrel.sequence", "听取过的后期话轮仍可再次选择");
-                foreach (string id in new[] { "fox.home", "sheep.warm", "fox.warm" })
+                foreach (string id in new[] { "fox.home" })
                 {
                     LifeRequest request = Find(id); var early = new LifeProgress();
                     speaker.requests = content.Where(r => r.speakerKey == request.speakerKey).ToArray();

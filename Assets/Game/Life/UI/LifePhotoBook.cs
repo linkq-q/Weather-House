@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,11 +10,27 @@ namespace WeatherHouse.Life
     public static class LifePhotoBook
     {
         public const int EntriesPerSpread = 6;
-        public static int PageCount => Mathf.Max(1, Mathf.CeilToInt(LifePhotoRules.Tasks.Count() / (float)EntriesPerSpread));
+        public static int PageCount => Mathf.Max(1, Mathf.CeilToInt(LifePhotoRules.VisibleTasks.Count() / (float)EntriesPerSpread));
+
+        public static string[] PhotoGlyphs(ObservationRecord photo, GlyphCatalog catalog)
+        {
+            if (photo == null || catalog?.glyphs == null) return Array.Empty<string>();
+            var known = new HashSet<string>(catalog.glyphs.Where(g => g != null && !string.IsNullOrWhiteSpace(g.id)).Select(g => g.id), StringComparer.Ordinal);
+            var result = new List<string>((photo.glyphIds ?? Array.Empty<string>()).Where(id => id != null && known.Contains(id)));
+            var present = new HashSet<string>(result, StringComparer.Ordinal);
+            // Display stored evidence without rewriting the original utterance or granting discoveries.
+            foreach (string taskId in photo.matchedPhotoTaskIds ?? Array.Empty<string>())
+            {
+                var task = LifePhotoRules.Tasks.FirstOrDefault(item => item.id == taskId && !item.IsInteraction);
+                foreach (string id in task?.rewards ?? Array.Empty<string>())
+                    if (id != null && known.Contains(id) && present.Add(id)) result.Add(id);
+            }
+            return result.ToArray();
+        }
 
         public static void Build(Transform book, GameplaySession session, int page, Font font, Action<string> openEvidence, Action<int> turn)
         {
-            var tasks = LifePhotoRules.Tasks.ToArray();
+            var tasks = LifePhotoRules.VisibleTasks.ToArray();
             page = Mathf.Clamp(page, 0, PageCount - 1);
             LifeUi.Text(book, "Photography heading", "留给照片的页", new Vector2(-290, 287), new Vector2(490, 44), font, 30, LifeUi.Ink);
             LifeUi.Text(book, "Photography page", (page + 1) + " / " + PageCount, new Vector2(290, 287), new Vector2(490, 44), font, 24, LifeUi.Ink, TextAnchor.MiddleRight);

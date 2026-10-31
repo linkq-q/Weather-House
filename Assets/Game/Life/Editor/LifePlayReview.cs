@@ -12,6 +12,7 @@ using WeatherHousePrototype;
 namespace WeatherHouse.Life.Editor
 {
     [InitializeOnLoad]
+    // Historical 20261026 full review includes retired task-panel reflection; use the current focused UI checks.
     public static class LifePlayReview
     {
         const string Key = "WeatherHouse.Life.Review.Running";

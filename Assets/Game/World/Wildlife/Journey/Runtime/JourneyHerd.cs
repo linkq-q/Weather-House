@@ -84,28 +84,28 @@ namespace WeatherHouse.WildlifeJourney
         public int PlanningRequests { get; private set; }
         public int PlanningCompletions { get; private set; }
         public int PlanningCancellations { get; private set; }
-        private struct LifeLease { public Vector3 target; public float until; public bool rest; }
+        private struct LifeLease { public Vector3 target; public float until; public bool rest,urgent; }
         private readonly Dictionary<int,LifeLease> lifeLeases = new Dictionary<int,LifeLease>();
         private readonly Dictionary<int,float> lifeGreetings = new Dictionary<int,float>();
         private readonly Dictionary<int,float> lifeForage = new Dictionary<int,float>();
         public bool IsLifeForaging(int memberId)=>HasLifeTarget(memberId) && lifeForage.TryGetValue(memberId,out float until) && SimulationTime<until;
         public bool RequestLifeForage(int memberId,float seconds=2f)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            JourneyMember m=FindMember(memberId);
             if(!Live(m) || !HasLifeTarget(m) || IsLifeForaging(memberId) || m.ActualSpeed>.03f || m.animation==null ||
                 !m.clips.forage || m.clips.forage==m.clips.idle)return false;
             lifeForage[memberId]=SimulationTime+Mathf.Clamp(seconds,2f,8f);return true;
         }
         public float LifeForageWeight(int memberId)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            JourneyMember m=FindMember(memberId);
             return Live(m) && IsLifeForaging(memberId) && m.animation!=null?m.animation.WeightOf(m.clips.forage):0;
         }
         public void CancelLifeForage(int memberId){lifeForage.Remove(memberId);}
         public void RequestLifeGreeting(int memberId) { lifeGreetings[memberId]=SimulationTime+2f; }
         public void FaceLifePoint(int memberId,Vector3 point,float dt)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null&&v.id==memberId);
+            JourneyMember m=FindMember(memberId);
             if(!HasLifeTarget(m)||!Live(m)||m.ActualSpeed>.03f||m.bodyStepPhase>0)return;
             Vector3 delta=point-m.root.position;delta.y=0;if(delta.sqrMagnitude<.01f)return;
             Quaternion rotation=Quaternion.RotateTowards(m.root.rotation,Quaternion.LookRotation(delta),dt*100);
@@ -116,48 +116,73 @@ namespace WeatherHouse.WildlifeJourney
 
         public bool RequestLifeTarget(int memberId,Vector3 target,float seconds)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            JourneyMember m=FindMember(memberId);
             bool changed=!HasLifeTarget(m) || m.autonomous || (target-lifeLeases[memberId].target).sqrMagnitude>.01f;
             if (!TryLifeTarget(m,target,seconds,false)) return false;
             if(changed)m.intentRevision++;
             m.autonomous=false;
             return true;
         }
-        public bool RequestAutonomousTarget(int memberId,Vector3 target,bool rest)
+        public bool RequestAutonomousTarget(int memberId,Vector3 target,bool rest,bool urgent=false)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
-            if(m==null || HasLifeTarget(m) && !m.autonomous || !TryLifeTarget(m,target,2,rest))return false;
+            JourneyMember m=FindMember(memberId);
+            if(m==null || HasLifeTarget(m) && !m.autonomous)return false;
+            // An autonomous trip may leave the current loitering site; its route still needs every normal safety check.
+            bool arrived=m.Arrived,accepted=false;m.Arrived=false;
+            try { accepted=TryLifeTarget(m,target,2,rest,urgent); }
+            finally { if(!accepted)m.Arrived=arrived; }
+            if(!accepted)return false;
             m.autonomous=true;return true;
         }
-        public bool IsAutonomous(int memberId)=>Array.Find(members,m=>m!=null && m.id==memberId)?.autonomous==true;
+        JourneyMember FindMember(int memberId)
+        {
+            foreach(JourneyMember member in members)if(member!=null && member.id==memberId)return member;
+            return null;
+        }
+        public bool IsAutonomous(int memberId)=>FindMember(memberId)?.autonomous==true;
+        public bool KeepAutonomousTarget(int memberId,bool holdPosition=false)
+        {
+            JourneyMember m=FindMember(memberId);
+            if(!Live(m) || !m.autonomous || !HasLifeTarget(m) || m.Mode!=JourneyTravelMode.Walk ||
+                m.bridge!=0 || m.bodyStepPhase>0 || social && social.IsParticipating(m.id))return false;
+            LifeLease lease=lifeLeases[m.id];lease.until=SimulationTime+2;
+            if(holdPosition){lease.target=m.root.position;lease.rest=false;ClearLifeDetour(m);}
+            lifeLeases[m.id]=lease;return true;
+        }
         public bool IsSleeping(int memberId)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            JourneyMember m=FindMember(memberId);
             return m!=null && (m.rest.Phase==WildlifeRestPhase.Sleeping ||
                 HasLifeTarget(m) && lifeLeases[memberId].rest && m.ActualSpeed<.01f &&
                 FlatDistance(m.root.position,lifeLeases[memberId].target)<.25f && !m.clips.HasRestSequence);
         }
         public void ReleaseAutonomousTarget(int memberId)
         {
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);
+            JourneyMember m=FindMember(memberId);
             if(m==null || !m.autonomous)return;
+            ClearLifeDetour(m);
             lifeLeases.Remove(memberId);m.autonomous=false;m.route=null;m.Arrived=false;m.rejoining=true;
             if(sites!=null && TargetSite>=0 && TargetSite<sites.Length)m.destination=sites[TargetSite].center;
             m.retryAt=SimulationTime;
         }
-        private bool TryLifeTarget(JourneyMember m,Vector3 target,float seconds,bool rest)
+        private bool TryLifeTarget(JourneyMember m,Vector3 target,float seconds,bool rest,bool urgent=false)
         {
             if(!isActiveAndEnabled || !Live(m) || !navigation || m.Mode!=JourneyTravelMode.Walk || m.bridge!=0 || m.bodyStepPhase>0 ||
                 FlatDistance(m.root.position,target)>8f ||
                 !navigation.TryStep(m.profile,m.root.position,target,out Vector3 foot,out JourneyTravelMode mode) ||
                 mode!=JourneyTravelMode.Walk || !ClearOfOthers(m,foot,endpointOnly:true))return false;
-            lifeLeases[m.id]=new LifeLease {target=foot,until=SimulationTime+Mathf.Clamp(seconds,.1f,3f),rest=rest};
+            if(!HasLifeTarget(m) || (lifeLeases[m.id].target-foot).sqrMagnitude>.01f)ClearLifeDetour(m);
+            lifeLeases[m.id]=new LifeLease {target=foot,until=SimulationTime+Mathf.Clamp(seconds,.1f,3f),rest=rest,urgent=urgent && !rest};
             return true;
         }
         public void ReleaseLifeTarget(int memberId) { lifeLeases.Remove(memberId);lifeForage.Remove(memberId);
-            JourneyMember m=Array.Find(members,v=>v!=null && v.id==memberId);if(m!=null){m.autonomous=false;m.intentRevision++;} }
+            JourneyMember m=FindMember(memberId);if(m!=null){ClearLifeDetour(m);m.autonomous=false;m.intentRevision++;} }
+        void ClearLifeDetour(JourneyMember member)
+        {member.crowdPath=null;member.crowdStep=0;member.crowdResume=-1;member.crowdRetryAt=SimulationTime;}
         public bool HasLifeTarget(int memberId) => isActiveAndEnabled && lifeLeases.TryGetValue(memberId,out LifeLease lease) && SimulationTime<lease.until;
         private bool HasLifeTarget(JourneyMember m) => m!=null && HasLifeTarget(m.id);
+        private bool UrgentLifeMove(JourneyMember m)=>m.autonomous && HasLifeTarget(m) && lifeLeases[m.id].urgent &&
+            !lifeLeases[m.id].rest && m.Mode==JourneyTravelMode.Walk && m.bridge==0;
         private void LifeMove(JourneyMember m,float dt)
         {
             LifeLease lease=lifeLeases[m.id];m.ActualSpeed=0;
@@ -165,8 +190,9 @@ namespace WeatherHouse.WildlifeJourney
             if(FlatDistance(m.root.position,lease.target)<.25f)
             { m.State=JourneyMemberState.Idle;m.LastDecision="在附近的生活点等候";return; }
             m.State=JourneyMemberState.Travelling;
-            if(TurnBeforeTravel(m,lease.target,dt))return;
-            Vector3 next=Vector3.MoveTowards(m.root.position,lease.target,m.profile.walkSpeed*dt);
+            Vector3 target=m.crowdPath!=null && m.crowdStep<m.crowdPath.Count?m.crowdPath[m.crowdStep]:lease.target;
+            if(TurnBeforeTravel(m,target,dt))return;
+            Vector3 next=Vector3.MoveTowards(m.root.position,target,m.profile.walkSpeed*(UrgentLifeMove(m)?1.6f:1f)*dt);
             if(navigation.TryStep(m.profile,m.root.position,next,out Vector3 foot,out JourneyTravelMode mode) &&
                 mode==JourneyTravelMode.Walk && EvaluateBodyMove(m,foot,dt,out BodyMove bodyMove))
             {
@@ -553,6 +579,7 @@ namespace WeatherHouse.WildlifeJourney
             {
                 JourneyMember m = members[i];
                 if (!Live(m)) continue;
+                if(!HasLifeTarget(m) && lifeLeases.Remove(m.id))ClearLifeDetour(m);
                 m.hunger = Mathf.Clamp01(m.hunger + dt * (m.State == JourneyMemberState.Forage ? -.045f : .004f));
                 m.fatigue = Mathf.Clamp01(m.fatigue + dt * (m.ActualSpeed > .1f ? .007f : -.012f));
                 bool sleeping=HasLifeTarget(m) && lifeLeases[m.id].rest && FlatDistance(m.root.position,lifeLeases[m.id].target)<.25f;
@@ -975,7 +1002,7 @@ namespace WeatherHouse.WildlifeJourney
         {
             m.State = JourneyMemberState.Social; m.ActualSpeed = 0; m.localTarget = m.root.position;
             int otherId = social.FirstParticipantId == m.id ? social.SecondParticipantId : social.FirstParticipantId;
-            JourneyMember partner = Array.Find(members, p => p != null && p.id == otherId);
+            JourneyMember partner = FindMember(otherId);
             if (!Live(partner)) return;
             Vector3 direction = partner.root.position - m.root.position; direction.y = 0;
             float targetSpace = (m.bodyLength + partner.bodyLength) * .5f + (social.CurrentIntent == "greeting" || social.CurrentIntent == "you" ? .25f : .04f);
@@ -1004,6 +1031,7 @@ namespace WeatherHouse.WildlifeJourney
         private bool AvoidOthers(JourneyMember m, Vector3 desired, JourneyTravelMode mode, out Vector3 result, float dt)
         {
             result = desired;
+            bool lifeTarget=HasLifeTarget(m);
             float step = FlatDistance(m.root.position, desired);
             if (m.crowdPath != null)
             {
@@ -1021,20 +1049,21 @@ namespace WeatherHouse.WildlifeJourney
                 m.crowdPath = null;
             }
             if (ClearOfOthers(m, desired, null, mode) && ClearOfMemberBodies(m, desired, MovementRotation(m, desired, dt))) return true;
-            if (mode == JourneyTravelMode.Walk && SimulationTime >= m.crowdRetryAt && TryYieldAtBridge(m))
+            if (!lifeTarget && mode == JourneyTravelMode.Walk && SimulationTime >= m.crowdRetryAt && TryYieldAtBridge(m))
             { m.crowdRetryAt = SimulationTime + .7f; return false; }
             // Narrow crossings and swimmers retain their queue; open land can plan around a neighbour.
-            if (m.bridge != 0 || mode != JourneyTravelMode.Walk || (UpcomingBridge(m, 3f) && FollowingSameRoute(m)))
+            if (m.bridge != 0 || mode != JourneyTravelMode.Walk || (!lifeTarget && UpcomingBridge(m, 3f) && FollowingSameRoute(m)))
             {
                 if (SimulationTime >= m.crowdRetryAt) m.crowdRetryAt = SimulationTime + .7f;
                 return false;
             }
             if (SimulationTime < m.crowdRetryAt) return false;
-            if (!AnimalWorkBudget.TryTake()) return false;
+            if (!AnimalWorkBudget.TryBegin(AnimalWorkBudget.Kind.Planning,out var crowdWork)) return false;
+            using var crowdScope = crowdWork;
             m.crowdRetryAt = SimulationTime + .6f + m.phase * .2f;
-            Vector3 target = m.localTarget;
+            Vector3 target = lifeTarget?lifeLeases[m.id].target:m.localTarget;
             int resume = -1;
-            if (!m.Arrived && m.route != null)
+            if (!lifeTarget && !m.Arrived && m.route != null)
             {
                 bool remainingWalk = true;
                 for (int i = m.segment; i < m.route.segments.Count; i++)
@@ -1547,8 +1576,11 @@ namespace WeatherHouse.WildlifeJourney
             if(IsLifeForaging(m.id)){m.animation.Play(m.clips.forage,true,1f);m.animation.Tick(dt);return;}
             if(HasLifeTarget(m) && lifeGreetings.TryGetValue(m.id,out float until) && SimulationTime<until && m.clips.greet)
             {m.animation.Play(m.clips.greet,false,1f);m.animation.Tick(dt);return;}
-            m.animation.Play(CurrentClip(m), true,
-                m.ActualSpeed > .03f && m.Mode != JourneyTravelMode.Swim ? Mathf.Clamp(m.ActualSpeed / Mathf.Max(.1f, m.profile.walkSpeed), .25f, 1.4f) : 1f);
+            bool rushing=UrgentLifeMove(m) && m.ActualSpeed>.03f;
+            AnimationClip clip=rushing && m.clips.run?m.clips.run:CurrentClip(m);
+            float clipSpeed=m.profile.walkSpeed*(rushing && m.clips.run && m.clips.run!=m.clips.walk?1.6f:1f);
+            float playback=m.ActualSpeed>.03f && m.Mode!=JourneyTravelMode.Swim?Mathf.Max(.25f,m.ActualSpeed/Mathf.Max(.1f,clipSpeed)):1f;
+            m.animation.Play(clip,true,rushing?playback:Mathf.Min(playback,1.4f));
             m.animation.Tick(dt);
         }
 

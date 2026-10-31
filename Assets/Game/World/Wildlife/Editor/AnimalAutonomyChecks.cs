@@ -88,6 +88,19 @@ namespace WeatherHouse.Hillside.Editor
             bool Narrow(Vector3 from,Vector3 to,out Vector3 projected){projected=to;return false;}
             var large=new AnimalLocalRoute(Vector3.zero,Vector3.right*3,.8f,Narrow);
             for(int i=0;i<100 && !large.Finished;i++)large.Advance();Require(large.Finished && large.Result==null,"Body rejection ignored");
+            bool Open(Vector3 from,Vector3 to,out Vector3 projected){projected=to;return true;}
+            foreach(Vector3 goal in new[]{Vector3.right*30,new Vector3(21,0,21),new Vector3(-21,0,-21)})
+            {
+                var far=new AnimalLocalRoute(Vector3.zero,goal,.16f,Open);
+                previous=0;
+                for(int i=0;i<5000 && !far.Finished;i++)
+                {far.Advance();Require(far.Queries-previous<=1,"Long route exceeded per-step query budget");previous=far.Queries;}
+                Require(far.Finished && far.Result!=null,"Reachable shelter outside the old local grid was rejected: "+goal);
+                last=Vector3.zero;
+                foreach(Vector3 point in far.Result)
+                {Require(Vector3.Distance(last,point)<=8,"Route produced a waypoint outside the movement lease reach");last=point;}
+                Require(Vector3.Distance(last,goal)<.01f,"Long route did not reach shelter");
+            }
         }
         static void CheckWildlife()
         {
@@ -162,8 +175,9 @@ namespace WeatherHouse.Hillside.Editor
                 Set("agent",animal);Set("root",animal.transform);Set("species","rabbit");Set("id","fixture");Set("nextAI",float.PositiveInfinity);
                 typeof(AnimalAutonomy).GetMethod("Add",flags).Invoke(director,new[]{state});Set("nextAI",float.PositiveInfinity);
                 MethodInfo tick=typeof(AnimalAutonomy).GetMethod("Tick",flags);
+                MethodInfo advance=typeof(AnimalAutonomy).GetMethod("AdvancePlanning",flags);
                 director.Rain(Vector3.zero,10,true);
-                for(int i=0;i<50;i++){tick.Invoke(director,new[]{state});population.Simulate(.1f);}
+                for(int i=0;i<180;i++){tick.Invoke(director,new[]{state});advance.Invoke(director,new[]{state});population.Simulate(.1f);}
                 Require(Vector3.Distance(animal.transform.position,shelter.transform.position)<.4f,"Animal did not reach chosen shelter");
                 Require(animal.AutonomousTarget,"Shelter lease missing");
                 director.Rain(Vector3.zero,10,false);tick.Invoke(director,new[]{state});
@@ -180,26 +194,62 @@ namespace WeatherHouse.Hillside.Editor
         {
             Scene scene=EditorSceneManager.NewPreviewScene();var root=new GameObject("Sleep glyph fixture");SceneManager.MoveGameObjectToScene(root,scene);
             RenderTexture target=null;Texture2D image=null;
+            AnimalSleepGlyph glyph=null;var flags=BindingFlags.NonPublic|BindingFlags.Instance;
             try
             {
                 var camera=new GameObject("Fixture camera").AddComponent<Camera>();camera.transform.SetParent(root.transform);
                 camera.scene=scene;camera.transform.position=new Vector3(0,1.3f,-4);camera.orthographic=true;camera.orthographicSize=.8f;
                 camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=new Color(.12f,.16f,.19f);
-                var glyph=root.AddComponent<AnimalSleepGlyph>();glyph.Sleeping=true;
-                var flags=BindingFlags.NonPublic|BindingFlags.Instance;
-                typeof(AnimalSleepGlyph).GetField("view",flags).SetValue(glyph,camera);
+                camera.tag="MainCamera";
+                var body=new GameObject("Animal body");body.transform.SetParent(root.transform);
+                glyph=body.AddComponent<AnimalSleepGlyph>();glyph.Sleeping=true;
+                // Preview scenes do not run the ordinary MonoBehaviour lifecycle in edit mode.
+                typeof(AnimalSleepGlyph).GetMethod("OnDisable",flags).Invoke(glyph,null);
+                typeof(AnimalSleepGlyph).GetMethod("OnEnable",flags).Invoke(glyph,null);
                 typeof(AnimalSleepGlyph).GetMethod("LateUpdate",flags).Invoke(glyph,null);
-                target=new RenderTexture(384,384,24);camera.targetTexture=target;camera.Render();
-                RenderTexture old=RenderTexture.active;RenderTexture.active=target;
-                image=new Texture2D(384,384,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,384,384),0,0);image.Apply();RenderTexture.active=old;
-                int white=0;foreach(Color32 pixel in image.GetPixels32())if(pixel.r>170 && pixel.g>170 && pixel.b>170)white++;
-                Require(white>40,"White Z did not render");
+                target=new RenderTexture(384,384,24);camera.targetTexture=target;
+                image=new Texture2D(384,384,TextureFormat.RGB24,false);
                 string report=Environment.GetEnvironmentVariable("WEATHERHOUSE_ANIMAL_REPORT");
-                if(!string.IsNullOrEmpty(report))File.WriteAllBytes(Path.ChangeExtension(report,"png"),image.EncodeToPNG());
+                // A second camera must see a complete Z, even when the MainCamera faces sideways.
+                var side=new GameObject("Alternate capture camera").AddComponent<Camera>();side.transform.SetParent(root.transform);
+                side.CopyFrom(camera);side.scene=scene;side.tag="Untagged";
+                for(int angle=0;angle<3;angle++)
+                {
+                    Camera current=angle==0?camera:side;
+                    current.transform.position=angle==0?new Vector3(0,1.3f,-4):angle==1?new Vector3(4,1.3f,0):new Vector3(-3,3,-3);
+                    current.transform.LookAt(new Vector3(0,1.3f,0));
+                    if(angle==2){body.transform.localScale=new Vector3(.6f,1.4f,.8f);body.transform.rotation=Quaternion.Euler(0,37,0);}
+                    current.Render();
+                    LineRenderer[] symbols=body.GetComponentsInChildren<LineRenderer>();
+                    Require(symbols.Length==3,"Sleeping glyphs missing for camera "+angle);
+                    foreach(LineRenderer symbol in symbols)
+                    {
+                        Require(symbol.enabled,"Sleeping glyph hidden for camera "+angle);
+                        Vector3 Screen(int index)=>current.WorldToScreenPoint(symbol.useWorldSpace?symbol.GetPosition(index):symbol.transform.TransformPoint(symbol.GetPosition(index)));
+                        Vector3 left=Screen(0),right=Screen(1),bottom=Screen(2);
+                        Require(right.x-left.x>10 && Mathf.Abs(left.y-right.y)<1,"Z collapsed or tilted for camera "+angle);
+                        Require(left.y-bottom.y>15 && Mathf.Abs(left.x-bottom.x)<1,"Z height or diagonal invalid for camera "+angle);
+                    }
+                    RenderTexture old=RenderTexture.active;RenderTexture.active=target;
+                    try{image.ReadPixels(new Rect(0,0,384,384),0,0);image.Apply();}finally{RenderTexture.active=old;}
+                    int white=0;foreach(Color32 pixel in image.GetPixels32())if(pixel.r>170 && pixel.g>170 && pixel.b>170)white++;
+                    Require(white>40,"White Z did not render for camera "+angle);
+                    if(!string.IsNullOrEmpty(report))File.WriteAllBytes(angle==0?Path.ChangeExtension(report,"png"):Path.ChangeExtension(report,null)+"-angle-"+angle+".png",image.EncodeToPNG());
+                }
+                side.transform.position=new Vector3(0,1.3f,-40);side.Render();
+                foreach(LineRenderer symbol in body.GetComponentsInChildren<LineRenderer>())Require(!symbol.enabled,"Distant camera did not hide Z");
+                camera.Render();
+                foreach(LineRenderer symbol in body.GetComponentsInChildren<LineRenderer>())Require(symbol.enabled,"Near camera did not restore Z after distant camera");
                 glyph.Sleeping=false;typeof(AnimalSleepGlyph).GetMethod("LateUpdate",flags).Invoke(glyph,null);
+                camera.Render();
                 foreach(LineRenderer symbol in root.GetComponentsInChildren<LineRenderer>())Require(!symbol.enabled,"Z persisted while awake");
             }
-            finally{if(image)Object.DestroyImmediate(image);if(target)Object.DestroyImmediate(target);Object.DestroyImmediate(root);EditorSceneManager.ClosePreviewScene(scene);}
+            finally
+            {
+                if(glyph)typeof(AnimalSleepGlyph).GetMethod("OnDisable",flags).Invoke(glyph,null);
+                if(image)Object.DestroyImmediate(image);if(target)Object.DestroyImmediate(target);
+                Object.DestroyImmediate(root);EditorSceneManager.ClosePreviewScene(scene);
+            }
         }
     }
 }

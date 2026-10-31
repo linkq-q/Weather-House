@@ -890,7 +890,7 @@ namespace WeatherHousePrototype
             CloseButton(card, new Vector2(510f, 355f), CloseTop);
             expandedImage = Raw(card, "Photograph image", new Vector2(0f, 4f), new Vector2(1024f, 576f));
             LoadExpandedFrame();
-            GlyphLine(card, expandedPhoto.glyphIds, new Vector2(0f, -317f), 38f, 950f);
+            GlyphLine(card, LifePhotoBook.PhotoGlyphs(expandedPhoto, session.Catalog), new Vector2(0f, -317f), 38f, 950f);
 
         }
 
@@ -965,6 +965,13 @@ namespace WeatherHousePrototype
             bubbleGroup.alpha = 0f; bubbleGroup.interactable = bubbleGroup.blocksRaycasts = false;
             bubbleWanted = true;
             float height = Mathf.Min(animalGlyphHeight, size.y * .48f, size.x * .78f / (glyphs.Length * .95f));
+            int meaningFontSize = Mathf.Clamp(Mathf.RoundToInt(height * .65f), 20, 28);
+            int meaningLength = 1;
+            foreach (string id in glyphs) meaningLength = Mathf.Max(meaningLength, FindGlyph(id)?.name?.Length ?? 0);
+            float meaningWidth = meaningFontSize * meaningLength + 4f;
+            float glyphStep = Mathf.Max(height * .95f, meaningWidth + 4f);
+            size.x = Mathf.Max(size.x, glyphStep * (glyphs.Length - 1) + meaningWidth + 24f);
+            bubbleRoot.sizeDelta = bubbleShape.rectTransform.sizeDelta = size;
             float inset = 2f + Mathf.Min(size.x, size.y) * bubbleShape.waviness;
             float bodyCenter = (size.y - 2f * inset) * bubbleShape.tailSize * .5f;
             for (int i = 0; i < glyphs.Length; i++)
@@ -980,12 +987,12 @@ namespace WeatherHousePrototype
                 if (definition == null) continue;
                 graphic.SvgBody = definition.body; graphic.lineWidth = animalGlyphStrokeWidth; graphic.color = Ink; graphic.raycastTarget = false;
                 graphic.rectTransform.sizeDelta = new Vector2(height * 5f / 6f, height);
-                graphic.rectTransform.anchoredPosition = new Vector2((i - (glyphs.Length - 1) * .5f) * height * .95f, bodyCenter);
+                graphic.rectTransform.anchoredPosition = new Vector2((i - (glyphs.Length - 1) * .5f) * glyphStep, bodyCenter);
                 Text meaning = bubbleMeanings[i]; meaning.gameObject.name = definition.id;
                 meaning.text = session.Notebook.GetWord(definition.id)?.confirmed == true ? definition.name : "";
-                meaning.fontSize = Mathf.Clamp(Mathf.RoundToInt(height * .36f), 12, 18);
+                meaning.fontSize = meaningFontSize;
                 float meaningHeight = Mathf.Max(height * .45f, meaning.fontSize * 1.4f);
-                meaning.rectTransform.sizeDelta = new Vector2(height * 1.1f, meaningHeight);
+                meaning.rectTransform.sizeDelta = new Vector2(Mathf.Max(height * 1.1f, meaningWidth), meaningHeight);
                 meaning.rectTransform.anchoredPosition = Vector2.up * (size.y * .5f + 6f + meaningHeight * .5f - bodyCenter);
             }
             for (int i = glyphs.Length; i < bubbleGlyphs.Count; i++) bubbleGlyphs[i].gameObject.SetActive(false);

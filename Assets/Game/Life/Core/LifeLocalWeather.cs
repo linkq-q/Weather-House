@@ -21,10 +21,10 @@ namespace WeatherHouse.Life
         {
             player = target; radius = castRadius;
             transform.position = player.position;
-            sky = Create("Local rain and sun");
-            wind = Create("Local wind");
+            sky = Create("Local rain and sun", false);
+            wind = Create("Local wind", true);
         }
-        private WeatherRegion Create(string label)
+        private WeatherRegion Create(string label, bool windChannel)
         {
             var go = new GameObject(label);
             go.SetActive(false);
@@ -32,6 +32,7 @@ namespace WeatherHouse.Life
             var region = go.AddComponent<WeatherRegion>();
             region.radius = radius;
             region.localPlayerWeather = true;
+            region.useWindPrefab = windChannel;
             go.SetActive(true);
             region.SetLocalWeather(LocalWeather.Rain, 1, false);
             return region;

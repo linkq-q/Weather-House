@@ -14,6 +14,7 @@ namespace WeatherHouse.Life
             foreach(LifeObject obj in interactables)
             {
                 if(!obj || obj==held || obj.State.held || obj.State.kind==LifeObjectKind.GrassSource || !string.IsNullOrEmpty(obj.State.slot))continue;
+                if(obj.State.kind==LifeObjectKind.Landmark && obj.State.id!="squirrel.common.invite")continue;
                 float d=Flat(obj.transform.position,Player.position);if(d<distance){nearest=obj;distance=d;}
             }
             return nearest;
@@ -33,12 +34,12 @@ namespace WeatherHouse.Life
                 {
                     case LifeObjectKind.Bundle:case LifeObjectKind.Mat:return held?"F 放下手中物件":"F 拿起 "+obj.Description;
                     case LifeObjectKind.Loom:return held && held.State.kind==LifeObjectKind.Bundle?"F 编成草垫":"编垫点 · 需要草束";
-                    case LifeObjectKind.Bowl:return held?"F 用碗里的水浸湿手中物件":obj.Description+
-                        (drinks.Count==1 && drinks[0].bowl==obj?" · F 邀请同伴":" · F 邀请饮水")+" · Shift+F 倒空";
-                    case LifeObjectKind.Rest:return held && held.State.kind==LifeObjectKind.Mat?"F 铺下草垫":DryMatAt(obj.State.id)?"F 邀请附近动物休息 · Shift+F 收起草垫":obj.Description+" · 放一张草垫";
+                    case LifeObjectKind.Bowl:return held?"F 用碗里的水浸湿手中物件":
+                        (drinks.Count==1 && drinks[0].bowl==obj?"F 邀请同伴":"F 邀请饮水")+" · Shift+F 倒空";
+                    case LifeObjectKind.Rest:return held && held.State.kind==LifeObjectKind.Mat?"F 铺下草垫":DryMatAt(obj.State.id)?"F 邀请附近动物休息 · Shift+F 收起草垫":"F 邀请休息";
                     default:
                         if(obj.State.id=="squirrel.common.invite")return "F 邀请身边的动物一起歇脚";
-                        return held?"F 放下手中物件":"F 查看 "+obj.Description;
+                        return held?"F 放下手中物件":"";
                 }
             }
         }
@@ -82,7 +83,7 @@ namespace WeatherHouse.Life
                     {
                         if(!BeginDrink(obj))owner.SaveAndNotify("碗里留着水。");
                     }
-                    else owner.SaveAndNotify(obj.Description+"。");
+                    else owner.SaveAndNotify("邀请暂未得到回应。");
                     obj.State.revision++;break;
                 case LifeObjectKind.Rest:
                     if(held && held.State.kind==LifeObjectKind.Mat)
@@ -108,7 +109,7 @@ namespace WeatherHouse.Life
                     break;
                 default:
                     if(held)Drop();
-                    else{obj.State.revision++;owner.SaveAndNotify(obj.Description+"。");}
+                    else{obj.State.revision++;owner.SaveAndNotify("");}
                     break;
             }
         }
@@ -170,7 +171,7 @@ namespace WeatherHouse.Life
             {owner.SaveAndNotify("走近动物和休息位再邀请。");return;}
             bool rest=objects.TryGetValue(target,out LifeObject place)&&place.State.kind==LifeObjectKind.Rest;
             if(rest && target!="fox.home" && (!DryMatAt(target)||!place.State.IsWarm))
-            {owner.SaveAndNotify(Known(key=="squirrel"?"squirrel.mat":key+".warm")?"需要干垫和暖处。":"先和它聊聊。");return;}
+            {owner.SaveAndNotify("邀请暂未得到回应。");return;}
             Vector3 destination=AnchorPosition(target);
             Drink pending=drinks.FirstOrDefault(d=>d.animal==binding);
             bool ok=pending!=null || (binding.wildlife?binding.wildlife.RequestLifeTarget(destination,1.5f,rest):binding.herd && binding.herd.RequestLifeTarget(binding.member,destination,1.5f));
@@ -188,7 +189,7 @@ namespace WeatherHouse.Life
             target=target??commonRestId;
             if(!Player || Flat(Player.position,AnchorPosition(target))>3)return;
             if(!DryMatAt(target) || CommonWater(target)<.3f)
-            {owner.SaveAndNotify(Known("squirrel.sequence")?"需要碗中有水、草垫干燥。":"先和松鼠聊聊。");return;}
+            {owner.SaveAndNotify("邀请暂未得到回应。");return;}
             if(target!=commonRestId)
             {
                 foreach(WildlifeAgent previous in invited)if(previous)previous.ReleaseLifeTarget();
@@ -221,6 +222,5 @@ namespace WeatherHouse.Life
             objects[target].State.revision++;
             owner.SaveAndNotify(drinks.Any(d=>d.returnRest && Flat(d.returnTarget,AnchorPosition(target))<.1f)||invited.Count>0?"":"同伴还没走近，稍后再邀请。");
         }
-        bool Known(string request)=>owner && owner.Progress.HasHeard(request);
     }
 }

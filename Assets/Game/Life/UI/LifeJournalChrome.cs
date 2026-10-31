@@ -190,15 +190,18 @@ namespace WeatherHouse.Life
             outline.raycastTarget = false; outline.color = new Color32(86, 126, 64, 255);
             outline.gameObject.SetActive(selected);
             if (string.IsNullOrEmpty(meaning)) return;
-            Vector2 size = new Vector2(Mathf.Clamp(meaning.Length * 18 + 28, 76, 148), 48);
+            Vector2 size = new Vector2(Mathf.Clamp(meaning.Length * 28 + 40, 104, 208), 68);
             var word = (RectTransform)transform;
             float right = Mathf.Min(64f, 570f - word.anchoredPosition.x - size.x * .5f);
             var bubble = ProceduralUiLibrary.Create(transform, "Word meaning tooltip", UiMark.AnimalBubble,
                 new Vector2(right, 60), size, ProceduralUiLibrary.Cream);
             tooltip = bubble.rectTransform;
+            var border = bubble.gameObject.AddComponent<Outline>();
+            border.effectColor = ProceduralUiLibrary.Ink;
+            border.effectDistance = new Vector2(2f, -2f);
             float inset = 2f + Mathf.Min(size.x, size.y) * bubble.waviness;
             float center = (size.y - 2f * inset) * bubble.tailSize * .5f;
-            LifeUi.Text(tooltip, "Confirmed word meaning", meaning, Vector2.up * center, new Vector2(size.x - 18, 28), font, 18,
+            LifeUi.Text(tooltip, "Confirmed word meaning", meaning, Vector2.up * center, new Vector2(size.x - 24, 42), font, 28,
                 ProceduralUiLibrary.Ink, TextAnchor.MiddleCenter);
             tooltip.gameObject.SetActive(false);
         }

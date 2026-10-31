@@ -55,7 +55,7 @@ namespace WeatherHouse.Life
             foreach(LifeRequest request in r)
             {
                 request.openForPhotography=request.eventId=="E6a" || request.eventId=="E6b" ||
-                    request.id=="fox.home" || request.id=="sheep.warm" || request.id=="fox.warm" ||
+                    request.id=="fox.home" ||
                     request.id=="squirrel.sequence" || request.id=="fox.sequence" || request.id=="fox.reverse";
                 if(request.eventId=="E6a")
                 {

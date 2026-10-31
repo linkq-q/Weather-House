@@ -13,6 +13,7 @@ namespace WeatherHousePrototype
         public LocalWeather Current => initialized ? currentWeather : initialWeather;
         public float Wetness { get; private set; }
         public bool localPlayerWeather;
+        [HideInInspector] public bool useWindPrefab = true;
         public bool SoundActive => weatherActive;
         public int SoundStrength => strength;
         private bool weatherActive = true;
@@ -23,6 +24,7 @@ namespace WeatherHousePrototype
         private bool initialized;
         private ParticleSystem rain;
         private ParticleSystem leaves;
+        private WeatherHouse.Life.LifeWindEffect windEffect;
         private Material particleMaterial;
         private Texture2D particleTexture;
         private Light sunshine;
@@ -60,6 +62,7 @@ namespace WeatherHousePrototype
             initialized = true;
             SetEmission(rain, weather == LocalWeather.Rain);
             SetEmission(leaves, weather == LocalWeather.Wind);
+            if (windEffect) windEffect.SetWeather(weather == LocalWeather.Wind, strength, radius);
         }
 
         public void SetLocalWeather(LocalWeather weather, int intensity, bool active)
@@ -68,6 +71,7 @@ namespace WeatherHousePrototype
             weatherActive = active; strength = Mathf.Clamp(intensity, 1, 2);
             SetEmission(rain, active && weather == LocalWeather.Rain);
             SetEmission(leaves, active && weather == LocalWeather.Wind);
+            if (windEffect) windEffect.SetWeather(active && weather == LocalWeather.Wind, strength, radius);
             if (rain) { var emission = rain.emission; emission.rateOverTime = radius * radius * (strength == 2 ? 4f : 1.5f); }
             if (leaves)
             {
@@ -143,21 +147,33 @@ namespace WeatherHousePrototype
             collision.lifetimeLoss = 1f;
             collision.sendCollisionMessages = false;
 
-            leaves = CreateParticles("Local Wind Leaves", .15f, 3f, .13f,
-                new Color(.57f, .62f, .26f, .8f), 14f, 1.8f);
-            var velocity = leaves.velocityOverLifetime;
-            velocity.enabled = true;
-            velocity.space = ParticleSystemSimulationSpace.World;
-            velocity.x = 3.5f;
-            velocity.y = .35f;
-            velocity.z = .7f;
-            var noise = leaves.noise;
-            noise.enabled = true;
-            noise.strength = .6f;
-            noise.frequency = .5f;
-            var rotation = leaves.rotationOverLifetime;
-            rotation.enabled = true;
-            rotation.z = 2f;
+            if (localPlayerWeather)
+            {
+                if (useWindPrefab)
+                {
+                    var prefab = Resources.Load<WeatherHouse.Life.LifeWindEffect>("LifeWeather/Wind");
+                    if (prefab) windEffect = Instantiate(prefab, transform, false);
+                    else Debug.LogError("Missing LifeWeather/Wind prefab.", this);
+                }
+            }
+            else
+            {
+                leaves = CreateParticles("Local Wind Leaves", .15f, 3f, .13f,
+                    new Color(.57f, .62f, .26f, .8f), 14f, 1.8f);
+                var velocity = leaves.velocityOverLifetime;
+                velocity.enabled = true;
+                velocity.space = ParticleSystemSimulationSpace.World;
+                velocity.x = 3.5f;
+                velocity.y = .35f;
+                velocity.z = .7f;
+                var noise = leaves.noise;
+                noise.enabled = true;
+                noise.strength = .6f;
+                noise.frequency = .5f;
+                var rotation = leaves.rotationOverLifetime;
+                rotation.enabled = true;
+                rotation.z = 2f;
+            }
 
             var lightObject = new GameObject("Local sunshine");
             lightObject.transform.SetParent(transform, false);

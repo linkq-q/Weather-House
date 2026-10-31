@@ -253,17 +253,20 @@ namespace WeatherHousePrototype
             string capturedUtterance = DisplayedUtteranceId(animal);
             int capturedRevision = conversationRevision;
             if (speechVisible) ObserveDisplayedConversation(animal);
+            string[] capturedAnimalGlyphs = speechVisible ? (string[])DisplayedGlyphIds(animal).Clone() : Array.Empty<string>();
+            LifeGlyphInscription.Reading[] inscriptions = LifeGlyphInscription.Capture(PhotoRig.CaptureCamera, Catalog);
             Recorder.Capture(PhotoRig.CaptureCamera, new ObservationRecord
             {
                 animalId = animal ? animal.animalId : "", utteranceId = speechVisible ? capturedUtterance : "",
-                glyphIds = speechVisible ? (string[])DisplayedGlyphIds(animal).Clone() : Array.Empty<string>(),
+                glyphIds = LifeGlyphInscription.PhotoGlyphs(capturedAnimalGlyphs, inscriptions),
                 weather = Life ? Life.WeatherText : !animal || animal.region == null ? "" : animal.region.Current.ToString(),
                 context = speechVisible ? (capturedSpeech != null ? capturedSpeech.context?.Copy() : Life ? Life.CaptureContext(animal) : null) : null,
                 photoSnapshot = LifePhotoCapture.Capture(Life, PhotoRig.CaptureCamera)
             }, record =>
             {
                 ReleasePhotoSpeech(capturedSpeech);
-                Notebook.AddObservation(record);
+                Notebook.AddObservation(record, capturedAnimalGlyphs);
+                LifeGlyphInscription.Observe(Notebook, inscriptions);
                 int completed = Notebook.ApplyPhotoTasks();
                 bool saved = Save();
                 if (saved) LifeAudio.Play(LifeAudioCue.Ui);

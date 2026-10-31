@@ -13,6 +13,8 @@ using WeatherHouse.WatersideV2;
 
 namespace WeatherHouse.Life.Editor
 {
+    // Historical 20261026 capture matrix: U16 task-note and U21 location-label cases predate their removal.
+    // Those cases are not acceptance criteria for the current no-marker/no-task-HUD presentation.
     // Only GameView pixels are evidence. Every arranged or reused state is declared separately.
     public static class LifeUiCaptureReview
     {

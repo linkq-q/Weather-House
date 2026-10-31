@@ -118,8 +118,9 @@ namespace WeatherHouse.Life.Editor
             Check(report,!life.Listen(dog.Actor,currentUtterance),"Distance blocks direct listening calls");
             game.PlayerTransform.position=near;
             hud.CloseDialogue();yield return null;
-            var panel=(RectTransform)typeof(LifeGestureInput).GetField("taskRoot",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(life.GetComponent<LifeGestureInput>());
-            Check(report,panel && life.TaskText.Contains("雨"),"Heard rain request retains its task panel and explanation");
+            var input=life.GetComponent<LifeGestureInput>();
+            Check(report,!input.GetComponentsInChildren<Transform>(true).Any(t=>t.name=="Help tasks" || t.name=="Help tasks toggle") &&
+                life.TaskText.Contains("雨"),"Heard rain request retains its record without recreating the removed task HUD");
             ScreenCapture.CaptureScreenshot(Path.GetFullPath("LifeGameplayReview/20261026/play/05-listening-task.png"));
             yield return null;
             Check(report,life.TryCast("rain",out _),"Unlocked rain executes without practice after listening");

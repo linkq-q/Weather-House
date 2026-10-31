@@ -52,8 +52,6 @@ namespace WeatherHouse.Life
         {
             foreach(RaycastHit hit in Physics.RaycastAll(at+Vector3.up*4,Vector3.down,3,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))
                 if(hit.point.y>at.y+1 && hit.normal.y>.4f && !hit.collider.GetComponentInParent<LifeObject>())return true;
-            foreach(LifeObject site in objects.Values)
-                if(site && site.State.kind==LifeObjectKind.Rest && site.State.sheltered && Flat(site.transform.position,at)<.65f)return true;
             return false;
         }
     }

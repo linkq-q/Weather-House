@@ -40,6 +40,7 @@ namespace WeatherHouse.Life
         public int version = 1;
         public List<LifeTask> tasks = new List<LifeTask>();
         public List<string> learnedGestures = new List<string>();
+        public bool weatherMagicTestUnlocked;
         public List<string> friendlyAnimals = new List<string>();
         public List<string> heardRequests = new List<string>();
         // Retained only to migrate existing saves; listening never adds understanding.
@@ -47,6 +48,7 @@ namespace WeatherHouse.Life
         public string worldJson = "";
         public bool rainTutorialSeen;
         public bool photoTaskBookCollected;
+        public List<WeatherHouse.Hillside.AnimalStoryState> animalStories = new List<WeatherHouse.Hillside.AnimalStoryState>();
 
         public void Normalize()
         {
@@ -55,6 +57,9 @@ namespace WeatherHouse.Life
             friendlyAnimals = friendlyAnimals ?? new List<string>();
             understoodRequests = understoodRequests ?? new List<string>();
             heardRequests = heardRequests ?? new List<string>();
+            animalStories = animalStories ?? new List<WeatherHouse.Hillside.AnimalStoryState>();
+            animalStories.RemoveAll(s => s == null || string.IsNullOrEmpty(s.animalId));
+            foreach (var story in animalStories) story.NormalizeAfterLoad();
             foreach (string id in understoodRequests) RememberHeard(id);
             foreach (LifeTask task in tasks) if (task != null) RememberHeard(task.requestId);
         }
@@ -109,6 +114,8 @@ namespace WeatherHouse.Life
         public bool CanPresent(LifeRequest request, IEnumerable<LifeRequest> content)
         {
             if (request == null) return false;
+            // Defer new temperature lessons; an existing accepted task must remain finishable.
+            if (request.eventId == "E5") return FindTask(request.id) != null;
             if (request.openForPhotography) return true;
             // Heard requests and accepted help remain available on every return visit.
             if (HasHeard(request.id) || FindTask(request.id) != null) return true;
@@ -119,7 +126,7 @@ namespace WeatherHouse.Life
                 case "E0": return true;
                 case "E1": return EventComplete("E0", content);
                 case "E2": return EventComplete("E1", content);
-                case "E3": case "E4": case "E5": case "E6a": case "E6b":
+                case "E3": case "E4": case "E6a": case "E6b":
                     return EventComplete("E2", content);
                 case "E7":
                     foreach (string id in BeforeEnding) if (!EventComplete(id, content)) return false;
@@ -127,7 +134,7 @@ namespace WeatherHouse.Life
                 default: return false;
             }
         }
-        private static readonly string[] BeforeEnding = { "E0", "E1", "E2", "E3", "E4", "E5", "E6a", "E6b" };
+        private static readonly string[] BeforeEnding = { "E0", "E1", "E2", "E3", "E4", "E6a", "E6b" };
 
         public string GetProgressHint(IEnumerable<LifeRequest> content)
         {
@@ -139,7 +146,6 @@ namespace WeatherHouse.Life
             if (!EventComplete("E2", content)) return "看看窝垫和旁边的草，比较它们淋湿前后的样子。";
             if (!EventComplete("E3", content)) return "看看动物指向的树，再观察它真正停下来休息的地方。";
             if (!EventComplete("E4", content)) return "站在布条旁，比较天气变化时动物的反应。";
-            if (!EventComplete("E5", content)) return "比较明亮的空地和背风处，看看动物愿意在哪里停留。";
             if (!EventComplete("E6a", content)) return "听听渡口的两只动物说话，留意每句话是对谁说的。";
             if (!EventComplete("E6b", content)) return "站在安全干岸，留意说话者指向的位置和移动方向。";
             if (!EventComplete("E7", content)) return "再去河岛，看看两件熟悉物品怎样一起满足歇脚需要。";
@@ -158,6 +164,16 @@ namespace WeatherHouse.Life
         private LifeProgress progress = new LifeProgress();
         private IEnumerable<LifeRequest> content = Array.Empty<LifeRequest>();
         private LifeRequest lastCurrent;
+        private LifeRequest story;
+        private float storyUntil;
+        public LifeRequest Story => story != null && Time.time < storyUntil ? story : null;
+        public void PublishStory(LifeRequest value, float seconds)
+        {
+            if (value == null || value.HasTask || value.requiredForEvent) return;
+            story = value; storyUntil = Time.time + Mathf.Clamp(seconds, 1, 15);
+            _ = Current;
+        }
+        public void StopStory() { story = null; _ = Current; }
         public void ConfigureProgress(LifeProgress value, IEnumerable<LifeRequest> allRequests)
         {
             progress = value ?? new LifeProgress();
@@ -169,7 +185,8 @@ namespace WeatherHouse.Life
             get
             {
                 LifeRequest selected = null;
-                if (requests != null && requests.Length > 0)
+                if (Story != null) selected = Story;
+                else if (requests != null && requests.Length > 0)
                 {
                     topicIndex = Mathf.Clamp(topicIndex, 0, requests.Length - 1);
                     if (!Available(requests[topicIndex]))
@@ -189,6 +206,7 @@ namespace WeatherHouse.Life
         }
         public void SelectNext()
         {
+            if (Story != null) { StopStory(); return; }
             if (requests == null || requests.Length == 0) return;
             _ = Current;
             for (int step = 1; step <= requests.Length; step++)
@@ -203,6 +221,7 @@ namespace WeatherHouse.Life
 
         public void AdvanceAfterHeard()
         {
+            if (Story != null) return;
             var current = Current;
             if (current == null || !progress.HasHeard(current.id) ||
                 (current.HasTask && progress.FindTask(current.id)?.status != LifeTaskStatus.Complete)) return;
