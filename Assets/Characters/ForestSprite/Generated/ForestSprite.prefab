@@ -854,9 +854,12 @@ MonoBehaviour:
   walkSpeed: 2.925
   walkStride: 1
   runSpeed: 4.5
+  walkStartSeconds: 0
+  walkStopSeconds: 0
   originalWalkCycleDistance: 0.52
   walkCycleDistance: 0.95
   runCycleDistance: 1.5454546
+  lightMovingLanding: 0
   jumpHeight: 0.48
   gravity: -8
   cameraHeight: 0.8
@@ -1871,8 +1874,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 4895664046688151057}
   m_AABB:
-    m_Center: {x: 0.015848666, y: 0.44542745, z: -0.16785541}
-    m_Extent: {x: 1.1278195, y: 0.967198, z: 0.91327393}
+    m_Center: {x: NaN, y: NaN, z: NaN}
+    m_Extent: {x: NaN, y: NaN, z: NaN}
   m_DirtyAABB: 0
 --- !u!183 &9156024291483501896
 Cloth:

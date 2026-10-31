@@ -15,7 +15,9 @@ import: PASS · adapt: PASS · verify: PASS · preview: PASS
 
 导入目录：`Assets/Environment/DDriveLibrary`。文件来源、GUID、导入前 SHA-256 见 `AssetIntakeReview/import-manifest.json`；Unity 检查见同目录各 `*-report.json`；预览见 `AssetIntakeReview/D盘资产库.html`。
 
-保留原生 URP 材质；旧 Built-in 材质在独立副本中适配 URP Lit，保留能对应的贴图、颜色、法线与透明裁切。旧自定义材质的特殊效果不因导入自动实现。资源导入不覆盖既有资产；后续只在 WatersideV2 独立地形层/指定低墙做同机位 A/B，见地编材质对照。主草地、水、树的调参保持。
+保留原生 URP 材质；旧 Built-in 材质在独立副本中适配 URP Lit，保留能对应的贴图、颜色、法线与透明裁切。旧自定义材质的特殊效果不因导入自动实现。资源导入不覆盖既有资产；本轮在 WatersideV2 独立地形层/指定低墙完成同机位 A/B，见地编材质对照。主草地、水、树的调参保持。
+
+11 个机位保留相同相机与光照参数。已采用 Rock_3 岩面、Sand_1 浅滩砂土，以及 02 老树小院的一段 AncientRuins 矮墙；矮墙原碰撞和墙顶草保留。泥路仍用 HIGHLANDS Mud_1，新 Mud_2 视觉偏暗，未采用。高度图和地形混合权重校验值一致，泥土行走/拒绝非泥土表面/淡出检查通过。比较页是局部材质优化的证据，不代表整体场景已达到 90% 概念还原。
 
 Pure Nature 已有 529/529 同 GUID 项，避免重复。D 盘掉线后只继续处理完整缓存；后续重新识别时卷状态为 `Warning / Full Repair Needed`，尚未读取的资产留待磁盘状态稳定后续导。没有执行格式化或文件系统修复。
 

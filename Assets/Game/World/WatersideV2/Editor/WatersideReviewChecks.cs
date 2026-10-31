@@ -31,6 +31,10 @@ namespace WeatherHouse.WatersideV2.Editor
         static WatersideMood captureMood;
         static WatersideMood.Snapshot originalMood;
         static bool photoPrepared;
+        static CaptureView[] captureViews;
+        static string captureFolder;
+        static bool restoreHouseNormals;
+        static bool restoreHouseLod;
         static int phase;
         static Vector3 walkStart;
         static readonly Dictionary<Transform, Quaternion> bones = new Dictionary<Transform, Quaternion>();
@@ -46,10 +50,10 @@ namespace WeatherHouse.WatersideV2.Editor
         {
             public readonly string Name;
             public readonly Vector3 Stand;
-            public readonly float Yaw, Pitch, Distance, Ahead;
+            public readonly float Yaw, Pitch, Distance, Ahead, TargetHeight;
             public readonly WatersideMood.Mode Mood;
-            public CaptureView(string name, float x, float z, float yaw, float pitch, float distance, float ahead = 0, WatersideMood.Mode mood = WatersideMood.Mode.Day)
-            { Name = name; Stand = new Vector3(x, 0, z); Yaw = yaw; Pitch = pitch; Distance = distance; Ahead = ahead; Mood = mood; }
+            public CaptureView(string name, float x, float z, float yaw, float pitch, float distance, float ahead = 0, WatersideMood.Mode mood = WatersideMood.Mode.Day, float targetHeight = .75f)
+            { Name = name; Stand = new Vector3(x, 0, z); Yaw = yaw; Pitch = pitch; Distance = distance; Ahead = ahead; Mood = mood; TargetHeight = targetHeight; }
         }
 
         // Reference IDs are preserved so saved images can be compared without renumbering.
@@ -91,6 +95,126 @@ namespace WeatherHouse.WatersideV2.Editor
                 if (!File.Exists(path)) return;
                 string command=File.ReadAllText(path).Trim(); File.Delete(path); Directory.CreateDirectory(Folder);
                 if(command=="inspect") State();
+                else if(command=="v3-scene-copy") { if(EditorApplication.isPlaying) throw new InvalidOperationException("Copy only in Edit mode."); Directory.CreateDirectory("JourneyReview/Revision_20261024/MotionReview/SceneSnapshots"); if(!EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), "JourneyReview/Revision_20261024/MotionReview/SceneSnapshots/memory-" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff") + ".unity", true)) throw new IOException("Snapshot failed."); State(); }
+                else if(command=="v3-perf-inventory") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("PerformanceAuditReview/20261024/Optimization/PerformanceReadOnlyProbeV3.dll")).GetType("WeatherHouse.Review.PerformanceReadOnlyProbe").GetMethod("Inspect").Invoke(null,null); State(); }
+                else if(command=="v3-perf-comparison") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("PerformanceAuditReview/20261024/Optimization/PerformanceComparisonChecksV2.dll")).GetType("WeatherHouse.Review.PerformanceComparisonChecks").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-motion-baseline") { WeatherHouse.Review.WatersideMotionPlayReview.BeginBaseline(); }
+                else if(command=="v3-motion-candidate") { WeatherHouse.Review.WatersideMotionPlayReview.BeginCandidate(); }
+                else if(command=="v3-water-baseline") { WeatherHouse.Review.WatersideMotionPlayReview.BeginWaterBaseline(); }
+                else if(command=="v3-water-candidate") { WeatherHouse.Review.WatersideMotionPlayReview.BeginWaterCandidate(); }
+                else if(command=="v3-prefab-bounds") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("PerformanceAuditReview/20261024/Optimization/CapePrefabBoundsChecksV2.dll")).GetType("WeatherHouse.Review.CapePrefabBoundsChecks").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-perf-baseline") { WeatherHouse.Review.WatersidePerformancePlayReview.BeginBaseline(); }
+                else if(command=="v3-perf-candidate") { WeatherHouse.Review.WatersidePerformancePlayReview.BeginCandidate(); }
+                else if(command=="v3-perf-reflection-aba") { WeatherHouse.Review.WatersidePerformancePlayReview.BeginReflectionAba(); }
+                else if(command=="v3-reflection-land") { WeatherHouse.Review.WatersideReflectionLandingReview.Apply(); State(); }
+                else if(command=="v3-fox-bind") { WeatherHouse.Review.WatersideFoxRestPlayReview.BindReviewedClips(); State(); }
+                else if(command=="v3-fox-play") { WeatherHouse.Review.WatersideFoxRestPlayReview.BeginReviewed(); }
+                else if(command=="v3-fox-strategy") { File.WriteAllText("JourneyReview/Revision_20261024/AnimationInstall/MainReview/strategy-final.txt", WeatherHouse.Hillside.Editor.WildlifeSolitaryStrategyChecks.RunLogicChecks()); State(); }
+                else if(command=="v3-dog-bind") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/AnimationInstall/AdditionalSources/DogEating/CandidateV3/DogEatingBindingReview.dll")).GetType("WeatherHouse.Review.DogEatingBindingReview").GetMethod("Bind").Invoke(null,null); State(); }
+                else if(command=="v3-dog-contact-code") { WeatherHouse.Review.WatersideRuralLandingReview.InstallReviewedDogContact(); State(); }
+                else if(command=="v3-dog-contact-bind") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/AnimationInstall/AdditionalSources/DogEating/ForageContactV1/DogEatingContactBindingReviewV2.dll")).GetType("WeatherHouse.Review.DogEatingContactBindingReview").GetMethod("Bind").Invoke(null,null); State(); }
+                else if(command=="v3-mage-undo-probe") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MageCandidate/Review/MageMainIntegrationV2.dll")).GetType("MageMainIntegration").GetMethod("ProbeWithUndo").Invoke(null,null); State(); }
+                else if(command=="v3-dog-play") { WeatherHouse.Review.WatersideFoxRestPlayReview.BeginReviewedDogEating(); }
+                else if(command=="v3-mage-preflight" || command=="v3-mage-apply") { const string review="JourneyReview/Revision_20261024/MageCandidate/Review/MainIntegration/"; var guards=File.ReadAllLines(review+"baseline-guards.txt"); if(guards.Length!=2) throw new InvalidOperationException("Missing frozen Mage baseline guards."); string result=(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MageCandidate/Review/MageMainIntegrationV2.dll")).GetType("MageMainIntegration").GetMethod(command=="v3-mage-apply"?"Apply":"Preflight").Invoke(null,new object[]{guards[0].Trim(),guards[1].Trim()}); File.WriteAllText(review+command+".txt",result); State(); }
+                else if(command=="v3-a06-inspect" || command=="v3-a06-apply") { WatersideSceneBuilder.RequireSaved(); var stairsResult=command=="v3-a06-inspect"?RuralA06EntrySteps.InspectCurrent():RuralA06EntrySteps.ApplyPrefab(); File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/A06EntrySteps/"+command+".json",stairsResult); State(); }
+                else if(command=="v3-visual-baseline") { var baselineResultPath=RuralVisualFollowup.CaptureBaseline(File.ReadAllText("JourneyReview/Revision_20261024/MainImport/runtime-scene-sha.txt").Trim()); File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/VisualFollowupV1/baseline-path.txt",baselineResultPath); State(); }
+                else if(command=="v3-visual-apply") { var result=RuralVisualFollowup.Apply(File.ReadAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/VisualFollowupV1/baseline-path.txt").Trim()); File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/VisualFollowupV1/apply-result.txt",result); State(); }
+                else if(command=="v3-visual-save") { var result=RuralVisualFollowup.Save(File.ReadAllText("JourneyReview/Revision_20261024/MainImport/runtime-scene-sha.txt").Trim()); File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/VisualFollowupV1/save-result.txt",result); State(); }
+                else if(command=="v3-mage-play") { WeatherHouse.Review.RuralMainPlayReview.Begin(File.ReadAllText("JourneyReview/Revision_20261024/MageCandidate/Review/MainIntegration/saved-scene-sha.txt").Trim(),"mage"); }
+                else if(command=="v3-mage-probe") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MageCandidate/Review/MageMainIntegrationV2.dll")).GetType("MageMainIntegration").GetMethod("Probe").Invoke(null,null); State(); }
+                else if(command=="v3-journey-first-plan-query") { File.WriteAllText("JourneyReview/Revision_20261024/Departure/MainJourneyReview/latest-query-path.txt",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/Departure/MainJourneyReview/JourneySpawn32CandidateProbeV1.dll")).GetType("WeatherHouse.Review.JourneySpawn32CandidateProbeV1").GetMethod("Run").Invoke(null,null)); State(); }
+                else if(command=="v3-spawn32-apply") { File.WriteAllText("JourneyReview/Revision_20261024/Departure/MainJourneyReview/AuthorSpawn32V1/latest-apply.json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/Departure/MainJourneyReview/AuthorSpawn32V1/JourneySpawn32AuthoringApply.dll")).GetType("WeatherHouse.Review.JourneySpawn32AuthoringApply").GetMethod("Apply").Invoke(null,null)); State(); }
+                else if(command=="v3-herd-visual-begin") { File.WriteAllText("JourneyReview/Revision_20261024/Departure/HerdVisualObserverV1/latest-begin.txt",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/Departure/HerdVisualObserverV2/candidate.dll")).GetType("WeatherHouse.Review.JourneyHerdVisualObserver").GetMethod("Begin").Invoke(null,null)); }
+                else if(command=="v3-east-tree-query") { File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteTreeDetourV1/latest-query.json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteTreeDetourV1/EastTreeDetourProbe.dll")).GetType("RuralEastTreeDetourProbe").GetMethod("Run").Invoke(null,new object[]{Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteTreeDetourV1/MainPreflightV1")})); State(); }
+                else if(command=="v3-east-tree-apply" || command=="v3-east-tree-save") { File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteTreeDetourV1/"+command+".json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteTreeDetourV1/Candidate/EastTreeDetourPaint.dll")).GetType("RuralEastTreeDetourPaint").GetMethod(command=="v3-east-tree-apply"?"Apply":"Save").Invoke(null,new object[]{File.ReadAllText("JourneyReview/Revision_20261024/MainImport/runtime-scene-sha.txt").Trim()})); State(); }
+                else if(command=="v3-mouth-entry-apply" || command=="v3-mouth-entry-save") { File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteBridgeEntryV1/"+command+".json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/EastRouteBridgeEntryV1/Candidate/MouthBridgeEntryApply.dll")).GetType("RuralMouthBridgeEntryApply").GetMethod(command=="v3-mouth-entry-apply"?"Apply":"Save").Invoke(null,new object[]{File.ReadAllText("JourneyReview/Revision_20261024/MainImport/runtime-scene-sha.txt").Trim()})); State(); }
+                else if(command=="v3-a04-rock-query") { File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV2/latest-query.json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV2/A04RockDetourProbe.dll")).GetType("RuralA04RockDetourProbe").GetMethod("Run").Invoke(null,new object[]{Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV2/MainQueryV1")})); State(); }
+                else if(command=="v3-a04-route-query") { File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV1/latest-query.json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV1/A04RouteProbe.dll")).GetType("RuralA04RouteProbe").GetMethod("Run").Invoke(null,new object[]{Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV1/MainPreflightV1")})); State(); }
+                else if(command=="v3-a04-route-apply" || command=="v3-a04-route-save") { File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV1/"+command+".json",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/MapIntegrationPlan/A04RouteAndEntryGrassV1/Candidate/A04RoutePaint.dll")).GetType("RuralA04RoutePaint").GetMethod(command=="v3-a04-route-apply"?"Apply":"Save").Invoke(null,new object[]{File.ReadAllText("JourneyReview/Revision_20261024/MainImport/runtime-scene-sha.txt").Trim()})); State(); }
+                else if(command=="v3-journey-graph-snapshot-check") { File.WriteAllText("JourneyReview/Revision_20261024/Departure/GraphIntegration/native-snapshot-check.txt",(string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/Departure/GraphIntegration/GraphMergeChecks.dll")).GetType("JourneyGraphSnapshotChecks").GetMethod("Run").Invoke(null,null)); State(); }
+                else if(command=="v3-journey-graph-preflight") { File.WriteAllText("JourneyReview/Revision_20261024/Departure/GraphIntegration/latest-preflight.json",JourneyAlternativeGraphIntegration.Preflight()); State(); }
+                else if(command=="v3-journey-graph-apply") { var graphReport=JsonUtility.FromJson<JourneyAlternativeGraphIntegration.Report>(File.ReadAllText("JourneyReview/Revision_20261024/Departure/GraphIntegration/latest-preflight.json")); File.WriteAllText("JourneyReview/Revision_20261024/Departure/GraphIntegration/latest-apply.json",JourneyAlternativeGraphIntegration.Apply(Path.Combine(graphReport.folder,"preflight.json"))); State(); }
+                else if(command=="v3-rural-play-all" || command=="v3-rural-play-herd" || command=="v3-rural-play-social" || command=="v3-rural-play-details" || command=="v3-rural-play-steps" || command=="v3-rural-play-views" || command=="v3-rural-play-coast" || command=="v3-rural-play-entrances") { var rural = JsonUtility.FromJson<RuralMapIntegration.Run>(File.ReadAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/latest-execution.json")); if(rural.status!="saved-awaiting-runtime-review") throw new InvalidOperationException("Map must be saved and reviewed before Play."); var runtimeGuard="JourneyReview/Revision_20261024/MainImport/runtime-scene-sha.txt"; WeatherHouse.Review.RuralMainPlayReview.Begin(File.Exists(runtimeGuard)?File.ReadAllText(runtimeGuard).Trim():rural.sceneSavedHash,command.Substring("v3-rural-play-".Length)); }
+                else if(command=="v3-rural-play-stop") { WeatherHouse.Review.RuralMainPlayReview.Stop(); }
+                else if(command=="v3-rural-code" || command=="v3-rural-preflight" || command=="v3-rural-apply" || command=="v3-rural-validate" || command=="v3-rural-save" || command=="v3-rural-recover" || command=="v3-rural-protection") { WeatherHouse.Review.WatersideRuralLandingReview.Run(command); State(); }
+                else if(command=="v3-rural-import") { WatersideSceneBuilder.RequireSaved(); string[] imported = RuralAssetImport.BuildAll(); Directory.CreateDirectory("JourneyReview/Revision_20261024/MapIntegrationPlan/MainImport"); File.WriteAllLines("JourneyReview/Revision_20261024/MapIntegrationPlan/MainImport/prefabs.txt", imported); State(); }
+                else if(command=="v3-rural-review") { WatersideSceneBuilder.RequireSaved(); string result = RuralPrefabReview.RunAll(); File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/MainImport/prefab-review.txt",result); State(); }
+                else if(command=="v3-rural-a03") { WatersideSceneBuilder.RequireSaved(); RuralAssetImport.BuildPrefab("A03"); File.WriteAllText("JourneyReview/Revision_20261024/MapIntegrationPlan/MainImport/prefab-review.txt",RuralPrefabReview.RunAll()); State(); }
+                else if(command=="v3-perf-reflection-renderer-aba") { WeatherHouse.Review.WatersidePerformancePlayReview.BeginReflectionRendererAba(); }
+                else if(command=="v3-lighting-readiness") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("PerformanceAuditReview/20261024/Optimization/LightingReadinessProbe.dll")).GetType("WeatherHouse.Review.LightingReadinessProbe").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-water-culling-checks") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("PerformanceAuditReview/20261024/Optimization/ReflectionCulling/WaterCullingEnvelopeChecksV3.dll")).GetType("WeatherHouse.Review.WaterCullingEnvelopeChecks").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-wind-bounds-checks") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("PerformanceAuditReview/20261024/Optimization/ReflectionCulling/WindBoundsChecks.dll")).GetType("WeatherHouse.Review.WindBoundsChecks").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-perf-reflection-culling-aba") { WeatherHouse.Review.WatersidePerformancePlayReview.BeginReflectionCullingAba(); }
+                else if(command=="v3-fence-source") { WatersideFenceLodRepairChecks.RunSourceChecks(); WatersideFenceLodRepair.Preview(); State(); }
+                else if(command=="v3-fence-read") { WatersideFenceLodRepairChecks.RunReadOnly(); State(); }
+                else if(command=="v3-fence-apply") { WatersideFenceLodRepairChecks.ApplyChecked(); State(); }
+                else if(command=="v3-social-fade-baseline") { string result = (string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/CameraReference/SocialFadeBaselineChecks.dll")).GetType("WeatherHouse.WildlifeJourney.Editor.JourneySocialChecks").GetMethod("RunLogicChecks").Invoke(null,null); File.WriteAllText("JourneyReview/Revision_20261024/CameraReference/social-baseline-result.txt",result); State(); }
+                else if(command=="v3-greeting-baseline") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/GreetingCooldown/GreetingBaselineChecks.dll")).GetType("WeatherHousePrototype.Editor.WildlifeInteractionChecks").GetMethod("RunEditChecks").Invoke(null,null); State(); }
+                else if(command=="v3-scale-placement") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/AnimalScale/Placement/WatersideScalePlacementAuditExact.dll")).GetType("WeatherHouse.Review.WatersideScalePlacementAudit").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-animal-scale-checks") { WatersideAnimalScaleChecks.Run(); WatersideAnimalScale.Preview(); State(); }
+                else if(command=="v3-animal-scale-apply") { WatersideAnimalScale.Apply(); State(); }
+                else if(command=="v3-social-checks") { File.WriteAllText("JourneyReview/Revision_20261024/CameraReference/social-green-" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss") + ".txt", WeatherHouse.WildlifeJourney.Editor.JourneySocialChecks.RunLogicChecks()); State(); }
+                else if(command=="v3-bubble-baseline" || command=="v3-bubble-checks") { string result = (string)System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/AnimalBubble/AnimalBubbleBaselineChecks.dll")).GetType("AnimalBubbleChecks").GetMethod(command=="v3-bubble-baseline" ? "RunBaseline" : "RunChecks").Invoke(null,null); File.WriteAllText("JourneyReview/Revision_20261024/AnimalBubble/" + command + "-" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss") + ".txt", result); State(); }
+                else if(command=="v3-interaction-checks") { WeatherHousePrototype.Editor.WildlifeInteractionChecks.RunEditChecks(); File.WriteAllText("WildlifeInteractionReview/edit-checks.txt", "PASS read-only preview-scene interaction checks, including butterfly exclusion.\n"); State(); }
+                else if(command=="v3-save-reviewed") { if(EditorApplication.isPlaying || SceneManager.GetActiveScene().path != WatersideSceneBuilder.ScenePath) throw new InvalidOperationException("Save only the reviewed V2 scene in Edit mode."); Undo.FlushUndoRecordObjects(); Directory.CreateDirectory("WatersideV3Review/baseline"); if(SceneManager.GetActiveScene().isDirty) EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), "WatersideV3Review/baseline/user-details-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".unity", true); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-initial-placement") { System.Reflection.Assembly.LoadFile(Path.GetFullPath("JourneyReview/Revision_20261024/InitialPlacement/WildlifeInitialPlacementAudit.dll")).GetType("WeatherHouse.Review.WildlifeInitialPlacementAudit").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-gameplay-install") { SaveUserDetails(); WeatherHousePrototype.Editor.WatersideGameplayInstaller.Install(); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-gameplay-check") { File.WriteAllText("WatersideV3Review/gameplay-ui/bindings.txt", WeatherHousePrototype.Editor.WatersideGameplayInstaller.CheckBindings()); State(); }
+                else if(command=="v3-gameplay-play") { SaveUserDetails(); WeatherHousePrototype.Editor.WatersideGameplayPlayReview.Begin(); }
+                else if(command=="v3-inspect") WatersideLivingSpaces.Inspect();
+                else if(command=="v3-cape-sites") WatersideCapeSiteReview.Find();
+                else if(command=="v3-extend") { WatersideExtendedDressing.Apply(); State(); }
+                else if(command=="v3-wading-checks") WatersideWadingReview.Check();
+                else if(command=="v3-wading-play") WatersideWadingPlayReview.Begin();
+                else if(command=="v3-cape-inspect") ForestSpriteCharacter.Editor.ForestSpriteCapeMotionReview.Inspect();
+                else if(command=="v3-cape-play") ForestSpriteCharacter.Editor.ForestSpriteCapeMotionPlayReview.Begin();
+                else if(command=="grass-data-checks") WeatherHouse.Vegetation.Editor.GrassLocalPaintChecks.Run();
+                else if(command=="grass-integration-checks") WeatherHouse.Vegetation.Editor.GrassLocalPaintIntegrationChecks.Run();
+                else if(command=="grass-editor-checks") WeatherHouse.Hillside.Editor.HillsideGrassBrushChecks.Run();
+                else if(command=="grass-open") { SaveUserDetails(); WeatherHouse.Hillside.Editor.HillsideGrassBrushWindow.SetupCurrentSceneAndShow(); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-cape-apply") { ForestSpriteCharacter.Editor.ForestSpriteCapeMotionReview.RepairNonFiniteBounds(); ForestSpriteCharacter.Editor.ForestSpriteCapeMotionReview.Apply(); ForestSpriteCharacter.Editor.ForestSpriteCapeMotionReview.SavePersisted(); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-rock-audit") { System.Reflection.Assembly.Load(File.ReadAllBytes("Temp/WatersideRockColliderAuditStaging.dll")).GetType("WeatherHouse.WatersideV2.Editor.WatersideRockColliderAuditStaging").GetMethod("Run").Invoke(null,null); State(); }
+                else if(command=="v3-wall-collider") { WatersideDDrivePropsTrial.MatchAcceptedWallCollider(); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-tide-rims") { WatersideTidePoolExpansion.FormRockyTidePools(); Undo.FlushUndoRecordObjects(); AssetDatabase.SaveAssets(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-tide-banks") { WatersideTidePoolExpansion.RefineBanks(); Undo.FlushUndoRecordObjects(); AssetDatabase.SaveAssets(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-clean-draft") { WatersideLivingSpaces.RemoveUnsavedDraft(); State(); }
+                else if(command=="v3-living") { WatersideLivingSpaces.Apply(); State(); }
+                else if(command=="v3-check") { WatersideLivingSpaces.Check(); State(); }
+                else if(command=="v3-capture") BeginCapture(false, "WatersideV3Review/after");
+                else if(command=="v3-wide") BeginCapture(false, "WatersideV3Review/wide");
+                else if(command=="v3-flight-play") WatersideFlightPlayReview.Begin();
+                else if(command=="v3-water") { WatersideWaterContactReview.Apply(); State(); }
+                else if(command=="v3-water-check") { WatersideWaterContactReview.Check(); State(); }
+                else if(command=="v3-water-settings") { WatersideWaterAuthoring.ApplyRequested(); State(); }
+                else if(command=="v3-water-settings-check") { WatersideWaterAuthoring.Check(); State(); }
+                else if(command=="v3-bird-assets") { BirdsButterfliesEnhancement.PrepareAssets(); BirdsButterfliesEnhancement.CheckAssets(); State(); }
+                else if(command=="v3-birds") { WatersideSceneBuilder.RequireSaved(); BirdsButterfliesEnhancement.Apply(); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-birds-check") { BirdsButterfliesEnhancement.Check(); State(); }
+                else if(command=="v3-tide") { WatersideSceneBuilder.RequireSaved(); WatersideTidePoolExpansion.Apply(); Undo.FlushUndoRecordObjects(); AssetDatabase.SaveAssets(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-wading-route") { WatersideWadingPlayReview.DiagnoseRoute(); State(); }
+                else if(command=="roof-inspect") { WeatherHouseRoofHarmony.Inspect(); State(); }
+                else if(command=="roof-before") BeginCapture(true, "WatersideV3Review/roof/before");
+                else if(command=="roof-apply") { WeatherHouseRoofHarmony.Apply(); State(); }
+                else if(command=="roof-sparse") { WeatherHouseRoofHarmony.ApplySparseMeshes(); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-fox") { WatersideSceneBuilder.RequireSaved(); WeatherHouse.Hillside.Editor.WildlifeSolitaryIntegration.ApplyCurrentFoxes(Object.FindObjectsOfType<WildlifePopulation>().Single(p => p.agents != null && p.agents.Any(a => a && a.speciesId == "fox" && a.spawnId == 20))); Undo.FlushUndoRecordObjects(); EditorSceneManager.SaveScene(SceneManager.GetActiveScene()); State(); }
+                else if(command=="v3-ecology-play") WeatherHouse.WildlifeJourney.Editor.JourneyEcologyPlayReview.Begin();
+                else if(command=="roof-after") BeginCapture(true, "WatersideV3Review/roof/after");
+                else if(command=="house-inspect") WeatherHousePlacementReview.Inspect();
+                else if(command=="house-audit") WeatherHousePlacementReview.AuditDirty();
+                else if(command=="house-import") WeatherHouseV05Import.BuildPrefab();
+                else if(command=="house-apply") { WeatherHouseV05Placement.Apply(); State(); }
+                else if(command=="house-restore") { WeatherHouseV05Placement.Restore(); State(); }
+                else if(command=="house-capture") BeginCapture(true);
+                else if(command=="house-normal-probe")
+                {
+                    WatersideSceneBuilder.RequireSaved(); restoreHouseNormals = true;
+                    WeatherHouseV05Import.SetNormalScale(0); BeginCapture(true, "WeatherHouseIntegrationReview/normal-flat");
+                }
+                else if(command=="house-lod-probe")
+                {
+                    WatersideSceneBuilder.RequireSaved(); restoreHouseLod = true;
+                    WeatherHouseV05Import.ForceLod(0); BeginCapture(true, "WeatherHouseIntegrationReview/lod0");
+                }
                 else if(command=="build") { WatersideSceneBuilder.Build();State(); }
                 else if(command=="integrate") { WatersideSceneBuilder.CompleteAnimalIntegration();State(); }
                 else if(command=="lanterns") { WatersideSceneBuilder.ApplyLanternDefaults();State(); }
@@ -133,19 +257,39 @@ namespace WeatherHouse.WatersideV2.Editor
             {
                 Directory.CreateDirectory(Folder); File.WriteAllText(Folder+"/last-command.txt","FAIL\n"+e);
                 if(photo) EndCapture();
+                if(restoreHouseNormals) { WeatherHouseV05Import.SetNormalScale(1); restoreHouseNormals=false; }
+                if(restoreHouseLod) { WeatherHouseV05Import.ForceLod(-1); restoreHouseLod=false; }
                 if(SessionState.GetBool(PlayKey,false)) { File.WriteAllText(Folder+"/runtime-checks.txt","FAIL\n"+e);FinishPlay(); }
                 Debug.LogException(e);
             }
         }
+        static void SaveUserDetails()
+        {
+            var scene = SceneManager.GetActiveScene();
+            if (EditorApplication.isPlayingOrWillChangePlaymode || scene.path != WatersideSceneBuilder.ScenePath)
+                throw new InvalidOperationException("Save the active Waterside scene only outside Play.");
+            if (!scene.isDirty) return;
+            Undo.FlushUndoRecordObjects();
+            Directory.CreateDirectory("WatersideV3Review/baseline");
+            if (!EditorSceneManager.SaveScene(scene, "WatersideV3Review/baseline/user-details-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".unity", true))
+                throw new IOException("User scene backup could not be saved.");
+            if (!EditorSceneManager.SaveScene(scene)) throw new IOException("Current scene could not be saved.");
+        }
+
         static void State()
         {
             File.WriteAllText(Folder+"/state.txt","scene="+SceneManager.GetActiveScene().path+"\nplaying="+EditorApplication.isPlaying+
                 "\ndirty="+SceneManager.GetActiveScene().isDirty+"\ncompiling="+EditorApplication.isCompiling+"\nutc="+DateTime.UtcNow.ToString("O"));
         }
-        static void BeginCapture()
+        static void BeginCapture(bool houseOnly = false, string output = null)
         {
             WatersideSceneBuilder.RequireSaved();
             if(SceneManager.GetActiveScene().path!=WatersideSceneBuilder.ScenePath) throw new InvalidOperationException("Capture only V2.");
+            captureViews = houseOnly ? new[] { Views[0], new CaptureView("02_天气屋全貌", -47.6f, -33.9f, 25, 32, 24, 7.8f, targetHeight: 3.3f) } : Views;
+            if(output=="WatersideV3Review/wide") captureViews=Views.Select(v=>new CaptureView(v.Name,v.Stand.x,v.Stand.z,
+                v.Yaw,v.Pitch,v.Distance*1.32f,v.Ahead,v.Mood,v.TargetHeight+.5f)).ToArray();
+            captureFolder = output ?? (houseOnly ? "WeatherHouseIntegrationReview/after" : Folder);
+            Directory.CreateDirectory(captureFolder);
             captureMood=Object.FindObjectOfType<WatersideMood>();
             if(!captureMood)throw new InvalidOperationException("Add WatersideMood to the V2 directional light before reference capture.");
             originalMood=captureMood.CaptureState();
@@ -154,13 +298,13 @@ namespace WeatherHouse.WatersideV2.Editor
             photo=new GameObject("V2 Review Camera").AddComponent<Camera>();photo.enabled=false;photo.CopyFrom(player.demoCamera);
             photo.gameObject.AddComponent<UniversalAdditionalCameraData>();photo.GetUniversalAdditionalCameraData().requiresColorTexture=true;photo.GetUniversalAdditionalCameraData().requiresDepthTexture=true;
             shot=0;photoPrepared=false;File.WriteAllText(Folder+"/capture-state.txt","RUNNING");
-            File.WriteAllText(Folder+"/capture-layout.tsv","image\tmood\tstand_world\ttarget_world\tyaw\tpitch\tdistance\tfov\tplayer_renderer_viewport_bounds\n");
+            File.WriteAllText(captureFolder+"/capture-layout.tsv","image\tmood\tstand_world\ttarget_world\tyaw\tpitch\tdistance\tfov\tplayer_renderer_viewport_bounds\n");
         }
         static void CaptureNext()
         {
-            if(shot>Views.Length){EndCapture();File.WriteAllText(Folder+"/capture-state.txt","PASS");return;}
-            bool overview=shot==Views.Length;
-            CaptureView view=overview?new CaptureView("00_新地图总览",0,0,0,70,180):Views[shot];
+            if(shot>captureViews.Length){EndCapture();File.WriteAllText(Folder+"/capture-state.txt","PASS");return;}
+            bool overview=shot==captureViews.Length;
+            CaptureView view=overview?new CaptureView("00_新地图总览",0,0,0,70,180):captureViews[shot];
             Terrain terrain=Object.FindObjectOfType<Terrain>();Vector3 p=view.Stand;
             if(!overview)
             {
@@ -170,13 +314,13 @@ namespace WeatherHouse.WatersideV2.Editor
             photo.orthographic=overview;photo.fieldOfView=35;photo.orthographicSize=99;
             Quaternion rotation=Quaternion.Euler(view.Pitch,view.Yaw,0);
             Vector3 ahead=Quaternion.Euler(0,view.Yaw,0)*Vector3.forward*view.Ahead;
-            Vector3 target=overview?new Vector3(0,7,0):p+Vector3.up*.75f+ahead;
+            Vector3 target=overview?new Vector3(0,7,0):p+Vector3.up*view.TargetHeight+ahead;
             photo.transform.SetPositionAndRotation(target+rotation*Vector3.back*view.Distance,rotation);
             photo.aspect=16f/9f;
             // Let the editor apply the new ambient probe before rendering the next reference view.
             if(!photoPrepared){captureMood.Apply(view.Mood,photo);photoPrepared=true;return;}
-            Render(photo,Folder+"/"+view.Name+".png",grass);
-            File.AppendAllText(Folder+"/capture-layout.tsv",view.Name+"\t"+view.Mood+"\t"+p.ToString("F3")+"\t"+target.ToString("F3")+
+            Render(photo,captureFolder+"/"+view.Name+".png",grass);
+            File.AppendAllText(captureFolder+"/capture-layout.tsv",view.Name+"\t"+view.Mood+"\t"+p.ToString("F3")+"\t"+target.ToString("F3")+
                 "\t"+view.Yaw+"\t"+view.Pitch+"\t"+view.Distance+"\t"+(overview?"orthographic":photo.fieldOfView.ToString())+
                 "\t"+(overview?"overview":PlayerViewportBounds())+"\n");
             photoPrepared=false;shot++;
@@ -219,6 +363,8 @@ namespace WeatherHouse.WatersideV2.Editor
         }
         static void EndCapture()
         {
+            if(restoreHouseLod) { WeatherHouseV05Import.ForceLod(-1); restoreHouseLod=false; }
+            if(restoreHouseNormals) { WeatherHouseV05Import.SetNormalScale(1); restoreHouseNormals=false; }
             if(player){player.transform.SetPositionAndRotation(originalPosition,originalRotation);player.demoCamera.GetComponent<VegetationTopDownCamera>().SnapToPlayer();}
             if(grass)grass.manualCaptureOnly=oldManual;
             if(captureMood)captureMood.RestoreState(originalMood);
@@ -249,9 +395,9 @@ namespace WeatherHouse.WatersideV2.Editor
             {
                 if(elapsed<5)return;
                 player=Object.FindObjectOfType<ForestSpriteDemoController>();grass=Object.FindObjectOfType<HillsideGrassRenderer>();
-                var population=Object.FindObjectOfType<WildlifePopulation>();
+                var population=Object.FindObjectsOfType<WildlifePopulation>().FirstOrDefault(p=>p.agents!=null&&p.agents.Length==70);
                 var herd=Object.FindObjectOfType<WeatherHouse.WildlifeJourney.JourneyHerd>();
-                if(!population.Initialized||population.agents.Length!=70||!herd||herd.members.Length!=10||herd.SimulationTime<=0)
+                if(!population||!population.Initialized||!herd||herd.members.Length!=10||herd.SimulationTime<=0)
                     throw new InvalidOperationException("70 wildlife and 10 Journey sheep did not initialize.");
                 changedBones=0; bones.Clear();foreach(var a in population.agents)foreach(var t in a.animator.GetComponentsInChildren<Transform>())bones[t]=t.localRotation;
                 foreach(var member in herd.members)foreach(var t in member.animator.GetComponentsInChildren<Transform>())bones[t]=t.localRotation;
@@ -288,7 +434,7 @@ namespace WeatherHouse.WatersideV2.Editor
                 Vector3 sole=new Vector3(player.transform.position.x,body.bounds.min.y,player.transform.position.z);
                 float depth=waterBoundary.surface.Height(sole)-sole.y;
                 Vector3 delta=(phase==3?shallowEnd:deepEnd)-player.transform.position;delta.y=0;
-                if(phase==3&&waterBoundary.RollbackCount!=boundaryBefore)
+                if(phase==3&&waterBoundary.BlockedStepCount!=boundaryBefore)
                     throw new InvalidOperationException("Shallow-water walking was incorrectly blocked.");
                 if(phase==3&&delta.magnitude<.25f&&player.IsGrounded)
                 {
@@ -299,13 +445,13 @@ namespace WeatherHouse.WatersideV2.Editor
                     File.AppendAllText(Folder+"/runtime-trace.txt","PASS shallow water: actual walking depth="+depth.ToString("F3")+" position="+player.transform.position.ToString("F3")+"\n");
                     phase=4;
                 }
-                else if(phase==4&&waterBoundary.RollbackCount>boundaryBefore)
+                else if(phase==4&&waterBoundary.BlockedStepCount>boundaryBefore)
                 {
                     if(waterBoundary.LastRejectedDepth<=waterBoundary.maximumWadingDepth||depth>waterBoundary.maximumWadingDepth+.06f||
                         Vector3.Distance(player.transform.position,waterBoundary.LastSafePosition)>.15f)
-                        throw new InvalidOperationException("Deep-water rejection did not return the original controller to a safe footing.");
-                    player.ReleaseScriptedInput();boundaryAfter=waterBoundary.RollbackCount;
-                    File.AppendAllText(Folder+"/runtime-trace.txt","PASS deep water: rejected depth="+waterBoundary.LastRejectedDepth.ToString("F3")+" restored="+player.transform.position.ToString("F3")+"\n");
+                        throw new InvalidOperationException("Deep-water movement was not constrained at safe footing.");
+                    player.ReleaseScriptedInput();boundaryAfter=waterBoundary.BlockedStepCount;
+                    File.AppendAllText(Folder+"/runtime-trace.txt","PASS deep water: constrained depth="+waterBoundary.LastRejectedDepth.ToString("F3")+" position="+player.transform.position.ToString("F3")+" rollbacks="+waterBoundary.RollbackCount+"\n");
                     phase=1;crossing=0;TeleportCrossing();return;
                 }
                 Vector3 forward=Vector3.ProjectOnPlane(player.demoCamera.transform.forward,Vector3.up).normalized,right=Vector3.Cross(Vector3.up,forward);
@@ -314,7 +460,7 @@ namespace WeatherHouse.WatersideV2.Editor
             }
             if(phase==1)
             {
-                if(waterBoundary.RollbackCount!=boundaryAfter)throw new InvalidOperationException("Water boundary incorrectly rejected a bridge or stair route.");
+                if(waterBoundary.BlockedStepCount!=boundaryAfter)throw new InvalidOperationException("Water boundary incorrectly rejected a bridge or stair route.");
                 var route=TraversalAt(crossing);bool stairs=crossing>=WatersideLayout.Crossings.Length;
                 Vector3 delta=route.End-player.transform.position;delta.y=0;
                 foreach(var pair in bones)if(pair.Key&&Quaternion.Angle(pair.Value,pair.Key.localRotation)>2)changedBones++;
@@ -332,7 +478,7 @@ namespace WeatherHouse.WatersideV2.Editor
                         File.WriteAllText(Folder+"/runtime-checks.txt","PASS\n80 animals initialized (70 original agents + 10 Journey sheep); skeleton changes="+changedBones+"\nActual walking soil impressions="+soilStamps+
                             "\nWater crossings traversed by the original CharacterController: "+WatersideLayout.Crossings.Length+
                             "\nStair routes traversed by the original CharacterController: "+WatersideLayout.Steps.Length+" (3.5 m ascent verified)."+
-                            "\nShallow-water walking allowed at "+shallowDepth.ToString("F3")+" m; deep-water attempt rolled back ("+boundaryAfter+" rejection(s)); bridges/stairs caused no rejection.\nPlayer, cape and near top-down camera remained active.\n");
+                            "\nShallow-water walking allowed at "+shallowDepth.ToString("F3")+" m; deep-water movement constrained ("+boundaryAfter+" step(s)); no rollback; bridges/stairs caused no rejection.\nPlayer, cape and near top-down camera remained active.\n");
                         FinishPlay();return;
                     }
                     TeleportCrossing();return;
@@ -457,7 +603,7 @@ namespace WeatherHouse.WatersideV2.Editor
                         start.y=WatersideLayout.GroundHeight(ground,start.x,start.z)+.06f;
                         body.enabled=false;player.transform.position=start;body.enabled=true;
                         player.demoCamera.GetComponent<VegetationTopDownCamera>().SnapToPlayer();
-                        walkStart=start;shallowEnd=end;deepEnd=deep;boundaryBefore=waterBoundary.RollbackCount;phase=3;
+                        walkStart=start;shallowEnd=end;deepEnd=deep;boundaryBefore=waterBoundary.BlockedStepCount;phase=3;
                         File.AppendAllText(Folder+"/runtime-trace.txt","Water test strip: start="+start.ToString("F3")+" shallowEnd="+end.ToString("F3")+" deepEnd="+deep.ToString("F3")+"\n");
                         return;
                     }

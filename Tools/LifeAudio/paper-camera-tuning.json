@@ -1,0 +1,32 @@
+{
+  "result": "PASS offline",
+  "beforeEffectiveRmsDb": {
+    "paper_move": -55.7735,
+    "camera_shutter": -49.6367
+  },
+  "after": [
+    {
+      "id": "paper_move",
+      "gain": 0.65,
+      "effectiveRmsDb": -29.65822123765186,
+      "onsetSeconds": 0.0125,
+      "peakDb": -10.000126940172311,
+      "seconds": 0.3
+    },
+    {
+      "id": "camera_shutter",
+      "gain": 0.7,
+      "effectiveRmsDb": -34.624527274670584,
+      "onsetSeconds": 0.0020625,
+      "peakDb": -8.000117030469568,
+      "seconds": 0.208
+    }
+  ],
+  "changedWavs": [
+    "camera_shutter.wav",
+    "paper_move.wav"
+  ],
+  "unchangedWavs": 24,
+  "unityOutputVerified": false,
+  "humanListeningPassed": false
+}
