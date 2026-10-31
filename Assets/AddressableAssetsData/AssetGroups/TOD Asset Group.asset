@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: TOD Asset Group
+  m_EditorClassIdentifier: 
+  m_GroupName: TOD Asset Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: a7c758d461c6c9a4190ff43547ec6329
+  m_SerializeEntries:
+  - m_GUID: 4bbb53568a6299141870eba42930403e
+    m_Address: Assets/TODSystem/Materials/Skybox/M_Skybox_Default.mat
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SkyboxMaterials
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a04141ac32b521d4eb153b0c98a4d582
+    m_Address: Assets/TODSystem/TimelineAssets/TL_TOD_Sunny.playable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TODTimelineAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f7f62468c14614a4fb9be2197360c37e
+    m_Address: Assets/TODSystem/Data/WeatherSettings.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TODScriptableObjectAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fe8abef8817d2f148afda1870597eace
+    m_Address: Assets/TODSystem/Data/SceneWeatherConfig.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TODScriptableObjectAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 05c52d379dfe1fc4da6ef2b872967cb2, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 5b655b8ef2238b1419bf9e7d2218eaa4, type: 2}
+    - {fileID: 11400000, guid: c3ccfd0fa6959184bab0a07524d4b808, type: 2}
